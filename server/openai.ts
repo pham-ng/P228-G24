@@ -31,6 +31,7 @@ if (proxyUri) {
 
 export const MODEL_AGENT = process.env.OPENAI_AGENT_MODEL || "gpt-5.4-mini";
 export const MODEL_CLASSIFY = process.env.OPENAI_CLASSIFY_MODEL || "gpt-5.4-nano";
+export const MODEL_EMBED = process.env.OPENAI_EMBED_MODEL || "text-embedding-3-small";
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant" | "tool";
@@ -116,6 +117,42 @@ export async function chat(opts: {
     }>;
     usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
   };
+}
+
+/**
+ * Batch embedding call. Returns one vector per input, in order.
+ * Throws LlmError so callers can fall back to lexical-only retrieval.
+ */
+export async function embed(inputs: string[], model = MODEL_EMBED): Promise<number[][]> {
+  if (!inputs.length) return [];
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (GATEWAY_TOKEN) headers["x-api-key"] = GATEWAY_TOKEN;
+  else if (process.env.OPENAI_API_KEY) headers.authorization = `Bearer ${process.env.OPENAI_API_KEY}`;
+
+  let res: Response;
+  try {
+    res = await fetch(`${OPENAI_BASE}/v1/embeddings`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ model, input: inputs }),
+    });
+  } catch (e: any) {
+    throw new LlmError(`Could not reach the embeddings API: ${e?.message ?? e}`);
+  }
+  const text = await res.text();
+  if (!res.ok) {
+    let detail = text.slice(0, 300);
+    try {
+      detail = JSON.parse(text)?.error?.message ?? detail;
+    } catch {
+      /* keep raw */
+    }
+    throw new LlmError(`Embeddings ${res.status}: ${detail}`, res.status === 401 ? 401 : 502);
+  }
+  const parsed = JSON.parse(text) as { data: Array<{ index: number; embedding: number[] }> };
+  const out: number[][] = new Array(inputs.length);
+  for (const row of parsed.data) out[row.index] = row.embedding;
+  return out;
 }
 
 /** Small, cheap, strictly-JSON call used for classification work. */

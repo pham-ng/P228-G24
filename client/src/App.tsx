@@ -14,6 +14,7 @@ import RoomsPage from "@/pages/rooms";
 import ReservationsPage from "@/pages/reservations";
 import InsightsPage from "@/pages/insights";
 import KnowledgePage from "@/pages/knowledge";
+import PoliciesPage from "@/pages/policies";
 import CampaignsPage from "@/pages/campaigns";
 import AuditPage from "@/pages/audit";
 import SettingsPage from "@/pages/settings";
@@ -49,6 +50,7 @@ function AppRouter() {
       />
       <Route path="/staff/insights" component={() => <Protected component={InsightsPage} />} />
       <Route path="/staff/knowledge" component={() => <Protected component={KnowledgePage} />} />
+      <Route path="/staff/policies" component={() => <Protected component={PoliciesPage} />} />
       <Route path="/staff/campaigns" component={() => <Protected component={CampaignsPage} />} />
       <Route path="/staff/audit" component={() => <Protected component={AuditPage} />} />
       <Route path="/staff/settings" component={() => <Protected component={SettingsPage} />} />

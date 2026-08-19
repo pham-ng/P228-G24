@@ -4,6 +4,8 @@ import { storage, nowIso, db, hotelToday } from "./storage";
 import { seedIfEmpty } from "./seed";
 import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
 import { chat, LlmError } from "./openai";
+import { reindex, indexStats, hybridSearch } from "./retrieval";
+import { getPolicyByTopic } from "./policy";
 import { conversations, tasks as tasksTable } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
@@ -71,6 +73,25 @@ async function respondWithAi(conversationId: number) {
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   seedIfEmpty();
+
+  // Build the retrieval index once at boot, in the background, so the agent has
+  // embeddings available without blocking the port from opening.
+  void (async () => {
+    try {
+      const stats = indexStats();
+      if (stats.chunks === 0 || stats.embedded === 0) {
+        const r = await reindex();
+        console.log(
+          `[retrieval] indexed ${r.chunks} chunks, ${r.embedded} embedded with ${r.model}` +
+            (r.embedError ? ` (embedding stopped: ${r.embedError})` : ""),
+        );
+      } else {
+        console.log(`[retrieval] index ready: ${stats.chunks} chunks, ${stats.embedded} embedded`);
+      }
+    } catch (e: any) {
+      console.error("[retrieval] index build failed:", e?.message ?? e);
+    }
+  })();
 
   /* ---------------- property & directory ---------------- */
 
@@ -452,6 +473,63 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json(storage.listOffers());
   });
 
+  /* ---------------- policy register & retrieval ---------------- */
+
+  app.get("/api/policies", (_req, res) => {
+    res.json(
+      storage.listPolicies().map((p) => ({
+        id: p.id,
+        code: p.code,
+        topic: p.topic,
+        title: p.title,
+        summary: p.summary,
+        rules: JSON.parse(p.rules || "{}"),
+        sourceUrl: p.sourceUrl,
+        sourceTitle: p.sourceTitle,
+        updatedAt: p.updatedAt,
+      })),
+    );
+  });
+
+  app.get("/api/policies/:topic", (req, res) => {
+    res.json(getPolicyByTopic(req.params.topic));
+  });
+
+  app.get("/api/retrieval", (_req, res) => {
+    res.json(indexStats());
+  });
+
+  app.post(
+    "/api/retrieval/reindex",
+    asyncH(async (_req, res) => {
+      const r = await reindex();
+      storage.logEvent({
+        type: "retrieval.reindexed",
+        actor: "staff:0",
+        summary: `Retrieval index rebuilt: ${r.chunks} chunks, ${r.embedded} embedded.`,
+        payload: JSON.stringify(r),
+        conversationId: null,
+        createdAt: nowIso(),
+      });
+      res.json(r);
+    }),
+  );
+
+  /** Lets staff see exactly what the agent would retrieve for a question. */
+  app.post(
+    "/api/retrieval/search",
+    asyncH(async (req, res) => {
+      const input = z
+        .object({
+          query: z.string().min(2),
+          kind: z.enum(["all", "kb", "policy"]).default("all"),
+          k: z.number().int().min(1).max(10).default(4),
+        })
+        .parse(req.body);
+      res.json(await hybridSearch(input.query, { k: input.k, kind: input.kind }));
+    }),
+  );
+
   /* ---------------- knowledge base ---------------- */
 
   app.get("/api/kb", (_req, res) => {
@@ -483,6 +561,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       conversationId: null,
       createdAt: nowIso(),
     });
+    void reindex().catch(() => {});
     res.json({ ...a, tags: input.tags });
   });
 
@@ -498,11 +577,13 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     const patch: Record<string, unknown> = { ...input, updatedAt: nowIso() };
     if (input.tags) patch.tags = JSON.stringify(input.tags);
     const a = storage.updateKb(Number(req.params.id), patch);
+    void reindex().catch(() => {});
     res.json({ ...a, tags: JSON.parse(a.tags || "[]") });
   });
 
   app.delete("/api/kb/:id", (req, res) => {
     storage.deleteKb(Number(req.params.id));
+    void reindex().catch(() => {});
     res.json({ ok: true });
   });
 

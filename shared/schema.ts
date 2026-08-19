@@ -165,6 +165,36 @@ export const kbArticles = sqliteTable("kb_articles", {
   updatedAt: text("updated_at").notNull(),
 });
 
+/** Machine-readable house rules. `rules` holds the numeric bands the agent computes with. */
+export const policies = sqliteTable("policies", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hotelId: integer("hotel_id").notNull(),
+  code: text("code").notNull().unique(), // LATE_CHECKOUT | EARLY_CHECKIN | OCCUPANCY | DEPOSIT | ...
+  topic: text("topic").notNull(), // checkout | checkin | occupancy | deposit | payment | conduct | privacy | dispute | booking
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  rules: text("rules").notNull().default("{}"), // JSON — the authority for every computed figure
+  sourceUrl: text("source_url").notNull(),
+  sourceTitle: text("source_title").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+/** Retrieval index: one row per chunk of a KB article or policy, with its embedding. */
+export const docChunks = sqliteTable("doc_chunks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  kind: text("kind").notNull(), // kb | policy
+  refId: integer("ref_id").notNull(),
+  ordinal: integer("ordinal").notNull().default(0),
+  title: text("title").notNull(),
+  category: text("category").notNull(),
+  sourceUrl: text("source_url"),
+  body: text("body").notNull(),
+  tokens: integer("tokens").notNull().default(0),
+  embedding: text("embedding"), // JSON array of floats, null until indexed
+  embedModel: text("embed_model"),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const offers = sqliteTable("offers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   hotelId: integer("hotel_id").notNull(),
@@ -228,6 +258,8 @@ export type Task = typeof tasks.$inferSelect;
 export type Service = typeof services.$inferSelect;
 export type ServiceBooking = typeof serviceBookings.$inferSelect;
 export type KbArticle = typeof kbArticles.$inferSelect;
+export type Policy = typeof policies.$inferSelect;
+export type DocChunk = typeof docChunks.$inferSelect;
 export type Offer = typeof offers.$inferSelect;
 export type Campaign = typeof campaigns.$inferSelect;
 export type AuditEvent = typeof auditEvents.$inferSelect;

@@ -251,3 +251,38 @@ export const LANG_LABELS: Record<string, string> = {
   zh: "中文",
   ru: "Русский",
 };
+
+export type Policy = {
+  id: number;
+  code: string;
+  topic: string;
+  title: string;
+  summary: string;
+  rules: Record<string, unknown>;
+  sourceUrl: string;
+  sourceTitle: string;
+  updatedAt: string;
+};
+
+export type RetrievalStats = {
+  chunks: number;
+  embedded: number;
+  kb_chunks: number;
+  policy_chunks: number;
+  model: string;
+};
+
+export type RetrievalHit = {
+  title: string;
+  category: string;
+  source_url: string | null;
+  content: string;
+  relevance: number;
+  matched_by: string;
+};
+
+export type RetrievalResult = {
+  results: RetrievalHit[];
+  strategy: string;
+  note?: string;
+};

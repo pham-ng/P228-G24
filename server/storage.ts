@@ -11,6 +11,8 @@ import {
   services,
   serviceBookings,
   kbArticles,
+  policies,
+  docChunks,
   offers,
   campaigns,
   auditEvents,
@@ -28,6 +30,8 @@ import type {
   Service,
   ServiceBooking,
   KbArticle,
+  Policy,
+  DocChunk,
   Offer,
   Campaign,
   AuditEvent,
@@ -112,6 +116,19 @@ CREATE TABLE IF NOT EXISTS kb_articles (
   id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, category TEXT NOT NULL,
   title TEXT NOT NULL, body TEXT NOT NULL, tags TEXT NOT NULL DEFAULT '[]', updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS policies (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, code TEXT NOT NULL UNIQUE,
+  topic TEXT NOT NULL, title TEXT NOT NULL, summary TEXT NOT NULL,
+  rules TEXT NOT NULL DEFAULT '{}', source_url TEXT NOT NULL, source_title TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS doc_chunks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, ref_id INTEGER NOT NULL,
+  ordinal INTEGER NOT NULL DEFAULT 0, title TEXT NOT NULL, category TEXT NOT NULL,
+  source_url TEXT, body TEXT NOT NULL, tokens INTEGER NOT NULL DEFAULT 0,
+  embedding TEXT, embed_model TEXT, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS doc_chunks_ref ON doc_chunks (kind, ref_id);
 CREATE TABLE IF NOT EXISTS offers (
   id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, title TEXT NOT NULL,
   body TEXT NOT NULL, segment TEXT NOT NULL, price REAL, active INTEGER NOT NULL DEFAULT 1
@@ -335,6 +352,37 @@ export const storage = {
   },
   createBooking(v: Omit<ServiceBooking, "id">): ServiceBooking {
     return db.insert(serviceBookings).values(v).returning().get();
+  },
+
+  /* ---------------- policies ---------------- */
+  listPolicies(): Policy[] {
+    return db.select().from(policies).orderBy(asc(policies.topic)).all();
+  },
+  getPolicy(code: string): Policy | undefined {
+    return db.select().from(policies).where(eq(policies.code, code)).get();
+  },
+  policiesByTopic(topic: string): Policy[] {
+    return db.select().from(policies).where(eq(policies.topic, topic)).all();
+  },
+  createPolicy(v: Omit<Policy, "id">): Policy {
+    return db.insert(policies).values(v).returning().get();
+  },
+
+  /* ---------------- retrieval index ---------------- */
+  listChunks(): DocChunk[] {
+    return db.select().from(docChunks).all();
+  },
+  clearChunks() {
+    db.delete(docChunks).run();
+  },
+  createChunk(v: Omit<DocChunk, "id">): DocChunk {
+    return db.insert(docChunks).values(v).returning().get();
+  },
+  setChunkEmbedding(id: number, embedding: string, model: string) {
+    db.update(docChunks).set({ embedding, embedModel: model }).where(eq(docChunks.id, id)).run();
+  },
+  chunksWithoutEmbedding(): DocChunk[] {
+    return db.select().from(docChunks).where(isNull(docChunks.embedding)).all();
   },
 
   listKb(): KbArticle[] {

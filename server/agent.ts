@@ -1,4 +1,12 @@
 import { storage, nowIso, hotelToday, hotelClock } from "./storage";
+import { hybridSearch } from "./retrieval";
+import {
+  quoteLateCheckout,
+  quoteEarlyCheckin,
+  checkOccupancy,
+  getPolicyByTopic,
+  POLICY_TOPICS,
+} from "./policy";
 import { chat, classify, LlmError, MODEL_AGENT } from "./openai";
 import type { ChatMessage, ToolSpec } from "./openai";
 import type { Conversation, ToolCallTrace } from "@shared/schema";
@@ -37,16 +45,94 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "search_knowledge",
       description:
-        "Search the hotel's knowledge base for facts about facilities, hours, policies, wayfinding and neighbourhood recommendations. Always use this instead of guessing. Returns the most relevant articles verbatim.",
+        "Hybrid retrieval (BM25 keyword + embedding semantic search, fused) over the hotel knowledge base and the machine-readable policy register. Returns verbatim passages with the source URL of each. Use it for facilities, hours, house rules, fees, occupancy, deposits, payment, privacy and neighbourhood facts. Cross-lingual: a Vietnamese question retrieves the English source passage.",
       parameters: {
         type: "object",
         properties: {
           query: {
             type: "string",
-            description: "Keywords describing what the guest wants to know, in English.",
+            description:
+              "What you need to know, phrased as a short factual query. English works best but Vietnamese is also matched.",
+          },
+          kind: {
+            type: "string",
+            enum: ["all", "kb", "policy"],
+            description: "Restrict to knowledge-base articles or to the policy register. Defaults to all.",
           },
         },
         required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_policy",
+      description:
+        "Read the machine-readable policy register: the exact numeric rules the property publishes, with the source URL. Use this whenever a rule, limit, deadline or fine is involved, before you state any figure.",
+      parameters: {
+        type: "object",
+        properties: {
+          topic: {
+            type: "string",
+            enum: [...POLICY_TOPICS, "all"],
+            description:
+              "checkout (late departure), checkin (early arrival), occupancy (guests per room, extra beds, children), deposit, payment, conduct (house rules and fines), booking (guest list, packages, groups), dispute (complaints), privacy.",
+          },
+        },
+        required: ["topic"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "quote_late_checkout",
+      description:
+        "Compute — not estimate — the late-departure charge for this reservation at a given time. Reads the published percentage bands, applies them to the reservation's own rate, checks whether the room is resold and applies any loyalty waiver. Returns the band, the arithmetic and the source URL. Read-only: it changes nothing. Always call this before quoting a late-departure price, then call request_late_checkout once the guest agrees.",
+      parameters: {
+        type: "object",
+        properties: {
+          requested_time: { type: "string", description: "Desired departure time, HH:MM 24-hour." },
+        },
+        required: ["requested_time"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "quote_early_checkin",
+      description:
+        "Compute the early-arrival charge for this reservation at a given arrival time from the published bands. Read-only. Use it before quoting any early check-in price.",
+      parameters: {
+        type: "object",
+        properties: {
+          requested_time: { type: "string", description: "Desired arrival time, HH:MM 24-hour." },
+        },
+        required: ["requested_time"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "check_occupancy",
+      description:
+        "Check a party against the published occupancy limits: maximum occupants per room or per villa bedroom, extra-bed allowance, which children count as adults, and whether a surcharge applies. Use it whenever a guest mentions how many people or children are travelling, or asks about extra beds or a second room.",
+      parameters: {
+        type: "object",
+        properties: {
+          unit: { type: "string", enum: ["room", "villa"], description: "Defaults to the unit on this reservation." },
+          adults: { type: "number", description: "Number of adults (18+)." },
+          child_ages: {
+            type: "array",
+            items: { type: "number" },
+            description: "Age in years of each child. If the guest gave heights instead, convert with the height rule from get_policy first.",
+          },
+          bedrooms: { type: "number", description: "Villa bedrooms. Defaults to 1." },
+        },
+        required: ["adults"],
       },
     },
   },
@@ -195,24 +281,6 @@ export const TOOLS: ToolSpec[] = [
 
 type Ctx = { conversation: Conversation };
 
-function scoreArticle(q: string, title: string, body: string, tags: string[]) {
-  const terms = q
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .split(/\s+/)
-    .filter((t) => t.length > 2);
-  let score = 0;
-  const t = title.toLowerCase();
-  const b = body.toLowerCase();
-  const tg = tags.join(" ").toLowerCase();
-  for (const term of terms) {
-    if (tg.includes(term)) score += 5;
-    if (t.includes(term)) score += 4;
-    if (b.includes(term)) score += 1;
-  }
-  return score;
-}
-
 async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string, unknown> | string> {
   const conv = storage.getConversation(ctx.conversation.id)!;
   const guest = storage.getGuest(conv.guestId)!;
@@ -243,24 +311,57 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
     }
 
     case "search_knowledge": {
-      const q = String(args.query ?? "");
-      const ranked = storage
-        .listKb()
-        .map((a) => ({ a, s: scoreArticle(q, a.title, a.body, JSON.parse(a.tags || "[]")) }))
-        .filter((x) => x.s > 0)
-        .sort((x, y) => y.s - x.s)
-        .slice(0, 3);
-      if (!ranked.length)
-        return {
-          results: [],
-          note: "Nothing in the knowledge base matches. Do not invent an answer — escalate or offer to check with a colleague.",
-        };
+      const q = String(args.query ?? "").trim();
+      if (!q) return { error: "query is required." };
+      const kind = (["all", "kb", "policy"] as const).includes(args.kind) ? args.kind : "all";
+      return await hybridSearch(q, { k: 4, kind });
+    }
+
+    case "get_policy": {
+      return getPolicyByTopic(String(args.topic ?? "all"));
+    }
+
+    case "quote_late_checkout": {
+      if (!res) return { error: "No reservation is linked to this conversation." };
+      const next = res.roomId ? storage.nextReservationForRoom(res.roomId, res.checkOut) : undefined;
+      const resold = !!next && next.id !== res.id && next.checkIn === res.checkOut;
+      return quoteLateCheckout({
+        requestedTime: String(args.requested_time ?? ""),
+        ratePerNight: res.ratePerNight,
+        currency: hotel.currency,
+        vipTier: guest.vipTier,
+        roomResoldSameDay: resold,
+        adults: res.adults,
+        children: res.children,
+        standardCheckoutTime: hotel.checkOutTime,
+      });
+    }
+
+    case "quote_early_checkin": {
+      if (!res) return { error: "No reservation is linked to this conversation." };
+      return quoteEarlyCheckin({
+        requestedTime: String(args.requested_time ?? ""),
+        ratePerNight: res.ratePerNight,
+        currency: hotel.currency,
+        standardCheckinTime: hotel.checkInTime,
+      });
+    }
+
+    case "check_occupancy": {
+      const isVilla = /villa/i.test(room?.type ?? "");
+      const unit = args.unit === "room" || args.unit === "villa" ? args.unit : isVilla ? "villa" : "room";
+      const ages = Array.isArray(args.child_ages) ? args.child_ages.map(Number) : [];
+      const bedrooms = Number(args.bedrooms ?? (/3-bedroom/i.test(room?.type ?? "") ? 3 : 1));
       return {
-        results: ranked.map((x) => ({
-          title: x.a.title,
-          category: x.a.category,
-          content: x.a.body,
-        })),
+        ...checkOccupancy({
+          unit,
+          adults: Number(args.adults ?? res?.adults ?? 2),
+          childAges: ages,
+          bedrooms,
+        }),
+        reservation_on_file: res
+          ? { adults: res.adults, children: res.children, unit_type: room?.type ?? null }
+          : null,
       };
     }
 
@@ -442,20 +543,29 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
         return { error: `Departure is already set to ${res.checkOutTime}.` };
       const next = res.roomId ? storage.nextReservationForRoom(res.roomId, res.checkOut) : undefined;
       const resold = !!next && next.id !== res.id && next.checkIn === res.checkOut;
-      if (resold && want > "14:00")
+
+      // The fee comes from the policy engine, never from the model or from a
+      // hard-coded percentage here.
+      const quote = quoteLateCheckout({
+        requestedTime: want,
+        ratePerNight: res.ratePerNight,
+        currency: hotel.currency,
+        vipTier: guest.vipTier,
+        roomResoldSameDay: resold,
+        adults: res.adults,
+        children: res.children,
+        standardCheckoutTime: hotel.checkOutTime,
+      });
+      if (!quote.quoted) return { approved: false, reason: quote.error };
+      if (quote.max_possible_time)
         return {
           approved: false,
-          reason: `Room ${room?.number} is occupied again on ${res.checkOut}, so departure cannot go beyond 14:00.`,
-          max_possible: "14:00",
+          reason: `Room ${room?.number} is occupied again on ${res.checkOut}, so departure cannot go beyond ${quote.max_possible_time}.`,
+          max_possible: quote.max_possible_time,
+          policy: quote.policy,
         };
-      const tierFree =
-        ["gold", "platinum", "diamond"].includes(guest.vipTier) && want <= "14:00";
-      let fee = 0;
-      if (!tierFree)
-        fee =
-          want <= "14:00"
-            ? Math.round((res.ratePerNight * 0.3) / 1000) * 1000
-            : Math.round((res.ratePerNight * 0.5) / 1000) * 1000;
+      const fee = quote.fee ?? 0;
+      const tierFree = !!quote.waiver;
       storage.updateReservation(res.id, { checkOutTime: want });
       if (fee > 0) {
         storage.addCharge({
@@ -495,9 +605,13 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
       return {
         approved: true,
         new_departure_time: want,
+        band: quote.band,
+        percent_of_package_rate: quote.percent_of_package_rate,
         fee,
         currency: hotel.currency,
-        complimentary_reason: tierFree ? `${guest.vipTier} tier benefit` : null,
+        calculation: quote.calculation,
+        complimentary_reason: tierFree ? quote.waiver : null,
+        policy: quote.policy,
         pms_updated: true,
       };
     }
@@ -631,13 +745,26 @@ ${res ? `Reservation ${res.confirmationCode}: room ${room?.number ?? "unassigned
 LANGUAGE
 Always answer in the language the guest just wrote in. If they write in ${langName}, answer in ${langName}. Match their register. Never mix languages in one reply unless quoting a proper name.
 
+HOW YOU THINK
+Work the request out before you answer. Silently, in this order, every time:
+1. DECOMPOSE. Break the message into the separate things that have to be true for your answer to be right. "We are four of us, can we leave two hours late?" is three questions: what time is checkout on this reservation, what does two hours later cost, and does a party of four change that.
+2. GROUND. Resolve each part with a tool. get_stay_details for anything about their own booking. get_policy for any rule, limit, deadline or fine. search_knowledge for facts about the property. Never answer a policy question from the reservation alone, and never answer a question about their stay from policy alone.
+3. COMPUTE. Every currency figure, percentage, band and limit comes from a tool that calculates it: quote_late_checkout, quote_early_checkin, check_occupancy, list_services, get_folio. You are forbidden from doing the arithmetic yourself or repeating a number from memory. If you are about to write a price you did not receive from a tool in this conversation, stop and call the tool.
+4. VERIFY. Re-read the tool output against what the guest actually asked. Did you use their real departure time rather than the standard one. Is the fee charged per room or per person. Does the requested time fall in the band the tool says it does. Does the party fit the occupancy limit. If two tools disagree, trust the policy register and say the front desk will confirm.
+5. RESOLVE THE WHOLE REQUEST. If the guest implied a second question — four people, so does the price change, do we need an extra bed — answer that too, in the same reply. Do not make them ask again.
+6. If a needed fact is still missing after the tools, say what you will confirm and escalate. Never bridge a gap with a plausible guess.
+
+Call several tools in one step when they are independent, and do not stop at the first tool result if it only answers part of the question.
+
 HOW YOU WORK
 1. You are not a chatbot that only chats — you complete the work. When a guest wants something done, use the tools to actually do it, then confirm what happened in concrete terms (what was booked, when, what it costs, who is bringing it).
-2. Never state a fact about the property, prices, hours or policy from your own knowledge. Facts come only from search_knowledge, get_stay_details, list_services or get_folio. If a tool returns nothing useful, say you will confirm and escalate rather than guessing.
-3. Confirm before you commit. Bookings, orders and anything that costs money need an explicit yes from the guest first — and you must state the price before asking for that yes.
-4. One question at a time. If you need the date, time and party size, ask for the missing pieces together in one short sentence, not across four messages.
-5. Escalate rather than improvise: anger, billing disputes, safety, medical, security, anything your tools cannot do. Escalation is a success, not a failure.
-6. Upsell only when it is genuinely relevant to what the guest just said, at most once per conversation, never after a complaint.
+2. Never state a fact about the property, prices, hours or policy from your own knowledge. Facts come only from the tools. If a tool returns nothing useful, say you will confirm and escalate rather than guessing.
+3. Quote before you commit. For a late departure or an early arrival, call the quote tool first, tell the guest the amount and why it is that amount, and only call request_late_checkout once they agree. Same for bookings and orders: state the price, get an explicit yes.
+4. When you state a charge, say what it is a percentage of and what it is charged per — guests assume fees are per person. One clause, not a lecture.
+5. One question at a time. If you need the date, time and party size, ask for the missing pieces together in one short sentence, not across four messages.
+6. Escalate rather than improvise: anger, billing disputes, safety, medical, security, anything your tools cannot do. Escalation is a success, not a failure.
+7. Upsell only when it is genuinely relevant to what the guest just said, at most once per conversation, never after a complaint.
+8. A rule that comes back flagged as an internal Aurea rule rather than a published property policy is a goodwill gesture — present it as something we are doing for them, not as the published rule.
 
 STYLE
 Plain text only for messaging channels — no markdown, no bullet lists, no headings, no emoji. Two to four short sentences. Never repeat the guest's whole request back to them. Never say "as an AI". Sign nothing.`;
@@ -646,6 +773,9 @@ Plain text only for messaging channels — no markdown, no bullet lists, no head
 /* ------------------------------------------------------------------ *
  * Agent loop
  * ------------------------------------------------------------------ */
+
+/** How many times the model may come back for more tools before we force an answer. */
+const MAX_TOOL_ROUNDS = 10;
 
 export type AgentResult = {
   reply: string;
@@ -673,8 +803,8 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
   let escalated = false;
   let reply = "";
 
-  for (let turn = 0; turn < 6; turn++) {
-    const completion = await chat({ model: MODEL_AGENT, messages: msgs, tools: TOOLS, maxTokens: 900 });
+  for (let turn = 0; turn < MAX_TOOL_ROUNDS; turn++) {
+    const completion = await chat({ model: MODEL_AGENT, messages: msgs, tools: TOOLS, maxTokens: 1100 });
     const choice = completion.choices[0]?.message;
     if (!choice) throw new LlmError("Empty response from the model.");
 

@@ -11,6 +11,7 @@ import {
   tasks,
   services,
   kbArticles,
+  policies,
   offers,
   campaigns,
 } from "@shared/schema";
@@ -30,6 +31,14 @@ const iso = (minutesAgo: number) => new Date(Date.now() - minutesAgo * 60_000).t
  *  - https://vinpearl.com/vi/cap-nhat-gia-ve-cap-treo-vinpearl-nha-trang-moi-nhat  (cable car)
  *  - https://vinpearl.com/vi/lich-trinh-di-vinpearl-harbour-nha-trang  (Harbour combos)
  *  - https://vinwonders.com/en/wonderpedia/news/vinpearl-resort-nha-trang/  (rooms, F&B hours)
+ * The policy register and the policy knowledge-base articles are transcribed from
+ * Vinpearl's published terms:
+ *  - https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong
+ *  - https://booking.vinpearl.com/vi-VND/dieu-khoan/dieu-khoan-chung
+ *  - https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-chung
+ *  - https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-thanh-toan
+ *  - https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-giai-quyet-tranh-chap
+ *  - https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-quyen-rieng-tu
  * Guests, reservations, conversations and operational history are synthetic —
  * a live PMS integration would replace them; everything else is the real property.
  */
@@ -650,8 +659,8 @@ export function seedIfEmpty() {
     {
       category: "policy",
       title: "Check-in, check-out and identification",
-      body: "Check-in from 14:00, check-out by 12:00. Guests present an ID card or passport at check-in; children travelling with the family need a birth certificate. Early check-in and late check-out of up to 2 hours are complimentary for Pearl Club members subject to availability. For other guests, late departure until 14:00 is charged at 30% of the nightly rate and beyond 14:00 at 50%, and can only be granted when the room has not been resold. Source: https://vinpearl.com/en/vinpearl-resort-nha-trang",
-      tags: ["checkin", "checkout", "late checkout", "id", "passport", "early"],
+      body: "Check-in follows the standard time and check-out must be no later than 12:00. Guests present an ID card or passport at check-in; children travelling with the family need a birth certificate, and a photograph is taken for the face-recognition check-in with the guest's consent. Early check-in must be confirmed in advance and is never granted before 12:00 without a charge: arrival before 06:00 is charged 100% of the package price and arrival between 06:00 and 12:00 is charged 50%, payable as soon as the early arrival is confirmed. Late departure is subject to availability and is charged 50% of the package price between 12:00 and 18:00 and 100% after 18:00. Charges are calculated on Vinpearl's published rate (Gia Cong Bo), or on the contract rate when a partner settles the bill. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong",
+      tags: ["checkin", "checkout", "late checkout", "early checkin", "id", "passport", "face recognition", "fee"],
     },
     {
       category: "wayfinding",
@@ -737,11 +746,325 @@ export function seedIfEmpty() {
       body: "Resort hotline +84 258 359 8222; restaurant reservations and bookings 0258 359 8900. The address is Hon Tre Island, Vinh Nguyen Ward, Nha Trang City, Khanh Hoa. Reception, Lotus and Jasmine are in the Executive building; Ozone and Bach Giai are at the Imperial Club; Akoya Spa, the main pool and the private beach are a short buggy ride away. Ask reception for a complimentary buggy rather than walking between zones in the midday heat.",
       tags: ["contact", "phone", "address", "reception", "directions", "map", "buggy"],
     },
+
+    /* ---- policy articles, transcribed from booking.vinpearl.com terms ---- */
+    {
+      category: "policy",
+      title: "Occupancy limits, extra beds and children",
+      body: "A hotel room takes a maximum of 4 people including children under 4 — either 3 adults and 1 child, or 2 adults and 2 children. At most one extra bed can be added per room and availability depends on the individual hotel. Children aged 4 to under 12 and everyone aged 12 and over are charged a surcharge. In a villa the limit is 2 adults plus 2 children under 12 per bedroom, and extra beds are not available in villas other than Vinpearl Luxury Nha Trang. The package price assumes 2 adults per room, or 2 adults per villa bedroom. When there is no birth certificate to prove age, height decides: under 1 m counts as under 4, 1 m to 1.4 m counts as 4 to under 12, and above 1.4 m counts as 12 and over. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong",
+      tags: ["occupancy", "extra bed", "children", "child", "family", "villa", "surcharge", "height", "age", "max guests"],
+    },
+    {
+      category: "policy",
+      title: "Check-in deposit",
+      body: "A deposit is collected at check-in: 1,000,000 VND per room and 3,000,000 VND per villa. It is returned in full at check-out provided there are no unpaid charges and nothing in the room has been damaged or is missing. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong",
+      tags: ["deposit", "guarantee", "refund", "checkin", "villa", "damage"],
+    },
+    {
+      category: "policy",
+      title: "Guest list deadlines and name changes",
+      body: "For individual bookings the guest list must be sent 7 days before arrival in low season, 15 days in high season, and at the moment of booking in peak season and during Tet. Flight details for an airport transfer are needed at least 5 days ahead, and a transfer can only be changed or cancelled at least 72 hours before the pick-up. Changing a guest's identity after the deadline costs 350,000 VND per room per change; the fee is waived on proof of illness or a natural disaster. A request to change a full-board meal must reach the hotel at least 5 days ahead and is only possible for check-in before 13:00. On the free shuttle, be in the lobby 15 minutes before departure — the bus leaves on time without waiting. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong",
+      tags: ["guest list", "name change", "deadline", "transfer", "flight", "shuttle", "meal", "full board", "fee"],
+    },
+    {
+      category: "policy",
+      title: "Package codes and booking classes",
+      body: "Package codes: RO room only, BB bed and breakfast, HB half board, FB full board, and the villa and BBQ variants ROV, BBV, BBVS, BBW, FBV, FBVS, FBW, FBSFD, FVSFD, FXSFD, FWSFD, FBBQD, FVBQD, FXBQD, FWBQD, plus G1P and G2P for 18 holes of golf for one or two players. An individual booking (Khach Le) is up to 9 rooms or 4 villas per night; from 10 rooms or 5 villas it is a group booking, and three or more groups on the same itinerary form a series. The full package price is payable for the whole registered stay even if the guest leaves early. A voucher must be presented and surrendered at check-in, otherwise the published rate is charged. In exceptional cases such as force majeure or renovation Vinpearl may move guests to an equivalent room or hotel. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/dieu-khoan-chung",
+      tags: ["package", "code", "rate plan", "group", "voucher", "early departure", "relocation", "terms"],
+    },
+    {
+      category: "policy",
+      title: "House rules — smoking, pets and outside food",
+      body: "Pets are not allowed anywhere on the property. Smoking is only permitted in the signed smoking areas; smoking elsewhere costs 3,000,000 VND per stay. Bringing food or drink in from outside must be declared and carries a service fee of 1,175,000 VND per occasion, with a liability waiver to sign. Durian, jackfruit and other strongly scented food may not be taken into the rooms, and weapons, chemicals and explosives are prohibited. A villa kitchen is for reheating only; a barbecue must be registered with the Customer Service Centre and a fee applies. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-chung",
+      tags: ["smoking", "fine", "pets", "outside food", "durian", "bbq", "villa kitchen", "prohibited", "house rules"],
+    },
+    {
+      category: "policy",
+      title: "House rules — visitors, pool, sea and noise",
+      body: "A visitor leaves an identity document at reception, and no visitors are allowed in the rooms after 20:00; anyone staying overnight must be registered and paid for. The swimming pool closes at 22:00 at the latest, and swimming in the sea is not allowed after 19:00 because there is no lifeguard on duty. After 22:00 keep the television at volume 10 or below and do not use loudspeakers. Valuables belong in the in-room safe or with reception — the hotel is not liable for items left elsewhere. Guests who repeatedly break the rules can be asked to leave with no refund. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-chung",
+      tags: ["visitors", "guest curfew", "pool", "swimming", "sea", "noise", "quiet hours", "safe", "valuables", "eviction"],
+    },
+    {
+      category: "policy",
+      title: "Payment methods and bank transfer details",
+      body: "Payment is accepted by domestic debit card, credit card, QR code, cash or bank transfer. For a transfer to Vinpearl Resort Nha Trang the account is Chi nhanh Nha Trang - Cong Ty Co Phan Vinpearl, VND account 19127850127299 and USD account 19127850127094, at Techcombank Hoi so Chinh, SWIFT VTCBVNVX. The transfer memo must carry the guest or partner name, the booking request code and the type of payment. Where a technical or data error occurs Vinpearl may decline the transaction and refunds are made within a maximum of 45 working days. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-thanh-toan",
+      tags: ["payment", "bank transfer", "card", "qr", "account number", "swift", "refund", "invoice"],
+    },
+    {
+      category: "policy",
+      title: "Complaints and dispute resolution",
+      body: "Complaints go through three steps. Customer service or sales receive the complaint and answer immediately using the published policy. A complex case that cannot be answered on the spot gets a reply within 7 days at the latest. The outcome is then passed to the departments concerned and confirmed with the guest by telephone. Disputes are governed by Vietnamese law: the parties negotiate first, and if there is no agreement within 30 days the case goes to the competent Vietnamese court. The company is Cong ty Co phan Vinpearl, Hon Tre Island, Vinh Nguyen Ward, Nha Trang, Khanh Hoa, with a Hanoi office in the Symphony Tower, Chu Huy Man Street, Vinhomes Riverside, Long Bien. Hotline 1900 23 23 89, option 3. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-giai-quyet-tranh-chap",
+      tags: ["complaint", "dispute", "escalation", "7 days", "hotline", "legal", "court", "contact"],
+    },
+    {
+      category: "policy",
+      title: "Personal data and privacy",
+      body: "Vinpearl distinguishes basic personal data from sensitive personal data and processes it to deliver and support the service, to improve it, for marketing and to meet legal obligations. Data is stored in Vietnam and is never sold; it may be shared with Vingroup companies, service partners and the authorities where the law requires. Card numbers and CVV codes are not stored. A child's data needs a parent's consent, and from the age of 7 the child's own consent as well. Guests hold eleven rights over their data, including the right to be informed, to consent, to access, to withdraw consent, to delete, to restrict processing, to be given a copy, to object, to complain, to compensation and to protect themselves. Source: https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-quyen-rieng-tu",
+      tags: ["privacy", "personal data", "gdpr", "consent", "children", "rights", "delete", "card", "cvv"],
+    },
   ];
   kb.forEach((a) =>
     db
       .insert(kbArticles)
       .values({ hotelId: 1, ...a, tags: JSON.stringify(a.tags), updatedAt: iso(4000) })
+      .run(),
+  );
+
+  /* ---------------- policy register (machine-readable rules) -----------
+   * Transcribed from the published Vinpearl terms. The agent computes every
+   * fee from these numbers — it is never allowed to invent one.
+   * ------------------------------------------------------------------- */
+  const BOOKING_TERMS = "https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong";
+  const GENERAL_TERMS = "https://booking.vinpearl.com/vi-VND/dieu-khoan/dieu-khoan-chung";
+  const HOUSE_RULES = "https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-chung";
+  const PAYMENT_TERMS = "https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-thanh-toan";
+  const DISPUTE_TERMS = "https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-giai-quyet-tranh-chap";
+  const PRIVACY_TERMS = "https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-quyen-rieng-tu";
+
+  const policyRows: Array<{
+    code: string;
+    topic: string;
+    title: string;
+    summary: string;
+    rules: Record<string, unknown>;
+    sourceUrl: string;
+    sourceTitle: string;
+  }> = [
+    {
+      code: "LATE_CHECKOUT",
+      topic: "checkout",
+      title: "Late departure charges",
+      summary:
+        "Check-out is no later than 12:00. Late departure depends on availability and is charged as a percentage of the package price: 50% for a departure between 12:00 and 18:00, and 100% after 18:00. The charge is calculated on the published rate and applies per room or villa, not per guest.",
+      rules: {
+        standard_checkout_time: "12:00",
+        bands: [
+          { from: "12:01", to: "18:00", pct: 50, label: "12:00–18:00" },
+          { from: "18:01", to: "23:59", pct: 100, label: "after 18:00" },
+        ],
+        charged_per: "per room or villa, per stay",
+        charge_base: "Giá Công Bố — Vinpearl's published package rate, or the contract rate when a partner settles the bill",
+        subject_to_availability: true,
+        max_when_room_resold: "14:00",
+      },
+      sourceUrl: BOOKING_TERMS,
+      sourceTitle: "Vinpearl — Quy định về xác nhận đặt phòng",
+    },
+    {
+      code: "EARLY_CHECKIN",
+      topic: "checkin",
+      title: "Early arrival charges",
+      summary:
+        "Early check-in must be confirmed in advance and is not granted before 12:00 free of charge. Arrival before 06:00 is charged 100% of the package price; arrival between 06:00 and 12:00 is charged 50%. The amount is payable as soon as the early arrival is confirmed.",
+      rules: {
+        standard_checkin_time: "14:00",
+        bands: [
+          { from: "00:00", to: "05:59", pct: 100, label: "before 06:00" },
+          { from: "06:00", to: "11:59", pct: 50, label: "06:00–12:00" },
+        ],
+        payable: "immediately once the early arrival is confirmed",
+        must_be_confirmed_in_advance: true,
+        charge_base: "Giá Công Bố — Vinpearl's published package rate",
+      },
+      sourceUrl: BOOKING_TERMS,
+      sourceTitle: "Vinpearl — Quy định về xác nhận đặt phòng",
+    },
+    {
+      code: "OCCUPANCY",
+      topic: "occupancy",
+      title: "Occupancy, extra beds and children",
+      summary:
+        "A hotel room holds a maximum of 4 people including children under 4, as 3 adults + 1 child or 2 adults + 2 children, with at most one extra bed. A villa bedroom holds 2 adults + 2 children under 12 and no extra bed except at Vinpearl Luxury Nha Trang. The package price assumes 2 adults per room or per villa bedroom; children aged 4 to under 12 and guests 12 and over carry a surcharge.",
+      rules: {
+        hotel_room: {
+          max_occupants_including_children_under_4: 4,
+          allowed_combinations: ["3 adults + 1 child", "2 adults + 2 children"],
+          max_extra_beds: 1,
+          extra_bed_note: "Extra-bed availability depends on the individual hotel's policy.",
+          package_default_adults: 2,
+        },
+        villa: {
+          adults_per_bedroom: 2,
+          children_under_12_per_bedroom: 2,
+          extra_bed: "Not available in villas, except Vinpearl Luxury Nha Trang.",
+          package_default_adults_per_bedroom: 2,
+        },
+        surcharge_note:
+          "Children aged 4 to under 12 and guests aged 12 and over are surcharged, but the published terms do not state the amount — the front desk must confirm the exact figure.",
+        age_by_height: {
+          under_1m: "counts as under 4",
+          "1m_to_1m40": "counts as 4 to under 12",
+          over_1m40: "counts as 12 and over",
+          applies_when: "no birth certificate is available to prove age",
+        },
+      },
+      sourceUrl: BOOKING_TERMS,
+      sourceTitle: "Vinpearl — Quy định về xác nhận đặt phòng",
+    },
+    {
+      code: "DEPOSIT",
+      topic: "deposit",
+      title: "Check-in deposit",
+      summary:
+        "A deposit is taken at check-in: 1,000,000 VND per room and 3,000,000 VND per villa, refunded at check-out if there are no unpaid charges and no damage.",
+      rules: {
+        room: 1_000_000,
+        villa: 3_000_000,
+        currency: "VND",
+        collected: "at check-in",
+        refund: "returned in full at check-out when nothing is owed and nothing is damaged or missing",
+      },
+      sourceUrl: BOOKING_TERMS,
+      sourceTitle: "Vinpearl — Quy định về xác nhận đặt phòng",
+    },
+    {
+      code: "GUEST_LIST",
+      topic: "booking",
+      title: "Guest list deadlines, name changes and transfers",
+      summary:
+        "Individual bookings send the guest list 7 days ahead in low season, 15 days in high season and at booking in peak season and Tet. Changing a guest's identity after the deadline costs 350,000 VND per room per change. Flight details are due 5 days ahead and a transfer can only be changed or cancelled at least 72 hours before pick-up.",
+      rules: {
+        guest_list_deadline_days: { low_season: 7, high_season: 15, peak_and_tet: "at the time of booking" },
+        identity_change_fee: 350_000,
+        identity_change_fee_unit: "VND per room per change",
+        identity_change_fee_waived_for: ["illness with proof", "natural disaster with proof"],
+        flight_details_days_ahead: 5,
+        transfer_change_or_cancel_hours: 72,
+        meal_change_days_ahead: 5,
+        meal_change_condition: "only for check-in before 13:00",
+        shuttle_lobby_minutes_early: 15,
+      },
+      sourceUrl: BOOKING_TERMS,
+      sourceTitle: "Vinpearl — Quy định về xác nhận đặt phòng",
+    },
+    {
+      code: "BOOKING_CLASS",
+      topic: "booking",
+      title: "Booking classes, packages and early departure",
+      summary:
+        "Up to 9 rooms or 4 villas per night is an individual booking; 10 rooms or 5 villas and above is a group, and three or more groups on one itinerary form a series. The full package price is payable for the whole registered stay even if the guest departs early. A voucher must be surrendered at check-in or the published rate applies.",
+      rules: {
+        individual_max_rooms_per_night: 9,
+        individual_max_villas_per_night: 4,
+        group_min_rooms: 10,
+        group_min_villas: 5,
+        series_min_groups: 3,
+        early_departure_refund: "none — the full package price for the registered stay remains payable",
+        voucher: "must be presented and surrendered at check-in, otherwise the published rate is charged",
+        relocation: "Vinpearl may move guests to an equivalent room or hotel in force majeure or renovation cases",
+        package_codes: [
+          "RO", "BB", "HB", "FB", "ROV", "BBV", "BBVS", "BBW", "FBV", "FBVS", "FBW",
+          "FBSFD", "FVSFD", "FXSFD", "FWSFD", "FBBQD", "FVBQD", "FXBQD", "FWBQD", "G1P", "G2P",
+        ],
+        refund_window_working_days: 45,
+      },
+      sourceUrl: GENERAL_TERMS,
+      sourceTitle: "Vinpearl — Điều khoản chung",
+    },
+    {
+      code: "CONDUCT",
+      topic: "conduct",
+      title: "House rules and fines",
+      summary:
+        "No pets. Smoking outside the signed areas costs 3,000,000 VND per stay. Outside food and drink must be declared and carries a 1,175,000 VND service fee. No visitors in the rooms after 20:00, the pool closes by 22:00, no sea swimming after 19:00, and quiet hours start at 22:00.",
+      rules: {
+        pets: "not allowed anywhere on the property",
+        smoking_fine: 3_000_000,
+        smoking_fine_unit: "VND per stay, for smoking outside the signed smoking areas",
+        outside_food_fee: 1_175_000,
+        outside_food_fee_unit: "VND per occasion, and a liability waiver must be signed",
+        banned_in_rooms: ["durian", "jackfruit", "strongly scented food", "weapons", "chemicals", "explosives"],
+        villa_kitchen: "for reheating only; a barbecue must be registered with the Customer Service Centre and a fee applies",
+        visitors: "leave an identity document at reception; no visitors in rooms after 20:00; overnight guests must be registered and paid for",
+        pool_closes: "22:00 at the latest",
+        sea_swimming_ends: "19:00 — no lifeguard on duty after that",
+        quiet_hours_from: "22:00",
+        quiet_hours_rule: "television at volume 10 or below, no loudspeakers",
+        valuables: "in-room safe or reception; the hotel is not liable for items left elsewhere",
+        repeat_violations: "the guest can be asked to leave with no refund",
+      },
+      sourceUrl: HOUSE_RULES,
+      sourceTitle: "Vinpearl — Quy định chung",
+    },
+    {
+      code: "PAYMENT",
+      topic: "payment",
+      title: "Payment methods and bank details",
+      summary:
+        "Domestic card, credit card, QR, cash or bank transfer. Transfers for Vinpearl Resort Nha Trang go to Chi nhánh Nha Trang – Công Ty Cổ Phần Vinpearl at Techcombank Hội sở Chính, VND 19127850127299 or USD 19127850127094, SWIFT VTCBVNVX, with the guest name, booking request code and payment type in the memo.",
+      rules: {
+        methods: ["domestic debit card", "credit card", "QR code", "cash", "bank transfer"],
+        beneficiary: "Chi nhánh Nha Trang – Công Ty Cổ Phần Vinpearl",
+        account_vnd: "19127850127299",
+        account_usd: "19127850127094",
+        bank: "Techcombank Hội sở Chính",
+        swift: "VTCBVNVX",
+        memo_must_include: ["guest or partner name", "booking request code", "type of payment"],
+        refund_window_working_days: 45,
+      },
+      sourceUrl: PAYMENT_TERMS,
+      sourceTitle: "Vinpearl — Quy định về thanh toán",
+    },
+    {
+      code: "DISPUTE",
+      topic: "dispute",
+      title: "Complaints and dispute resolution",
+      summary:
+        "Customer service answers a straightforward complaint immediately from the published policy. A complex case gets a written reply within 7 days at the latest, is routed to the departments concerned and confirmed by telephone. Vietnamese law governs; negotiation first, then a competent Vietnamese court after 30 days.",
+      rules: {
+        step_1: "customer service or sales receive the complaint and answer immediately using the published policy",
+        step_2: "a complex case receives a reply within 7 days at the latest",
+        step_3: "the outcome is routed to the departments concerned and confirmed with the guest by telephone",
+        complex_case_reply_days: 7,
+        negotiation_days_before_court: 30,
+        governing_law: "Vietnamese law, competent Vietnamese court",
+        hotline: "1900 23 23 89, option 3",
+        registered_office: "Công ty Cổ phần Vinpearl, Đảo Hòn Tre, P. Vĩnh Nguyên, Nha Trang, Khánh Hòa",
+      },
+      sourceUrl: DISPUTE_TERMS,
+      sourceTitle: "Vinpearl — Chính sách giải quyết tranh chấp",
+    },
+    {
+      code: "PRIVACY",
+      topic: "privacy",
+      title: "Personal data and privacy",
+      summary:
+        "Basic and sensitive personal data are processed to deliver and improve the service, for marketing and for legal obligations. Data is stored in Vietnam and never sold. Card numbers and CVV are not stored. A child's data needs parental consent, and the child's own consent from age 7. Guests hold eleven rights over their data.",
+      rules: {
+        storage_location: "Vietnam",
+        never_sold: true,
+        card_data: "card numbers and CVV codes are not stored",
+        shared_with: ["Vingroup group companies", "service partners", "the authorities where the law requires"],
+        child_consent_age: 7,
+        child_consent_rule: "parental consent always; the child's own consent as well from age 7",
+        data_subject_rights: [
+          "be informed", "consent", "access", "withdraw consent", "delete", "restrict processing",
+          "be given a copy", "object", "complain", "compensation", "self-protection",
+        ],
+      },
+      sourceUrl: PRIVACY_TERMS,
+      sourceTitle: "Vinpearl — Chính sách quyền riêng tư",
+    },
+    {
+      code: "LOYALTY_LATE_CHECKOUT",
+      topic: "checkout",
+      title: "Loyalty goodwill on late departure (internal)",
+      summary:
+        "An Aurea-side goodwill rule, not a published Vinpearl policy: for gold, platinum and diamond guests the agent may waive the late-departure charge up to 14:00 when the room has not been resold. Anything later follows the published bands.",
+      rules: {
+        tiers: ["gold", "platinum", "diamond"],
+        free_until: "14:00",
+        condition: "the room must not have been resold for the same day",
+        beyond: "the published Vinpearl bands apply in full",
+      },
+      sourceUrl: "internal://aurea/loyalty/late-checkout",
+      sourceTitle: "Aurea internal loyalty rule — not published by Vinpearl",
+    },
+  ];
+  policyRows.forEach((p) =>
+    db
+      .insert(policies)
+      .values({ hotelId: 1, ...p, rules: JSON.stringify(p.rules), updatedAt: iso(4000) })
       .run(),
   );
 

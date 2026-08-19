@@ -26,7 +26,7 @@ Khách (mọi ngôn ngữ)                     Nhân viên khách sạn
 
 ---
 
-## 2. Cơ sở dữ liệu — 15 bảng
+## 2. Cơ sở dữ liệu — 17 bảng
 
 `shared/schema.ts` định nghĩa schema, dùng chung cho cả client và server nên kiểu dữ liệu không bao giờ lệch nhau.
 
@@ -37,9 +37,11 @@ Khách (mọi ngôn ngữ)                     Nhân viên khách sạn
 | Hội thoại | `conversations`, `messages` | mỗi tin nhắn AI lưu kèm `tool_trace` + `latency_ms` |
 | Vận hành | `tasks`, `services`, `serviceBookings` | ticket theo bộ phận + tồn kho suất dịch vụ |
 | Nội dung | `kbArticles`, `offers`, `campaigns` | knowledge base, upsell, broadcast |
+| Chính sách | `policies` | 11 quy định đã số hoá thành JSON có thể tính toán (khung giờ, %, hạn mức, mức phạt) + link nguồn |
+| Chỉ mục RAG | `docChunks` | 42 chunk cắt từ KB + policy, mỗi chunk có vector embedding 1536 chiều |
 | Kiểm toán | `auditEvents` | mọi lần ghi dữ liệu, ai làm, lúc nào |
 
-`server/seed.ts` nạp dữ liệu **thật của Vinpearl Resort Nha Trang** (Hòn Tre, Nha Trang): 6 nhân viên, 8 khách với 6 ngôn ngữ, 27 dịch vụ, 15 bài KB, và 14 ngày lịch sử hội thoại/ticket để trang Insights có số liệu ngay từ đầu.
+`server/seed.ts` nạp dữ liệu **thật của Vinpearl Resort Nha Trang** (Hòn Tre, Nha Trang): 6 nhân viên, 8 khách với 6 ngôn ngữ, 27 dịch vụ, 24 bài KB, 11 bản ghi chính sách, và 14 ngày lịch sử hội thoại/ticket để trang Insights có số liệu ngay từ đầu.
 
 ### Dữ liệu thật lấy từ đâu
 
@@ -69,21 +71,25 @@ Mỗi bài KB đều ghi dòng `Source: <url>` trong nội dung, nên khi AI tr�
 Khi khách gửi tin nhắn:
 
 1. Server dựng **system prompt** động: brand voice của khách sạn, thông tin lưu trú thật của khách, tier VIP, giờ khách sạn, ngôn ngữ ưu tiên.
-2. Gửi tới OpenAI cùng **10 định nghĩa tool**.
+2. Gửi tới OpenAI cùng **14 định nghĩa tool**.
 3. Model gọi tool → server **thực thi thật trên DB** → trả kết quả về model.
-4. Lặp tối đa 6 vòng cho tới khi model trả lời bằng văn bản.
+4. Lặp tối đa 10 vòng cho tới khi model trả lời bằng văn bản — đủ để một câu hỏi nhiều tầng gọi truy xuất, tra chính sách rồi mới báo giá.
 5. Lưu câu trả lời + toàn bộ `tool_trace` để nhân viên xem lại được model đã làm gì.
 
-**10 tool thật:**
+**14 tool thật:**
 
 | Tool | Ghi gì vào DB |
 |---|---|
 | `get_stay_details` | đọc reservation + profile + tier |
-| `search_knowledge` | tìm KB bằng thuật toán chấm điểm theo từ khoá |
+| `search_knowledge` | truy xuất hybrid BM25 + embedding trên `docChunks`, trả kèm URL nguồn |
+| `get_policy` | đọc bản ghi chính sách theo chủ đề, trả nguyên văn quy tắc + link nguồn |
+| `quote_late_checkout` | tính phí trả phòng muộn từ bảng chính sách, không phải model tự nhân |
+| `quote_early_checkin` | tính phí nhận phòng sớm theo khung 100% / 50% |
+| `check_occupancy` | đối chiếu số khách và tuổi trẻ em với hạn mức phòng / villa |
 | `list_services` | tồn kho suất theo ngày, trừ số đã đặt |
 | `book_service` | tạo `serviceBooking` + `folioCharge` + `task` cho bộ phận |
 | `order_room_service` | tính tiền theo menu, tạo `folioCharge` + `task` F&B |
-| `request_late_checkout` | sửa `checkOutTime`, miễn phí theo tier, tạo task housekeeping |
+| `request_late_checkout` | gọi lại chính engine chính sách để tính phí, sửa `checkOutTime`, trừ folio, tạo task housekeeping |
 | `get_folio` | tổng hoá đơn hiện tại |
 | `create_task` | mở ticket kèm SLA và deadline |
 | `get_offers` | upsell theo ngữ cảnh lưu trú |
@@ -97,18 +103,87 @@ Sau khi nạp dữ liệu Vinpearl, ba hội thoại được chạy lại thậ
 - **Kim Ji-woo** (Gold, phòng 102) hỏi bằng tiếng Anh về Aquafield → model trả lời 09:00–22:00 kèm đủ 7 phòng trị liệu, rồi `create_task` cho housekeeping mang 2 quả dừa. Độ trễ 2.248 ms.
 - **Lê Hoàng Phúc** (Diamond, villa V03) xin trả phòng muộn → `request_late_checkout` duyệt 14:00, phí **0 ₫** với lý do *diamond tier benefit*, tạo task housekeeping. Folio 42.220.000 ₫. Độ trễ 2.143 ms.
 
-Phí trả phòng muộn được tính thật: 30% giá phòng nếu tới 14:00, 50% nếu muộn hơn, làm tròn 1.000 ₫, miễn phí tới 14:00 cho tier gold/platinum/diamond.
+Phí trả phòng muộn **không do model tự nghĩ ra**. Nó đi qua `server/policy.ts` — engine đọc bảng `policies` và trả về khung giờ, phần trăm, số tiền và cả câu diễn giải phép tính. Xem mục 4 bên dưới.
 
 ---
 
-## 4. Giao diện khách — `#/`
+---
+
+## 4. Chính sách thật và tầng RAG
+
+Đây là phần được xây riêng để agent không bao giờ phải đoán một con số.
+
+### 4.1 Nguồn dữ liệu — 6 trang điều khoản chính thức
+
+Toàn bộ quy định được lấy nguyên văn từ trang đặt phòng của Vinpearl, không phải viết lại theo trí nhớ:
+
+| Nội dung | Nguồn |
+|---|---|
+| Xác nhận đặt phòng: giờ trả phòng 12:00, phí ra muộn 50% / 100%, phí vào sớm 100% / 50%, hạn mức người/phòng, giường phụ, tuổi trẻ em theo chiều cao, tiền cọc, hạn gửi danh sách khách, phí đổi tên 350.000 ₫ | https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-xac-nhan-dat-phong |
+| Điều khoản chung: mã gói RO/BB/HB/FB, phân loại Khách Lẻ / Khách Đoàn / Đoàn Series, rời sớm vẫn thu đủ gói, voucher, chuyển phòng, hoàn tiền tối đa 45 ngày làm việc | https://booking.vinpearl.com/vi-VND/dieu-khoan/dieu-khoan-chung |
+| Quy định chung: không thú nuôi, hút thuốc sai chỗ phạt 3.000.000 ₫, đồ ăn ngoài 1.175.000 ₫/lần, khách thăm không ở phòng sau 20:00, hồ bơi đóng 22:00, không tắm biển sau 19:00, sau 22:00 giữ yên tĩnh | https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-chung |
+| Thanh toán: thẻ / QR / tiền mặt / chuyển khoản, số tài khoản VND 19127850127299, USD 19127850127094, Techcombank Hội sở Chính, SWIFT VTCBVNVX | https://booking.vinpearl.com/vi-VND/dieu-khoan/quy-dinh-ve-thanh-toan |
+| Giải quyết tranh chấp: 3 bước, ca phức tạp trả lời trong 7 ngày, hotline 1900 23 23 89 nhánh 3 | https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-giai-quyet-tranh-chap |
+| Quyền riêng tư: dữ liệu cơ bản vs dữ liệu nhạy cảm, lưu tại Việt Nam, không bán, không lưu số thẻ và CVV, trẻ em từ 7 tuổi phải có đồng thuận của chính trẻ, 11 quyền của chủ thể dữ liệu | https://booking.vinpearl.com/vi-VND/dieu-khoan/chinh-sach-quyen-rieng-tu |
+
+Dữ liệu vào hệ thống ở hai dạng: **9 bài KB** dạng văn xuôi để truy xuất, và **11 bản ghi `policies`** dạng JSON để tính toán. Mỗi bản ghi giữ `sourceUrl` và `sourceTitle`, nên mọi con số đều truy được về đúng trang gốc.
+
+Có đúng một quy tắc **không** thuộc Vinpearl: ưu đãi trả phòng muộn miễn phí tới 14:00 cho tier gold/platinum/diamond. Nó được đánh dấu `internal://aurea/loyalty/late-checkout` và hiển thị riêng trong mục "Internal rules" trên trang Policies, để không ai nhầm nó là quy định công bố của resort.
+
+### 4.2 `server/policy.ts` — engine tính phí, không phải model tính
+
+Model bị cấm làm phép tính tiền. Ba hàm thuần trong `server/policy.ts` đọc JSON của bảng `policies` và trả về kết quả kèm diễn giải:
+
+- `quoteLateCheckout` — chọn khung giờ, lấy % tương ứng, nhân với giá gói, làm tròn 1.000 ₫, kiểm tra phòng đã bán lại trong ngày chưa, áp ưu đãi tier nếu có.
+- `quoteEarlyCheckin` — khung trước 06:00 là 100%, từ 06:00 đến 12:00 là 50%.
+- `checkOccupancy` — quy đổi tuổi trẻ em, so với hạn mức 4 người/phòng hoặc 2 người lớn + 2 trẻ dưới 12 trên mỗi phòng ngủ villa, trả về số phòng cần thiết và khả năng kê giường phụ.
+
+Mỗi kết quả có trường `calculation` viết rõ phép tính, `charged_per` nói phí tính theo phòng hay theo người, và `policy` trỏ về mã + link nguồn. `request_late_checkout` — nhánh thực sự ghi vào DB — gọi đúng hàm này, nên số báo cho khách và số trừ vào folio không thể lệch nhau.
+
+### 4.3 `server/retrieval.ts` — truy xuất hybrid
+
+24 bài KB và 11 chính sách được cắt thành **42 chunk** (900 ký tự, chồng lấn 150, cắt theo biên câu), mỗi chunk có một vector `text-embedding-3-small` 1536 chiều.
+
+Mỗi câu hỏi chạy song song hai nhánh và hợp nhất bằng **Reciprocal Rank Fusion**:
+
+1. **BM25** (k1=1.5, b=0.75) trên token đã bỏ dấu và bỏ stopword tiếng Việt + tiếng Anh — bắt đúng mã phòng, số tiền, tên riêng.
+2. **Cosine similarity** trên embedding — bắt ý nghĩa, nên câu hỏi tiếng Việt vẫn tìm ra đoạn nguồn viết bằng tiếng Anh.
+
+Ba chi tiết làm nên độ chính xác:
+
+- Mỗi chunk chính sách được bồi thêm một dòng **từ khoá tiếng Việt** theo chủ đề ("ra muộn", "phụ thu trả phòng muộn", "kê thêm giường"…). Đây chỉ là từ khoá tìm kiếm, không chứa quy tắc hay con số. Trước khi có nó, câu "ra muộn 2 tiếng mất bao nhiêu tiền" trả về bản ghi tiền cọc; sau khi có, nó trả đúng `LATE_CHECKOUT` ở hạng 1.
+- Tối đa 2 chunk trên mỗi tài liệu gốc, để một bài dài không chiếm hết kết quả.
+- Nếu embedding lỗi hoặc chưa dựng xong, hệ thống **tự hạ xuống nhánh BM25** và ghi rõ `strategy: bm25-only` thay vì để agent đoán.
+
+Trang **Policies & retrieval** trong dashboard cho nhân viên xem toàn bộ 11 bản ghi chính sách với quy tắc đã bung ra dạng bảng, tình trạng chỉ mục, nút dựng lại chỉ mục, và một hộp tìm kiếm để thử **đúng những gì AI sẽ đọc được** trước khi nó trả lời.
+
+### 4.4 Reasoning nhiều bước
+
+System prompt có một quy trình bắt buộc: tách câu hỏi thành từng điều kiện → tra bằng tool → tính bằng tool → đối chiếu lại với đơn phòng thật → trả lời cả phần khách hỏi ngầm. Kèm hai lệnh cấm: không tự làm phép tính, và không nói ra con số tiền nào không đến từ tool trong chính lượt đó.
+
+### 4.5 Kết quả kiểm thử thật qua API
+
+| Tình huống | Tool agent đã gọi | Kết quả |
+|---|---|---|
+| Gia đình 4 người (2 người lớn + 2 trẻ), phòng 101, 2.410.000 ₫/đêm, hỏi ra muộn 2 tiếng và "có nhân theo số người không" | `get_stay_details` → `get_policy` → `check_occupancy` | Trả lời 50% giá gói, **tính theo phòng không theo người**, 4 người vẫn trong hạn mức 1 phòng |
+| Hỏi tiếp "cụ thể bao nhiêu tiền" | `quote_late_checkout` | **1.205.000 ₫** = 50% × 2.410.000, khung 12:00–18:00 |
+| Khách chốt ra 14:00 | `request_late_checkout` | Ghi PMS 14:00, trừ folio đúng 1.205.000 ₫, mở task housekeeping |
+| Hỏi ra muộn hẳn tới 20:00 | `quote_late_checkout` | Khung sau 18:00 → 100% → **2.410.000 ₫** |
+| Khách Platinum xin ra 14:00 | `quote_late_checkout` | Phí **0 ₫**, và được nói rõ là ưu đãi hạng thành viên, kèm điều kiện phòng chưa bán lại |
+| Khách Anh hỏi vào sớm 05:00 so với 08:00 | hai lần `quote_early_checkin` trong cùng một lượt | 05:00 → 2.200.000 ₫ (100%), 08:00 → 1.100.000 ₫ (50%) |
+| Villa 3 phòng ngủ, 6 người lớn + 2 trẻ 10 tuổi, xin kê thêm giường | `get_policy` → `check_occupancy` | Trong hạn mức 6 người lớn + 6 trẻ; villa **không kê giường phụ** trừ Vinpearl Luxury Nha Trang |
+| Tiếng Hàn hỏi tiền cọc và mức phạt hút thuốc | hai lần `get_policy` | 1.000.000 ₫/phòng; 3.000.000 ₫/kỳ lưu trú — trả lời bằng tiếng Hàn |
+| Tiếng Nga hỏi hạn đổi tên khách và số tài khoản chuyển khoản | `get_policy` → `search_knowledge` → `get_stay_details` | 350.000 ₫/phòng/lần, hạn 7/15 ngày theo mùa; đọc đúng số tài khoản và SWIFT |
+| Hỏi resort có sân trực thăng riêng không | hai lần `search_knowledge` | **Không bịa** — nói không có trong tài liệu và sẽ hỏi lại team |
+
+## 5. Giao diện khách — `#/`
 
 - Vào bằng mã xác nhận (`VPNT-2M77VD`) hoặc deep link `#/?code=VPNT-2M77VD` để đặt QR trong phòng.
 - Chip gợi ý câu hỏi tự đổi theo ngôn ngữ của khách.
 - Poll 5 giây: khi nhân viên nhận hội thoại, header đổi sang tên người thật ngay trên máy khách.
 - Không dùng localStorage/cookie — chạy được trong iframe sandbox.
 
-## 5. Dashboard nhân viên — `#/staff/*`
+## 6. Dashboard nhân viên — `#/staff/*`
 
 Đăng nhập bằng tên + PIN (demo: `1234` cho cả 6 nhân viên).
 
@@ -119,7 +194,8 @@ Phí trả phòng muộn được tính thật: 30% giá phòng nếu tới 14:0
 | **Rooms** | 40 phòng + 4 villa nhóm theo tầng, đổi trạng thái housekeeping |
 | **Reservations** | bảng PMS + tồn kho dịch vụ theo suất |
 | **Insights** | 8 KPI + biểu đồ Recharts: AI deflection, first response (tách AI vs người), resolution rate, occupancy, doanh thu ancillary, tải theo bộ phận, sentiment, chủ đề |
-| **Knowledge** | CRUD bài KB — sửa ở đây là AI trả lời khác ngay lượt sau |
+| **Knowledge** | CRUD bài KB — sửa ở đây là AI trả lời khác ngay lượt sau, chỉ mục RAG tự dựng lại |
+| **Policies** | 11 bản ghi chính sách với quy tắc bung ra dạng bảng + link nguồn Vinpearl, tình trạng chỉ mục embedding, nút dựng lại chỉ mục, và hộp thử truy xuất để xem chính xác AI sẽ đọc gì |
 | **Campaigns** | chọn segment (in-house/arriving/departing/VIP/repeat), xem trước danh sách nhận, gửi → **model viết lại từng bản theo tên và ngôn ngữ của từng khách** |
 | **Activity** | timeline audit mọi lần ghi dữ liệu |
 | **Settings** | brand voice, SLA, bật/tắt AI, kiểm tra kết nối model thật |
@@ -130,13 +206,13 @@ Một broadcast tiếng Anh về nhạc jazz sân thượng gửi tới 5 khách
 
 ---
 
-## 6. Bảo mật & xử lý API key
+## 7. Bảo mật & xử lý API key
 
 Key OpenAI của bạn **không nằm trong code**. Nó được lưu trong vault credential của phiên làm việc; server nhận hai biến môi trường trỏ tới một proxy an toàn và gọi `${URL}/v1/chat/completions` với header `x-api-key`. `server/openai.ts` tự nhận diện theo thứ tự: gateway → `OPENAI_API_KEY` → `HTTPS_PROXY`, nên deploy ở đâu cũng chạy.
 
 Model: `gpt-5.4-mini` cho agent, `gpt-5.4-nano` cho phân loại sentiment/topic.
 
-## 7. Lỗi tìm được trong QA và đã sửa
+## 8. Lỗi tìm được trong QA và đã sửa
 
 QA bằng Playwright ở 1440px và 390px, chạy đúng luồng người dùng thật:
 
@@ -148,7 +224,7 @@ QA bằng Playwright ở 1440px và 390px, chạy đúng luồng người dùng 
 
 ---
 
-## 8. Chạy lại và mở rộng
+## 9. Chạy lại và mở rộng
 
 ```bash
 cd /home/user/workspace/aurea
