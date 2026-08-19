@@ -61,3 +61,17 @@ export function initials(name: string) {
     .map((p) => p[0]?.toUpperCase() ?? "")
     .join("");
 }
+
+/** Compact human duration from a minute count: 45m, 3h 20m, 5d 4h. */
+export function duration(mins: number): string {
+  const m = Math.abs(Math.round(mins));
+  if (m < 60) return `${m}m`;
+  if (m < 1440) {
+    const h = Math.floor(m / 60);
+    const r = m % 60;
+    return r ? `${h}h ${r}m` : `${h}h`;
+  }
+  const d = Math.floor(m / 1440);
+  const h = Math.floor((m % 1440) / 60);
+  return h ? `${d}d ${h}h` : `${d}d`;
+}

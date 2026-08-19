@@ -382,7 +382,13 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
       for (const it of items) {
         const svc = storage.getService(Number(it.service_id));
         if (!svc || svc.category !== "roomservice")
-          return { error: `Service ${it.service_id} is not on the in-room dining menu.` };
+          return {
+            error: `Service ${it.service_id} is not on the in-room dining menu. Call list_services with category "roomservice" and use a service_id from the result.`,
+            menu: storage
+              .listServices()
+              .filter((x) => x.category === "roomservice")
+              .map((x) => ({ service_id: x.id, name: x.name, price: x.price })),
+          };
         const qty = Math.max(1, Number(it.quantity ?? 1));
         total += svc.price * qty;
         lines.push(`${qty} × ${svc.name}`);

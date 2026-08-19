@@ -1,21 +1,29 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { Link } from "wouter";
+import { AureaLogo } from "@/components/logo";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
-          </div>
-
-          <p className="mt-4 text-sm text-gray-600">
-            Did you forget to add the page to the router?
+    <div className="flex min-h-screen items-center justify-center bg-background px-6">
+      <div className="w-full max-w-sm space-y-4 text-center">
+        <div className="flex justify-center">
+          <AureaLogo />
+        </div>
+        <div>
+          <h1 className="text-xl font-semibold">This page doesn't exist</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The link may be out of date. Head back to the concierge, or sign in as a team member.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex justify-center gap-2">
+          <Button asChild data-testid="link-home">
+            <Link href="/">Guest concierge</Link>
+          </Button>
+          <Button asChild variant="outline" data-testid="link-staff">
+            <Link href="/staff">Team sign-in</Link>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

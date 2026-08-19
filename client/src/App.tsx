@@ -18,6 +18,17 @@ import CampaignsPage from "@/pages/campaigns";
 import AuditPage from "@/pages/audit";
 import SettingsPage from "@/pages/settings";
 
+/**
+ * wouter's hash location returns the full hash including any query string
+ * (`/?code=AUR-9K52JH`), which never matches a route. Strip it — deep-link
+ * params are read from `window.location.hash` by the pages that need them.
+ */
+function useAppLocation(): [string, (to: string, options?: { replace?: boolean }) => void] {
+  const [loc, navigate] = useHashLocation();
+  const path = loc.split("?")[0] || "/";
+  return [path, navigate];
+}
+
 /** Staff pages require a signed-in team member; guests never see them. */
 function Protected({ component: Component }: { component: () => JSX.Element }) {
   const { staff } = useSession();
@@ -52,7 +63,7 @@ function App() {
       <SessionProvider>
         <TooltipProvider>
           <Toaster />
-          <Router hook={useHashLocation}>
+          <Router hook={useAppLocation}>
             <AppRouter />
           </Router>
         </TooltipProvider>

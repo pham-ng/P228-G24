@@ -8,6 +8,14 @@ import { conversations, tasks as tasksTable } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 
+/** Never let a staff PIN cross the API boundary. */
+function safeStaff<T extends { pin?: string } | undefined>(s: T) {
+  if (!s) return null;
+  const { pin: _pin, ...rest } = s as { pin?: string };
+  return rest;
+}
+
+
 const asyncH =
   (fn: (req: Request, res: Response) => Promise<unknown>) =>
   (req: Request, res: Response) =>
@@ -35,7 +43,7 @@ function conversationDetail(id: number) {
     charges,
     messages: storage.listMessages(id),
     tasks: storage.listTasks().filter((t) => t.conversationId === id),
-    assignedStaff: conv.assignedStaffId ? storage.getStaff(conv.assignedStaffId) ?? null : null,
+    assignedStaff: conv.assignedStaffId ? safeStaff(storage.getStaff(conv.assignedStaffId)) : null,
   };
 }
 

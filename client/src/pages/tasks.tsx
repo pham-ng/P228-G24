@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
-import { minutesUntil, relative, titleCase } from "@/lib/format";
+import { duration, minutesUntil, relative, titleCase } from "@/lib/format";
 import { DEPT_LABELS, type Hotel, type Staff, type Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +50,7 @@ function SlaChip({ task, sla }: { task: Task; sla: number }) {
       : null;
     return (
       <span className="text-[10px] text-muted-foreground">
-        resolved in {mins != null ? `${Math.abs(mins)}m` : "—"}
+        resolved in {mins != null ? duration(mins) : "—"}
       </span>
     );
   }
@@ -66,7 +66,7 @@ function SlaChip({ task, sla }: { task: Task; sla: number }) {
       data-testid="chip-sla"
     >
       <AlarmClock className="h-2.5 w-2.5" />
-      {breached ? `${Math.abs(left)}m over` : `${left}m left`}
+      {breached ? `${duration(left)} over` : `${duration(left)} left`}
     </span>
   );
 }
