@@ -38,7 +38,7 @@ export default function SettingsPage() {
 
   const health = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/ai/health");
+      const res = await apiRequest("GET", "/api/ai/health");
       return res.json() as Promise<{ ok: boolean; reply?: string; message?: string }>;
     },
   });
