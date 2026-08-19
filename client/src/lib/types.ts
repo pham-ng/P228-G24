@@ -249,4 +249,5 @@ export const LANG_LABELS: Record<string, string> = {
   de: "Deutsch",
   ko: "한국어",
   zh: "中文",
+  ru: "Русский",
 };

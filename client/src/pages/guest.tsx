@@ -8,29 +8,30 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { clock } from "@/lib/format";
-import { LANG_LABELS, type ConversationDetail, type GuestKey } from "@/lib/types";
+import { LANG_LABELS, type ConversationDetail, type GuestKey, type Hotel } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const PROMPTS: Record<string, string[]> = {
   en: [
     "What time is breakfast and where is it served?",
+    "How much is the cable car and when does it run?",
+    "Book the Lotus dinner buffet for two tonight",
     "Can I have late check-out tomorrow?",
-    "Book me dinner for two tonight",
-    "I'd like two extra towels, please",
   ],
   vi: [
     "Bữa sáng mấy giờ và ở đâu ạ?",
+    "Giá vé cáp treo và giờ chạy thế nào?",
+    "Đặt buffet tối Lotus cho 2 người tối nay",
     "Tôi muốn trả phòng muộn ngày mai",
-    "Đặt bàn ăn tối cho 2 người tối nay",
-    "Cho tôi xin thêm 2 khăn tắm nhé",
   ],
-  fr: [
-    "À quelle heure est le petit-déjeuner ?",
-    "Puis-je avoir un départ tardif demain ?",
-    "Réservez-moi un dîner pour deux ce soir",
+  ko: [
+    "조식은 몇 시에 어디에서 제공되나요?",
+    "아쿠아필드 사우나 운영 시간을 알려주세요",
+    "오늘 저녁 2명 뷔페 예약해 주세요",
   ],
-  ja: ["朝食は何時からですか？", "明日レイトチェックアウトできますか？", "今夜2名で夕食を予約したいです"],
-  es: ["¿A qué hora es el desayuno?", "¿Puedo hacer el check-out tarde mañana?", "Resérvame cena para dos"],
+  zh: ["早餐几点在哪里？", "缆车票价和运营时间是多少？", "今晚帮我订两位晚餐"],
+  ru: ["Во сколько завтрак и где он подаётся?", "Сколько стоит фуникулёр?", "Забронируйте ужин на двоих"],
+  ja: ["朝食は何時からですか？", "ロープウェイの料金と運行時間は？", "今夜2名で夕食を予約したいです"],
 };
 
 function Bubble({
@@ -86,6 +87,7 @@ function Bubble({
 
 function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
   const { data: keys } = useQuery<GuestKey[]>({ queryKey: ["/api/guest/keys"] });
+  const { data: hotel } = useQuery<Hotel>({ queryKey: ["/api/hotel"] });
   const [code, setCode] = useState("");
   const inHouse = (keys ?? []).filter((k) => k.status === "in_house");
   const others = (keys ?? []).filter((k) => k.status !== "in_house");
@@ -94,7 +96,7 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
     <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-5 py-12">
       <AureaMark className="h-10 w-10 text-primary" />
       <h1 className="mt-5 font-serif text-2xl font-semibold tracking-tight">
-        Aurea Riverside Hanoi
+        {hotel?.name ?? "Aurea"}
       </h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
         Your concierge answers in your language, around the clock — and can actually act on
@@ -111,7 +113,7 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
         <Input
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="Confirmation code, e.g. AUR-8F31KQ"
+          placeholder="Confirmation code, e.g. VPNT-2M77VD"
           className="font-mono"
           data-testid="input-code"
         />

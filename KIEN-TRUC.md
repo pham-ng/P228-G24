@@ -32,14 +32,33 @@ Khách (mọi ngôn ngữ)                     Nhân viên khách sạn
 
 | Nhóm | Bảng | Vai trò |
 |---|---|---|
-| Khách sạn | `hotels`, `staff`, `rooms` | cấu hình, nhân sự (PIN 4 số), 24 phòng tầng 3–8 |
+| Khách sạn | `hotels`, `staff`, `rooms` | cấu hình, nhân sự (PIN 4 số), 40 phòng tầng 1–5 + 4 villa |
 | PMS | `guests`, `reservations`, `folioCharges` | profile khách, mã đặt phòng, hoá đơn phòng |
 | Hội thoại | `conversations`, `messages` | mỗi tin nhắn AI lưu kèm `tool_trace` + `latency_ms` |
 | Vận hành | `tasks`, `services`, `serviceBookings` | ticket theo bộ phận + tồn kho suất dịch vụ |
 | Nội dung | `kbArticles`, `offers`, `campaigns` | knowledge base, upsell, broadcast |
 | Kiểm toán | `auditEvents` | mọi lần ghi dữ liệu, ai làm, lúc nào |
 
-`server/seed.ts` tạo dữ liệu khởi tạo thực tế: khách sạn *Aurea Riverside Hanoi*, 6 nhân viên, 8 khách với 6 ngôn ngữ khác nhau, 10 dịch vụ, 14 bài KB, và 14 ngày lịch sử hội thoại/ticket để trang Insights có số liệu thật ngay từ đầu.
+`server/seed.ts` nạp dữ liệu **thật của Vinpearl Resort Nha Trang** (Hòn Tre, Nha Trang): 6 nhân viên, 8 khách với 6 ngôn ngữ, 27 dịch vụ, 15 bài KB, và 14 ngày lịch sử hội thoại/ticket để trang Insights có số liệu ngay từ đầu.
+
+### Dữ liệu thật lấy từ đâu
+
+Tiền tệ **VND**, múi giờ **Asia/Ho_Chi_Minh**, nhận phòng 14:00 / trả phòng 12:00, SLA 10 phút.
+
+| Nhóm dữ liệu | Nội dung thật | Nguồn |
+|---|---|---|
+| Hạng phòng & giá đêm | Deluxe Queen/Twin 2.200.000 ₫; Grand Deluxe Queen 2.410.000 ₫; Deluxe Ocean View 2.640.000 ₫; Grand Deluxe Ocean View 2.870.000 ₫; Deluxe Suite King Ocean View 4.097.000 ₫; Villa 3 phòng ngủ 8.610.000 ₫; Tropicana Beachfront Villa 10.130.000 ₫ | [bảng giá phòng Vinpearl Nha Trang](https://vinpearl.com/vi/moi-nhat-bang-gia-phong-vinpearl-nha-trang) |
+| Nhà hàng & giờ mở | Lotus (buffet Việt 06:00–10:30, 12:00–14:30, 18:00–22:00), Jasmine à-la-carte 250 chỗ, Groove & Grill, Ozone Pool Bar, Bach Giai lounge | [trang resort](https://vinpearl.com/en/vinpearl-resort-nha-trang) |
+| Giá buffet | 650.000 ₫/người lớn, 375.000 ₫/trẻ 11 tuổi trở xuống | [trang resort](https://vinpearl.com/en/vinpearl-resort-nha-trang) |
+| Menu Akoya Spa | Warm Bamboo 85′ 2.700.000 ₫; Hot Stone 90′ 2.500.000 ₫; Balinese 90′ 2.300.000 ₫; Cổ truyền Việt 60′ 1.500.000 ₫; Foot Therapy 50′ 1.200.000 ₫; Spa Sampler 90′ 2.000.000 ₫; Thalgo Collagen facial 60′ 2.200.000 ₫ | [menu Akoya (PDF)](https://statics.vinwonders.com/AKOYA-VPLRNT%20-%20A4%20menu%20-%20Vietnamese_1636009386.pdf) |
+| Cáp treo & Harbour | khứ hồi 200.000 ₫/người, chạy ~08:00–22:00; combo Harbour all-inclusive 400.000 ₫ | [giá cáp treo](https://vinpearl.com/vi/cap-nhat-gia-ve-cap-treo-vinpearl-nha-trang-moi-nhat), [lịch trình Harbour](https://vinpearl.com/vi/lich-trinh-di-vinpearl-harbour-nha-trang) |
+| Vé VinWonders | vé ngày 1.050.000 ₫, pass 2 ngày 1.280.000 ₫ | [Wonderpedia](https://vinwonders.com/en/wonderpedia/news/vinpearl-resort-nha-trang/) |
+| Tiện ích & MICE | Aquafield, 7 phòng trị liệu, bãi biển riêng, golf 18 hố IMG Worldwide, ballroom 660 m² / 600 khách, 7 phòng hội nghị | [trang resort](https://vinpearl.com/en/vinpearl-resort-nha-trang) |
+| Pearl Club | giảm phòng 5–10% theo tier, 33% golf, 30% spa, 20% F&B | [trang resort](https://vinpearl.com/en/vinpearl-resort-nha-trang) |
+
+Mỗi bài KB đều ghi dòng `Source: <url>` trong nội dung, nên khi AI trích dẫn thì nhân viên truy được về nguồn gốc.
+
+**Giới hạn trung thực:** giá in-room dining (90.000–350.000 ₫) là mức tham khảo vì Vinpearl không công bố; các mục à-la-carte, thể thao biển, buggy, đưa đón sân bay để giá `0` với nhãn *on request / à la carte / complimentary* thay vì bịa số. Danh sách khách, đặt phòng và lịch sử hội thoại vẫn là dữ liệu tổng hợp — cần nối PMS thật để thay thế.
 
 ---
 
@@ -72,15 +91,19 @@ Khi khách gửi tin nhắn:
 
 ### Bằng chứng đã kiểm thử thật
 
-Khách phòng 802 (Nguyễn Thanh Hà, Platinum) gõ tiếng Việt: *"phòng tôi hơi nóng, điều hoà không mát… đặt bàn ăn tối cho 2 người… xin trả phòng muộn"*. Trong 3.4 giây model gọi 3 tool: `create_task` (engineering, priority high), `list_services` (dining), `request_late_checkout` → duyệt 14:00 **miễn phí vì tier Platinum**. Trả lời bằng tiếng Việt. Ba bản ghi mới xuất hiện trong DB.
+Sau khi nạp dữ liệu Vinpearl, ba hội thoại được chạy lại thật qua API:
 
-Lượt sau: gọi 2 phở bò + 1 cà phê sữa và spa massage. Model gọi `order_room_service` → tính 32 USD, tạo task F&B ETA 35 phút; cà phê sữa không có trong menu in-room dining nên model tự tạo task riêng cho F&B; `book_service` giữ suất spa 16:30 và tính 85 USD lên folio. Tổng 5 ticket mở, hoá đơn phòng 802 tăng từ 1.150 lên 1.267 USD — tất cả hiện trên dashboard.
+- **Nguyễn Thanh Hà** (tiếng Việt, Platinum, phòng 202 Grand Deluxe Ocean View, 2.870.000 ₫/đêm) hỏi giá cáp treo, giờ và chỗ ăn sáng, rồi nhờ đặt Akoya Balinese Massage 90′ 18:30. Model trả lời đúng 200.000 ₫ / 08:00–22:00 và Lotus 06:00–10:30 với 650.000 ₫ người lớn / 375.000 ₫ trẻ em, sau đó gọi `book_service` → tạo booking, trừ **2.300.000 ₫** vào folio (tổng 12.610.000 ₫) và mở task cho bộ phận spa. Độ trễ 5.970 ms.
+- **Kim Ji-woo** (Gold, phòng 102) hỏi bằng tiếng Anh về Aquafield → model trả lời 09:00–22:00 kèm đủ 7 phòng trị liệu, rồi `create_task` cho housekeeping mang 2 quả dừa. Độ trễ 2.248 ms.
+- **Lê Hoàng Phúc** (Diamond, villa V03) xin trả phòng muộn → `request_late_checkout` duyệt 14:00, phí **0 ₫** với lý do *diamond tier benefit*, tạo task housekeeping. Folio 42.220.000 ₫. Độ trễ 2.143 ms.
+
+Phí trả phòng muộn được tính thật: 30% giá phòng nếu tới 14:00, 50% nếu muộn hơn, làm tròn 1.000 ₫, miễn phí tới 14:00 cho tier gold/platinum/diamond.
 
 ---
 
 ## 4. Giao diện khách — `#/`
 
-- Vào bằng mã xác nhận (`AUR-2M77VD`) hoặc deep link `#/?code=AUR-2M77VD` để đặt QR trong phòng.
+- Vào bằng mã xác nhận (`VPNT-2M77VD`) hoặc deep link `#/?code=VPNT-2M77VD` để đặt QR trong phòng.
 - Chip gợi ý câu hỏi tự đổi theo ngôn ngữ của khách.
 - Poll 5 giây: khi nhân viên nhận hội thoại, header đổi sang tên người thật ngay trên máy khách.
 - Không dùng localStorage/cookie — chạy được trong iframe sandbox.
@@ -93,7 +116,7 @@ Lượt sau: gọi 2 phở bò + 1 cà phê sữa và spa massage. Model gọi `
 |---|---|
 | **Inbox** | mọi hội thoại, lọc theo AI/nhân viên; mở được **trace tool-call** của từng câu trả lời AI; nút *Take over* / *Hand back to AI*; nút *Draft* để AI soạn nháp cho nhân viên; panel phải hiển thị profile, lưu trú, folio, ticket của khách |
 | **Tasks** | kanban 3 cột, chip SLA, gán người, start/done/reopen, tạo task tay |
-| **Rooms** | 24 phòng nhóm theo tầng, đổi trạng thái housekeeping |
+| **Rooms** | 40 phòng + 4 villa nhóm theo tầng, đổi trạng thái housekeeping |
 | **Reservations** | bảng PMS + tồn kho dịch vụ theo suất |
 | **Insights** | 8 KPI + biểu đồ Recharts: AI deflection, first response (tách AI vs người), resolution rate, occupancy, doanh thu ancillary, tải theo bộ phận, sentiment, chủ đề |
 | **Knowledge** | CRUD bài KB — sửa ở đây là AI trả lời khác ngay lượt sau |

@@ -448,9 +448,14 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
           reason: `Room ${room?.number} is occupied again on ${res.checkOut}, so departure cannot go beyond 14:00.`,
           max_possible: "14:00",
         };
-      const tierFree = ["gold", "platinum"].includes(guest.vipTier) && want <= "14:00";
+      const tierFree =
+        ["gold", "platinum", "diamond"].includes(guest.vipTier) && want <= "14:00";
       let fee = 0;
-      if (!tierFree) fee = want <= "14:00" ? 40 : Math.round(res.ratePerNight / 2);
+      if (!tierFree)
+        fee =
+          want <= "14:00"
+            ? Math.round((res.ratePerNight * 0.3) / 1000) * 1000
+            : Math.round((res.ratePerNight * 0.5) / 1000) * 1000;
       storage.updateReservation(res.id, { checkOutTime: want });
       if (fee > 0) {
         storage.addCharge({
@@ -555,7 +560,8 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
         if (o.segment === "all") return true;
         if (o.segment === "in_house") return stayingNow;
         if (o.segment === "departing") return departingToday;
-        if (o.segment === "vip") return ["gold", "platinum"].includes(guest.vipTier);
+        if (o.segment === "vip")
+          return ["gold", "platinum", "diamond"].includes(guest.vipTier);
         if (o.segment === "repeat") return guest.staysCount > 1;
         return false;
       });

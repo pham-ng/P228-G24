@@ -525,7 +525,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         case "departing":
           return r.status === "in_house" && r.checkOut === t;
         case "vip":
-          return ["gold", "platinum"].includes(g.vipTier);
+          return ["gold", "platinum", "diamond"].includes(g.vipTier);
         case "repeat":
           return g.staysCount > 1;
         default:

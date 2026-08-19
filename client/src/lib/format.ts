@@ -1,4 +1,4 @@
-export const HOTEL_TZ = "Asia/Bangkok";
+export const HOTEL_TZ = "Asia/Ho_Chi_Minh";
 
 export function clock(iso: string) {
   return new Date(iso).toLocaleTimeString("en-GB", {
@@ -36,11 +36,12 @@ export function minutesUntil(iso: string | null) {
   return Math.round((new Date(iso).getTime() - Date.now()) / 60_000);
 }
 
-export function money(amount: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
+export function money(amount: number, currency = "VND") {
+  const locale = currency === "VND" ? "vi-VN" : "en-US";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
-    maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: currency === "VND" ? 0 : amount % 1 === 0 ? 0 : 2,
   }).format(amount);
 }
 

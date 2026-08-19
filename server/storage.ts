@@ -382,7 +382,7 @@ export { sqlite };
  * hotel's calendar day, not the server's UTC day — a guest asking about
  * "tonight" at 00:30 local time must not be answered with yesterday's date.
  */
-export const HOTEL_TZ = "Asia/Bangkok";
+export const HOTEL_TZ = "Asia/Ho_Chi_Minh";
 export const hotelToday = () => new Date().toLocaleDateString("en-CA", { timeZone: HOTEL_TZ });
 export const hotelClock = () =>
   new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: HOTEL_TZ });
