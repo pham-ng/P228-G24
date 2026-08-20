@@ -144,6 +144,8 @@ export const services = sqliteTable("services", {
   slots: text("slots").notNull().default("[]"), // JSON array of HH:MM strings
   capacityPerSlot: integer("capacity_per_slot").notNull().default(4),
   active: integer("active").notNull().default(1),
+  /** JSON array of image URLs for this service. */
+  images: text("images").notNull().default("[]"),
 });
 
 export const serviceBookings = sqliteTable("service_bookings", {
@@ -223,6 +225,8 @@ export const roomTypes = sqliteTable("room_types", {
   description: text("description").notNull(),
   /** JSON array of the amenity labels listed on the page, in page order. */
   amenities: text("amenities").notNull().default("[]"),
+  /** JSON array of image URLs for this room type. */
+  images: text("images").notNull().default("[]"),
   sourceFile: text("source_file").notNull(),
   sourceUrl: text("source_url").notNull(),
 });
@@ -262,6 +266,8 @@ export const diningVenues = sqliteTable("dining_venues", {
   /** JSON array of {group, items:[{name_vi, name_en, price}]}. */
   menuGroups: text("menu_groups").notNull().default("[]"),
   description: text("description"),
+  /** JSON array of image URLs for this dining venue. */
+  images: text("images").notNull().default("[]"),
   sourceFile: text("source_file").notNull(),
   sourceUrl: text("source_url"),
 });

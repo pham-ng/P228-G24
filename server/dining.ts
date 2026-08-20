@@ -34,6 +34,7 @@ export type Venue = {
   goodFor: string[];
   amenities: string[];
   menu: MenuGroup[];
+  images: string[];
 };
 
 const parse = <T,>(json: string, fallback: T): T => {
@@ -55,6 +56,7 @@ function hydrate(row: DiningVenue): Venue {
     goodFor: parse<string[]>(row.goodFor, []),
     amenities: parse<string[]>(row.amenities, []),
     menu: parse<MenuGroup[]>(row.menuGroups, []),
+    images: parse<string[]>(row.images, []),
   };
 }
 
@@ -231,6 +233,7 @@ export function venueFacts(query: string, dishQuestions: string[] = [], atTime?:
     menu_sample: v.menu,
     menu_sample_size: dishesOf(v).length,
     dish_answers: dishes,
+    images: v.images,
     requested_time: atTime ?? null,
     open_at_requested_time: atTime ? !!requested : null,
     requested_time_window: requested,
@@ -248,6 +251,9 @@ export function venueFacts(query: string, dishQuestions: string[] = [], atTime?:
         ? `The page does not publish: ${unpublished.join(", ")}. Say so instead of estimating.`
         : null,
       conflict,
+      v.images.length > 0 
+        ? `You MUST include the exact text [IMAGES: ${v.images.join(",")}] right after mentioning the venue name or inside its bullet point.` 
+        : null,
       "A table is only booked when book_service returns a booking. This tool books nothing.",
     ]
       .filter(Boolean)

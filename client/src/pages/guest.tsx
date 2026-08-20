@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ArrowRight, Loader2, SendHorizonal, ShieldCheck, UserRound } from "lucide-react";
 import { AureaMark } from "@/components/logo";
+import { MarkdownBody } from "@/components/markdown-body";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,25 +14,25 @@ import { cn } from "@/lib/utils";
 
 const PROMPTS: Record<string, string[]> = {
   en: [
-    "What time is breakfast and where is it served?",
-    "How much is the cable car and when does it run?",
-    "Book the Lotus dinner buffet for two tonight",
-    "Can I have late check-out tomorrow?",
+    "🍽️ Restaurant menus & pricing",
+    "💆 Spa treatments & hours",
+    "🚪 Late check-out pricing",
+    "🚠 Cable car schedule",
   ],
   vi: [
-    "Bữa sáng mấy giờ và ở đâu ạ?",
-    "Giá vé cáp treo và giờ chạy thế nào?",
-    "Đặt buffet tối Lotus cho 2 người tối nay",
-    "Tôi muốn trả phòng muộn ngày mai",
+    "🍽️ Xem menu nhà hàng & giá",
+    "💆 Dịch vụ Spa & giờ mở cửa",
+    "🚪 Phí trả phòng muộn",
+    "🚠 Giờ chạy cáp treo",
   ],
   ko: [
-    "조식은 몇 시에 어디에서 제공되나요?",
-    "아쿠아필드 사우나 운영 시간을 알려주세요",
-    "오늘 저녁 2명 뷔페 예약해 주세요",
+    "🍽️ 레스토랑 메뉴 및 가격",
+    "💆 스파 트리트먼트 및 운영시간",
+    "🚪 레이트 체크아웃 안내",
   ],
-  zh: ["早餐几点在哪里？", "缆车票价和运营时间是多少？", "今晚帮我订两位晚餐"],
-  ru: ["Во сколько завтрак и где он подаётся?", "Сколько стоит фуникулёр?", "Забронируйте ужин на двоих"],
-  ja: ["朝食は何時からですか？", "ロープウェイの料金と運行時間は？", "今夜2名で夕食を予約したいです"],
+  zh: ["🍽️ 餐厅菜单与价格", "💆 水疗 Spa 价格", "🚪 延迟退房费用"],
+  ru: ["🍽️ Меню ресторанов", "💆 Услуги спа", "🚪 Поздний выезд"],
+  ja: ["🍽️ レストランメニューと料金", "💆 スパの営業時間と料金", "🚪 レイトチェックアウト費用"],
 };
 
 function Bubble({
@@ -69,15 +70,15 @@ function Bubble({
         <div
           data-testid={`message-${role}`}
           className={cn(
-            "whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-left text-sm leading-relaxed",
+            "rounded-2xl px-3.5 py-2.5 text-left text-sm leading-relaxed",
             mine
-              ? "rounded-br-sm bg-primary text-primary-foreground"
+              ? "whitespace-pre-wrap rounded-br-sm bg-primary text-primary-foreground"
               : role === "staff"
                 ? "rounded-bl-sm border border-border bg-secondary"
                 : "rounded-bl-sm border border-card-border bg-card",
           )}
         >
-          {body}
+          {mine ? body : <MarkdownBody text={body} />}
         </div>
         <div className="mt-1 px-1 text-[10px] text-muted-foreground">{time}</div>
       </div>
@@ -190,6 +191,35 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
       </Link>
     </div>
   );
+}
+
+const REASONING_STEPS: Record<string, string[]> = {
+  vi: [
+    "Đang phân tích yêu cầu...",
+    "Truy xuất dữ liệu hệ thống...",
+    "Tính toán ưu đãi thành viên...",
+    "Đang hoàn thiện câu trả lời...",
+  ],
+  en: [
+    "Analyzing request...",
+    "Querying hotel systems...",
+    "Applying member entitlements...",
+    "Formulating response...",
+  ],
+};
+
+function ReasoningIndicator({ lang }: { lang: string }) {
+  const steps = REASONING_STEPS[lang] ?? REASONING_STEPS.en;
+  const [stepIndex, setStepIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStepIndex((i) => Math.min(i + 1, steps.length - 1));
+    }, 2000); // Change step every 2 seconds
+    return () => clearInterval(interval);
+  }, [steps]);
+
+  return <span className="animate-pulse">{steps[stepIndex]}</span>;
 }
 
 export default function GuestPage() {
@@ -313,7 +343,7 @@ export default function GuestPage() {
         {send.isPending && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="typing">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            {human ? "Sending to the front desk…" : "Concierge is checking with the hotel systems…"}
+            {human ? "Sending to the front desk…" : <ReasoningIndicator lang={detail?.guest.lang ?? "en"} />}
           </div>
         )}
         {error && (
@@ -324,21 +354,20 @@ export default function GuestPage() {
         <div ref={endRef} />
       </div>
 
-      {detail.messages.length < 3 && (
-        <div className="flex shrink-0 flex-wrap gap-1.5 px-4 pb-2">
-          {prompts.map((p) => (
-            <button
-              key={p}
-              onClick={() => send.mutate(p)}
-              disabled={send.isPending}
-              data-testid="prompt-chip"
-              className="hover-elevate rounded-full border border-border bg-card px-3 py-1.5 text-xs disabled:opacity-50"
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Dynamic Quick Action Chips — Always visible so the guest doesn't have to type everything */}
+      <div className="flex shrink-0 flex-wrap gap-1.5 px-4 pb-2">
+        {prompts.map((p) => (
+          <button
+            key={p}
+            onClick={() => send.mutate(p)}
+            disabled={send.isPending}
+            data-testid="prompt-chip"
+            className="hover-elevate rounded-full border border-border bg-card px-3 py-1 text-xs transition-colors hover:bg-primary/10 hover:border-primary/40 disabled:opacity-50"
+          >
+            {p}
+          </button>
+        ))}
+      </div>
 
       <div className="shrink-0 border-t border-border p-3">
         <div className="flex items-end gap-2">

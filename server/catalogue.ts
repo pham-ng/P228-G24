@@ -28,6 +28,7 @@ export type Catalogued = {
   row: RoomType;
   amenities: string[];
   combinations: Array<{ adults: number; children: number }>;
+  images: string[];
 };
 
 function hydrate(row: RoomType): Catalogued {
@@ -35,6 +36,7 @@ function hydrate(row: RoomType): Catalogued {
     row,
     amenities: JSON.parse(row.amenities || "[]"),
     combinations: JSON.parse(row.combinations || "[]"),
+    images: JSON.parse(row.images || "[]"),
   };
 }
 
@@ -146,7 +148,7 @@ export function roomTypeFacts(query: string, amenityQuestions: string[] = []) {
         : "No category matches this description. Ask the guest which category they mean, listing the known ones — do not describe a category that is not in known_categories.",
     };
   }
-  const { row, amenities, combinations } = hit;
+  const { row, amenities, combinations, images } = hit;
   const rooms = storage.listRooms().filter((r) => r.type === row.code);
   const asked = amenityQuestions.filter(Boolean).map((q) => matchAmenity(amenities, q));
 
@@ -171,6 +173,7 @@ export function roomTypeFacts(query: string, amenityQuestions: string[] = []) {
     amenities,
     amenity_count: amenities.length,
     amenity_answers: asked,
+    images,
     unpublished_fields: unpublished,
     source: { file: row.sourceFile, url: row.sourceUrl },
     instruction: [
@@ -183,6 +186,9 @@ export function roomTypeFacts(query: string, amenityQuestions: string[] = []) {
         ? "This page publishes no maximum occupancy and no adult/child combination. If the guest named a party size, you may still say the category is sellable for it when availability says so, but in the same reply you must say the room page does not publish a maximum occupancy for this category and offer to confirm with reception before it is held."
         : null,
       "Quote the area in m² and the rate in VND exactly as given here.",
+      images.length > 0 
+        ? `You MUST include the exact text [IMAGES: ${images.join(",")}] right after mentioning the room name or inside its bullet point.` 
+        : null,
     ]
       .filter(Boolean)
       .join(" "),

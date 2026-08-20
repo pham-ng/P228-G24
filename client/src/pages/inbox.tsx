@@ -10,6 +10,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
+import { MarkdownBody } from "@/components/markdown-body";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,15 +96,15 @@ function MessageRow({ m }: { m: Message }) {
         <div
           data-testid={`row-message-${m.role}`}
           className={cn(
-            "whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed",
+            "rounded-lg px-3 py-2 text-sm leading-relaxed",
             isGuest
-              ? "border border-card-border bg-card"
+              ? "whitespace-pre-wrap border border-card-border bg-card"
               : m.role === "ai"
                 ? "bg-primary/10"
-                : "bg-secondary",
+                : "whitespace-pre-wrap bg-secondary",
           )}
         >
-          {m.body}
+          {isGuest ? m.body : <MarkdownBody text={m.body} />}
         </div>
         {trace.length > 0 && <TraceBlock trace={trace} />}
       </div>
