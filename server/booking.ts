@@ -11,6 +11,7 @@
 
 import { storage, hotelToday, hotelClock, nowIso, HOTEL_TZ } from "./storage";
 import { checkOccupancy } from "./policy";
+import { fitsPublishedCombination, findRoomType } from "./catalogue";
 import type { Reservation, Room } from "@shared/schema";
 
 /* ------------------------------------------------------------------ limits */
@@ -635,7 +636,15 @@ export function validateStayRequest(req: StayRequest): Validation {
     // "Deluxe Queen" does not silently become "Grand Deluxe Queen Bed").
     const contains = types.filter((t) => t.toLowerCase().includes(q)).sort((a, b) => a.length - b.length);
     const inverse = types.filter((t) => q.includes(t.toLowerCase())).sort((a, b) => b.length - a.length);
-    const hit = types.find((t) => t.toLowerCase() === q) ?? contains[0] ?? inverse[0];
+    // Guests name categories in Vietnamese ("Deluxe Giường Đôi"), which no
+    // English inventory name contains. Falling through to UNKNOWN_ROOM_TYPE here
+    // made the agent tell a guest their own room category did not exist, so the
+    // published Vietnamese names are consulted before giving up.
+    const hit =
+      types.find((t) => t.toLowerCase() === q) ??
+      contains[0] ??
+      inverse[0] ??
+      findRoomType(roomType!)?.row.code;
     if (!hit) {
       problems.push({
         code: "UNKNOWN_ROOM_TYPE",
@@ -659,6 +668,18 @@ export function validateStayRequest(req: StayRequest): Validation {
     });
     // `occ.ok` is false precisely when the party is over the limit, so the
     // limit itself is the field to test.
+    const published = fitsPublishedCombination(roomType, Math.ceil(adults / rooms), (childAges ?? []).length);
+    if (published && published.fits === false) {
+      problems.push({
+        code: "OVER_PUBLISHED_OCCUPANCY",
+        field: "adults",
+        message: `${published.reason} Published limit: maximum ${published.published_max_guests} guests (${published.published_combinations
+          .map((c) => `${c.adults} adults + ${c.children} children`)
+          .join(" or ")}).`,
+        suggestion:
+          "Offer a second room of the same category, or a larger category, and re-quote. Quote the published combinations exactly.",
+      });
+    }
     if (occ.within_limit === false) {
       problems.push({
         code: "OVER_OCCUPANCY",
@@ -722,6 +743,12 @@ export type AvailabilityRow = {
   over_budget: boolean;
   /** How to talk about an option above the ceiling. */
   budget_note: string | null;
+  /** Published size of the category, null when the room page does not state it. */
+  area_sqm: number | null;
+  /** Published maximum party for the category, null when not published. */
+  published_max_guests: number | null;
+  /** Why the published combinations rule this party out, when they do. */
+  published_occupancy_note: string | null;
 };
 
 export type AvailabilityResult =
@@ -783,6 +810,8 @@ export function searchAvailability(req: StayRequest): AvailabilityResult {
       bedrooms: isVilla ? 3 : undefined,
     });
     const rate = rateFor(type, inType);
+    const published = fitsPublishedCombination(type, Math.ceil(adults / rooms), childAges.length);
+    const cat = storage.listRoomTypes().find((r) => r.code === type);
     const blocked = checkRestrictions(checkIn, checkOut, type).filter((h) => h.room_type === type);
     return {
       room_type: type,
@@ -793,8 +822,12 @@ export function searchAvailability(req: StayRequest): AvailabilityResult {
       rate_per_night: rate,
       currency: hotel.currency,
       total_for_stay: rate * nights * rooms,
-      fits_party: occ.ok ? occ.within_limit !== false : true,
+      fits_party:
+        published && published.fits === false ? false : occ.ok ? occ.within_limit !== false : true,
       occupancy_limit: occ.ok ? (occ.limit ?? "") : "",
+      area_sqm: cat?.areaSqm ?? null,
+      published_max_guests: published?.published_max_guests ?? null,
+      published_occupancy_note: published?.fits === false ? published.reason : null,
       restricted_reason:
         blocked.length > 0
           ? blocked.map((h) => h.message).join(" ")
@@ -843,7 +876,24 @@ export function searchAvailability(req: StayRequest): AvailabilityResult {
         : null,
     budget_per_night: budget,
     budget_instruction: budget
-      ? `The guest's ceiling is ${budget.toLocaleString("vi-VN")} ${hotel.currency} a night. Categories flagged over_budget must not be offered or described as suitable; if none remain, say so plainly.`
+      ? [
+          `The guest's ceiling is ${budget.toLocaleString("vi-VN")} ${hotel.currency} a night.`,
+          "Categories flagged over_budget must not be offered or described as suitable; if none remain, say so plainly.",
+          // The model once wrote "trong ngân sách của bạn" and then, one sentence
+          // later, that both rooms were 140.000 over it. Naming the exact gap per
+          // row removes the room for that contradiction.
+          options.some((o) => o.over_budget)
+            ? `Over the ceiling right now: ${options
+                .filter((o) => o.over_budget)
+                .map(
+                  (o) =>
+                    `${o.room_type} is ${(o.rate_per_night - budget).toLocaleString("vi-VN")} ${hotel.currency} a night above it`,
+                )
+                .join("; ")}. Say the gap before anything else about these categories, and never put "trong ngân sách", "phù hợp ngân sách" or "within budget" in the same sentence as one of them.`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" ")
       : null,
     note:
       sellable.length > 0

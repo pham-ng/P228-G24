@@ -132,6 +132,44 @@ export async function reindex(): Promise<{
     });
   }
 
+  // The room catalogue is indexed too, so a guest question phrased as prose
+  // ("phòng nào có bồn tắm?") can find the category page even when the model
+  // does not reach for get_room_type_facts.
+  for (const r of storage.listRoomTypes()) {
+    const amenities: string[] = JSON.parse(r.amenities || "[]");
+    const combos: Array<{ adults: number; children: number }> = JSON.parse(r.combinations || "[]");
+    const facts = [
+      `${r.nameVi} (${r.code})`,
+      r.areaSqm != null ? `Diện tích ${r.areaSqm} m².` : null,
+      r.bedrooms != null ? `${r.bedrooms} phòng ngủ.` : null,
+      r.bed === "twin" ? "2 giường đơn." : r.bed === "double" ? "Giường đôi." : null,
+      r.oceanView ? "Hướng biển." : null,
+      r.privatePool ? "Có hồ bơi riêng." : null,
+      r.maxGuests != null
+        ? `Tối đa ${r.maxGuests} khách (${combos.map((c) => `${c.adults} người lớn + ${c.children} trẻ em`).join(" hoặc ")}).`
+        : null,
+      r.description,
+      `Tiện ích công bố: ${amenities.join(", ")}.`,
+    ]
+      .filter(Boolean)
+      .join(" ");
+    chunkText(facts).forEach((body, ordinal) => {
+      storage.createChunk({
+        kind: "room",
+        refId: r.id,
+        ordinal,
+        title: `${r.nameVi} — phòng`,
+        category: "room_type",
+        sourceUrl: r.sourceUrl,
+        body: `${r.nameVi} ${r.code}\n${body}`,
+        tokens: tokenise(body).length,
+        embedding: null,
+        embedModel: null,
+        updatedAt: ts,
+      });
+    });
+  }
+
   const pending = storage.chunksWithoutEmbedding();
   let embedded = 0;
   let embedError: string | null = null;

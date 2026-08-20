@@ -91,7 +91,6 @@ export type Room = {
   number: string;
   floor: number;
   type: string;
-  view: string;
   status: string;
   housekeepingNote: string | null;
 };
@@ -151,6 +150,24 @@ export type RoomRow = Room & {
   departure: string | null;
   arrivingToday: boolean;
   openTasks: number;
+};
+
+export type RoomTypeRow = {
+  code: string;
+  nameVi: string | null;
+  areaSqm: number | null;
+  bedrooms: number | null;
+  bed: string | null;
+  oceanView: boolean;
+  privatePool: boolean;
+  maxGuests: number | null;
+  combinations: Array<{ adults: number; children: number }>;
+  amenities: string[];
+  description: string | null;
+  sourceUrl: string | null;
+  rate: number;
+  rooms: number;
+  published: boolean;
 };
 
 export type ReservationRow = Reservation & {

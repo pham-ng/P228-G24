@@ -13,6 +13,7 @@ import {
   kbArticles,
   policies,
   restrictions,
+  roomTypes,
   docChunks,
   offers,
   campaigns,
@@ -33,6 +34,8 @@ import type {
   KbArticle,
   Policy,
   Restriction,
+  RoomType,
+  InsertRoomType,
   DocChunk,
   Offer,
   Campaign,
@@ -137,6 +140,13 @@ CREATE TABLE IF NOT EXISTS restrictions (
   stop_sell INTEGER NOT NULL DEFAULT 0, label TEXT NOT NULL, reason TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS restrictions_date ON restrictions (date);
+CREATE TABLE IF NOT EXISTS room_types (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, code TEXT NOT NULL UNIQUE,
+  name_vi TEXT NOT NULL, area_sqm REAL, bedrooms INTEGER, bed TEXT,
+  ocean_view INTEGER NOT NULL DEFAULT 0, private_pool INTEGER NOT NULL DEFAULT 0,
+  max_guests INTEGER, combinations TEXT NOT NULL DEFAULT '[]', description TEXT NOT NULL,
+  amenities TEXT NOT NULL DEFAULT '[]', source_file TEXT NOT NULL, source_url TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS doc_chunks (
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, ref_id INTEGER NOT NULL,
   ordinal INTEGER NOT NULL DEFAULT 0, title TEXT NOT NULL, category TEXT NOT NULL,
@@ -375,6 +385,15 @@ export const storage = {
   },
   createBooking(v: Omit<ServiceBooking, "id">): ServiceBooking {
     return db.insert(serviceBookings).values(v).returning().get();
+  },
+
+  /* ---------------- room catalogue ---------------- */
+  listRoomTypes(): RoomType[] {
+    return db.select().from(roomTypes).orderBy(asc(roomTypes.areaSqm)).all();
+  },
+
+  createRoomType(v: InsertRoomType): RoomType {
+    return db.insert(roomTypes).values(v).returning().get();
   },
 
   /* ---------------- rate restrictions ---------------- */

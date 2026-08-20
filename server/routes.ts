@@ -383,6 +383,38 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   /* ---------------- rooms, reservations, catalogue ---------------- */
 
+  /** The published room catalogue, as parsed from the property's own room pages. */
+  app.get("/api/room-types", (_req, res) => {
+    const rooms = storage.listRooms();
+    const published = storage.listRoomTypes();
+    const inventory = [...new Set(rooms.map((r) => r.type))];
+    res.json(
+      inventory
+        .map((code) => {
+          const row = published.find((r) => r.code === code);
+          const inType = rooms.filter((r) => r.type === code);
+          return {
+            code,
+            nameVi: row?.nameVi ?? null,
+            areaSqm: row?.areaSqm ?? null,
+            bedrooms: row?.bedrooms ?? null,
+            bed: row?.bed ?? null,
+            oceanView: !!row?.oceanView,
+            privatePool: !!row?.privatePool,
+            maxGuests: row?.maxGuests ?? null,
+            combinations: JSON.parse(row?.combinations ?? "[]") as Array<{ adults: number; children: number }>,
+            amenities: JSON.parse(row?.amenities ?? "[]") as string[],
+            description: row?.description ?? null,
+            sourceUrl: row?.sourceUrl ?? null,
+            rate: inType[0]?.baseRate ?? 0,
+            rooms: inType.length,
+            published: !!row,
+          };
+        })
+        .sort((a, b) => a.rate - b.rate),
+    );
+  });
+
   app.get("/api/rooms", (_req, res) => {
     const reservations = storage.listReservations();
     const guests = storage.listGuests();

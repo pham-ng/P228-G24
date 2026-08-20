@@ -240,9 +240,14 @@ async function runCase(kase, hotelDate) {
     // "0 VND" must not fire inside "2,200,000 VND": a forbidden string that
     // starts with a digit only counts when no digit or separator precedes it.
     const hay = allReplies.toLowerCase();
-    const ok = /^[\d]/.test(needle)
-      ? !new RegExp(`(^|[^\\d.,])${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(hay)
-      : !hay.includes(needle);
+    // A forbidden phrase only counts as a real hit when it is not part of a
+    // longer word or number. "0 VND" must not fire inside "2,200,000 VND", and
+    // "có bàn là" must not fire inside "có bàn làm việc" — both were false
+    // failures against replies that were in fact correct.
+    const esc = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const left = /^[\d]/.test(needle) ? "[^\\d.,]" : "[^\\p{L}\\p{M}]";
+    const right = /[\d]$/.test(needle) ? "[^\\d.,]" : "[^\\p{L}\\p{M}]";
+    const ok = !new RegExp(`(^|${left})${esc}($|${right})`, "u").test(hay);
     add(`reply avoids "${bad}"`, ok, ok ? "" : "it appeared in the reply");
   }
 

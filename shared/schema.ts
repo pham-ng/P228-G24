@@ -201,6 +201,32 @@ export const restrictions = sqliteTable("restrictions", {
   reason: text("reason").notNull(),
 });
 
+/** The property's published room catalogue: one row per category, parsed from the
+ *  hotel's own room pages. Every field here is something the property publishes —
+ *  a field the page is silent about stays null so the agent can say "not published"
+ *  instead of inventing it. */
+export const roomTypes = sqliteTable("room_types", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hotelId: integer("hotel_id").notNull(),
+  /** Inventory category name, matching rooms.type. */
+  code: text("code").notNull().unique(),
+  nameVi: text("name_vi").notNull(),
+  areaSqm: real("area_sqm"),
+  bedrooms: integer("bedrooms"),
+  bed: text("bed"), // double | twin | null
+  oceanView: integer("ocean_view").notNull().default(0),
+  privatePool: integer("private_pool").notNull().default(0),
+  /** Published maximum guests per unit, null when the page does not state it. */
+  maxGuests: integer("max_guests"),
+  /** JSON array of {adults, children} combinations the page spells out. */
+  combinations: text("combinations").notNull().default("[]"),
+  description: text("description").notNull(),
+  /** JSON array of the amenity labels listed on the page, in page order. */
+  amenities: text("amenities").notNull().default("[]"),
+  sourceFile: text("source_file").notNull(),
+  sourceUrl: text("source_url").notNull(),
+});
+
 /** Retrieval index: one row per chunk of a KB article or policy, with its embedding. */
 export const docChunks = sqliteTable("doc_chunks", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -282,6 +308,8 @@ export type ServiceBooking = typeof serviceBookings.$inferSelect;
 export type KbArticle = typeof kbArticles.$inferSelect;
 export type Policy = typeof policies.$inferSelect;
 export type Restriction = typeof restrictions.$inferSelect;
+export type RoomType = typeof roomTypes.$inferSelect;
+export type InsertRoomType = typeof roomTypes.$inferInsert;
 export type DocChunk = typeof docChunks.$inferSelect;
 export type Offer = typeof offers.$inferSelect;
 export type Campaign = typeof campaigns.$inferSelect;

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { db, storage, migrate, sqlite } from "./storage";
 import {
   hotels,
@@ -13,6 +15,7 @@ import {
   kbArticles,
   policies,
   restrictions,
+  roomTypes,
   offers,
   campaigns,
 } from "@shared/schema";
@@ -75,6 +78,48 @@ export function seedIfEmpty() {
   ];
   staffRows.forEach((s) => db.insert(staff).values({ ...s, active: 1 }).run());
 
+  /* ---------------- room catalogue ----------------
+   * Parsed from the property's own room pages (scripts/parse-room-types.py).
+   * Nothing here is written by hand: if a page does not state the area or the
+   * maximum party, the column stays null and the agent says it is not published.
+   */
+  const catalogue: Array<{
+    name_vi: string;
+    inventory_type: string | null;
+    area_sqm: number | null;
+    bedrooms: number | null;
+    bed: string | null;
+    ocean_view: boolean;
+    private_pool: boolean;
+    occupancy: { max_guests: number; combinations: Array<{ adults: number; children: number }> } | null;
+    description: string;
+    amenities: string[];
+    source_file: string;
+    source_url: string;
+  }> = JSON.parse(readFileSync(join(process.cwd(), "server", "data", "room-types.json"), "utf8"));
+
+  catalogue.forEach((c) => {
+    if (!c.inventory_type) return;
+    db.insert(roomTypes)
+      .values({
+        hotelId: 1,
+        code: c.inventory_type,
+        nameVi: c.name_vi,
+        areaSqm: c.area_sqm,
+        bedrooms: c.bedrooms,
+        bed: c.bed,
+        oceanView: c.ocean_view ? 1 : 0,
+        privatePool: c.private_pool ? 1 : 0,
+        maxGuests: c.occupancy?.max_guests ?? null,
+        combinations: JSON.stringify(c.occupancy?.combinations ?? []),
+        description: c.description,
+        amenities: JSON.stringify(c.amenities),
+        sourceFile: c.source_file,
+        sourceUrl: c.source_url,
+      })
+      .run();
+  });
+
   /* ---------------- rooms ----------------
    * Guest rooms sit on floors 1–5 of the resort blocks; the villas are
    * beachfront ground-level units. A live PMS would supply all 476 keys.
@@ -84,19 +129,23 @@ export function seedIfEmpty() {
     "Deluxe Queen Bed": 2_200_000,
     "Deluxe Twin Bed": 2_200_000,
     "Grand Deluxe Queen Bed": 2_410_000,
+    "Grand Deluxe Twin Bed": 2_410_000,
     "Deluxe Ocean View Queen Bed": 2_640_000,
+    "Deluxe Ocean View Twin Bed": 2_640_000,
     "Grand Deluxe Ocean View Twin Bed": 2_870_000,
     "Deluxe Suite King Ocean View": 4_097_000,
     "Villa 3-Bedroom Ocean View": 8_610_000,
     "Tropicana Beachfront Villa 3-Bedroom": 10_130_000,
   };
-  const roomTypes = [
+  const roomTypeRotation = [
     "Deluxe Queen Bed",
     "Deluxe Twin Bed",
     "Grand Deluxe Queen Bed",
     "Deluxe Ocean View Queen Bed",
     "Grand Deluxe Ocean View Twin Bed",
     "Deluxe Suite King Ocean View",
+    "Deluxe Ocean View Twin Bed",
+    "Grand Deluxe Twin Bed",
   ];
   for (let floor = 1; floor <= 5; floor++) {
     for (let n = 1; n <= 8; n++) {
@@ -104,8 +153,8 @@ export function seedIfEmpty() {
       db.insert(rooms)
         .values({
           number,
-          type: roomTypes[(floor + n) % roomTypes.length],
-          baseRate: RATES[roomTypes[(floor + n) % roomTypes.length]] ?? 0,
+          type: roomTypeRotation[(floor + n) % roomTypeRotation.length],
+          baseRate: RATES[roomTypeRotation[(floor + n) % roomTypeRotation.length]] ?? 0,
           floor,
           status: n === 3 ? "dirty" : n === 7 && floor === 4 ? "out_of_order" : "clean",
           housekeepingNote:

@@ -659,7 +659,7 @@
       "expect_db": {
         "reservations_created": 0
       },
-      "expectation": "The guest set a ceiling of 2.500.000 VND a night earlier in the conversation. The agent may only offer categories at or below it; if it mentions an ocean-view category at all it must say plainly that the price is above the stated budget, and it must never present it as fitting.",
+      "expectation": "The nightly ceiling of 2.500.000 VND stated in the first turn still binds in the second. The guest asked which categories have an ocean view, so naming the ocean-view categories is correct — but the reply must state in the same breath that they are above the ceiling and by how much (140.000 VND a night, at 2.640.000), must never call them within budget or suitable, and must offer at least one category that is genuinely inside the ceiling with its rate. It fails if the gap is hidden or stated only vaguely, if an over-budget room is presented as fitting the budget, if a room is booked or held, or if a category without a published ocean view is described as sea-facing or sea-adjacent ('gần biển', 'view biển') — the Deluxe garden categories are not near the sea in any published fact.",
       "expect_contains_any": [
         [
           "cao hơn",
@@ -671,8 +671,216 @@
       "forbid_contains": [
         "phù hợp ngân sách của bạn là Deluxe Ocean",
         "phù hợp với ngân sách của bạn là Deluxe Ocean",
-        "trong ngân sách của bạn là Deluxe Ocean"
+        "trong ngân sách của bạn là Deluxe Ocean",
+        "gần biển"
       ]
+    },
+    {
+      "id": "F1",
+      "title": "Amenity that is published",
+      "category": "Room facts & amenities",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Phòng Deluxe Hướng Biển Giường Đôi có bồn tắm và ban công không? Diện tích bao nhiêu?"
+      ],
+      "expect_tools": [
+        "get_room_type_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "32 m²",
+          "32m²",
+          "32 m2"
+        ],
+        [
+          "bồn tắm"
+        ],
+        [
+          "ban công"
+        ]
+      ],
+      "forbid_contains": [
+        "không có bồn tắm",
+        "không có ban công"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "Both bồn tắm and Ban công/Sân hiên are on the published amenity list for this 32 m² category, and the area is published. The agent must confirm both amenities and state 32 m², taken from the room page rather than from general knowledge."
+    },
+    {
+      "id": "F2",
+      "title": "Amenity that is not published",
+      "category": "Room facts & amenities",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Phòng Deluxe Giường Đôi có bàn là và bếp nhỏ không?"
+      ],
+      "expect_tools": [
+        "get_room_type_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "không nằm trong",
+          "không có trong",
+          "không được liệt kê",
+          "không thấy trong",
+          "chưa được công bố",
+          "không có thông tin",
+          "trong mô tả phòng công bố",
+          "trong mô tả tiện nghi",
+          "không có “bàn là”",
+          "không có \"bàn là\"",
+          "trong mô tả"
+        ]
+      ],
+      "forbid_contains": [
+        "có sẵn bàn là",
+        "phòng có bàn là",
+        "phòng có bếp nhỏ",
+        "có bếp nhỏ trong phòng"
+      ],
+      "expect_question": false,
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "Neither bàn là nor Bếp nhỏ appears on this category's published amenity list (Bếp nhỏ is a villa amenity). The agent must say these are not in the published room description and offer to confirm with the front desk. Saying the room has them is a hallucination and fails. Flatly asserting the resort does not have an iron at all also fails, because the room page does not say that."
+    },
+    {
+      "id": "F3",
+      "title": "Four adults against a published combination",
+      "category": "Room facts & amenities",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Nhà tôi 4 người lớn, ở 1 phòng Deluxe Giường Đôi từ 25/09 đến 27/09 được không?"
+      ],
+      "expect_tools_any": [
+        "get_room_type_facts",
+        "check_occupancy",
+        "check_availability"
+      ],
+      "forbid_tools": [
+        "create_reservation"
+      ],
+      "expect_contains_any": [
+        [
+          "3 người lớn",
+          "3 người lớn 1 trẻ em",
+          "3 người lớn + 1 trẻ em"
+        ],
+        [
+          "2 người lớn"
+        ]
+      ],
+      "forbid_contains": [
+        "4 người lớn ở 1 phòng được",
+        "hoàn toàn được",
+        "4 người lớn trong một phòng là được"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The page publishes maximum 4 guests as 3 adults + 1 child or 2 adults + 2 children, so four adults do not fit even though the headcount is 4. The agent must say the published combinations, refuse the single room for four adults, and offer a second room or a larger category. It must not book."
+    },
+    {
+      "id": "F4",
+      "title": "Villa facts including the private pool",
+      "category": "Room facts & amenities",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Biệt thự 3 phòng ngủ hướng biển rộng bao nhiêu, có hồ bơi riêng và bếp không?"
+      ],
+      "expect_tools": [
+        "get_room_type_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "370"
+        ],
+        [
+          "hồ bơi riêng",
+          "bể bơi riêng"
+        ]
+      ],
+      "forbid_contains": [
+        "không có hồ bơi riêng"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The villa page publishes 370 m², a private pool and Bếp nhỏ. The agent must state 370 m² and confirm the private pool, and may confirm the kitchen — but it must not add facilities the page does not list, and it must not claim the villa lacks a pool."
+    },
+    {
+      "id": "F5",
+      "title": "Category with no published page",
+      "category": "Room facts & amenities",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Deluxe Suite King Ocean View có những tiện nghi gì, diện tích bao nhiêu?"
+      ],
+      "expect_tools": [
+        "get_room_type_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "chưa được công bố",
+          "không được công bố",
+          "chưa có thông tin",
+          "không có thông tin chi tiết",
+          "chưa công bố",
+          "xác nhận với lễ tân",
+          "kiểm tra với lễ tân"
+        ]
+      ],
+      "forbid_contains": [
+        "52 m²",
+        "52m²"
+      ],
+      "expect_question": false,
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The suite is a real, sellable category but the property has published no room page for it, so there is no amenity list or area to quote. The agent must say the details are not published and offer to confirm with reception. Inventing an amenity list or a square-metre figure fails."
+    },
+    {
+      "id": "F6",
+      "title": "Twin versus double must not be swapped",
+      "category": "Room facts & amenities",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Tôi cần phòng 2 giường đơn hướng biển cho 2 người lớn 1 trẻ 6 tuổi, từ 25/09 đến 27/09. Phòng đó rộng bao nhiêu và giá thế nào?"
+      ],
+      "expect_tools_any": [
+        "get_room_type_facts",
+        "check_availability"
+      ],
+      "expect_contains_any": [
+        [
+          "32 m²",
+          "32m²",
+          "42 m²",
+          "42m²"
+        ],
+        [
+          "2.640.000",
+          "2.870.000",
+          "2,640,000",
+          "2,870,000"
+        ]
+      ],
+      "forbid_contains": [
+        "giường đôi phù hợp với yêu cầu 2 giường đơn"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The guest asked for twin beds with an ocean view. The agent must answer about an ocean-view twin category (Deluxe Ocean View Twin 32 m² at 2.640.000, or Grand Deluxe Ocean View Twin 42 m² at 2.870.000) using the area and rate returned by the tools, and must not substitute a double-bed room as if it matched. Quoting the availability tool is grounded, not invented: stating the rate, the nightly total for the stay, and that the category is sellable for this party is correct when the availability tool returned it. What fails is swapping twin for double, inventing an area or rate, or presenting a maximum-occupancy combination as published when this category's page does not publish one — saying that the published page is silent on occupancy is the expected caveat."
     }
   ]
 }

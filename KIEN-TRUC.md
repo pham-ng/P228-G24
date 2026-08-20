@@ -26,7 +26,7 @@ Khách (mọi ngôn ngữ)                     Nhân viên khách sạn
 
 ---
 
-## 2. Cơ sở dữ liệu — 17 bảng
+## 2. Cơ sở dữ liệu — 20 bảng
 
 `shared/schema.ts` định nghĩa schema, dùng chung cho cả client và server nên kiểu dữ liệu không bao giờ lệch nhau.
 
@@ -299,7 +299,42 @@ Toàn bộ transcript của lần chạy mới nhất nằm trong `bench/report.
 
 ---
 
-## 9. Chạy lại và mở rộng
+## 10. Danh mục hạng phòng lấy từ 9 trang phòng thật
+
+Phần này trả lời đúng yêu cầu "bổ sung data nhưng agent không được lấy sai, không được bịa".
+
+**Nguồn**: 9 tệp mô tả phòng do bạn cung cấp (Deluxe Giường Đôi, Deluxe 2 Giường Đơn, Deluxe Hướng Biển Giường Đôi, Deluxe Hướng Biển 2 Giường Đơn, Grand Deluxe Giường Đôi, Grand Deluxe 2 Giường Đơn, Grand Deluxe Hướng Biển 2 Giường Đơn, Biệt Thự 3 Phòng Ngủ Hướng Biển, Biệt thự Tropicana 3 phòng ngủ hướng biển).
+
+**Đường đi của dữ liệu**
+
+1. `scripts/parse-room-types.py` đọc 9 tệp, gỡ nhãn tiện nghi bị lặp đôi ("Ban côngBan công" → "Ban công"), tách diện tích, số phòng ngủ, loại giường (twin/double), hướng biển, bể riêng, sức chứa công bố dạng `Tối đa 4 người … (3 người lớn 1 trẻ em hoặc 2 người lớn 2 trẻ em)`, danh sách tiện nghi, tệp nguồn và URL nguồn → `server/data/room-types.json`.
+2. **Nguyên tắc cốt lõi: trường nào trang không công bố thì để `null`, không suy đoán.** Chỉ 4/9 hạng có công bố sức chứa; 5 hạng còn lại `max_guests = null` và agent phải nói là chưa công bố.
+3. Bảng mới `room_types` trong `shared/schema.ts` + `server/storage.ts`; seed từ JSON trong `server/seed.ts`.
+4. `server/retrieval.ts` đánh index thêm mỗi hạng phòng thành chunk `kind:"room"` → index hiện có 25 chunk KB + 17 chunk policy + 18 chunk phòng.
+5. `GET /api/room-types` và bảng **Room catalogue** ở trang Rooms của dashboard hiển thị đúng những gì được công bố; ô trống hiện dấu gạch để nhân viên thấy rõ chỗ nào trang phòng im lặng.
+
+**Tầng chống trả lời sai** — `server/catalogue.ts`
+
+- `findRoomType()` khớp tên tiếng Việt lẫn tiếng Anh sau khi bỏ dấu, **trừ điểm nặng khi lệch loại giường hoặc lệch hướng biển**, và nếu một hạng chỉ có trong inventory mà không có trang công bố (Deluxe Suite King Ocean View) khớp tốt hơn thì trả về `null` thay vì đưa ra hạng gần giống. Trước khi có luật này, câu hỏi về Deluxe Suite King Ocean View bị trả lời bằng tiện nghi của Deluxe Hướng Biển Giường Đôi — đúng dạng bịa đặt mà module này sinh ra để chặn.
+- `matchAmenity()` khớp theo **cả từ**, không khớp chuỗi con. Bản đầu tiên trả lời câu hỏi "có bàn là không?" bằng "có bàn làm việc" vì `bàn là` là chuỗi con của `bàn làm việc`. Đây là lỗi thật, đã sửa.
+- `roomTypeFacts()` trả về `unpublished_fields` và một chuỗi `instruction` bắt buộc agent: tiện nghi `not_listed` thì nói là không nằm trong mô tả công bố (không được biến thành "có", cũng không được khẳng định resort không có), và khi hạng phòng không công bố sức chứa thì phải nói ra điều đó trong cùng câu trả lời.
+- `server/booking.ts` nhận thêm tên hạng phòng tiếng Việt qua `findRoomType`; trước đó khách nói "Deluxe Giường Đôi" bị trả về `UNKNOWN_ROOM_TYPE` và agent nói sai rằng hạng phòng đó không tồn tại.
+- Mã lỗi nghiệp vụ mới **`OVER_PUBLISHED_OCCUPANCY`**: tổ hợp công bố chặt hơn tổng số khách, nên 4 người lớn bị từ chối trong hạng ghi "3 người lớn + 1 trẻ em hoặc 2 người lớn + 2 trẻ em" dù trần chung vẫn là 4 người.
+- Tool mới của agent: `get_room_type_facts(room_type, amenity_questions[])`; doctrine thêm **luật 6** về diện tích, tiện nghi và tổ hợp khách.
+
+**Nói thẳng ba điều chưa hoàn hảo**
+
+- Hai hạng `Deluxe Ocean View Twin Bed` và `Grand Deluxe Twin Bed` được thêm vào inventory để danh mục khớp với các trang phòng bạn gửi — đây là dữ liệu vận hành do tôi tạo, không phải trích từ trang.
+- `Deluxe Suite King Ocean View` bán được nhưng **không có trang công bố**, nên agent chỉ báo giá và nói rõ là chi tiết chưa công bố.
+- Giá theo hạng phòng lấy từ bảng giá đã seed trước đó, không nằm trong 9 tệp mô tả.
+
+**Benchmark thêm nhóm F (Room facts & amenities)** — F1 tiện nghi có công bố, F2 tiện nghi không công bố, F3 bốn người lớn so với tổ hợp công bố, F4 biệt thự 370 m² và bể riêng, F5 hạng phòng không có trang công bố, F6 không được đổi 2 giường đơn thành giường đôi. Bộ case tăng từ 28 lên 34.
+
+Trong lần chạy này, chính benchmark đã phát hiện 2 lỗi thật của agent (khớp chuỗi con `bàn là` / `bàn làm việc`, và ghép sai hạng phòng cho suite) cùng 2 lỗi của chính bộ kiểm (chuỗi cấm khớp giữa từ, và `expect_tools_any` bị lồng mảng). Cả 4 đều đã sửa.
+
+---
+
+## 11. Chạy lại và mở rộng
 
 ```bash
 cd /home/user/workspace/aurea
