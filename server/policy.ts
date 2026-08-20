@@ -65,6 +65,7 @@ export type LateCheckoutQuote = {
   waiver?: string | null;
   availability?: string;
   max_possible_time?: string | null;
+  how_to_answer?: string;
   calculation?: string;
   policy?: { code: string; title: string; source: string; source_url: string };
   internal_rule?: { code: string; title: string; note: string } | null;
@@ -157,8 +158,10 @@ export function quoteLateCheckout(input: {
     waiver,
     availability: blocked
       ? `The room is occupied again the same day, so departure cannot go beyond ${maxPossible}.`
-      : "Subject to room availability on the day — confirm with the front desk.",
+      : "Subject to room availability on the day — the front desk confirms it at departure.",
     max_possible_time: blocked ? maxPossible : null,
+    how_to_answer:
+      "State the band, the amount and what it is charged per, and say the front desk confirms the time on the day. Do not offer to check, hold, arrange or guarantee the time yourself, and do not attach conditions the policy does not contain.",
     calculation: waiver
       ? `${want} falls in the ${band.label} band (${band.pct}% of the package rate = ${roundVnd(gross).toLocaleString("vi-VN")} ${input.currency}), waived to 0 by the loyalty rule.`
       : `${want} falls in the ${band.label} band: ${band.pct}% × ${input.ratePerNight.toLocaleString("vi-VN")} ${input.currency} package rate = ${fee.toLocaleString("vi-VN")} ${input.currency}. Charged ${rules.charged_per ?? "per room"}, so the number of guests in the room does not change it.`,

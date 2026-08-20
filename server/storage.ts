@@ -12,6 +12,7 @@ import {
   serviceBookings,
   kbArticles,
   policies,
+  restrictions,
   docChunks,
   offers,
   campaigns,
@@ -31,6 +32,7 @@ import type {
   ServiceBooking,
   KbArticle,
   Policy,
+  Restriction,
   DocChunk,
   Offer,
   Campaign,
@@ -51,6 +53,11 @@ export const db = drizzle(sqlite);
  * Schema bootstrap (kept in code so the app is runnable from scratch)
  * ------------------------------------------------------------------ */
 
+function addColumnIfMissing(table: string, column: string, ddl: string) {
+  const cols = sqlite.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+  if (!cols.some((c) => c.name === column)) sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+}
+
 export function migrate() {
   sqlite.exec(`
 CREATE TABLE IF NOT EXISTS hotels (
@@ -65,7 +72,8 @@ CREATE TABLE IF NOT EXISTS staff (
 );
 CREATE TABLE IF NOT EXISTS rooms (
   id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT NOT NULL UNIQUE, type TEXT NOT NULL,
-  floor INTEGER NOT NULL, status TEXT NOT NULL, housekeeping_note TEXT
+  floor INTEGER NOT NULL, status TEXT NOT NULL, housekeeping_note TEXT,
+  base_rate REAL NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS guests (
   id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, phone TEXT NOT NULL UNIQUE,
@@ -122,6 +130,13 @@ CREATE TABLE IF NOT EXISTS policies (
   rules TEXT NOT NULL DEFAULT '{}', source_url TEXT NOT NULL, source_title TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS restrictions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, date TEXT NOT NULL,
+  room_type TEXT, min_los INTEGER, max_los INTEGER,
+  closed_to_arrival INTEGER NOT NULL DEFAULT 0, closed_to_departure INTEGER NOT NULL DEFAULT 0,
+  stop_sell INTEGER NOT NULL DEFAULT 0, label TEXT NOT NULL, reason TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS restrictions_date ON restrictions (date);
 CREATE TABLE IF NOT EXISTS doc_chunks (
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, ref_id INTEGER NOT NULL,
   ordinal INTEGER NOT NULL DEFAULT 0, title TEXT NOT NULL, category TEXT NOT NULL,
@@ -146,6 +161,7 @@ CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_task_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
 `);
+  addColumnIfMissing("rooms", "base_rate", "base_rate REAL NOT NULL DEFAULT 0");
 }
 
 export const nowIso = () => new Date().toISOString();
@@ -194,6 +210,10 @@ export const storage = {
   getGuest(id: number): Guest | undefined {
     return db.select().from(guests).where(eq(guests.id, id)).get();
   },
+  createGuest(v: Omit<Guest, "id">): Guest {
+    const r = db.insert(guests).values(v).returning().get();
+    return r;
+  },
   updateGuest(id: number, patch: Partial<Guest>): Guest {
     db.update(guests).set(patch).where(eq(guests.id, id)).run();
     return db.select().from(guests).where(eq(guests.id, id)).get()!;
@@ -201,6 +221,9 @@ export const storage = {
 
   listReservations(): Reservation[] {
     return db.select().from(reservations).orderBy(asc(reservations.checkIn)).all();
+  },
+  createReservation(v: Omit<Reservation, "id">): Reservation {
+    return db.insert(reservations).values(v).returning().get();
   },
   getReservation(id: number | null): Reservation | undefined {
     if (!id) return undefined;
@@ -352,6 +375,23 @@ export const storage = {
   },
   createBooking(v: Omit<ServiceBooking, "id">): ServiceBooking {
     return db.insert(serviceBookings).values(v).returning().get();
+  },
+
+  /* ---------------- rate restrictions ---------------- */
+  listRestrictions(): Restriction[] {
+    return db.select().from(restrictions).orderBy(asc(restrictions.date)).all();
+  },
+  /** Every restriction row touching the half-open window [from, to). */
+  restrictionsBetween(from: string, to: string): Restriction[] {
+    return db
+      .select()
+      .from(restrictions)
+      .where(and(sql`${restrictions.date} >= ${from}`, sql`${restrictions.date} <= ${to}`))
+      .orderBy(asc(restrictions.date))
+      .all();
+  },
+  createRestriction(v: Omit<Restriction, "id">): Restriction {
+    return db.insert(restrictions).values(v).returning().get();
   },
 
   /* ---------------- policies ---------------- */

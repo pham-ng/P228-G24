@@ -6,6 +6,9 @@ import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
 import { chat, LlmError } from "./openai";
 import { reindex, indexStats, hybridSearch } from "./retrieval";
 import { getPolicyByTopic } from "./policy";
+import { searchAvailability, checkRestrictions, resolveDate, validateStayRequest } from "./booking";
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { conversations, tasks as tasksTable } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
@@ -845,6 +848,167 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   app.get("/api/events", (_req, res) => {
     res.json(storage.listEvents(150));
+  });
+
+  /* ---------------- booking engine (staff + benchmark surface) ---------------- */
+
+  app.get("/api/restrictions", (_req, res) => {
+    res.json(storage.listRestrictions());
+  });
+
+  app.post(
+    "/api/booking/validate",
+    asyncH(async (req, res) => {
+      const b = req.body ?? {};
+      res.json(
+        validateStayRequest({
+          checkIn: b.check_in,
+          checkOut: b.check_out,
+          nights: b.nights,
+          adults: b.adults,
+          childAges: b.child_ages,
+          children: b.children,
+          rooms: b.rooms,
+          roomType: b.room_type,
+        }),
+      );
+    }),
+  );
+
+  app.post(
+    "/api/booking/availability",
+    asyncH(async (req, res) => {
+      const b = req.body ?? {};
+      res.json(
+        searchAvailability({
+          checkIn: b.check_in,
+          checkOut: b.check_out,
+          nights: b.nights,
+          adults: b.adults,
+          childAges: b.child_ages,
+          children: b.children,
+          rooms: b.rooms,
+          roomType: b.room_type,
+        }),
+      );
+    }),
+  );
+
+  app.post(
+    "/api/booking/resolve-date",
+    asyncH(async (req, res) => {
+      res.json(resolveDate(String(req.body?.expression ?? "")));
+    }),
+  );
+
+  app.post(
+    "/api/booking/restrictions",
+    asyncH(async (req, res) => {
+      const b = req.body ?? {};
+      res.json(checkRestrictions(String(b.check_in), String(b.check_out), b.room_type ?? null));
+    }),
+  );
+
+  /* ---------------- benchmark ---------------- */
+
+  /**
+   * A fresh guest conversation with no reservation behind it — the prospect
+   * channel a website enquiry arrives on, and what the booking half of the
+   * benchmark runs against.
+   */
+  app.post(
+    "/api/guest/enquiry",
+    asyncH(async (req, res) => {
+      const { name, lang } = z
+        .object({ name: z.string().min(1).max(80).optional(), lang: z.string().min(2).max(5).optional() })
+        .parse(req.body ?? {});
+      const hotel = storage.getHotel();
+      const guest = storage.createGuest({
+        name: name ?? "Website enquiry",
+        phone: `enquiry-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
+        email: null,
+        lang: lang ?? "vi",
+        vipTier: "none",
+        preferences: JSON.stringify([]),
+        notes: "Prospect — no reservation yet.",
+        staysCount: 0,
+      });
+      const conv = storage.createConversation({
+        hotelId: hotel.id,
+        guestId: guest.id,
+        reservationId: null,
+        channel: "webchat",
+        mode: "ai",
+        assignedStaffId: null,
+        sentiment: "neutral",
+        topic: "enquiry",
+        unreadForStaff: 0,
+        lastMessageAt: nowIso(),
+        createdAt: nowIso(),
+        firstResponseSeconds: null,
+      });
+      res.json({ conversationId: conv.id, guestId: guest.id });
+    }),
+  );
+
+  /**
+   * LLM-as-judge for the benchmark. The harness runs deterministic checks
+   * itself; this scores only the things a diff cannot see — whether the reply
+   * is grounded in the tool output, whether it asked for what was missing,
+   * whether it corrected the guest instead of complying.
+   */
+  app.post(
+    "/api/bench/judge",
+    asyncH(async (req, res) => {
+      const { transcript, expectation, tool_output } = z
+        .object({
+          transcript: z.string().min(1).max(20000),
+          expectation: z.string().min(1).max(4000),
+          tool_output: z.string().max(20000).optional(),
+        })
+        .parse(req.body);
+
+      const completion = await chat({
+        messages: [
+          {
+            role: "system",
+            content: `You grade a hotel concierge agent, strictly and without charity. You are given a transcript, what a correct agent had to do, and the tool output the agent actually received.
+
+Score five dimensions from 0 to 2. 0 = fails outright, 1 = partial, 2 = fully correct.
+- grounded: every price, date, rule and availability claim in the reply traces to the tool output. A value counts as grounded when it appears anywhere in that output, including inside warnings, suggestions, derived fields and instruction text. A number that appears nowhere in it scores 0.
+- correct_handling: the reply does what the expectation describes — corrects the contradiction, refuses, escalates, or completes the task.
+- asked_for_missing: when facts were missing, the reply asks for exactly those and does not guess. Score 2 when nothing was missing.
+- no_overpromise: no invented availability, room number, refund, waiver, guarantee or policy.
+- tone: concise, plain, in the guest's language, no lecture.
+
+Before you score grounded or no_overpromise below 2, quote in "reason" the exact value or clause you believe is unsupported, and check it once more against the tool output — totals derived by multiplying a nightly rate the tool returned by the number of nights it returned are grounded. If you cannot quote such a value, score both 2.
+
+When the tool output marks a date ambiguous, a reply that states the resolved calendar date and asks the guest to confirm it has handled the ambiguity: that is a 2, not a guess.
+
+Grade the expectation only. Do not fail a reply for asking one clarifying question instead of two, for wording, for brevity, or for being more cautious than required, as long as nothing it states is wrong or unsupported.
+
+Reply with JSON only: {"grounded":n,"correct_handling":n,"asked_for_missing":n,"no_overpromise":n,"tone":n,"verdict":"pass"|"fail","reason":"one sentence"}
+verdict is "pass" only when correct_handling and grounded are both 2 and nothing else is 0.`,
+          },
+          {
+            role: "user",
+            content: `EXPECTATION\n${expectation}\n\nTOOL OUTPUT THE AGENT RECEIVED\n${tool_output ?? "(none)"}\n\nTRANSCRIPT\n${transcript}`,
+          },
+        ],
+        maxTokens: 400,
+      });
+      const raw = completion.choices[0]?.message?.content?.trim() ?? "";
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) return res.status(502).json({ message: "Judge did not return JSON.", raw });
+      res.json(JSON.parse(m[0]));
+    }),
+  );
+
+  /** The last benchmark run, as written to disk by bench/run.mjs. */
+  app.get("/api/bench/report", (_req, res) => {
+    const file = join(process.cwd(), "bench", "report.json");
+    if (!existsSync(file)) return res.status(404).json({ message: "No benchmark has been run yet." });
+    res.json(JSON.parse(readFileSync(file, "utf8")));
   });
 
   /* ---------------- health ---------------- */

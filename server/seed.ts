@@ -12,6 +12,7 @@ import {
   services,
   kbArticles,
   policies,
+  restrictions,
   offers,
   campaigns,
 } from "@shared/schema";
@@ -78,6 +79,17 @@ export function seedIfEmpty() {
    * Guest rooms sit on floors 1–5 of the resort blocks; the villas are
    * beachfront ground-level units. A live PMS would supply all 476 keys.
    */
+  /** Published nightly rates per category, in VND. */
+  const RATES: Record<string, number> = {
+    "Deluxe Queen Bed": 2_200_000,
+    "Deluxe Twin Bed": 2_200_000,
+    "Grand Deluxe Queen Bed": 2_410_000,
+    "Deluxe Ocean View Queen Bed": 2_640_000,
+    "Grand Deluxe Ocean View Twin Bed": 2_870_000,
+    "Deluxe Suite King Ocean View": 4_097_000,
+    "Villa 3-Bedroom Ocean View": 8_610_000,
+    "Tropicana Beachfront Villa 3-Bedroom": 10_130_000,
+  };
   const roomTypes = [
     "Deluxe Queen Bed",
     "Deluxe Twin Bed",
@@ -93,6 +105,7 @@ export function seedIfEmpty() {
         .values({
           number,
           type: roomTypes[(floor + n) % roomTypes.length],
+          baseRate: RATES[roomTypes[(floor + n) % roomTypes.length]] ?? 0,
           floor,
           status: n === 3 ? "dirty" : n === 7 && floor === 4 ? "out_of_order" : "clean",
           housekeepingNote:
@@ -107,22 +120,14 @@ export function seedIfEmpty() {
     { number: "V03", type: "Tropicana Beachfront Villa 3-Bedroom" },
     { number: "V04", type: "Tropicana Beachfront Villa 3-Bedroom" },
   ].forEach((v) =>
-    db.insert(rooms).values({ ...v, floor: 1, status: "clean", housekeepingNote: null }).run(),
+    db
+      .insert(rooms)
+      .values({ ...v, baseRate: RATES[v.type] ?? 0, floor: 1, status: "clean", housekeepingNote: null })
+      .run(),
   );
 
   const allRooms = storage.listRooms();
 
-  /** Published nightly rates per category, in VND. */
-  const RATES: Record<string, number> = {
-    "Deluxe Queen Bed": 2_200_000,
-    "Deluxe Twin Bed": 2_200_000,
-    "Grand Deluxe Queen Bed": 2_410_000,
-    "Deluxe Ocean View Queen Bed": 2_640_000,
-    "Grand Deluxe Ocean View Twin Bed": 2_870_000,
-    "Deluxe Suite King Ocean View": 4_097_000,
-    "Villa 3-Bedroom Ocean View": 8_610_000,
-    "Tropicana Beachfront Villa 3-Bedroom": 10_130_000,
-  };
   const taken = new Set<number>();
   /** First free room of a category, so the folio rate always matches the key. */
   const pickRoom = (type: string) => {
@@ -1067,6 +1072,62 @@ export function seedIfEmpty() {
       .values({ hotelId: 1, ...p, rules: JSON.stringify(p.rules), updatedAt: iso(4000) })
       .run(),
   );
+
+  /* ------------- rate-calendar restrictions (revenue management) --------
+   * These are property revenue settings, configured in Aurea rather than
+   * published by Vinpearl: peak-season minimum stays around Tet and the
+   * September National Day holiday, a closed-to-arrival day on New Year's
+   * Day itself, a closed-to-departure day forcing stays across Tet, and a
+   * stop-sell on the suites during a refurbishment window. The booking
+   * engine refuses to sell against any of them.
+   */
+  const range = (from: string, to: string) => {
+    const out: string[] = [];
+    for (let d = new Date(from + "T00:00:00Z"); d.toISOString().slice(0, 10) <= to; d.setUTCDate(d.getUTCDate() + 1))
+      out.push(d.toISOString().slice(0, 10));
+    return out;
+  };
+  const restrictionRows: Array<Omit<typeof restrictions.$inferInsert, "hotelId">> = [];
+  const TET_REASON =
+    "internal://aurea/revenue/restrictions — peak-season control configured by the property, not a published Vinpearl policy.";
+  for (const d of range("2027-02-15", "2027-02-21"))
+    restrictionRows.push({
+      date: d,
+      roomType: null,
+      minLos: 3,
+      maxLos: 10,
+      closedToArrival: d === "2027-02-17" ? 1 : 0,
+      closedToDeparture: d === "2027-02-16" ? 1 : 0,
+      stopSell: 0,
+      label: "Tet Nguyen Dan peak season",
+      reason: TET_REASON,
+    });
+  for (const d of range("2026-08-30", "2026-09-02"))
+    restrictionRows.push({
+      date: d,
+      roomType: null,
+      minLos: 2,
+      maxLos: null,
+      closedToArrival: 0,
+      closedToDeparture: 0,
+      stopSell: 0,
+      label: "National Day holiday (2 September)",
+      reason: TET_REASON,
+    });
+  for (const d of range("2026-09-14", "2026-09-25"))
+    restrictionRows.push({
+      date: d,
+      roomType: "Deluxe Suite King Ocean View",
+      minLos: null,
+      maxLos: null,
+      closedToArrival: 0,
+      closedToDeparture: 0,
+      stopSell: 1,
+      label: "Suite refurbishment — stop sell",
+      reason:
+        "internal://aurea/engineering/refurbishment — suites withdrawn from sale while the bathrooms are rebuilt.",
+    });
+  restrictionRows.forEach((r) => db.insert(restrictions).values({ hotelId: 1, ...r }).run());
 
   /* ---------------- offers (based on published promotions) ------------- */
   const offerRows = [

@@ -10,6 +10,7 @@ import {
   Megaphone,
   Menu,
   Moon,
+  FlaskConical,
   ScrollText,
   Scale,
   Settings,
@@ -33,6 +34,7 @@ const NAV = [
   { href: "/staff/knowledge", label: "Knowledge", icon: BookOpen },
   { href: "/staff/policies", label: "Policies", icon: Scale },
   { href: "/staff/campaigns", label: "Campaigns", icon: Megaphone },
+  { href: "/staff/benchmark", label: "Benchmark", icon: FlaskConical },
   { href: "/staff/audit", label: "Activity", icon: ScrollText },
   { href: "/staff/settings", label: "Settings", icon: Settings },
 ];

@@ -35,6 +35,8 @@ export const rooms = sqliteTable("rooms", {
   floor: integer("floor").notNull(),
   status: text("status").notNull(), // clean | dirty | inspected | out_of_order
   housekeepingNote: text("housekeeping_note"),
+  /** Published nightly rate for this category, in the hotel currency. */
+  baseRate: real("base_rate").notNull().default(0),
 });
 
 export const guests = sqliteTable("guests", {
@@ -179,6 +181,26 @@ export const policies = sqliteTable("policies", {
   updatedAt: text("updated_at").notNull(),
 });
 
+/**
+ * Rate-calendar restrictions, one row per date (optionally per room type).
+ * These are the revenue-management controls a booking engine must obey before
+ * it can sell a night: minimum and maximum length of stay, closed to arrival,
+ * closed to departure, and stop-sell.
+ */
+export const restrictions = sqliteTable("restrictions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hotelId: integer("hotel_id").notNull(),
+  date: text("date").notNull(), // ISO date the restriction applies to
+  roomType: text("room_type"), // null = every category
+  minLos: integer("min_los"),
+  maxLos: integer("max_los"),
+  closedToArrival: integer("closed_to_arrival").notNull().default(0),
+  closedToDeparture: integer("closed_to_departure").notNull().default(0),
+  stopSell: integer("stop_sell").notNull().default(0),
+  label: text("label").notNull(),
+  reason: text("reason").notNull(),
+});
+
 /** Retrieval index: one row per chunk of a KB article or policy, with its embedding. */
 export const docChunks = sqliteTable("doc_chunks", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -259,6 +281,7 @@ export type Service = typeof services.$inferSelect;
 export type ServiceBooking = typeof serviceBookings.$inferSelect;
 export type KbArticle = typeof kbArticles.$inferSelect;
 export type Policy = typeof policies.$inferSelect;
+export type Restriction = typeof restrictions.$inferSelect;
 export type DocChunk = typeof docChunks.$inferSelect;
 export type Offer = typeof offers.$inferSelect;
 export type Campaign = typeof campaigns.$inferSelect;

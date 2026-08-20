@@ -224,6 +224,64 @@ QA bằng Playwright ở 1440px và 390px, chạy đúng luồng người dùng 
 
 ---
 
+## 9. Tầng nghiệp vụ đặt phòng, tầng chắn an toàn và benchmark
+
+Phần này trả lời trực tiếp câu hỏi "agent có đủ thông minh để xử lý nghiệp vụ khách sạn thật không". Cách làm không phải nhồi thêm prompt, mà đưa mọi phán quyết có thể tính được ra khỏi model.
+
+### 9.1 Nghiên cứu nghiệp vụ trước khi viết code
+
+`research/hotel-edge-cases.md` tổng hợp 9 nhóm tình huống thật ở front desk/PMS thành 45 luật kiểm tra và 84 kịch bản, dựa trên các nguồn:
+
+- Vụ [Air Canada bị buộc trả tiền vì chatbot tự bịa chính sách](https://guardion.ai/ai-incidents/air-canada-chatbot-bereavement-refund) (Moffatt v. Air Canada, 2024 BCCRT 149) — lý do agent không bao giờ được tự phát minh chính sách hay hứa hoàn tiền.
+- [Night audit trong vận hành khách sạn](https://thehotelblueprint.com/hotel-operations/management/hotel-night-audit/) và [bộ mã trạng thái phòng](https://rapideyeinspections.com/blog/hotel-room-status-codes/) — vì sao "hôm nay" của khách và của khách sạn có thể lệch nhau.
+- [Rủi ro prompt injection với chatbot phục vụ khách](https://www.apexhorizondigital.com/blog/prompt-injection-risks-in-customer-facing-chatbots).
+- Cách chấm agent của [τ-bench](https://openreview.net/pdf/57cd0f8d1f7b7790714c1bedf5d781ba10e56590.pdf) (so trạng thái database cuối cùng), [BFCL](https://gorilla.cs.berkeley.edu/leaderboard.html), [ToolBench](https://leaderboard.steel.dev/registry/benchmarks/toolbench) và [faithfulness của RAGAS](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/).
+
+### 9.2 `server/booking.ts` — luật đặt phòng chạy bằng code, không bằng model
+
+- `resolveDate` đọc ngày tương đối tiếng Việt/tiếng Anh theo giờ khách sạn, hiểu cả khoảng ngày viết liền ("22/09 đến 24/09"), tự đánh dấu khi câu chữ **mập mờ** (ví dụ "mai" lúc 3 giờ sáng) để agent buộc phải hỏi lại. Model bị cấm tự tính ngày.
+- `validateStayRequest` trả về mã lỗi rõ ràng cho từng tình huống: `REVERSED_DATES` (trả phòng trước nhận phòng), `SAME_DAY_STAY`, `ARRIVAL_IN_PAST`, `MAX_STAY_EXCEEDED` (>30 đêm), `BEYOND_BOOKING_HORIZON` (>365 ngày), `MISSING_CHECK_IN/OUT`, `MISSING_ADULTS`, `MISSING_CHILD_AGES`, `CHILD_COUNT_MISMATCH`, `UNACCOMPANIED_MINOR`, `OVER_OCCUPANCY`, `GROUP_BOOKING` (≥10 phòng / ≥5 villa thuộc bộ phận Khách Đoàn), `UNKNOWN_ROOM_TYPE`… Mỗi mã đi kèm một câu gợi ý cách nói lại với khách.
+- `checkRestrictions` đọc bảng `restrictions` (rate calendar thật của property): `STOP_SELL`, `CLOSED_TO_ARRIVAL`, `CLOSED_TO_DEPARTURE`, `MIN_LOS`, `MAX_LOS` — có seed cho Tết 2027, Quốc khánh 2026 và một đợt dừng bán hạng suite.
+- `searchAvailability` tính phòng trống từ danh sách phòng và sổ đặt phòng thật, lấy giá công bố từ cột `rooms.base_rate`; hạng nào không có giá thì không bán được qua chat. Nếu khách đã nêu ngân sách, tool tự nhớ lại từ chính lời khách (`extractBudget`) và gắn cờ `over_budget`; nếu hạng khách hỏi không bán được, tool trả luôn `alternatives_to_offer` để agent không thể chỉ hỏi suông "anh có muốn xem hạng khác không".
+- `createReservation` / `changeReservationDates` là hai đường ghi duy nhất: kiểm tra phòng còn trống thật, sinh mã `VPNT-xxxxxx`, ghi charge vào folio, và từ chối khi khách đã in-house hoặc phòng đã có người.
+
+### 9.3 `server/guard.ts` — sàng lọc từng tin nhắn trước khi model đọc
+
+Nhận diện đa ngôn ngữ: cấp cứu y tế, sự cố an ninh, prompt injection, mạo danh nhân viên, hỏi thông tin khách khác, số thẻ dán vào chat (xoá bằng kiểm tra Luhn), đòi gặp người thật, và **tranh chấp tiền** (đòi hoàn tiền, bồi thường, tính sai). Ba nhóm cuối cùng — y tế, an ninh, tranh chấp tiền — bị **buộc** chuyển người thật ngay trong lượt đó, bất kể model viết gì.
+
+### 9.4 Benchmark 28 case — `bench/`
+
+- `bench/cases.json`: 28 case chia 6 nhóm — Dates (7), Incomplete requests (5), Restrictions (4), Booking execution (3), Safety (6), Money & grounding (3).
+- Mỗi case chấm hai lớp: **deterministic** (gọi đúng tool nào, cấm tool nào, có mã validation nào, câu trả lời có kết thúc bằng câu hỏi không, và **trạng thái database sau cùng** kiểu τ-bench — số đặt phòng mới, ngày của một mã đặt phòng cụ thể) và **LLM judge** cho 5 chiều: grounded, correct_handling, asked_for_missing, no_overpromise, tone.
+- `bench/run.mjs` nói chuyện với server thật qua HTTP đúng như khách, có retry khi gateway giới hạn token, reset hội thoại về chế độ AI trước mỗi case, và ghi ra `bench/report.json` + `bench/report.md`.
+- Kỳ vọng viết theo **token tương đối** chứ không phải ngày cứng: `{{+5}}` là 5 ngày sau ngày khách sạn, `{{depart+1}}` là một ngày sau ngày trả phòng hiện tại của chính đặt phòng đó. Seed đặt các lượt lưu trú tương đối theo "hôm nay", nên ngày cứng trong assertion sẽ mục theo thời gian — token thì không.
+- Judge chấm **3 phiếu độc lập, lấy đa số**, vì một phiếu LLM đơn lẻ có thể cho hai kết luận khác nhau trên cùng một câu trả lời. Số phiếu hiện trên báo cáo và trên trang Benchmark (`2/3 pass`).
+- Một số case nhận **nhiều đường tool hợp lệ** (`expect_tools_any`): ví dụ chặn 5 người một phòng Deluxe bằng `check_availability` hay `check_occupancy` đều là code kiểm tra, không phải model đoán.
+- Trang **Benchmark** trong dashboard đọc `GET /api/bench/report`, mở từng case ra xem hội thoại, tool đã gọi, từng phép kiểm tra và điểm của judge.
+
+Cách chạy:
+
+```bash
+rm -f data.db data.db-wal data.db-shm     # chạy trên seed sạch cho đúng phép so trạng thái
+npm run build && NODE_ENV=production node dist/index.cjs
+node bench/run.mjs                        # hoặc --only D1,I5,M3 · --no-judge
+```
+
+### 9.5 Những lỗi thật benchmark tìm ra và đã sửa
+
+1. `validateStayRequest` không bao giờ báo `OVER_OCCUPANCY` — điều kiện guard dùng `occ.ok`, mà `occ.ok` chỉ false đúng khi vượt số người.
+2. Khớp tên hạng phòng kiểu "chứa chuỗi" trả về "Grand Deluxe Queen Bed" khi khách nói "Deluxe Queen" — nay khớp chính xác trước, rồi mới lấy chuỗi khớp ngắn nhất.
+3. Giá phòng suy ra từ lịch sử đặt phòng nên villa hiện **0 VND** và agent đem "villa giá 0" ra mời khách — nay giá công bố nằm ở `rooms.base_rate`, hạng không có giá thì không bán.
+4. `check_availability` lọc danh sách theo đúng hạng khách hỏi, nên khi hạng đó dừng bán agent không có gì để gợi ý — nay luôn tính đủ mọi hạng và trả `alternatives_to_offer`.
+5. Agent lấy tên khách từ profile chat để tạo đặt phòng — nay `create_reservation` chỉ chạy khi chính khách đã nhập tên và số điện thoại trong hội thoại.
+6. Ngân sách khách nêu ở lượt trước bị bỏ quên ở lượt sau — nay đọc lại từ lời khách và gắn cờ `over_budget`, kèm cấm dùng chữ "phù hợp" cạnh hạng vượt ngân sách.
+7. Đòi hoàn tiền không được chuyển người thật, và agent tự hứa "gọi lại trong 10 phút" — nay guard buộc chuyển, và prompt cấm hứa thời gian phản hồi.
+8. `resolve_date` không đọc được khoảng ngày viết liền "22/09 đến 24/09" nên agent hỏi lại vô ích — nay trả cả hai đầu.
+
+Kết quả và toàn bộ transcript của lần chạy mới nhất nằm trong `bench/report.md`.
+
+---
+
 ## 9. Chạy lại và mở rộng
 
 ```bash
