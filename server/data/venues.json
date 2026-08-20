@@ -1,0 +1,570 @@
+[
+  {
+    "code": "Bach Giai Restaurant",
+    "slug": "bach-giai-restaurant",
+    "kind": "restaurant",
+    "name_vi": "Nhà hàng Bách Giai",
+    "types": [
+      "Nhà hàng",
+      "Ẩm thực Trung Hoa"
+    ],
+    "location": "Vinpearl Resort Nha Trang, Đảo Hòn Tre, Nha Trang, Khánh Hòa, Việt Nam",
+    "phone": "(+84) 705 754 343",
+    "hours": [
+      {
+        "open": "10:30",
+        "close": "14:30"
+      },
+      {
+        "open": "17:30",
+        "close": "22:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": null,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": "Đơn vị trên menu: nghìn VND. Giá trên menu đã bao gồm 5% service charge và 8% VAT.",
+    "cuisine": [
+      "Ẩm thực Trung Hoa",
+      "Dimsum",
+      "Món khai vị",
+      "Soup",
+      "Món nóng",
+      "Cơm và mì",
+      "Rau xào",
+      "Tráng miệng"
+    ],
+    "dishes_served": [],
+    "highlights": [
+      "Không gian được mô tả mang vẻ tráng lệ như một cung điện hoàng gia châu Á.",
+      "Nhà hàng tập trung vào ẩm thực Trung Hoa.",
+      "Phục vụ thực đơn đa dạng với nhiều nhóm món Trung Hoa.",
+      "Là địa điểm phù hợp để thưởng thức các món Trung Hoa trong không gian sang trọng."
+    ],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [
+      {
+        "group": "Dimsum",
+        "items": [
+          {
+            "name_vi": "Há cảo tôm & ngô ngọt",
+            "name_en": null,
+            "price": 120000
+          },
+          {
+            "name_vi": "Xíu mại tôm",
+            "name_en": null,
+            "price": 120000
+          },
+          {
+            "name_vi": "Há cảo tôm chiên kèm sốt mayonnaise",
+            "name_en": null,
+            "price": 120000
+          },
+          {
+            "name_vi": "Cảo sò điệp & tôm",
+            "name_en": null,
+            "price": 150000
+          },
+          {
+            "name_vi": "Bánh bao nấm",
+            "name_en": null,
+            "price": 150000
+          }
+        ]
+      },
+      {
+        "group": "Soup",
+        "items": [
+          {
+            "name_vi": "Canh sườn non củ sen và lạc",
+            "name_en": null,
+            "price": 135000
+          },
+          {
+            "name_vi": "Súp hải sản chua cay Tứ Xuyên",
+            "name_en": null,
+            "price": 135000
+          },
+          {
+            "name_vi": "Súp sủi cảo",
+            "name_en": null,
+            "price": 135000
+          },
+          {
+            "name_vi": "Súp Khổng Môn",
+            "name_en": null,
+            "price": 135000
+          }
+        ]
+      },
+      {
+        "group": "Món nóng",
+        "items": [
+          {
+            "name_vi": "Chân gà hấp tàu xì",
+            "name_en": null,
+            "price": 120000
+          },
+          {
+            "name_vi": "Sườn heo hấp tàu xì",
+            "name_en": null,
+            "price": 160000
+          },
+          {
+            "name_vi": "Xôi gà lá sen",
+            "name_en": null,
+            "price": 200000
+          },
+          {
+            "name_vi": "Vịt quay Bắc Kinh",
+            "name_en": null,
+            "price": 750000
+          },
+          {
+            "name_vi": "Gà quay kiểu Ma Cao",
+            "name_en": null,
+            "price": 450000
+          },
+          {
+            "name_vi": "Xá xíu thịt heo",
+            "name_en": null,
+            "price": 230000
+          },
+          {
+            "name_vi": "Gà hấp Tứ Xuyên",
+            "name_en": null,
+            "price": 150000
+          }
+        ]
+      },
+      {
+        "group": "Cơm / Mì",
+        "items": [
+          {
+            "name_vi": "Mì kéo Kung Fu sốt bào ngư",
+            "name_en": null,
+            "price": 160000
+          },
+          {
+            "name_vi": "Mì hoành thánh Quảng Đông",
+            "name_en": null,
+            "price": 250000
+          },
+          {
+            "name_vi": "Mì xào giòn hải sản",
+            "name_en": null,
+            "price": 250000
+          },
+          {
+            "name_vi": "Cơm chiên Dương Châu",
+            "name_en": null,
+            "price": 250000
+          }
+        ]
+      },
+      {
+        "group": "Rau xào",
+        "items": [
+          {
+            "name_vi": "Rau xanh xào nấm đen sốt dầu hào",
+            "name_en": null,
+            "price": 160000
+          },
+          {
+            "name_vi": "Rau theo mùa xào tỏi",
+            "name_en": null,
+            "price": 120000
+          },
+          {
+            "name_vi": "Rau bó xôi sốt 3 loại trứng",
+            "name_en": null,
+            "price": 150000
+          }
+        ]
+      },
+      {
+        "group": "Tráng miệng",
+        "items": [
+          {
+            "name_vi": "Chè trân châu sữa dừa",
+            "name_en": null,
+            "price": 90000
+          },
+          {
+            "name_vi": "Thạch xoài",
+            "name_en": null,
+            "price": 100000
+          },
+          {
+            "name_vi": "Bánh bao hoàng kim",
+            "name_en": null,
+            "price": 150000
+          },
+          {
+            "name_vi": "Bánh bao trứng sữa",
+            "name_en": null,
+            "price": 120000
+          },
+          {
+            "name_vi": "Bánh trà xanh mè đen chiên giòn",
+            "name_en": null,
+            "price": 120000
+          }
+        ]
+      }
+    ],
+    "description": "Với không gian tráng lệ như cung điện hoàng gia châu Á, nhà hàng Bách Giai mang đến “trăm điều tốt đẹp” từ các món trứ danh của ẩm thực Trung Hoa.",
+    "source_file": "Bach-Giai-Restaurant-6.txt",
+    "source_url": null
+  },
+  {
+    "code": "Halal VietFlavors",
+    "slug": "halal-vietflavors",
+    "kind": "restaurant",
+    "name_vi": "Nhà hàng Halal VietFlavors",
+    "types": [
+      "Nhà hàng",
+      "A la carte",
+      "Ẩm thực Halal"
+    ],
+    "location": "Imperial Club, Đảo Hòn Tre, Nha Trang, Khánh Hòa, Việt Nam",
+    "phone": "(+84) 705 754 343",
+    "hours": [
+      {
+        "open": "10:30",
+        "close": "14:30"
+      },
+      {
+        "open": "17:30",
+        "close": "22:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": null,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": null,
+    "cuisine": [
+      "Ẩm thực Việt Nam truyền thống",
+      "Hương vị Trung Đông",
+      "Món ăn Halal",
+      "Hải sản",
+      "Các món nướng",
+      "Mì",
+      "Món chay"
+    ],
+    "dishes_served": [
+      "Hải sản",
+      "Các món thịt nướng",
+      "Mì",
+      "Các món chay",
+      "Các món Việt Nam kết hợp phong cách và hương vị Trung Đông"
+    ],
+    "highlights": [
+      "Kết hợp ẩm thực Việt Nam truyền thống với hương vị đậm chất Trung Đông.",
+      "Phục vụ các món ăn theo tiêu chuẩn Halal.",
+      "Không gian thuộc khu phức hợp Imperial Club, nơi kết hợp ẩm thực và các hoạt động giải trí như bowling, karaoke và sàn nhảy.",
+      "Phù hợp với khách muốn thưởng thức ẩm thực Việt Nam theo tiêu chuẩn Halal."
+    ],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [],
+    "description": "Nhà hàng Halal VietFlavors mang đến sự kết hợp giữa ẩm thực Việt Nam truyền thống và hương vị Trung Đông, với các món ăn được chế biến theo tiêu chuẩn Halal. Nhà hàng nằm trong Imperial Club Nha Trang, khu phức hợp ẩm thực và giải trí cao cấp trên đảo Hòn Tre.",
+    "source_file": "Halal-VietFlavors-restaurant.txt",
+    "source_url": null
+  },
+  {
+    "code": "Jasmine Restaurant",
+    "slug": "jasmine-restaurant",
+    "kind": "restaurant",
+    "name_vi": "Jasmine Restaurant",
+    "types": [],
+    "location": null,
+    "phone": "(+84)258 359 8900",
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "22:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": 250,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": null,
+    "cuisine": [],
+    "dishes_served": [],
+    "highlights": [],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [
+      {
+        "group": "Signature",
+        "items": [
+          {
+            "name_vi": "Salad ức vịt xông khói với cam, sốt balsamic",
+            "name_en": "Smoked duck breast salad (Vietnamese style), orange, balsamic dressing",
+            "price": 220000
+          },
+          {
+            "name_vi": "Salad xoài, bạch tuộc, sò điệp Hokkaido và rau thơm",
+            "name_en": "Mango salad, seared Hokkaido scallop, octopus, Asian herbs",
+            "price": 250000
+          },
+          {
+            "name_vi": "Salad Arugulla, phô mai parmesan, táo, hạt óc chó và thịt gà nướng",
+            "name_en": "Arugula salad, grilled chicken breast, apples, toasted walnuts, shaved parmesan",
+            "price": 180000
+          },
+          {
+            "name_vi": "Thịt thăn nội bò Mỹ, xào kiểu lúc lắc, củ cải ngựa tươi, tiêu xanh và cà chua",
+            "name_en": "USDA beef tenderloin, Loc Lac-style, freshly grated horse radish, green pepper, tomato",
+            "price": 350000
+          },
+          {
+            "name_vi": "Hải sản nướng cho hai người, tôm hùm, hàu, tôm sú, mực, chem chép, cá Nha Trang",
+            "name_en": "Seafood grill platter, Nha Trang lobster, oyster, prawn, squid, mussel, fish of the day (good for two)",
+            "price": 1700000
+          },
+          {
+            "name_vi": "Thăn ngoại bò Mỹ, dùng trên đĩa nóng, đậu bắp nướng với muối ớt",
+            "name_en": "USDA ribeye, served on a hot plate, grilled okra with chili salt",
+            "price": 550000
+          },
+          {
+            "name_vi": "Thăn nội bò Mỹ, dùng trên đĩa nóng, bơ trộn café de Paris và măng tây nướng",
+            "name_en": "USDA beef tenderloin, served on a hot plate, café de Paris butter, grilled asparagus",
+            "price": 550000
+          }
+        ]
+      }
+    ],
+    "description": null,
+    "source_file": "Nha-hang-Jasmine-3.txt",
+    "source_url": null
+  },
+  {
+    "code": "Lotus Restaurant",
+    "slug": "lotus-restaurant",
+    "kind": "restaurant",
+    "name_vi": "Lotus Restaurant",
+    "types": [
+      "Nhà hàng",
+      "Thăm quan & chụp ảnh"
+    ],
+    "location": "Đảo Hòn Tre, Thành phố Nha Trang, Khánh Hòa",
+    "phone": "(+84) 258 359 8222",
+    "hours": [
+      {
+        "open": "07:00",
+        "close": "21:00"
+      }
+    ],
+    "meal_windows": [
+      {
+        "meal": "Sáng",
+        "open": "06:00",
+        "close": "10:30"
+      },
+      {
+        "meal": "Trưa",
+        "open": "12:00",
+        "close": "14:00"
+      },
+      {
+        "meal": "Tối",
+        "open": "18:00",
+        "close": "22:00"
+      }
+    ],
+    "last_order": "20:30",
+    "prep_time": "Khoảng 10 - 50 phút",
+    "capacity": 800,
+    "price_range": "50.000đ - 3.300.000đ",
+    "price_min": 50000,
+    "price_max": 3300000,
+    "price_note": null,
+    "cuisine": [
+      "Món Việt"
+    ],
+    "dishes_served": [
+      "Thịt gà",
+      "Thịt bò",
+      "Thịt heo",
+      "Hải sản",
+      "Thịt vịt",
+      "Café - Kem",
+      "Sinh tố - Nước ép"
+    ],
+    "highlights": [],
+    "good_for": [
+      "Đãi tiệc",
+      "Hẹn hò",
+      "Họp nhóm",
+      "Tiếp khách",
+      "Thư giãn",
+      "Du lịch",
+      "Tiếp khách sang trọng",
+      "Tổ chức hội thảo",
+      "Chụp hình - Quay phim",
+      "Ăn chơi ngày Tết",
+      "Dã ngoại"
+    ],
+    "amenities": [
+      "Wi-Fi",
+      "Hồ bơi",
+      "Giao hàng",
+      "Máy lạnh / điều hòa",
+      "Cho mua về",
+      "Thanh toán bằng thẻ"
+    ],
+    "menu_groups": [],
+    "description": null,
+    "source_file": "Lotus-Restaurant-2.txt",
+    "source_url": "https://www.foody.vn/khanh-hoa/lotus-restaurant-vinpearl-resort"
+  },
+  {
+    "code": "Beach Comber Bar",
+    "slug": "beach-comber-bar",
+    "kind": "bar",
+    "name_vi": "Beach Comber Bar",
+    "types": [
+      "Bar"
+    ],
+    "location": null,
+    "phone": "(+84) 258 359 8222",
+    "hours": [
+      {
+        "open": "09:00",
+        "close": "18:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": null,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": null,
+    "cuisine": [
+      "Cocktail nhiệt đới",
+      "Đồ uống mát lạnh"
+    ],
+    "dishes_served": [],
+    "highlights": [
+      "Quầy bar nằm gần biển tại Vinpearl Resort Nha Trang.",
+      "Là địa điểm phù hợp để thư giãn và ngắm hoàng hôn.",
+      "Không gian mang trải nghiệm nghỉ dưỡng ven biển, thư thái.",
+      "Điểm nổi bật là các loại cocktail nhiệt đới mát lạnh.",
+      "Phù hợp cho khách muốn thư giãn, thưởng thức đồ uống và ngắm cảnh biển/hoàng hôn."
+    ],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [],
+    "description": "Ngắm hoàng hôn chậm rãi buông dần và tận hưởng sự thư giãn bên ly cocktail nhiệt đới mát lạnh là một trong những trải nghiệm nổi bật tại Beach Comber Bar.",
+    "source_file": "Beachcomber-7.txt",
+    "source_url": "https://vinpearl.com/vi/hotels/vinpearl-resort-nha-trang/foods"
+  },
+  {
+    "code": "Pool Bar",
+    "slug": "pool-bar",
+    "kind": "bar",
+    "name_vi": "Pool Bar",
+    "types": [
+      "Bar"
+    ],
+    "location": "Bên hồ bơi chính của Vinpearl Resort Nha Trang · Đảo Hòn Tre, Nha Trang, Khánh Hòa, Việt Nam",
+    "phone": "(+84) 258 359 8222",
+    "hours": [
+      {
+        "open": "09:00",
+        "close": "23:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": null,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": null,
+    "cuisine": [
+      "Cocktail",
+      "Rượu",
+      "Các loại đồ uống",
+      "Đồ ăn nhẹ / snack"
+    ],
+    "dishes_served": [],
+    "highlights": [
+      "Nằm ngay bên hồ bơi chính của resort.",
+      "Là địa điểm để thư giãn và tận hưởng không gian nhiệt đới.",
+      "Phù hợp để thưởng thức đồ uống và đồ ăn nhẹ trong thời gian nghỉ dưỡng.",
+      "Mang lại trải nghiệm thư giãn, gắn kết và tận hưởng không khí nhiệt đới."
+    ],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [],
+    "description": "Thưởng thức đồ uống và đồ ăn nhẹ tại Pool Bar là cơ hội để du khách thư giãn, gắn kết và tận hưởng không gian mang âm hưởng nhiệt đới bên hồ bơi.",
+    "source_file": "Pool-bar-4.txt",
+    "source_url": "https://vinpearl.com/vi/nha-trang/am-thuc/pool-bar-vinpearl-resort-nha-trang"
+  },
+  {
+    "code": "Seaview Bar",
+    "slug": "seaview-bar",
+    "kind": "bar",
+    "name_vi": "Seaview Bar",
+    "types": [
+      "Bar"
+    ],
+    "location": "Tầng trệt, tòa nhà Executive · Đảo Hòn Tre, Nha Trang, Khánh Hòa, Việt Nam",
+    "phone": "(+84) 258 359 8900",
+    "hours": [
+      {
+        "open": "07:00",
+        "close": "23:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": null,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": null,
+    "cuisine": [
+      "Các loại đồ uống",
+      "Rượu",
+      "Cocktail",
+      "Thức ăn nhẹ / snack"
+    ],
+    "dishes_served": [],
+    "highlights": [
+      "Không gian có tầm nhìn lãng mạn hướng ra biển.",
+      "Có khung cảnh biển xanh, cát trắng và nắng vàng.",
+      "Phù hợp để thư giãn và tận hưởng không gian biển.",
+      "Có thể thưởng thức đồ uống trong không gian hướng biển.",
+      "Phù hợp cho những khoảng thời gian thư giãn tại resort."
+    ],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [],
+    "description": "Seaview Bar nằm tại tầng trệt tòa nhà Executive của Vinpearl Resort Nha Trang, sở hữu khung cảnh lãng mạn nhìn ra biển. Quầy bar phục vụ các loại đồ uống, rượu và thức ăn nhẹ, mang đến không gian thư giãn cho du khách.",
+    "source_file": "Seaview-Lounge-5.txt",
+    "source_url": "https://vinpearl.com/vi/hotels/vinpearl-resort-nha-trang/foods"
+  }
+]

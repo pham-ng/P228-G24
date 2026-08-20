@@ -11,6 +11,7 @@
  * lexical leg alone answers — retrieval degrades, it never fabricates.
  */
 import { storage, nowIso } from "./storage";
+import { listVenues, dishesOf, hoursText } from "./dining";
 import { embed, MODEL_EMBED } from "./openai";
 import type { DocChunk } from "@shared/schema";
 
@@ -162,6 +163,46 @@ export async function reindex(): Promise<{
         category: "room_type",
         sourceUrl: r.sourceUrl,
         body: `${r.nameVi} ${r.code}\n${body}`,
+        tokens: tokenise(body).length,
+        embedding: null,
+        embedModel: null,
+        updatedAt: ts,
+      });
+    });
+  }
+
+  // Dining pages join the index too, so "ăn tối ở đâu", "có món chay không" or
+  // "quán nào mở lúc 22h" retrieves the real outlet page rather than being
+  // answered from the model's idea of a resort restaurant.
+  for (const v of listVenues()) {
+    const dishes = dishesOf(v)
+      .map((d) => (d.price ? `${d.name_vi} ${d.price.toLocaleString("vi-VN")}đ` : d.name_vi))
+      .join(", ");
+    const facts = [
+      `${v.row.nameVi} (${v.row.code}) — ${v.row.kind === "bar" ? "quầy bar" : "nhà hàng"}.`,
+      v.hours.length ? `Giờ mở cửa: ${hoursText(v)}.` : null,
+      v.row.lastOrder ? `Nhận khách cuối: ${v.row.lastOrder}.` : null,
+      v.row.location ? `Vị trí: ${v.row.location}.` : null,
+      v.row.phone ? `Điện thoại: ${v.row.phone}.` : null,
+      v.row.capacity != null ? `Sức chứa ${v.row.capacity} khách.` : null,
+      v.row.priceRange ? `Khoảng giá: ${v.row.priceRange}.` : null,
+      v.cuisine.length ? `Ẩm thực: ${v.cuisine.join(", ")}.` : null,
+      v.dishesServed.length ? `Nhóm món: ${v.dishesServed.join(", ")}.` : null,
+      dishes ? `Món tiêu biểu công bố: ${dishes}.` : null,
+      v.row.priceNote,
+      v.row.description,
+    ]
+      .filter(Boolean)
+      .join(" ");
+    chunkText(facts).forEach((body, ordinal) => {
+      storage.createChunk({
+        kind: "dining",
+        refId: v.row.id,
+        ordinal,
+        title: `${v.row.nameVi} — ẩm thực`,
+        category: "dining_venue",
+        sourceUrl: v.row.sourceUrl,
+        body: `${v.row.nameVi} ${v.row.code}\n${body}`,
         tokens: tokenise(body).length,
         embedding: null,
         embedModel: null,

@@ -6,6 +6,8 @@ import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
 import { chat, LlmError } from "./openai";
 import { reindex, indexStats, hybridSearch } from "./retrieval";
 import { getPolicyByTopic } from "./policy";
+import { listVenues, dishesOf, hoursText } from "./dining";
+import { fold } from "./catalogue";
 import { searchAvailability, checkRestrictions, resolveDate, validateStayRequest } from "./booking";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -412,6 +414,39 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
           };
         })
         .sort((a, b) => a.rate - b.rate),
+    );
+  });
+
+  app.get("/api/dining-venues", (_req, res) => {
+    const services = storage.listServices().filter((x) => x.category === "dining");
+    res.json(
+      listVenues().map((v) => ({
+        code: v.row.code,
+        nameVi: v.row.nameVi,
+        kind: v.row.kind,
+        hoursText: hoursText(v),
+        hours: v.hours,
+        mealWindows: v.mealWindows,
+        lastOrder: v.row.lastOrder,
+        location: v.row.location,
+        phone: v.row.phone,
+        capacity: v.row.capacity,
+        priceRange: v.row.priceRange,
+        priceNote: v.row.priceNote,
+        cuisine: v.cuisine,
+        dishCategories: v.dishesServed,
+        menu: v.menu,
+        menuSampleSize: dishesOf(v).length,
+        sourceUrl: v.row.sourceUrl,
+        // Which bookable service rows, if any, sit behind this outlet — the
+        // published page and the sellable slots are different things and the
+        // dashboard says which venues the concierge can actually book.
+        bookable: services
+          // Full folded outlet name, not a leading word: "Beach Comber Bar" must
+          // not claim the "beach BBQ" service just because both start with "beach".
+          .filter((x) => fold(x.name).includes(fold(v.row.code)))
+          .map((x) => ({ name: x.name, slots: JSON.parse(x.slots || "[]") as string[] })),
+      })),
     );
   });
 

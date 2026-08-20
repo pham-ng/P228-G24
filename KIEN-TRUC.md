@@ -26,7 +26,7 @@ Khách (mọi ngôn ngữ)                     Nhân viên khách sạn
 
 ---
 
-## 2. Cơ sở dữ liệu — 20 bảng
+## 2. Cơ sở dữ liệu — 21 bảng
 
 `shared/schema.ts` định nghĩa schema, dùng chung cho cả client và server nên kiểu dữ liệu không bao giờ lệch nhau.
 
@@ -334,7 +334,36 @@ Trong lần chạy này, chính benchmark đã phát hiện 2 lỗi thật của
 
 ---
 
-## 11. Chạy lại và mở rộng
+## 11. Danh mục ẩm thực lấy từ 7 trang nhà hàng, quầy bar thật
+
+**Nguồn**: 7 tệp bạn gửi — Lotus Restaurant, Nhà hàng Jasmine, Nhà hàng Bách Giai, Halal VietFlavors (Imperial Club), Pool Bar, Seaview Bar, Beach Comber Bar.
+
+**Đường đi của dữ liệu**
+
+1. `scripts/parse-venues.py` bóc từng trang thành: loại hình (nhà hàng / bar), vị trí, số điện thoại, **giờ mở cửa công bố**, khung giờ từng bữa, giờ nhận khách cuối, thời gian chuẩn bị món, sức chứa, khoảng giá, ghi chú giá, nhóm ẩm thực, nhóm món, và **thực đơn mẫu kèm giá theo từng nhóm** → `server/data/venues.json`.
+2. Cùng một nguyên tắc như hạng phòng: **trang không công bố thì để `null`**. Bách Giai có 28 món kèm giá nhưng không công bố khoảng giá hay sức chứa; Halal VietFlavors không công bố một giá nào; ba quầy bar không công bố món nào.
+3. Riêng Lotus, trang in **hai mốc giờ khác nhau** — dòng đầu ghi ba khung bữa (Sáng 06:00–10:30, Trưa 12:00–14:00, Tối 18:00–22:00) còn phần dưới ghi "Giờ hoạt động 07:00 – 21:00". Parser giữ **cả hai** và `venueFacts()` gắn cờ `hours_conflict`, buộc agent đọc ra cả hai mốc và nói rõ trang của resort ghi khác nhau, thay vì tự chọn một mốc.
+4. Bảng mới `dining_venues` (schema + storage + seed), index thêm mỗi outlet thành chunk `kind:"dining"` để câu hỏi "tối nay ăn ở đâu", "có món chay không" truy xuất đúng trang outlet.
+5. `GET /api/dining-venues` và bảng **Dining venues** ở trang Knowledge: giờ công bố, khoảng giá, số ghế, số món mẫu, số slot đặt được; bấm vào một dòng sẽ mở toàn bộ thực đơn mẫu kèm giá và link trang nguồn. Cột "Bookable slots" nối trang công bố với các dịch vụ bán được trong bảng `services` — đây là hai thứ khác nhau và dashboard nói rõ outlet nào thật sự đặt được.
+
+**Tầng chống trả lời sai** — `server/dining.ts`
+
+- `findVenue()` bỏ dấu, bỏ các từ chung ("nhà hàng", "bar", "resort") rồi mới tính điểm, và **trả về `null` khi không có outlet nào nổi trội** — vì resort có ba nhà hàng và ba bar, nên "nhà hàng của resort" phải hỏi lại chứ không được tự chọn.
+- `matchDish()` khớp **cả từ**, hai chiều, trả về ba trạng thái: `on_menu` (được nói tên kèm giá công bố), `in_published_categories` (trang có nhóm món đó nhưng không có món cụ thể), `not_listed` (không có trong thực đơn mẫu). Vì trang chỉ in **một phần** thực đơn, `not_listed` không được biến thành "có", cũng không được biến thành "nhà hàng không phục vụ món đó".
+- `windowFor()` đối chiếu giờ khách muốn với giờ công bố (chịu được khung qua nửa đêm). Đặt bàn 23h ở Bách Giai — bếp đóng 22:00 — bị từ chối kèm giờ thật, thay vì được xác nhận.
+- Tool mới `get_dining_facts(venue, dish_questions[], at_time)`; doctrine thêm **luật 7** (các luật cũ 7–11 dịch thành 8–12).
+
+**Đã sửa trong lúc làm**: bảng dashboard ban đầu gán dịch vụ "Groove & Grill — Saturday beach BBQ" cho Beach Comber Bar chỉ vì cùng chữ "beach"; nay phải khớp trọn tên outlet. Một script kiểm tra cũng xác nhận **mọi slot đang bán đều nằm trong giờ công bố** của outlet tương ứng.
+
+**Benchmark thêm nhóm V (Dining venues)** — V1 giá món có công bố, V2 món không có trong thực đơn công bố, V3 đặt bàn sau giờ đóng, V4 bar không phải nhà hàng, V5 outlet không công bố giá, V6 tên nhà hàng chưa rõ phải hỏi lại. Bộ case tăng từ 34 lên **40**, nhóm V đạt **6/6** và toàn bộ 40 case đều pass — nhưng đây là kết quả gộp của hai lần chạy: phiên OpenAI hết hạn giữa lần chạy đầy đủ khiến 13 case cuối trả 401, đã chạy lại nguyên văn và gộp bằng `bench/merge-report.mjs`. Ghi chú này nằm ngay đầu `bench/report.md`.
+
+Ở đây phần sai lại nằm ở bộ kiểm chứ không phải ở agent: cả bốn câu trả lời "trượt" ở lần chạy đầu đều đúng về nội dung, chỉ khác cách diễn đạt ("mẫu menu công bố" thay vì "thực đơn công bố"). Assertion đã được đổi sang kiểm tra **hai ý bắt buộc** (có chữ "công bố"/"niêm yết" và có chữ "menu"/"thực đơn") thay vì một câu chữ cố định — chặt về ý, không chặt về từ.
+
+**Nói thẳng**: khoảng giá của Lotus (50.000đ – 3.300.000đ) và đánh giá 6.8/178 lượt là số trang nguồn in ra, tôi không kiểm chứng lại; các bar không có thực đơn nên agent chỉ nói được "đồ uống và đồ ăn nhẹ" theo trang.
+
+---
+
+## 12. Chạy lại và mở rộng
 
 ```bash
 cd /home/user/workspace/aurea

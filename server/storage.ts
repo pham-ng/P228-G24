@@ -14,6 +14,7 @@ import {
   policies,
   restrictions,
   roomTypes,
+  diningVenues,
   docChunks,
   offers,
   campaigns,
@@ -36,6 +37,8 @@ import type {
   Restriction,
   RoomType,
   InsertRoomType,
+  DiningVenue,
+  InsertDiningVenue,
   DocChunk,
   Offer,
   Campaign,
@@ -146,6 +149,17 @@ CREATE TABLE IF NOT EXISTS room_types (
   ocean_view INTEGER NOT NULL DEFAULT 0, private_pool INTEGER NOT NULL DEFAULT 0,
   max_guests INTEGER, combinations TEXT NOT NULL DEFAULT '[]', description TEXT NOT NULL,
   amenities TEXT NOT NULL DEFAULT '[]', source_file TEXT NOT NULL, source_url TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS dining_venues (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, code TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL, kind TEXT NOT NULL, name_vi TEXT NOT NULL, location TEXT, phone TEXT,
+  hours TEXT NOT NULL DEFAULT '[]', meal_windows TEXT NOT NULL DEFAULT '[]',
+  last_order TEXT, prep_time TEXT, capacity INTEGER, price_range TEXT,
+  price_min REAL, price_max REAL, price_note TEXT,
+  cuisine TEXT NOT NULL DEFAULT '[]', dishes_served TEXT NOT NULL DEFAULT '[]',
+  highlights TEXT NOT NULL DEFAULT '[]', good_for TEXT NOT NULL DEFAULT '[]',
+  amenities TEXT NOT NULL DEFAULT '[]', menu_groups TEXT NOT NULL DEFAULT '[]',
+  description TEXT, source_file TEXT NOT NULL, source_url TEXT
 );
 CREATE TABLE IF NOT EXISTS doc_chunks (
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, ref_id INTEGER NOT NULL,
@@ -394,6 +408,15 @@ export const storage = {
 
   createRoomType(v: InsertRoomType): RoomType {
     return db.insert(roomTypes).values(v).returning().get();
+  },
+
+  /* ---------------- dining venues ---------------- */
+  listDiningVenues(): DiningVenue[] {
+    return db.select().from(diningVenues).orderBy(asc(diningVenues.kind), asc(diningVenues.code)).all();
+  },
+
+  createDiningVenue(v: InsertDiningVenue): DiningVenue {
+    return db.insert(diningVenues).values(v).returning().get();
   },
 
   /* ---------------- rate restrictions ---------------- */

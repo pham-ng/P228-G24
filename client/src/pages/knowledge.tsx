@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
+import { DiningTable } from "@/components/dining-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,6 +83,7 @@ export default function KnowledgePage() {
         </Button>
       }
     >
+      <DiningTable />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_400px]">
         <div className="space-y-2">
           {isLoading &&

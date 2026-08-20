@@ -170,6 +170,28 @@ export type RoomTypeRow = {
   published: boolean;
 };
 
+/** One published restaurant or bar page, as /api/dining-venues returns it. */
+export type DiningVenueRow = {
+  code: string;
+  nameVi: string;
+  kind: string;
+  hoursText: string;
+  hours: Array<{ open: string; close: string }>;
+  mealWindows: Array<{ meal: string; open: string; close: string }>;
+  lastOrder: string | null;
+  location: string | null;
+  phone: string | null;
+  capacity: number | null;
+  priceRange: string | null;
+  priceNote: string | null;
+  cuisine: string[];
+  dishCategories: string[];
+  menu: Array<{ group: string | null; items: Array<{ name_vi: string; name_en: string | null; price: number | null }> }>;
+  menuSampleSize: number;
+  sourceUrl: string | null;
+  bookable: Array<{ name: string; slots: string[] }>;
+};
+
 export type ReservationRow = Reservation & {
   guestName: string;
   vipTier: string;

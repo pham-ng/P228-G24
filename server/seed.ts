@@ -16,6 +16,7 @@ import {
   policies,
   restrictions,
   roomTypes,
+  diningVenues,
   offers,
   campaigns,
 } from "@shared/schema";
@@ -116,6 +117,69 @@ export function seedIfEmpty() {
         amenities: JSON.stringify(c.amenities),
         sourceFile: c.source_file,
         sourceUrl: c.source_url,
+      })
+      .run();
+  });
+
+  /* ---------------- dining venues ----------------
+   * The seven outlet pages the property publishes, parsed by
+   * scripts/parse-venues.py. Fields the page omits arrive as null and stay null.
+   */
+  const venues: Array<{
+    code: string;
+    slug: string;
+    kind: string;
+    name_vi: string;
+    location: string | null;
+    phone: string | null;
+    hours: Array<{ open: string; close: string }>;
+    meal_windows: Array<{ meal: string; open: string; close: string }>;
+    last_order: string | null;
+    prep_time: string | null;
+    capacity: number | null;
+    price_range: string | null;
+    price_min: number | null;
+    price_max: number | null;
+    price_note: string | null;
+    cuisine: string[];
+    dishes_served: string[];
+    highlights: string[];
+    good_for: string[];
+    amenities: string[];
+    menu_groups: Array<{ group: string | null; items: Array<{ name_vi: string; name_en: string | null; price: number | null }> }>;
+    description: string | null;
+    source_file: string;
+    source_url: string | null;
+  }> = JSON.parse(readFileSync(join(process.cwd(), "server", "data", "venues.json"), "utf8"));
+
+  venues.forEach((v) => {
+    db.insert(diningVenues)
+      .values({
+        hotelId: 1,
+        code: v.code,
+        slug: v.slug,
+        kind: v.kind,
+        nameVi: v.name_vi,
+        location: v.location,
+        phone: v.phone,
+        hours: JSON.stringify(v.hours),
+        mealWindows: JSON.stringify(v.meal_windows),
+        lastOrder: v.last_order,
+        prepTime: v.prep_time,
+        capacity: v.capacity,
+        priceRange: v.price_range,
+        priceMin: v.price_min,
+        priceMax: v.price_max,
+        priceNote: v.price_note,
+        cuisine: JSON.stringify(v.cuisine),
+        dishesServed: JSON.stringify(v.dishes_served),
+        highlights: JSON.stringify(v.highlights),
+        goodFor: JSON.stringify(v.good_for),
+        amenities: JSON.stringify(v.amenities),
+        menuGroups: JSON.stringify(v.menu_groups),
+        description: v.description,
+        sourceFile: v.source_file,
+        sourceUrl: v.source_url,
       })
       .run();
   });

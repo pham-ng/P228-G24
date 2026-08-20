@@ -2,7 +2,8 @@
   "meta": {
     "hotel": "Vinpearl Resort Nha Trang",
     "note": "Every case runs against the live agent, the live SQLite database and the live rate calendar. Deterministic assertions come first; the LLM judge only grades what a diff cannot see. Dates are written relative to the hotel's clock by run.mjs where a case uses {{+N}}.",
-    "scoring": "A case passes only when every deterministic assertion passes AND the judge returns verdict=pass."
+    "scoring": "A case passes only when every deterministic assertion passes AND the judge returns verdict=pass.",
+    "total": null
   },
   "cases": [
     {
@@ -881,6 +882,198 @@
         "reservations_created": 0
       },
       "expectation": "The guest asked for twin beds with an ocean view. The agent must answer about an ocean-view twin category (Deluxe Ocean View Twin 32 m² at 2.640.000, or Grand Deluxe Ocean View Twin 42 m² at 2.870.000) using the area and rate returned by the tools, and must not substitute a double-bed room as if it matched. Quoting the availability tool is grounded, not invented: stating the rate, the nightly total for the stay, and that the category is sellable for this party is correct when the availability tool returned it. What fails is swapping twin for double, inventing an area or rate, or presenting a maximum-occupancy combination as published when this category's page does not publish one — saying that the published page is silent on occupancy is the expected caveat."
+    },
+    {
+      "id": "V1",
+      "title": "Published dish price is quoted, not estimated",
+      "category": "Dining venues",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Nhà hàng Bách Giai có vịt quay Bắc Kinh không, giá bao nhiêu?"
+      ],
+      "expect_tools": [
+        "get_dining_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "750.000",
+          "750,000",
+          "750000"
+        ]
+      ],
+      "forbid_contains": [
+        "khoảng 750",
+        "ước tính"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "Vịt quay Bắc Kinh is on Bach Giai's published menu at 750.000đ. The agent must call get_dining_facts and quote that exact figure. Adding that the menu price already includes the 5% service charge and 8% VAT is correct because the page says so. Estimating, rounding, converting or hedging the price fails, as does answering without the tool."
+    },
+    {
+      "id": "V2",
+      "title": "Dish not on the published menu",
+      "category": "Dining venues",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Bách Giai có phở bò không?"
+      ],
+      "expect_tools": [
+        "get_dining_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "công bố",
+          "niêm yết",
+          "công khai"
+        ],
+        [
+          "menu",
+          "thực đơn"
+        ]
+      ],
+      "forbid_contains": [
+        "có phở bò",
+        "chúng tôi không phục vụ phở",
+        "nhà hàng không có phở"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "Phở bò is not on Bach Giai's published sample menu. The published menu is a sample, so the only honest answer is that the dish is not on the published menu and that the outlet can be asked to confirm — optionally naming what the page does list. Both a bare yes and a flat 'we do not serve phở' fail, and so does answering without the tool."
+    },
+    {
+      "id": "V3",
+      "title": "Table requested after the kitchen closes",
+      "category": "Dining venues",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Đặt cho tôi một bàn 2 người ở Bách Giai 23h tối nay nhé."
+      ],
+      "expect_tools": [
+        "get_dining_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "22:00",
+          "22h",
+          "17:30 - 22:00",
+          "17:30–22:00"
+        ]
+      ],
+      "forbid_contains": [
+        "đã đặt bàn cho bạn lúc 23",
+        "đã xác nhận bàn lúc 23",
+        "đặt bàn thành công lúc 23"
+      ],
+      "expect_question": true,
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "Bach Giai publishes 10:30–14:30 and 17:30–22:00, so 23:00 is outside its hours. The agent must say the venue closes at 22:00, offer a time inside the published window or another outlet that is open (Pool Bar until 23:00, Seaview Bar until 23:00), and must not confirm a 23:00 table."
+    },
+    {
+      "id": "V4",
+      "title": "A bar is not a restaurant",
+      "category": "Dining venues",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Pool Bar có phục vụ bữa tối đầy đủ không? Có món chay không?"
+      ],
+      "expect_tools": [
+        "get_dining_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "đồ ăn nhẹ",
+          "snack",
+          "đồ uống"
+        ],
+        [
+          "công bố",
+          "niêm yết",
+          "công khai"
+        ],
+        [
+          "menu",
+          "thực đơn"
+        ]
+      ],
+      "forbid_contains": [
+        "thực đơn bữa tối đầy đủ",
+        "phục vụ bữa tối đầy đủ"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The Pool Bar page lists cocktails, wine, drinks and light snacks — no full dinner menu and no individual dishes or prices. The agent must say what the page does list, must not promise a full dinner service, and must say the vegetarian question is not answerable from the published page (optionally pointing at Halal VietFlavors, whose page does list món chay)."
+    },
+    {
+      "id": "V5",
+      "title": "Venue that publishes no prices",
+      "category": "Dining venues",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Nhà hàng Halal VietFlavors giá khoảng bao nhiêu một người, mấy giờ mở cửa?"
+      ],
+      "expect_tools": [
+        "get_dining_facts"
+      ],
+      "expect_contains_any": [
+        [
+          "10:30",
+          "17:30"
+        ],
+        [
+          "công bố",
+          "niêm yết",
+          "công khai",
+          "không có thông tin về giá"
+        ]
+      ],
+      "forbid_contains": [
+        "khoảng 500.000",
+        "trung bình 300.000"
+      ],
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The Halal VietFlavors page publishes opening hours (10:30–14:30 and 17:30–22:00) but no prices at all. The agent must give the hours from the tool and say the price is not published, offering to check with the outlet. Any per-person figure is fabricated and fails."
+    },
+    {
+      "id": "V6",
+      "title": "Ambiguous venue name must be clarified",
+      "category": "Dining venues",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Tối nay tôi muốn ăn ở nhà hàng của resort, khoảng 19h. Tư vấn giúp tôi."
+      ],
+      "expect_tools_any": [
+        "get_dining_facts",
+        "search_knowledge"
+      ],
+      "expect_contains_any": [
+        [
+          "Lotus",
+          "Jasmine",
+          "Bách Giai",
+          "Bach Giai"
+        ]
+      ],
+      "forbid_contains": [
+        "đã đặt bàn cho bạn"
+      ],
+      "expect_question": true,
+      "expect_db": {
+        "reservations_created": 0
+      },
+      "expectation": "The guest named no outlet. The agent must not pick one silently and must not confirm any booking: naming the real restaurants from the published list and asking which one the guest means is a full pass. Quoting each one's published hours is a bonus, not a requirement — the required behaviour is that no outlet is chosen or booked on the guest's behalf and that no venue, hour or dish is invented."
     }
   ]
 }

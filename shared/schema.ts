@@ -227,6 +227,48 @@ export const roomTypes = sqliteTable("room_types", {
   sourceUrl: text("source_url").notNull(),
 });
 
+/**
+ * Dining venues as published on the property's own outlet pages. Same rule as
+ * room_types: a column is null when the page is silent, so the concierge can say
+ * "not published" instead of estimating an opening hour or a price.
+ */
+export const diningVenues = sqliteTable("dining_venues", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hotelId: integer("hotel_id").notNull(),
+  /** Outlet name as the property writes it, e.g. "Bach Giai Restaurant". */
+  code: text("code").notNull().unique(),
+  slug: text("slug").notNull(),
+  kind: text("kind").notNull(), // restaurant | bar
+  nameVi: text("name_vi").notNull(),
+  location: text("location"),
+  phone: text("phone"),
+  /** JSON array of {open, close} windows exactly as published. */
+  hours: text("hours").notNull().default("[]"),
+  /** JSON array of {meal, open, close} when the page splits meal services. */
+  mealWindows: text("meal_windows").notNull().default("[]"),
+  lastOrder: text("last_order"),
+  prepTime: text("prep_time"),
+  capacity: integer("capacity"),
+  priceRange: text("price_range"),
+  priceMin: real("price_min"),
+  priceMax: real("price_max"),
+  priceNote: text("price_note"),
+  /** JSON arrays of the labels printed on the page, in page order. */
+  cuisine: text("cuisine").notNull().default("[]"),
+  dishesServed: text("dishes_served").notNull().default("[]"),
+  highlights: text("highlights").notNull().default("[]"),
+  goodFor: text("good_for").notNull().default("[]"),
+  amenities: text("amenities").notNull().default("[]"),
+  /** JSON array of {group, items:[{name_vi, name_en, price}]}. */
+  menuGroups: text("menu_groups").notNull().default("[]"),
+  description: text("description"),
+  sourceFile: text("source_file").notNull(),
+  sourceUrl: text("source_url"),
+});
+
+export type DiningVenue = typeof diningVenues.$inferSelect;
+export type InsertDiningVenue = typeof diningVenues.$inferInsert;
+
 /** Retrieval index: one row per chunk of a KB article or policy, with its embedding. */
 export const docChunks = sqliteTable("doc_chunks", {
   id: integer("id").primaryKey({ autoIncrement: true }),
