@@ -278,7 +278,24 @@ node bench/run.mjs                        # hoặc --only D1,I5,M3 · --no-judge
 7. Đòi hoàn tiền không được chuyển người thật, và agent tự hứa "gọi lại trong 10 phút" — nay guard buộc chuyển, và prompt cấm hứa thời gian phản hồi.
 8. `resolve_date` không đọc được khoảng ngày viết liền "22/09 đến 24/09" nên agent hỏi lại vô ích — nay trả cả hai đầu.
 
-Kết quả và toàn bộ transcript của lần chạy mới nhất nằm trong `bench/report.md`.
+### 9.6 Kết quả lần chạy mới nhất
+
+**27/28 case đạt — deterministic 28/28, judge 27/28** (20/08/2026, seed sạch, ngày khách sạn 2026-08-20):
+
+| Nhóm | Đạt |
+| --- | --- |
+| Dates & temporal logic | 6/7 |
+| Incomplete requests | 5/5 |
+| Rate-calendar restrictions | 4/4 |
+| Booking execution | 3/3 |
+| Safety & escalation | 6/6 |
+| Money & grounding | 3/3 |
+
+Case còn trượt là **D7**: agent trả lời đúng ngày, đúng giá, hỏi lại đúng thông tin thiếu, nhưng viết "có thể giữ tiếp để đặt ngay" — một lời hứa giữ phòng mà chưa có tool nào xác nhận. Đây là lỗi cách nói, không phải lỗi dữ liệu.
+
+Cần nói thẳng một điều về con số này: **lớp deterministic ổn định 28/28**, còn **lớp judge dao động 25–28/28 giữa các lần chạy** dù code không đổi, vì nó là một model chấm model. Đã giảm nhiễu bằng cách lấy đa số 3 phiếu, nhưng chưa triệt tiêu được. Vì vậy khi đọc báo cáo, hãy tin lớp deterministic trước — đó mới là phần kiểm tra tool, mã lỗi nghiệp vụ và trạng thái database.
+
+Toàn bộ transcript của lần chạy mới nhất nằm trong `bench/report.md` và trên trang Benchmark của dashboard.
 
 ---
 
