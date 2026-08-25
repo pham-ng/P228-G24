@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "purpose": "Cross-lingual retrieval gate. The corpus is Vietnamese and English only, so every ZH / JA / KO case is a genuine cross-language test: can a question in one script reach a document written in another? The same six intents are asked in five languages, so a per-language score isolates the language rather than the topic.",
+    "note": "Labels are identical across the language variants of an intent — the underlying truth does not change with the language of the question. A language that scores far below Vietnamese is a retrieval gap, not a corpus gap.",
+    "languages": ["vi", "en", "zh", "ja", "ko"]
+  },
+  "intents": [
+    {
+      "intent": "late_checkout",
+      "relevant": [{ "policyTopic": "checkout" }, { "kbTitle": "Check-in, check-out and identification" }],
+      "queries": {
+        "vi": "Trả phòng muộn thì tính phí thế nào?",
+        "en": "How much is late check-out?",
+        "zh": "延迟退房要收多少费用？",
+        "ja": "レイトチェックアウトの料金はいくらですか？",
+        "ko": "레이트 체크아웃 요금은 얼마인가요?"
+      }
+    },
+    {
+      "intent": "breakfast",
+      "relevant": [{ "kbTitle": "Breakfast and buffet pricing" }, { "kbTitle": "Restaurants and bars — hours" }],
+      "queries": {
+        "vi": "Ăn sáng buffet giá bao nhiêu một người?",
+        "en": "How much does the buffet breakfast cost per person?",
+        "zh": "自助早餐每人多少钱？",
+        "ja": "ビュッフェ朝食は一人いくらですか？",
+        "ko": "조식 뷔페는 1인당 얼마인가요?"
+      }
+    },
+    {
+      "intent": "spa",
+      "relevant": [{ "kbTitle": "Akoya Spa" }],
+      "queries": {
+        "vi": "Spa có những liệu trình massage nào?",
+        "en": "What massage treatments does the spa offer?",
+        "zh": "水疗中心有哪些按摩项目？",
+        "ja": "スパにはどんなマッサージがありますか？",
+        "ko": "스파에는 어떤 마사지가 있나요?"
+      }
+    },
+    {
+      "intent": "cable_car",
+      "relevant": [{ "kbTitle": "Cáp treo Vinpearl" }, { "kbTitle": "Cable car and Vinpearl Harbour ticket prices" }],
+      "queries": {
+        "vi": "Đi cáp treo ra đảo mất bao lâu?",
+        "en": "How long is the cable car ride to the island?",
+        "zh": "坐缆车到岛上需要多长时间？",
+        "ja": "島までのケーブルカーはどのくらいかかりますか？",
+        "ko": "섬까지 케이블카로 얼마나 걸리나요?"
+      }
+    },
+    {
+      "intent": "occupancy",
+      "relevant": [{ "policyTopic": "occupancy" }, { "kbTitle": "Occupancy limits, extra beds and children" }],
+      "queries": {
+        "vi": "Một phòng ở tối đa được mấy người?",
+        "en": "What is the maximum occupancy of a room?",
+        "zh": "一间房最多可以住几个人？",
+        "ja": "1部屋に最大何人まで宿泊できますか？",
+        "ko": "객실 하나에 최대 몇 명까지 묵을 수 있나요?"
+      }
+    },
+    {
+      "intent": "airport_transfer",
+      "relevant": [{ "kbTitle": "Sân bay Cam Ranh" }, { "kbTitle": "Getting to the resort from Cam Ranh Airport" }],
+      "queries": {
+        "vi": "Từ sân bay Cam Ranh về resort bao xa?",
+        "en": "How far is Cam Ranh airport from the resort?",
+        "zh": "金兰机场离度假村有多远？",
+        "ja": "カムラン空港からリゾートまでどのくらいですか？",
+        "ko": "깜라인 공항에서 리조트까지 얼마나 먼가요?"
+      }
+    }
+  ]
+}

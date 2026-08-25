@@ -14,3 +14,23 @@ data.db-journal
 
 *.log
 .DS_Store
+
+# Local tooling, not project source
+.claude/
+ollama.exe
+ollama.zip
+ollama-windows-amd64.zip
+OllamaSetup.exe
+ollama_bin/
+lib/ollama/
+
+# Benchmark DB snapshots/checkpoints — binary, large, demo data at rest.
+# The JSON/MD reports next to them (the actual methodology record) stay tracked.
+bench/baselines/**/*.db
+bench/baselines/**/*.db.*
+bench/baselines/*.db
+
+# Scratch/probe files
+.pplx-probe.txt
+_live.ts
+_smoke.ts

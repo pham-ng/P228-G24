@@ -1,0 +1,140 @@
+{
+  "ranAt": "2026-08-24T03:48:44.593Z",
+  "dbFile": "data.db",
+  "llm": {
+    "primary": "openai",
+    "hostedModel": "gpt-5.4-mini",
+    "localModel": "qwen3.5:4b",
+    "localApi": "openai"
+  },
+  "embeddings": {
+    "runtimeProvider": "local",
+    "runtimeModel": "qllama/multilingual-e5-small:q8_0",
+    "runtimeDim": 384,
+    "storedModel": "text-embedding-3-small",
+    "storedDim": 1536,
+    "totalChunks": 139,
+    "totalVectors": 139,
+    "compatible": false
+  },
+  "retrieval": {
+    "strategy": "bm25-only (vector leg disabled)",
+    "vectorLegRan": false,
+    "vecWeightEnv": null,
+    "hyde": false,
+    "rerank": false
+  },
+  "knowledge": {
+    "byCategory": [
+      {
+        "category": "rate_package",
+        "n": 28
+      },
+      {
+        "category": "room_type",
+        "n": 20
+      },
+      {
+        "category": "policy",
+        "n": 12
+      },
+      {
+        "category": "policy/booking",
+        "n": 11
+      },
+      {
+        "category": "facilities",
+        "n": 10
+      },
+      {
+        "category": "dining_venue",
+        "n": 8
+      },
+      {
+        "category": "property",
+        "n": 7
+      },
+      {
+        "category": "policy/payment",
+        "n": 6
+      },
+      {
+        "category": "dining",
+        "n": 6
+      },
+      {
+        "category": "policy/privacy",
+        "n": 4
+      },
+      {
+        "category": "policy/conduct",
+        "n": 4
+      },
+      {
+        "category": "transport",
+        "n": 3
+      },
+      {
+        "category": "neighborhood",
+        "n": 3
+      },
+      {
+        "category": "local",
+        "n": 3
+      },
+      {
+        "category": "wayfinding",
+        "n": 2
+      },
+      {
+        "category": "safety",
+        "n": 2
+      },
+      {
+        "category": "policy/occupancy",
+        "n": 2
+      },
+      {
+        "category": "policy/dispute",
+        "n": 2
+      },
+      {
+        "category": "policy/checkout",
+        "n": 2
+      },
+      {
+        "category": "activities",
+        "n": 2
+      },
+      {
+        "category": "policy/deposit",
+        "n": 1
+      },
+      {
+        "category": "policy/checkin",
+        "n": 1
+      }
+    ],
+    "policies": 21,
+    "roomTypes": 10,
+    "packages": 68,
+    "canonical": 18,
+    "kvChunks": 24,
+    "totalChunks": 139
+  },
+  "evaluation": {
+    "hostedCases": 10,
+    "offlineCases": 63,
+    "goldenCases": 52,
+    "mlCases": -1,
+    "multiTurn": false,
+    "injection": false,
+    "load": false
+  },
+  "drift": [
+    "LOCAL_API is \"openai\" but LOCAL_AGENT_MODEL \"qwen3.5:4b\" looks like a reasoning model. The /v1 endpoint cannot disable thinking; expect empty answers and finish_reason=length.",
+    "INDEX INCOMPATIBLE — stored vectors are 1536-dimensional (text-embedding-3-small), the runtime embedder returns 384 (qllama/multilingual-e5-small:q8_0). Cosine similarity cannot be computed. Reindex, or switch the runtime model back.",
+    "139 vectors are stored but the vector leg did not run — retrieval is BM25-only. The embedding work is currently dead weight, and the strategy string is the only signal of it.",
+    "The hosted path is the primary commercial product and is measured by 10 cases, while the offline fallback is measured by 63. Evaluation effort is inverted."
+  ]
+}

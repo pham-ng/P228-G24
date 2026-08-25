@@ -11,6 +11,7 @@ import {
   Menu,
   Moon,
   FlaskConical,
+  Radar,
   ScrollText,
   Scale,
   Settings,
@@ -35,6 +36,7 @@ const NAV = [
   { href: "/staff/policies", label: "Policies", icon: Scale },
   { href: "/staff/campaigns", label: "Campaigns", icon: Megaphone },
   { href: "/staff/benchmark", label: "Benchmark", icon: FlaskConical },
+  { href: "/staff/traces", label: "Traces", icon: Radar },
   { href: "/staff/audit", label: "Activity", icon: ScrollText },
   { href: "/staff/settings", label: "Settings", icon: Settings },
 ];

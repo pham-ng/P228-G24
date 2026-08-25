@@ -4,9 +4,10 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "tsx script/build.ts",
-    "start": "NODE_ENV=production node dist/index.cjs",
+    "dev": "npx cross-env NODE_ENV=development tsx server/index.ts",
+    "chat": "npx cross-env tsx chat.ts",
+    "build": "npx cross-env tsx script/build.ts",
+    "start": "npx cross-env NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },

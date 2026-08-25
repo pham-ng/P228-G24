@@ -1074,6 +1074,118 @@
         "reservations_created": 0
       },
       "expectation": "The guest named no outlet. The agent must not pick one silently and must not confirm any booking: naming the real restaurants from the published list and asking which one the guest means is a full pass. Quoting each one's published hours is a bonus, not a requirement — the required behaviour is that no outlet is chosen or booked on the guest's behalf and that no venue, hour or dish is invented."
+    },
+    {
+      "id": "T1",
+      "title": "Cancel existing reservation",
+      "category": "New Critical Tools",
+      "channel": "reservation:VPNT-5T09WB",
+      "lang": "vi",
+      "turns": [
+        "Tôi muốn hủy đặt phòng mã VPNT-5T09WB giúp tôi."
+      ],
+      "expect_tools": [
+        "cancel_reservation"
+      ],
+      "expect_contains_any": [
+        [
+          "hủy",
+          "thành công",
+          "VPNT-5T09WB"
+        ]
+      ],
+      "expectation": "The agent must invoke cancel_reservation with confirmation code VPNT-5T09WB, mark the reservation as cancelled in the database, and confirm the cancellation cleanly to the guest."
+    },
+    {
+      "id": "T2",
+      "title": "Cancel existing service booking",
+      "category": "New Critical Tools",
+      "channel": "reservation:VPNT-2M77VD",
+      "lang": "vi",
+      "turns": [
+        "Hủy giúp tôi dịch vụ Lotus Restaurant trên danh sách dịch vụ / folio của tôi."
+      ],
+      "expect_tools_any": [
+        "cancel_service_booking"
+      ],
+      "expect_contains_any": [
+        [
+          "hủy",
+          "thành công",
+          "Lotus Restaurant"
+        ]
+      ],
+      "expectation": "The agent must call cancel_service_booking to cancel an active service booking attached to this reservation and confirm to the guest."
+    },
+    {
+      "id": "T3",
+      "title": "Update guest persistent preferences",
+      "category": "New Critical Tools",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Tôi bị dị ứng hải sản và thích ở phòng tầng cao, nhờ bạn ghi nhớ giúp tôi."
+      ],
+      "expect_tools": [
+        "update_guest_preferences"
+      ],
+      "expect_contains_any": [
+        [
+          "ghi nhớ",
+          "cập nhật",
+          "dị ứng",
+          "tầng cao"
+        ]
+      ],
+      "expectation": "The agent must invoke update_guest_preferences to persist the guest's seafood allergy and high floor preferences into their PMS guest profile."
+    },
+    {
+      "id": "T4",
+      "title": "Query resort weather forecast",
+      "category": "New Critical Tools",
+      "channel": "enquiry",
+      "lang": "vi",
+      "turns": [
+        "Thời tiết ở resort ngày mai thế nào, có mưa không?"
+      ],
+      "expect_tools": [
+        "get_weather"
+      ],
+      "expect_contains_any": [
+        [
+          "nhiệt độ",
+          "mưa",
+          "thời tiết",
+          "nắng"
+        ]
+      ],
+      "forbid_contains": [
+        "tôi không có thông tin thời tiết",
+        "tôi không biết thời tiết"
+      ],
+      "expectation": "The agent must call get_weather for the requested date and present the forecast temperature, rain chance, and concierge recommendation without hallucinating or claiming lack of weather data."
+    },
+    {
+      "id": "T5",
+      "title": "Request early check-in",
+      "category": "New Critical Tools",
+      "channel": "reservation:VPNT-5K18QA",
+      "lang": "vi",
+      "turns": [
+        "Xác nhận áp dụng và đăng ký nhận phòng sớm lúc 09:00 sáng cho đặt phòng của tôi."
+      ],
+      "expect_tools_any": [
+        "request_early_checkin",
+        "quote_early_checkin"
+      ],
+      "expect_contains_any": [
+        [
+          "09:00",
+          "sớm",
+          "phí"
+        ]
+      ],
+      "expectation": "The agent must call request_early_checkin with 09:00, compute early arrival policy fee/waiver, update PMS arrival request and housekeeping task, and inform the guest."
     }
   ]
 }

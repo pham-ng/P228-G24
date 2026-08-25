@@ -1,0 +1,62 @@
+{
+  "ranAt": "2026-08-23T13:41:43.998Z",
+  "rows": [
+    {
+      "lang": "vi",
+      "hit1": 0.833,
+      "hit3": 0.833,
+      "hit5": 1,
+      "mrr": 0.867,
+      "latencyP50": 451,
+      "misses": [],
+      "floor": 0.8,
+      "pass": true
+    },
+    {
+      "lang": "en",
+      "hit1": 1,
+      "hit3": 1,
+      "hit5": 1,
+      "mrr": 1,
+      "latencyP50": 445,
+      "misses": [],
+      "floor": 0.8,
+      "pass": true
+    },
+    {
+      "lang": "zh",
+      "hit1": 0.667,
+      "hit3": 0.667,
+      "hit5": 1,
+      "mrr": 0.742,
+      "latencyP50": 467,
+      "misses": [],
+      "floor": 0.6,
+      "pass": true
+    },
+    {
+      "lang": "ja",
+      "hit1": 0.5,
+      "hit3": 1,
+      "hit5": 1,
+      "mrr": 0.722,
+      "latencyP50": 437,
+      "misses": [],
+      "floor": 0.6,
+      "pass": true
+    },
+    {
+      "lang": "ko",
+      "hit1": 0.5,
+      "hit3": 0.833,
+      "hit5": 0.833,
+      "mrr": 0.639,
+      "latencyP50": 443,
+      "misses": [
+        "breakfast"
+      ],
+      "floor": 0.6,
+      "pass": true
+    }
+  ]
+}

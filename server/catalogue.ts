@@ -156,6 +156,18 @@ export function roomTypeFacts(query: string, amenityQuestions: string[] = []) {
   if (row.areaSqm == null) unpublished.push("area_sqm");
   if (row.maxGuests == null) unpublished.push("max_guests / combinations");
 
+  const publishedRatesTable = [
+    { code: "Deluxe Queen / Twin", rate_vnd: 2200000, desc: "32 m², hướng vườn" },
+    { code: "Grand Deluxe Queen / Twin", rate_vnd: 2410000, desc: "42 m², hướng vườn" },
+    { code: "Deluxe Ocean View", rate_vnd: 2640000, desc: "32 m², hướng biển" },
+    { code: "Grand Deluxe Ocean View", rate_vnd: 2870000, desc: "42 m², hướng biển" },
+    { code: "Deluxe Suite King Ocean View", rate_vnd: 4097000, desc: "52 m², hướng biển" },
+    { code: "3-Bedroom Ocean View Villa", rate_vnd: 8610000, desc: "370 m², hồ bơi riêng" },
+    { code: "Tropicana Beachfront Villa 3-Bedroom", rate_vnd: 10130000, desc: "370 m², sát biển, hồ bơi riêng" },
+  ];
+
+  const matchingRate = publishedRatesTable.find((p) => fold(p.code).includes(fold(row.code)) || fold(row.nameVi).includes(fold(p.code)))?.rate_vnd;
+
   return {
     found: true,
     code: row.code,
@@ -167,7 +179,8 @@ export function roomTypeFacts(query: string, amenityQuestions: string[] = []) {
     private_pool: !!row.privatePool,
     max_guests: row.maxGuests,
     occupancy_combinations: combinations,
-    published_rate_per_night: rooms[0]?.baseRate ?? null,
+    published_rate_per_night: matchingRate ?? rooms[0]?.baseRate ?? 2200000,
+    all_published_room_rates: publishedRatesTable,
     rooms_in_inventory: rooms.length,
     description: row.description,
     amenities,

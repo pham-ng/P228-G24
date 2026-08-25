@@ -1,0 +1,316 @@
+{
+  "model": "qwen2.5:3b",
+  "ranAt": "2026-08-24T16:16:51.183Z",
+  "conversations": [
+    {
+      "id": "mt-followup-checkout",
+      "lang": "vi",
+      "kind": "follow-up question",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mấy giờ tôi phải trả phòng?",
+          "reply": "Giờ trả phòng tiêu chuẩn là 12:00.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy nếu tôi ra muộn hơn thì sao?",
+          "reply": "Nếu bạn ra muộn hơn 14:00, bạn sẽ phải trả phụ thu theo quy định của Vinpearl.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "should have escalated but answered"
+        },
+        {
+          "turn": 3,
+          "q": "Được rồi, cảm ơn.",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-omitted-subject",
+      "lang": "vi",
+      "kind": "omitted subject",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Spa mở cửa mấy giờ?",
+          "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Còn bể bơi thì sao?",
+          "reply": "Hồ bơi nước ngọt lớn nhất khu vực có tại khách sạn, đặt giữa khu vườn xanh mát với võng và ghế nằm quanh hồ, không gian thư thái.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn bạn.",
+          "reply": "Không du khách, thông tin phòng chưa cung cấp giá cụ thể.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-pronoun-reference",
+      "lang": "en",
+      "kind": "pronoun/reference",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tell me about the Grand Deluxe room.",
+          "reply": "The Grand Deluxe rooms come in two types: Grand Deluxe Giường Đôi and Grand Deluxe 2 Giường Đơn, both with a size of 42 m². They feature a bedroom with a queen bed or two twin beds, respectively, and can accommodate up to 4 guests (3 adults + 1 child or 2 adults + 2 children). They include amenities such as air conditioning, a flat-screen TV, a safe, free Wi-Fi, a minibar, daily housekeeping, room service, luggage storage, and a bathroom with a bathtub and shower. Grand Deluxe rooms also offer ocean view options.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Does it have an ocean view?",
+          "reply": "Yes, all the types of rooms mentioned (Ocean View Twin Bed, Ocean View Queen Bed, Suite King Ocean View, and Deluxe Ocean View) have an ocean view.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 3,
+          "q": "And what time can I check in to it?",
+          "reply": "Standard check-in is at 14:00. Early check-in must be confirmed in advance and is not granted before 12:00 without a charge.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-correction",
+      "lang": "vi",
+      "kind": "correction",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Ăn sáng phục vụ từ mấy giờ?",
+          "reply": "Lotus Restaurant phục vụ ăn sáng từ 06:00.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Ý tôi là hỏi giờ đóng cửa cơ, không phải giờ mở cửa.",
+          "reply": "Hồ bơi đóng cửa lúc 20:00.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: 10:30"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy ăn sáng ở nhà hàng nào?",
+          "reply": "Nhà hàng Lotus Restaurant phục vụ ăn sáng từ 06:00 đến 10:30.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-package-followup",
+      "lang": "vi",
+      "kind": "package -> follow-up",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mã BB trong bảng giá nghĩa là gì?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy có gói nào bao gồm cả bữa tối không?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "OK vậy để tôi hỏi lễ tân.",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-breakfast-children",
+      "lang": "vi",
+      "kind": "breakfast -> children",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Ăn sáng ở nhà hàng nào?",
+          "reply": "Lotus Restaurant",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Trẻ em đi cùng có cần mang giấy tờ gì không?",
+          "reply": "Children travelling with the family need a birth certificate at check-in.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn.",
+          "reply": "Để được hỗ trợ, bạn vui lòng cung cấp thêm thông tin về dịch vụ bạn cần.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-room-price-breakfast",
+      "lang": "en",
+      "kind": "room -> price -> breakfast",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "What room types do you have?",
+          "reply": "You have room types such as room, Deluxe Queen, Deluxe Twin, Deluxe Ocean View, Grand Deluxe Queen, Grand Deluxe Twin, Deluxe Suite King Ocean View, and 3-Bedroom Ocean View Villa.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "What's the price for the Deluxe Twin room?",
+          "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "Does that room's package include breakfast?",
+          "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-continuity-ko",
+      "lang": "ko",
+      "kind": "language continuity",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "체크아웃은 몇 시인가요?",
+          "reply": "체크아웃은 12:00까지로 정해져 있습니다.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "그럼 체크인은요?",
+          "reply": "Standard check-in time is at 14:00.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "감사합니다.",
+          "reply": "정확한 답변을 위해 프런트 데스크의 확인이 필요합니다. 담당 직원에게 전달해 드렸습니다.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-continuity-zh",
+      "lang": "zh",
+      "kind": "language continuity",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "水疗中心几点开门？",
+          "reply": "水疗中心的营业时间是从早上9点到晚上22点。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "那游泳池呢？",
+          "reply": "度假村有最大的淡水游泳池，位于郁郁葱葱的花园中，周围有吊床和躺椅，提供放松的氛围。开放时间可能因季节而异，请与前台确认。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "谢谢。",
+          "reply": "Deluxe 2 Giường Đơn là một lựa chọn lý tưởng cho các cặp đôi, gia đình nhỏ hoặc du khách đi công tác, với tối đa 4 người trong một phòng (3 người lớn 1 trẻ em hoặc 2 người lớn 2 trẻ em).",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-pets-followup",
+      "lang": "vi",
+      "kind": "follow-up on a policy answer",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tôi mang theo chó nhỏ được không?",
+          "reply": "Không, khách không được mang chó vào khách sạn.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Nếu mang theo thì bị phạt bao nhiêu tiền?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy tôi để nó ở nhà vậy.",
+          "reply": "Không du lịch, không cần đặt cọc khi nhận phòng.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    }
+  ]
+}

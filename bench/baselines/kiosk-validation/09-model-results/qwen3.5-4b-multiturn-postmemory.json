@@ -1,0 +1,602 @@
+{
+  "model": "qwen3.5:4b",
+  "ranAt": "2026-08-25T01:58:21.441Z",
+  "conversations": [
+    {
+      "id": "mt-followup-checkout",
+      "lang": "vi",
+      "kind": "follow-up question",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mấy giờ tôi phải trả phòng?",
+          "reply": "Giờ trả phòng tiêu chuẩn là 12:00. Nếu bạn muốn ra muộn hơn, phí phụ thu sẽ được tính dựa trên mức giá công bố của gói dịch vụ và điều kiện phòng còn trống.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy nếu tôi ra muộn hơn thì sao?",
+          "reply": "Nếu bạn trả phòng muộn hơn giờ 12:00, khách sạn sẽ tính phí phụ thu theo từng khung giờ dựa trên mức giá công bố của gói dịch vụ. Tuy nhiên, đối với khách hàng hạng vàng, bạch kim hoặc kim cương, nhân viên có thể miễn phí này cho đến 14:00 nếu phòng chưa được bán lại.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "should have escalated but answered"
+        },
+        {
+          "turn": 3,
+          "q": "Được rồi, cảm ơn.",
+          "reply": "Được rồi, cảm ơn bạn đã liên hệ và vui lòng chào tạm biệt.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-omitted-subject",
+      "lang": "vi",
+      "kind": "omitted subject",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Spa mở cửa mấy giờ?",
+          "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00 và yêu cầu đặt trước ít nhất 2 giờ. Quý khách vui lòng liên hệ lễ tân để được hỗ trợ đặt lịch hoặc xem chi tiết dịch vụ.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Còn bể bơi thì sao?",
+          "reply": "Hồ bơi ngoài trời mở cửa từ 06:00 đến 20:00 và không có cứu hộ sau 19:00. Quý khách vui lòng liên hệ lễ tân để được hỗ trợ thêm nếu cần thiết.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn bạn.",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-pronoun-reference",
+      "lang": "en",
+      "kind": "pronoun/reference",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tell me about the Grand Deluxe room.",
+          "reply": "The Grand Deluxe rooms are modern, 42 m² accommodations located right next to the beach, suitable for up to four guests. They feature amenities such as free Wi-Fi, air conditioning, and a flat-screen TV, with options available in both queen and twin bed configurations.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Does it have an ocean view?",
+          "reply": "Yes, the Grand Deluxe Ocean View rooms offer an ocean view. However, standard Grand Deluxe rooms (Queen or Twin) are described as having a garden view, not an ocean view.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 3,
+          "q": "And what time can I check in to it?",
+          "reply": "The standard check-in time is 14:00. Please note that this applies to all room types, including the Grand Deluxe Ocean View rooms.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-correction",
+      "lang": "vi",
+      "kind": "correction",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Ăn sáng phục vụ từ mấy giờ?",
+          "reply": "Theo tài liệu, Lotus Restaurant (nhà hàng buffet truyền thống) phục vụ bữa sáng từ 06:00 đến 10:30.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Ý tôi là hỏi giờ đóng cửa cơ, không phải giờ mở cửa.",
+          "reply": "Theo tài liệu, Lotus Restaurant đóng cửa vào lúc 22:00 (buổi tối) và nhận khách cuối cùng là 20:30. Các dịch vụ ăn uống khác như Jasmine Restaurant hoạt động đến 22:00, trong khi Beach Comber Bar đóng cửa lúc 23:00.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: 10:30"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy ăn sáng ở nhà hàng nào?",
+          "reply": "Theo tài liệu, bữa sáng được phục vụ tại Lotus Restaurant từ 06:00 đến 10:30.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-package-followup",
+      "lang": "vi",
+      "kind": "package -> follow-up",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mã BB trong bảng giá nghĩa là gì?",
+          "reply": "Mã BB trong bảng giá có nghĩa là \"Bed and Breakfast\" (phòng ăn sáng).",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy có gói nào bao gồm cả bữa tối không?",
+          "reply": "Dựa trên tài liệu hiện có, thông tin chi tiết về các gói phòng bao gồm bữa tối chưa được cung cấp. Tài liệu chỉ đề cập đến việc buffet sáng được phục vụ tại Lotus Restaurant và danh sách các nhà hàng khác trong VinWonders như Coral Buffet hay Tata Coffee, nhưng không xác định rõ gói nào trong đó bao gồm bữa tối.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "should have escalated but answered"
+        },
+        {
+          "turn": 3,
+          "q": "OK vậy để tôi hỏi lễ tân.",
+          "reply": "Chào bạn, tôi là lễ tân của khách sạn. Bạn có thể đặt câu hỏi tiếp theo về bất kỳ dịch vụ hay thông tin nào khác mà bạn quan tâm.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-breakfast-children",
+      "lang": "vi",
+      "kind": "breakfast -> children",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Ăn sáng ở nhà hàng nào?",
+          "reply": "Bạn có thể ăn sáng tại Nhà hàng Halal VietFlavors (mở từ 10:30–14:30), Nhà hàng Bách Giai (mở từ 10:30–14:30) hoặc Nhà hàng Lotus (có giờ mở cửa sáng từ 06:00–10:30 và 12:00–14:00).",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Trẻ em đi cùng có cần mang giấy tờ gì không?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn.",
+          "reply": "Dạ vâng, cảm ơn khách hàng đã tin tưởng và lựa chọn chúng tôi. Nếu có thêm bất kỳ thắc mắc nào khác, hãy cứ liên hệ với lễ tân nhé.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-room-price-breakfast",
+      "lang": "en",
+      "kind": "room -> price -> breakfast",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "What room types do you have?",
+          "reply": "We offer a variety of room types including Deluxe Queen, Deluxe Twin, Grand Deluxe categories, Deluxe Ocean View, and Deluxe Suite King. Additionally, we provide the 3-Bedroom Ocean View Villa for larger groups.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "What's the price for the Deluxe Twin room?",
+          "reply": "The Deluxe Twin room is 32 m² with a garden view and costs from 2,200,000 VND per night. It accommodates up to 4 guests and includes amenities such as high-speed internet and air conditioning. Please let me know if you need further details about this room type.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "should have escalated but answered"
+        },
+        {
+          "turn": 3,
+          "q": "Does that room's package include breakfast?",
+          "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-continuity-ko",
+      "lang": "ko",
+      "kind": "language continuity",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "체크아웃은 몇 시인가요?",
+          "reply": "체크아웃 시간은 12:00 입니다.  \n늦은 체크아웃은 이용 가능하지만 가용성에 따라 추가 요금이 부과됩니다.  \n추가 요금은 18:00 이후에는 전체 금액의 100%입니다.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "그럼 체크인은요?",
+          "reply": "체크인 시간은 14:00 입니다.  \n조기 체크인도 사전 확인이 필요하며, 12:00 이전에는 추가 요금이 부과됩니다.  \n필요한 신분증은 여권이나 신분증이 필요합니다.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "감사합니다.",
+          "reply": "네, 감사드립니다. 추가로 궁금한 점이 있으시면 언제든지 도와드리겠습니다.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-continuity-zh",
+      "lang": "zh",
+      "kind": "language continuity",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "水疗中心几点开门？",
+          "reply": "水疗中心（Akoya Spa）的开放时间是每天上午 09:00 至晚上 22:00。建议至少提前 2 小时预订。如需确认具体安排，请联系前台。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "那游泳池呢？",
+          "reply": "室外游泳池的开放时间为每天上午 06:00 至晚上 20:00。请注意，19:00 后没有救生员服务。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "谢谢。",
+          "reply": "不客气，很高兴能为您提供帮助。如果您还有其他问题或需要预订服务，随时欢迎联系我们。祝您度过愉快的假期！",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-pets-followup",
+      "lang": "vi",
+      "kind": "follow-up on a policy answer",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tôi mang theo chó nhỏ được không?",
+          "reply": "Theo quy định của khách sạn, việc mang thú nuôi vào phòng là bị cấm. Bạn vui lòng liên hệ trực tiếp với lễ tân để được tư vấn thêm về các chính sách cụ thể hoặc dịch vụ chăm sóc thú cưng có thể được cung cấp.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Nếu mang theo thì bị phạt bao nhiêu tiền?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy tôi để nó ở nhà vậy.",
+          "reply": "Dựa trên tài liệu, việc mang thú nuôi vào phòng bị cấm và không có quy định cụ thể về mức phạt khi khách từ chối mang thú nuôi.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-date-change",
+      "lang": "vi",
+      "kind": "user changes date/time",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tôi muốn nhận phòng sớm lúc 8 giờ sáng, phí thế nào?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 2,
+          "q": "Thôi để tôi đổi giờ đến, 5 giờ sáng thì sao?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy tôi đến đúng giờ tiêu chuẩn vậy, cảm ơn.",
+          "reply": "Giờ nhận phòng tiêu chuẩn của khách sạn là 14:00.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-tool-followup",
+      "lang": "vi",
+      "kind": "tool call -> follow-up",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Đón sân bay Cam Ranh giá bao nhiêu?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 2,
+          "q": "Cần báo trước bao lâu?",
+          "reply": "Dựa trên tài liệu, thời gian báo trước (lead time) phụ thuộc vào loại dịch vụ đưa đón bạn cần đặt: - Tiễn sân bay Cam Ranh: 4 giờ. Về con số cụ thể, tôi cần xác nhận lại với lễ tân để tránh báo sai — tôi đang chuyển yêu cầu này ngay.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 3,
+          "q": "Xe chở được tối đa mấy người?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-switch",
+      "lang": "vi",
+      "kind": "language switching mid-conversation",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Spa mở cửa mấy giờ?",
+          "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00 và yêu cầu đặt trước ít nhất 2 giờ. Quý khách vui lòng liên hệ lễ tân để được hỗ trợ đặt lịch hoặc xem chi tiết dịch vụ.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "What about the swimming pool?",
+          "reply": "The outdoor swimming pool is open from 06:00 to 20:00, and lifeguards are not available after 19:00. Please note that the front desk remains open 24/7 for any assistance you may need.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn.",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-ambiguous-reference",
+      "lang": "vi",
+      "kind": "ambiguous pronoun/reference",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Cho tôi hỏi về Deluxe và Grand Deluxe.",
+          "reply": "Chào quý khách, chúng tôi có hai loại phòng chính là \"Grand Deluxe Giường Đôi\" (42m², giường đôi) và \"Grand Deluxe 2 Giường Đơn\" (42m², 2 giường đơn). Cả hai đều tích hợp đầy đủ tiện nghi như điều hòa, Wifi miễn phí và nằm ngay cạnh bãi biển. Bạn có thể tham khảo thêm các gói giá phòng cụ thể cho từng loại trong tài liệu đã cung cấp để lựa chọn phù hợp nhất với nhu cầu của mình.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Cái đó giá bao nhiêu?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 3,
+          "q": "Ý tôi là Grand Deluxe.",
+          "reply": "Dạ vâng, quý khách đang muốn biết giá của phòng Grand Deluxe. Hiện tại hệ thống chưa hiển thị thông tin giá cả cụ thể cho các loại phòng này để em có thể báo lại chính xác nhất.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: 2,410,000"
+        }
+      ]
+    },
+    {
+      "id": "mt-elliptical",
+      "lang": "en",
+      "kind": "short elliptical messages",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Breakfast hours?",
+          "reply": "Breakfast is served at Lotus Restaurant from 06:00 to 10:30. The buffet also operates between 12:00 and 14:30. Please note that the specific breakfast hours may vary depending on the restaurant location.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Price?",
+          "reply": "The adult buffet price is 650,000 VND, while children aged 12–17 pay 375,000 VND and those under 11 pay 375,000 VND. Two children under 12 eat for free when staying with a Pearl Club member.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Kids?",
+          "reply": "Children under 12 can eat breakfast for free if staying with a Pearl Club member. Children aged 4 to under 12 are charged a surcharge, while those under 4 are included in the room occupancy limit. Please note that a birth certificate is required at check-in for children traveling with the family.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-policy-scenario",
+      "lang": "vi",
+      "kind": "policy -> specific scenario",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Chính sách hút thuốc trong resort thế nào?",
+          "reply": "Khách hàng chỉ được hút thuốc ở các khu vực đã có biển báo cho phép; nếu hút thuốc ngoài các khu vực này sẽ bị phạt 3.000.000 VND mỗi lần.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Nếu tôi hút trong phòng thì bị phạt bao nhiêu?",
+          "reply": "Theo quy định, hút thuốc bị cấm hoàn toàn trong phòng khách sạn và không có mức phạt cụ thể được ghi nhận cho hành vi này.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: 3,000,000"
+        }
+      ]
+    },
+    {
+      "id": "mt-package-inclusion-price",
+      "lang": "vi",
+      "kind": "package -> inclusion -> price",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Gói HB là gói gì?",
+          "reply": "Gói HB là gói Deluxe 2 Giường Đơn với mức giảm 20%.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: half board"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy có bao gồm ăn trưa không?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "id": "mt-question-clarification",
+      "lang": "en",
+      "kind": "question -> clarification",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "How much extra?",
+          "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 2,
+          "q": "I mean for an extra bed in a Deluxe room.",
+          "reply": "An extra bed is not available in most Deluxe rooms, as availability depends on the specific hotel and individual policies. Please contact the front desk to confirm if an extra bed can be added to your reservation.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: 1"
+        }
+      ]
+    },
+    {
+      "id": "mt-long-chain-checkin",
+      "lang": "vi",
+      "kind": "4-turn chain",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mấy giờ tôi được nhận phòng?",
+          "reply": "Giờ nhận phòng tiêu chuẩn của khách sạn là 14:00. Nếu bạn đến sớm hơn 12:00, bạn sẽ phải thanh toán phí cho việc nhận phòng trước giờ theo các mức giá cụ thể đã công bố.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Cần mang giấy tờ gì?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 3,
+          "q": "Trẻ em thì sao?",
+          "reply": "Theo quy định của Kids Club, trẻ dưới 4 tuổi cần người lớn đi kèm.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: khai sinh"
+        },
+        {
+          "turn": 4,
+          "q": "Cảm ơn nhiều.",
+          "reply": "Dạ không客气, rất vui được phục vụ Quý khách. Nếu có thêm bất kỳ thắc mắc nào khác, xin vui lòng liên hệ với chúng tôi.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-cjk-conversation-ja",
+      "lang": "ja",
+      "kind": "conversation in CJK",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "チェックインは何時からですか？",
+          "reply": "チェックインの標準時間は午後2時です。\n事前の確認が必要な早めのチェックインは、午前6時から午後12時の間に到着した場合に50％、午前6時より前に到着した場合はパッケージ価格の100％が課されます。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "ペットは連れて行けますか？",
+          "reply": "正確にお答えするため、フロントに確認いたします。担当者にお繋ぎいたしました。",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        }
+      ]
+    }
+  ]
+}

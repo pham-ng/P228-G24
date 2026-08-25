@@ -135,7 +135,13 @@
     "bed": "twin",
     "ocean_view": true,
     "private_pool": false,
-    "occupancy": null,
+    "occupancy": {
+      "max_guests": 4,
+      "combinations": [
+        { "adults": 3, "children": 1 },
+        { "adults": 2, "children": 2 }
+      ]
+    },
     "description": "Với diện tích 32 m², Deluxe Hướng Biển 2 Giường Đơn là phòng khách sạn thiết kế hiện đại với 2 giường đơn sang trọng, tích hợp đầy đủ tiện nghi cho kỳ lưu trú của bạn. Tầm nhìn ra đại dương thoáng đãng, vị trí đắc địa ngay cạnh bãi biển, đây sẽ là lựa chọn lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác. Giá công bố ~ 5.290.000VNĐ/đêm Giá chỉ từ ~ 5.025.500VNĐ/đêm",
     "amenities": [
       "Điện thoại",
@@ -251,7 +257,13 @@
     "bed": "twin",
     "ocean_view": false,
     "private_pool": false,
-    "occupancy": null,
+    "occupancy": {
+      "max_guests": 4,
+      "combinations": [
+        { "adults": 3, "children": 1 },
+        { "adults": 2, "children": 2 }
+      ]
+    },
     "description": "Với diện tích 42 m², Grand Deluxe 2 Giường Đơn là phòng khách sạn thiết kế hiện đại với 2 giường đơn sang trọng, tích hợp đầy đủ tiện nghi cho kỳ lưu trú của bạn. Tầm nhìn thoáng đãng, vị trí đắc địa ngay cạnh bãi biển, đây sẽ là lựa chọn lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác.",
     "amenities": [
       "Điện thoại",
@@ -303,7 +315,13 @@
     "bed": "double",
     "ocean_view": false,
     "private_pool": false,
-    "occupancy": null,
+    "occupancy": {
+      "max_guests": 4,
+      "combinations": [
+        { "adults": 3, "children": 1 },
+        { "adults": 2, "children": 2 }
+      ]
+    },
     "description": "Với diện tích 42 m², Grand Deluxe Giường Đôi là phòng khách sạn thiết kế hiện đại với giường đôi sang trọng, tích hợp đầy đủ tiện nghi cho kỳ lưu trú của bạn. Tầm nhìn thoáng đãng, vị trí đắc địa ngay cạnh bãi biển, đây sẽ là lựa chọn lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác.",
     "amenities": [
       "Điện thoại",
@@ -419,7 +437,14 @@
     "bed": null,
     "ocean_view": true,
     "private_pool": true,
-    "occupancy": null,
+    "occupancy": {
+      "max_guests": 8,
+      "combinations": [
+        { "adults": 6, "children": 2 },
+        { "adults": 4, "children": 4 },
+        { "adults": 8, "children": 0 }
+      ]
+    },
     "description": "Với diện tích 370 m² và 3 phòng ngủ, biệt thự có thiết kế sang trọng, thông minh, tích hợp đầy đủ tiện nghi cho kỳ lưu trú của bạn. Tầm nhìn hướng ra biển thoáng đãng, Villa 2 tầng 3 phòng ngủ rộng rãi, cửa sổ hướng Biển và bể bơi riêng kín đáo, nơi đây sẽ là lựa chọn lý tưởng dành cho các gia đình, nhóm du khách đi du lịch nghỉ dưỡng hoặc công tác.",
     "amenities": [
       "Điện thoại",
@@ -480,7 +505,14 @@
     "bed": null,
     "ocean_view": true,
     "private_pool": true,
-    "occupancy": null,
+    "occupancy": {
+      "max_guests": 8,
+      "combinations": [
+        { "adults": 6, "children": 2 },
+        { "adults": 4, "children": 4 },
+        { "adults": 8, "children": 0 }
+      ]
+    },
     "description": "Biệt thự 2 tầng 3 phòng ngủ và diện tích 370m2 được trang bị đầy đủ nội thất hiện đại, giường êm ái và ghế sofa mềm mại, hứa hẹn một kỳ nghỉ thư thái không đâu có được. Biệt thự được trang trí với màu xanh ngọc trai chủ đạo xen lẫn sắc vàng của ánh nắng, mang đến cảm giác trong lành, tươi mới của bãi biển thiên đường. Sở hữu khuôn viên rợp bóng cây nhiệt đới, bể bơi riêng cùng con đường dẫn ra biển xanh trong vắt, biệt thự rất phù hợp cho các gia đình, nhóm bạn hoặc khách doanh nhân muốn tận hưởng và tái tạo năng lượng trong một ốc đảo bình yên.",
     "amenities": [
       "Ấm đun nước",

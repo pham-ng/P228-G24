@@ -1,0 +1,85 @@
+{
+  "label": "D · openai w=1",
+  "ranAt": "2026-08-24T03:57:26.863Z",
+  "config": {
+    "db": "bench/baselines/idx-openai-1536.db",
+    "embedProvider": "openai",
+    "embedModel": "text-embedding-3-small",
+    "vecWeight": "1",
+    "lexWeight": "1",
+    "titleBoost": "0.6",
+    "chunks": 139
+  },
+  "monolingual": {
+    "n": 52,
+    "hit1": 0.904,
+    "hit3": 0.942,
+    "hit5": 1,
+    "hit10": 1,
+    "mrr": 0.938,
+    "ndcg5": 0.871,
+    "ndcg10": 0.881,
+    "latencyMean": 394,
+    "latencyP50": 367,
+    "latencyP95": 473,
+    "vectorLegRan": 52,
+    "perLang": {
+      "vi": {
+        "n": 44,
+        "hit1": 40,
+        "hit5": 44
+      },
+      "en": {
+        "n": 8,
+        "hit1": 7,
+        "hit5": 8
+      }
+    },
+    "misses": []
+  },
+  "multilingual": {
+    "n": 30,
+    "hit1": 0.7,
+    "hit3": 0.867,
+    "hit5": 0.933,
+    "hit10": 0.967,
+    "mrr": 0.792,
+    "ndcg5": 0.746,
+    "ndcg10": 0.758,
+    "latencyMean": 396,
+    "latencyP50": 395,
+    "latencyP95": 487,
+    "vectorLegRan": 30,
+    "perLang": {
+      "vi": {
+        "n": 6,
+        "hit1": 5,
+        "hit5": 5
+      },
+      "en": {
+        "n": 6,
+        "hit1": 6,
+        "hit5": 6
+      },
+      "zh": {
+        "n": 6,
+        "hit1": 4,
+        "hit5": 6
+      },
+      "ja": {
+        "n": 6,
+        "hit1": 3,
+        "hit5": 6
+      },
+      "ko": {
+        "n": 6,
+        "hit1": 3,
+        "hit5": 5
+      }
+    },
+    "misses": [
+      "breakfast-ko (ko)",
+      "occupancy-vi (vi)"
+    ]
+  }
+}

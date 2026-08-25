@@ -1,9 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ArrowRight, Loader2, SendHorizonal, ShieldCheck, UserRound } from "lucide-react";
 import { AureaMark } from "@/components/logo";
 import { MarkdownBody } from "@/components/markdown-body";
+import { PackageActions, readRecommendation } from "@/components/package-actions";
+import { DiningActions, readDiningReference } from "@/components/dining-actions";
+import { RoomActions, readRoomReference } from "@/components/room-actions";
+import { ServiceActions, readServiceReference } from "@/components/service-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +24,10 @@ const PROMPTS: Record<string, string[]> = {
     "🚠 Cable car schedule",
   ],
   vi: [
-    "🍽️ Xem menu nhà hàng & giá",
+    "🍽️ Menu nhà hàng",
+    "🍲 Nhà hàng Lotus",
+    "🥩 Nhà hàng Jasmine",
+    "🥢 Nhà hàng Bách Giai",
     "💆 Dịch vụ Spa & giờ mở cửa",
     "🚪 Phí trả phòng muộn",
     "🚠 Giờ chạy cáp treo",
@@ -35,7 +42,7 @@ const PROMPTS: Record<string, string[]> = {
   ja: ["🍽️ レストランメニューと料金", "💆 スパの営業時間と料金", "🚪 レイトチェックアウト費用"],
 };
 
-function Bubble({
+const Bubble = memo(function Bubble({
   role,
   body,
   time,
@@ -84,7 +91,7 @@ function Bubble({
       </div>
     </div>
   );
-}
+});
 
 function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
   const { data: keys } = useQuery<GuestKey[]>({ queryKey: ["/api/guest/keys"] });
@@ -331,15 +338,46 @@ export default function GuestPage() {
       </header>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5" data-testid="thread">
-        {detail.messages.map((m) => (
-          <Bubble
-            key={m.id}
-            role={m.role}
-            body={m.body}
-            author={m.authorName}
-            time={clock(m.createdAt)}
-          />
-        ))}
+        {detail.messages.map((m, i) => {
+          /* Follow-up taps belong to the concierge's latest turn only: leaving
+             chips live on older messages lets a guest answer a question that has
+             already moved on. */
+          const isLastAi = m.role === "ai" && i === detail.messages.length - 1;
+          const rec = isLastAi ? readRecommendation(m.toolTrace) : null;
+          const dining = m.role === "ai" ? readDiningReference(m.toolTrace) : [];
+          const rooms = m.role === "ai" ? readRoomReference(m.toolTrace) : [];
+          const svcGroups = m.role === "ai" ? readServiceReference(m.toolTrace) : [];
+          return (
+            <div key={m.id}>
+              <Bubble role={m.role} body={m.body} author={m.authorName} time={clock(m.createdAt)} />
+              {rec && (
+                <div className="ml-9 mt-1">
+                  <PackageActions
+                    rec={rec}
+                    lang={detail.guest.lang}
+                    disabled={send.isPending}
+                    onSend={(text) => send.mutate(text)}
+                  />
+                </div>
+              )}
+              {dining.length > 0 && (
+                <div className="ml-9 mt-1">
+                  <DiningActions venues={dining} lang={detail.guest.lang} />
+                </div>
+              )}
+              {rooms.length > 0 && (
+                <div className="ml-9 mt-1">
+                  <RoomActions rooms={rooms} lang={detail.guest.lang} />
+                </div>
+              )}
+              {svcGroups.length > 0 && (
+                <div className="ml-9 mt-1">
+                  <ServiceActions groups={svcGroups} lang={detail.guest.lang} />
+                </div>
+              )}
+            </div>
+          );
+        })}
         {send.isPending && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="typing">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />

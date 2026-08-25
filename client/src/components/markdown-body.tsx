@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 /**
@@ -38,7 +38,7 @@ function renderEnhancedChildren(children: ReactNode): ReactNode {
 }
 
 function RoomListItem({ children }: { children: ReactNode }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   
@@ -50,28 +50,18 @@ function RoomListItem({ children }: { children: ReactNode }) {
     text = children;
   }
   
+  /* Images come ONLY from the server's own [IMAGES: ...] tag (real DB paths
+   * the model was instructed to echo back — see server/dining.ts,
+   * server/catalogue.ts, server/agent.ts). A prior per-name keyword-guess
+   * fallback lived here for when the model omitted the tag; it was removed
+   * after being found to serve a stale/wrong path for Bách Giai
+   * (/dining/bach-giai/1.jpg — the real file is 1.webp, a 404) and to have
+   * no coverage at all for any room/dish/venue added after it was written.
+   * No inline image is strictly better than a broken or mismatched one. */
   let images: string[] = [];
   const imageMatch = text.match(/\[IMAGES:\s*([^\]]+)\]/i);
   if (imageMatch) {
     images = imageMatch[1].split(",").map(s => s.trim()).filter(Boolean);
-  } else {
-    // Fallback if not injected by LLM but hardcoded names still match
-    const textLower = text.toLowerCase();
-    if (textLower.includes("grand deluxe hướng biển")) {
-      images = ["/rooms/grand-deluxe-ocean.jpg"];
-    } else if (textLower.includes("grand deluxe")) {
-      images = ["/rooms/grand-deluxe.jpg"];
-    } else if (textLower.includes("deluxe")) {
-      // Use the newly added dynamic images as fallback for deluxe
-      images = [
-        "/rooms/deluxe-giuong-doi/1.webp", 
-        "/rooms/deluxe-giuong-doi/2.webp", 
-        "/rooms/deluxe-giuong-doi/3.webp", 
-        "/rooms/deluxe-giuong-doi/4.webp"
-      ];
-    } else if (textLower.includes("villa") || textLower.includes("biệt thự")) {
-      images = ["/rooms/villa.jpg"];
-    }
   }
 
   const hasImages = images.length > 0;
@@ -203,66 +193,58 @@ function RoomListItem({ children }: { children: ReactNode }) {
   );
 }
 
-export function MarkdownBody({ text, className }: { text: string; className?: string }) {
+// Extracted static components object so ReactMarkdown NEVER unmounts/remounts components on state change!
+const MARKDOWN_COMPONENTS = {
+  p: ({ children }: ComponentPropsWithoutRef<"p">) => (
+    <p className="mb-2 text-sm leading-relaxed text-foreground/90 last:mb-0">
+      {renderEnhancedChildren(children)}
+    </p>
+  ),
+  ul: ({ children }: ComponentPropsWithoutRef<"ul">) => (
+    <ul className="my-2.5 space-y-1.5 pl-0 list-none">{children}</ul>
+  ),
+  ol: ({ children }: ComponentPropsWithoutRef<"ol">) => (
+    <ol className="my-2.5 space-y-1.5 pl-4 list-decimal text-sm font-medium leading-relaxed">{children}</ol>
+  ),
+  li: ({ children }: ComponentPropsWithoutRef<"li">) => (
+    <RoomListItem>{children}</RoomListItem>
+  ),
+  strong: ({ children }: ComponentPropsWithoutRef<"strong">) => (
+    <strong className="font-semibold text-foreground tracking-tight">{children}</strong>
+  ),
+  a: ({ href, children }: ComponentPropsWithoutRef<"a">) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary transition-colors"
+    >
+      {children}
+    </a>
+  ),
+  h1: ({ children }: ComponentPropsWithoutRef<"h1">) => (
+    <h1 className="mt-3 mb-1.5 text-base font-bold text-foreground tracking-tight">{children}</h1>
+  ),
+  h2: ({ children }: ComponentPropsWithoutRef<"h2">) => (
+    <h2 className="mt-2.5 mb-1.5 text-sm font-bold text-foreground tracking-tight">{children}</h2>
+  ),
+  h3: ({ children }: ComponentPropsWithoutRef<"h3">) => (
+    <h3 className="mt-2 mb-1 text-sm font-semibold text-foreground">{children}</h3>
+  ),
+  code: ({ children }: ComponentPropsWithoutRef<"code">) => (
+    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-foreground">{children}</code>
+  ),
+  pre: ({ children }: ComponentPropsWithoutRef<"pre">) => (
+    <pre className="my-2 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs text-foreground">{children}</pre>
+  ),
+};
+
+export const MarkdownBody = memo(function MarkdownBody({ text, className }: { text: string; className?: string }) {
   return (
     <div className={className}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          // Paragraph
-          p: ({ children }: ComponentPropsWithoutRef<"p">) => (
-            <p className="mb-2 text-sm leading-relaxed text-foreground/90 last:mb-0">
-              {renderEnhancedChildren(children)}
-            </p>
-          ),
-          // Unordered list - Premium card-style container for lists
-          ul: ({ children }: ComponentPropsWithoutRef<"ul">) => (
-            <ul className="my-2.5 space-y-1.5 pl-0 list-none">{children}</ul>
-          ),
-          // Ordered list
-          ol: ({ children }: ComponentPropsWithoutRef<"ol">) => (
-            <ol className="my-2.5 space-y-1.5 pl-4 list-decimal text-sm font-medium leading-relaxed">{children}</ol>
-          ),
-          // List Item - Styled as clean, structured mini-cards with expandable images
-          li: ({ children }: ComponentPropsWithoutRef<"li">) => (
-            <RoomListItem>{children}</RoomListItem>
-          ),
-          // Bold text styling
-          strong: ({ children }: ComponentPropsWithoutRef<"strong">) => (
-            <strong className="font-semibold text-foreground tracking-tight">{children}</strong>
-          ),
-          // Links
-          a: ({ href, children }: ComponentPropsWithoutRef<"a">) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary transition-colors"
-            >
-              {children}
-            </a>
-          ),
-          // Headings
-          h1: ({ children }: ComponentPropsWithoutRef<"h1">) => (
-            <h1 className="mt-3 mb-1.5 text-base font-bold text-foreground tracking-tight">{children}</h1>
-          ),
-          h2: ({ children }: ComponentPropsWithoutRef<"h2">) => (
-            <h2 className="mt-2.5 mb-1.5 text-sm font-bold text-foreground tracking-tight">{children}</h2>
-          ),
-          h3: ({ children }: ComponentPropsWithoutRef<"h3">) => (
-            <h3 className="mt-2 mb-1 text-sm font-semibold text-foreground">{children}</h3>
-          ),
-          // Code
-          code: ({ children }: ComponentPropsWithoutRef<"code">) => (
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-foreground">{children}</code>
-          ),
-          pre: ({ children }: ComponentPropsWithoutRef<"pre">) => (
-            <pre className="my-2 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs text-foreground">{children}</pre>
-          ),
-        }}
-      >
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
         {text}
       </ReactMarkdown>
     </div>
   );
-}
+});

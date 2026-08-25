@@ -19,6 +19,15 @@ import {
   offers,
   campaigns,
   auditEvents,
+  traceSpans,
+  appSettings,
+  roomPackages,
+  guestRequests,
+  guestRegistrations,
+  payments,
+  invoiceRequests,
+  feedbackEntries,
+  type IndexMeta,
 } from "@shared/schema";
 import type {
   Hotel,
@@ -43,7 +52,16 @@ import type {
   Offer,
   Campaign,
   AuditEvent,
+  TraceSpan,
+  InsertTraceSpan,
+  RoomPackageRow,
+  InsertRoomPackage,
   ConversationRow,
+  GuestRequest,
+  GuestRegistration,
+  Payment,
+  InvoiceRequest,
+  FeedbackEntry,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
@@ -159,7 +177,7 @@ CREATE TABLE IF NOT EXISTS dining_venues (
   cuisine TEXT NOT NULL DEFAULT '[]', dishes_served TEXT NOT NULL DEFAULT '[]',
   highlights TEXT NOT NULL DEFAULT '[]', good_for TEXT NOT NULL DEFAULT '[]',
   amenities TEXT NOT NULL DEFAULT '[]', menu_groups TEXT NOT NULL DEFAULT '[]',
-  description TEXT, source_file TEXT NOT NULL, source_url TEXT
+  description TEXT, menu_file TEXT, source_file TEXT NOT NULL, source_url TEXT
 );
 CREATE TABLE IF NOT EXISTS doc_chunks (
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, ref_id INTEGER NOT NULL,
@@ -181,11 +199,149 @@ CREATE TABLE IF NOT EXISTS audit_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL, actor TEXT NOT NULL,
   summary TEXT NOT NULL, payload TEXT, conversation_id INTEGER, created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS guest_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER,
+  guest_id INTEGER, conversation_id INTEGER, task_id INTEGER, kind TEXT NOT NULL,
+  dept TEXT NOT NULL, summary TEXT NOT NULL, payload TEXT NOT NULL DEFAULT '{}',
+  scheduled_for TEXT, status TEXT NOT NULL DEFAULT 'open', amount REAL, charge_id INTEGER,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, resolved_at TEXT, resolution_note TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_req_res ON guest_requests(reservation_id);
+CREATE INDEX IF NOT EXISTS idx_req_status ON guest_requests(status);
+CREATE TABLE IF NOT EXISTS guest_registrations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER NOT NULL,
+  guest_id INTEGER, full_name TEXT NOT NULL, id_type TEXT NOT NULL, id_number TEXT NOT NULL,
+  nationality TEXT NOT NULL, dob TEXT, gender TEXT, visa_number TEXT, entry_date TEXT,
+  entry_port TEXT, permanent_address TEXT, arrival_at TEXT NOT NULL, departure_at TEXT,
+  is_foreigner INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'collected',
+  channel TEXT, submitted_at TEXT, submitted_by INTEGER, receipt_ref TEXT, task_id INTEGER,
+  note TEXT, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_reg_res ON guest_registrations(reservation_id);
+CREATE TABLE IF NOT EXISTS payments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER NOT NULL,
+  amount REAL NOT NULL, currency TEXT NOT NULL DEFAULT 'VND', method TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending', provider TEXT NOT NULL DEFAULT 'not_connected',
+  token TEXT UNIQUE, link TEXT, reference TEXT, charge_id INTEGER, task_id INTEGER,
+  expires_at TEXT, paid_at TEXT, created_at TEXT NOT NULL, note TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_pay_res ON payments(reservation_id);
+CREATE TABLE IF NOT EXISTS invoice_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER NOT NULL,
+  buyer_name TEXT NOT NULL, tax_code TEXT, buyer_address TEXT, email TEXT NOT NULL,
+  buyer_type TEXT NOT NULL DEFAULT 'personal', net_amount REAL NOT NULL,
+  service_charge REAL NOT NULL DEFAULT 0, vat_amount REAL NOT NULL DEFAULT 0,
+  gross_amount REAL NOT NULL, status TEXT NOT NULL DEFAULT 'requested', invoice_no TEXT,
+  issued_at TEXT, task_id INTEGER, note TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS feedback (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER,
+  guest_id INTEGER, conversation_id INTEGER, rating INTEGER,
+  category TEXT NOT NULL DEFAULT 'general', comment TEXT NOT NULL,
+  sentiment TEXT NOT NULL DEFAULT 'neutral', task_id INTEGER,
+  status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS trace_spans (
+  id TEXT PRIMARY KEY, trace_id TEXT NOT NULL, conversation_id INTEGER NOT NULL,
+  parent_id TEXT, name TEXT NOT NULL, kind TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'ok', provider TEXT, model TEXT,
+  started_at TEXT NOT NULL, ended_at TEXT, duration_ms INTEGER,
+  attributes TEXT, signals TEXT NOT NULL DEFAULT '[]', error TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS room_packages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL,
+  room_code TEXT NOT NULL, room_name_vi TEXT NOT NULL, name TEXT NOT NULL,
+  public_price REAL NOT NULL, member_price REAL,
+  meal_plan TEXT NOT NULL DEFAULT 'none', vinwonders INTEGER NOT NULL DEFAULT 0,
+  golf_rounds INTEGER NOT NULL DEFAULT 0, hotel_credit REAL NOT NULL DEFAULT 0,
+  aquafield INTEGER NOT NULL DEFAULT 0, sauna_jacuzzi INTEGER NOT NULL DEFAULT 0,
+  cable_car INTEGER NOT NULL DEFAULT 0, spa_discount_pct INTEGER NOT NULL DEFAULT 0,
+  fnb_discount_pct INTEGER NOT NULL DEFAULT 0, golf_discount_pct INTEGER NOT NULL DEFAULT 0,
+  inclusions TEXT NOT NULL DEFAULT '[]', conditions TEXT NOT NULL DEFAULT '[]',
+  has_blackout INTEGER NOT NULL DEFAULT 0, source_file TEXT, updated_at TEXT NOT NULL
+);
+-- Identity of the vector index: what built it, and what shape it is.
+--
+-- Before this table, the only record of which embedder produced a vector was the
+-- per-chunk embed_model string, and nothing compared it to the model the runtime
+-- was configured with. A deployment ran with 139 vectors from
+-- text-embedding-3-small (1536-d) while the runtime resolved to a 384-d local
+-- model: the dimensions could not be compared, the vector leg silently switched
+-- itself off, and the strategy string was the only place that said so. Retrieval
+-- looked like hybrid and was BM25-only, which on the multilingual set means zero
+-- results for Korean, Chinese and Japanese.
+--
+-- embedding_version is bumped by hand when the way text is prepared for the
+-- embedder changes (prefixes, chunking, normalisation) even though the model
+-- name has not: a same-model, different-preparation index is just as
+-- incomparable as a different-model one, and nothing else would catch it.
+CREATE TABLE IF NOT EXISTS index_meta (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  provider TEXT NOT NULL, model TEXT NOT NULL, dimension INTEGER NOT NULL,
+  embedding_version TEXT NOT NULL, chunk_count INTEGER NOT NULL,
+  vector_count INTEGER NOT NULL, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_pkg_room ON room_packages(room_code);
+CREATE INDEX IF NOT EXISTS idx_pkg_price ON room_packages(public_price);
+CREATE INDEX IF NOT EXISTS idx_span_trace ON trace_spans(trace_id);
+CREATE INDEX IF NOT EXISTS idx_span_conv ON trace_spans(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_span_turn ON trace_spans(kind, created_at);
 CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_task_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
 `);
   addColumnIfMissing("rooms", "base_rate", "base_rate REAL NOT NULL DEFAULT 0");
+
+  /* services.images was declared in the schema but missing from the bootstrap DDL. */
+  addColumnIfMissing("services", "images", "images TEXT NOT NULL DEFAULT '[]'");
+  addColumnIfMissing("services", "linked_kb_titles", "linked_kb_titles TEXT NOT NULL DEFAULT '[]'");
+  addColumnIfMissing("services", "service_group", "service_group TEXT");
+
+  /* guests: identity fields for the statutory lodging declaration + loyalty ledger */
+  addColumnIfMissing("guests", "id_type", "id_type TEXT");
+  addColumnIfMissing("guests", "id_number", "id_number TEXT");
+  addColumnIfMissing("guests", "nationality", "nationality TEXT");
+  addColumnIfMissing("guests", "dob", "dob TEXT");
+  addColumnIfMissing("guests", "loyalty_points", "loyalty_points INTEGER NOT NULL DEFAULT 0");
+  addColumnIfMissing("guests", "loyalty_enrolled_at", "loyalty_enrolled_at TEXT");
+
+  /* reservations: a real arrival time, and an auditable cancellation */
+  addColumnIfMissing("reservations", "check_in_time", "check_in_time TEXT");
+  addColumnIfMissing("reservations", "cancelled_at", "cancelled_at TEXT");
+  addColumnIfMissing("reservations", "cancellation_fee", "cancellation_fee REAL");
+
+  /* folio_charges: tax base flag + provenance so a reversal can be exact */
+  addColumnIfMissing("folio_charges", "taxable", "taxable INTEGER NOT NULL DEFAULT 1");
+  addColumnIfMissing("folio_charges", "ref_type", "ref_type TEXT");
+  addColumnIfMissing("folio_charges", "ref_id", "ref_id INTEGER");
+  addColumnIfMissing("folio_charges", "voided_at", "voided_at TEXT");
+
+  /* kb_articles: Phase A knowledge-hygiene metadata (quality, freshness, provenance) */
+  addColumnIfMissing("kb_articles", "quality", "quality TEXT NOT NULL DEFAULT 'curated'");
+  addColumnIfMissing("kb_articles", "verified", "verified TEXT NOT NULL DEFAULT 'unverified'");
+  addColumnIfMissing("kb_articles", "content_class", "content_class TEXT NOT NULL DEFAULT 'static'");
+  addColumnIfMissing("kb_articles", "entity", "entity TEXT");
+  addColumnIfMissing("kb_articles", "domain", "domain TEXT");
+  addColumnIfMissing("kb_articles", "source_url", "source_url TEXT");
+  addColumnIfMissing("kb_articles", "effective_date", "effective_date TEXT");
+  addColumnIfMissing("kb_articles", "last_verified", "last_verified TEXT");
+  addColumnIfMissing("kb_articles", "retrievable", "retrievable INTEGER NOT NULL DEFAULT 1");
+
+  /* doc_chunks: provenance carried from the source article for the generator */
+  addColumnIfMissing("doc_chunks", "quality", "quality TEXT NOT NULL DEFAULT 'curated'");
+  addColumnIfMissing("doc_chunks", "verified", "verified TEXT NOT NULL DEFAULT 'unverified'");
+  addColumnIfMissing("doc_chunks", "content_class", "content_class TEXT NOT NULL DEFAULT 'static'");
+
+  /* service_bookings: what was actually charged, and the cancellation deadline */
+  addColumnIfMissing("service_bookings", "amount", "amount REAL");
+  addColumnIfMissing("service_bookings", "charge_id", "charge_id INTEGER");
+  addColumnIfMissing("service_bookings", "note", "note TEXT");
+  addColumnIfMissing("service_bookings", "cancel_deadline", "cancel_deadline TEXT");
+  addColumnIfMissing("service_bookings", "cancelled_at", "cancelled_at TEXT");
+  addColumnIfMissing("dining_venues", "menu_file", "menu_file TEXT");
 }
 
 export const nowIso = () => new Date().toISOString();
@@ -234,7 +390,12 @@ export const storage = {
   getGuest(id: number): Guest | undefined {
     return db.select().from(guests).where(eq(guests.id, id)).get();
   },
-  createGuest(v: Omit<Guest, "id">): Guest {
+  /* The identity / loyalty columns were added later; existing callers (seed,
+   * walk-in booking, staff create) must keep compiling without them. */
+  createGuest(
+    v: Omit<Guest, "id" | "idType" | "idNumber" | "nationality" | "dob" | "loyaltyPoints" | "loyaltyEnrolledAt"> &
+      Partial<Pick<Guest, "idType" | "idNumber" | "nationality" | "dob" | "loyaltyPoints" | "loyaltyEnrolledAt">>,
+  ): Guest {
     const r = db.insert(guests).values(v).returning().get();
     return r;
   },
@@ -246,7 +407,10 @@ export const storage = {
   listReservations(): Reservation[] {
     return db.select().from(reservations).orderBy(asc(reservations.checkIn)).all();
   },
-  createReservation(v: Omit<Reservation, "id">): Reservation {
+  createReservation(
+    v: Omit<Reservation, "id" | "checkInTime" | "cancelledAt" | "cancellationFee"> &
+      Partial<Pick<Reservation, "checkInTime" | "cancelledAt" | "cancellationFee">>,
+  ): Reservation {
     return db.insert(reservations).values(v).returning().get();
   },
   getReservation(id: number | null): Reservation | undefined {
@@ -288,8 +452,31 @@ export const storage = {
       .orderBy(asc(folioCharges.id))
       .all();
   },
-  addCharge(c: Omit<FolioCharge, "id">): FolioCharge {
-    return db.insert(folioCharges).values(c).returning().get();
+  /* taxable/refType/refId/voidedAt were added with the pricing engine. Older
+   * callers omit them; default to a taxable, unlinked, live charge. */
+  addCharge(
+    c: Omit<FolioCharge, "id" | "taxable" | "refType" | "refId" | "voidedAt"> &
+      Partial<Pick<FolioCharge, "taxable" | "refType" | "refId" | "voidedAt">>,
+  ): FolioCharge {
+    return db
+      .insert(folioCharges)
+      .values({
+        taxable: 1,
+        refType: null,
+        refId: null,
+        voidedAt: null,
+        ...c,
+      })
+      .returning()
+      .get();
+  },
+  getCharge(id: number | null): FolioCharge | undefined {
+    if (!id) return undefined;
+    return db.select().from(folioCharges).where(eq(folioCharges.id, id)).get();
+  },
+  updateCharge(id: number, patch: Partial<FolioCharge>): FolioCharge {
+    db.update(folioCharges).set(patch).where(eq(folioCharges.id, id)).run();
+    return db.select().from(folioCharges).where(eq(folioCharges.id, id)).get()!;
   },
 
   /* --- conversations --- */
@@ -381,6 +568,10 @@ export const storage = {
   getService(id: number): Service | undefined {
     return db.select().from(services).where(eq(services.id, id)).get();
   },
+  updateService(id: number, patch: Partial<Service>): Service {
+    db.update(services).set(patch).where(eq(services.id, id)).run();
+    return db.select().from(services).where(eq(services.id, id)).get()!;
+  },
   listBookings(): ServiceBooking[] {
     return db.select().from(serviceBookings).orderBy(desc(serviceBookings.id)).all();
   },
@@ -400,6 +591,21 @@ export const storage = {
   createBooking(v: Omit<ServiceBooking, "id">): ServiceBooking {
     return db.insert(serviceBookings).values(v).returning().get();
   },
+  getBooking(id: number): ServiceBooking | undefined {
+    return db.select().from(serviceBookings).where(eq(serviceBookings.id, id)).get();
+  },
+  updateBooking(id: number, patch: Partial<ServiceBooking>): ServiceBooking {
+    db.update(serviceBookings).set(patch).where(eq(serviceBookings.id, id)).run();
+    return db.select().from(serviceBookings).where(eq(serviceBookings.id, id)).get()!;
+  },
+  bookingsForReservation(reservationId: number): ServiceBooking[] {
+    return db
+      .select()
+      .from(serviceBookings)
+      .where(eq(serviceBookings.reservationId, reservationId))
+      .orderBy(desc(serviceBookings.id))
+      .all();
+  },
 
   /* ---------------- room catalogue ---------------- */
   listRoomTypes(): RoomType[] {
@@ -417,6 +623,10 @@ export const storage = {
 
   createDiningVenue(v: InsertDiningVenue): DiningVenue {
     return db.insert(diningVenues).values(v).returning().get();
+  },
+
+  updateDiningVenue(id: number, patch: Partial<DiningVenue>): DiningVenue {
+    return db.update(diningVenues).set(patch).where(eq(diningVenues.id, id)).returning().get();
   },
 
   /* ---------------- rate restrictions ---------------- */
@@ -449,6 +659,56 @@ export const storage = {
   createPolicy(v: Omit<Policy, "id">): Policy {
     return db.insert(policies).values(v).returning().get();
   },
+  /** Replace one policy's rule payload. Used by corrective migrations. */
+  updatePolicyRules(code: string, rules: string): void {
+    db.update(policies).set({ rules }).where(eq(policies.code, code)).run();
+  },
+
+  /* ---------------- vector index identity ---------------- */
+
+  getIndexMeta(): IndexMeta | null {
+    /* A database written before this table existed is the normal case on an
+       upgrade, and it is exactly the state the health check wants to report as
+       "identity unverified" rather than crash on. Missing table and missing row
+       mean the same thing to the caller. */
+    let r: Record<string, unknown> | undefined;
+    try {
+      r = sqlite.prepare(`SELECT * FROM index_meta WHERE id = 1`).get() as
+        | Record<string, unknown>
+        | undefined;
+    } catch {
+      return null;
+    }
+    if (!r) return null;
+    return {
+      provider: String(r.provider),
+      model: String(r.model),
+      dimension: Number(r.dimension),
+      embeddingVersion: String(r.embedding_version),
+      chunkCount: Number(r.chunk_count),
+      vectorCount: Number(r.vector_count),
+      createdAt: String(r.created_at),
+    };
+  },
+
+  /** Drop the stamp. Used by tests to simulate a database indexed before it existed. */
+  clearIndexMeta(): void {
+    try { sqlite.prepare(`DELETE FROM index_meta`).run(); } catch { /* table may not exist */ }
+  },
+
+  /** Called by reindex once the whole corpus has been embedded, never before. */
+  setIndexMeta(m: Omit<IndexMeta, "createdAt">): void {
+    sqlite
+      .prepare(
+        `INSERT INTO index_meta (id, provider, model, dimension, embedding_version, chunk_count, vector_count, created_at)
+         VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           provider=excluded.provider, model=excluded.model, dimension=excluded.dimension,
+           embedding_version=excluded.embedding_version, chunk_count=excluded.chunk_count,
+           vector_count=excluded.vector_count, created_at=excluded.created_at`,
+      )
+      .run(m.provider, m.model, m.dimension, m.embeddingVersion, m.chunkCount, m.vectorCount, new Date().toISOString());
+  },
 
   /* ---------------- retrieval index ---------------- */
   listChunks(): DocChunk[] {
@@ -457,8 +717,23 @@ export const storage = {
   clearChunks() {
     db.delete(docChunks).run();
   },
-  createChunk(v: Omit<DocChunk, "id">): DocChunk {
-    return db.insert(docChunks).values(v).returning().get();
+  /* Provenance (quality/verified/content_class) is optional at the call site:
+     structured chunks fall back to the safe defaults, kb chunks pass the values
+     classified in Phase A. */
+  createChunk(
+    v: Omit<DocChunk, "id" | "quality" | "verified" | "contentClass"> &
+      Partial<Pick<DocChunk, "quality" | "verified" | "contentClass">>,
+  ): DocChunk {
+    return db
+      .insert(docChunks)
+      .values({
+        quality: "curated",
+        verified: "unverified",
+        contentClass: "static",
+        ...v,
+      })
+      .returning()
+      .get();
   },
   setChunkEmbedding(id: number, embedding: string, model: string) {
     db.update(docChunks).set({ embedding, embedModel: model }).where(eq(docChunks.id, id)).run();
@@ -470,7 +745,37 @@ export const storage = {
   listKb(): KbArticle[] {
     return db.select().from(kbArticles).orderBy(asc(kbArticles.category)).all();
   },
-  createKb(v: Omit<KbArticle, "id">): KbArticle {
+  /* The Phase A metadata columns are optional at the call site (they carry DB
+     defaults); existing callers that only know title/body/category keep working. */
+  createKb(
+    v: Omit<
+      KbArticle,
+      | "id"
+      | "quality"
+      | "verified"
+      | "contentClass"
+      | "entity"
+      | "domain"
+      | "sourceUrl"
+      | "effectiveDate"
+      | "lastVerified"
+      | "retrievable"
+    > &
+      Partial<
+        Pick<
+          KbArticle,
+          | "quality"
+          | "verified"
+          | "contentClass"
+          | "entity"
+          | "domain"
+          | "sourceUrl"
+          | "effectiveDate"
+          | "lastVerified"
+          | "retrievable"
+        >
+      >,
+  ): KbArticle {
     return db.insert(kbArticles).values(v).returning().get();
   },
   updateKb(id: number, patch: Partial<KbArticle>): KbArticle {
@@ -496,12 +801,229 @@ export const storage = {
     return db.select().from(campaigns).where(eq(campaigns.id, id)).get()!;
   },
 
+  /* ---------------- operational guest requests ---------------- */
+  createRequest(v: Omit<GuestRequest, "id">): GuestRequest {
+    return db.insert(guestRequests).values(v).returning().get();
+  },
+  getRequest(id: number): GuestRequest | undefined {
+    return db.select().from(guestRequests).where(eq(guestRequests.id, id)).get();
+  },
+  updateRequest(id: number, patch: Partial<GuestRequest>): GuestRequest {
+    db.update(guestRequests).set(patch).where(eq(guestRequests.id, id)).run();
+    return db.select().from(guestRequests).where(eq(guestRequests.id, id)).get()!;
+  },
+  listRequests(limit = 200): GuestRequest[] {
+    return db.select().from(guestRequests).orderBy(desc(guestRequests.id)).limit(limit).all();
+  },
+  requestsFor(reservationId: number): GuestRequest[] {
+    return db
+      .select()
+      .from(guestRequests)
+      .where(eq(guestRequests.reservationId, reservationId))
+      .orderBy(desc(guestRequests.id))
+      .all();
+  },
+
+  /* ---------------- lodging declaration ---------------- */
+  createRegistration(v: Omit<GuestRegistration, "id">): GuestRegistration {
+    return db.insert(guestRegistrations).values(v).returning().get();
+  },
+  updateRegistration(id: number, patch: Partial<GuestRegistration>): GuestRegistration {
+    db.update(guestRegistrations).set(patch).where(eq(guestRegistrations.id, id)).run();
+    return db.select().from(guestRegistrations).where(eq(guestRegistrations.id, id)).get()!;
+  },
+  registrationsFor(reservationId: number): GuestRegistration[] {
+    return db
+      .select()
+      .from(guestRegistrations)
+      .where(eq(guestRegistrations.reservationId, reservationId))
+      .orderBy(asc(guestRegistrations.id))
+      .all();
+  },
+  listRegistrations(limit = 200): GuestRegistration[] {
+    return db
+      .select()
+      .from(guestRegistrations)
+      .orderBy(desc(guestRegistrations.id))
+      .limit(limit)
+      .all();
+  },
+
+  /* ---------------- payments ---------------- */
+  createPayment(v: Omit<Payment, "id">): Payment {
+    return db.insert(payments).values(v).returning().get();
+  },
+  getPayment(id: number): Payment | undefined {
+    return db.select().from(payments).where(eq(payments.id, id)).get();
+  },
+  getPaymentByToken(token: string): Payment | undefined {
+    return db.select().from(payments).where(eq(payments.token, token)).get();
+  },
+  updatePayment(id: number, patch: Partial<Payment>): Payment {
+    db.update(payments).set(patch).where(eq(payments.id, id)).run();
+    return db.select().from(payments).where(eq(payments.id, id)).get()!;
+  },
+  paymentsFor(reservationId: number): Payment[] {
+    return db
+      .select()
+      .from(payments)
+      .where(eq(payments.reservationId, reservationId))
+      .orderBy(asc(payments.id))
+      .all();
+  },
+
+  /* ---------------- VAT invoices ---------------- */
+  createInvoiceRequest(v: Omit<InvoiceRequest, "id">): InvoiceRequest {
+    return db.insert(invoiceRequests).values(v).returning().get();
+  },
+  updateInvoiceRequest(id: number, patch: Partial<InvoiceRequest>): InvoiceRequest {
+    db.update(invoiceRequests).set(patch).where(eq(invoiceRequests.id, id)).run();
+    return db.select().from(invoiceRequests).where(eq(invoiceRequests.id, id)).get()!;
+  },
+  invoiceRequestsFor(reservationId: number): InvoiceRequest[] {
+    return db
+      .select()
+      .from(invoiceRequests)
+      .where(eq(invoiceRequests.reservationId, reservationId))
+      .orderBy(desc(invoiceRequests.id))
+      .all();
+  },
+  listInvoiceRequests(limit = 200): InvoiceRequest[] {
+    return db.select().from(invoiceRequests).orderBy(desc(invoiceRequests.id)).limit(limit).all();
+  },
+
+  /* ---------------- feedback ---------------- */
+  createFeedback(v: Omit<FeedbackEntry, "id">): FeedbackEntry {
+    return db.insert(feedbackEntries).values(v).returning().get();
+  },
+  listFeedback(limit = 200): FeedbackEntry[] {
+    return db.select().from(feedbackEntries).orderBy(desc(feedbackEntries.id)).limit(limit).all();
+  },
+
   /* --- audit --- */
   logEvent(v: Omit<AuditEvent, "id">): AuditEvent {
     return db.insert(auditEvents).values(v).returning().get();
   },
   listEvents(limit = 120): AuditEvent[] {
     return db.select().from(auditEvents).orderBy(desc(auditEvents.id)).limit(limit).all();
+  },
+
+  /* --- observability: agent execution traces --- */
+
+  /**
+   * Persist every span of one agent turn in a single transaction. Tracing must
+   * never take a turn down with it, so the caller wraps this — but the write is
+   * still atomic so a listing never shows half a trace.
+   */
+  insertSpans(rows: InsertTraceSpan[]): void {
+    if (!rows.length) return;
+    const tx = sqlite.transaction((batch: InsertTraceSpan[]) => {
+      for (const r of batch) db.insert(traceSpans).values(r).run();
+    });
+    tx(rows);
+  },
+
+  /** Recent turns, newest first. One row per agent turn (the root span). */
+  listRecentTurns(limit = 50): TraceSpan[] {
+    return db
+      .select()
+      .from(traceSpans)
+      .where(eq(traceSpans.kind, "turn"))
+      .orderBy(desc(traceSpans.createdAt))
+      .limit(limit)
+      .all();
+  },
+
+  /** Every span of one trace, in execution order — the full tree for a turn. */
+  getTraceSpans(traceId: string): TraceSpan[] {
+    return db
+      .select()
+      .from(traceSpans)
+      .where(eq(traceSpans.traceId, traceId))
+      .orderBy(asc(traceSpans.startedAt))
+      .all();
+  },
+
+  /** Turns for one conversation, newest first — the "what happened here" view. */
+  listTurnsForConversation(conversationId: number, limit = 50): TraceSpan[] {
+    return db
+      .select()
+      .from(traceSpans)
+      .where(and(eq(traceSpans.conversationId, conversationId), eq(traceSpans.kind, "turn")))
+      .orderBy(desc(traceSpans.createdAt))
+      .limit(limit)
+      .all();
+  },
+
+  /** All spans created at or after `sinceIso`, for signal aggregation. */
+  spansSince(sinceIso: string, limit = 5000): TraceSpan[] {
+    return db
+      .select()
+      .from(traceSpans)
+      .where(sql`${traceSpans.createdAt} >= ${sinceIso}`)
+      .orderBy(desc(traceSpans.createdAt))
+      .limit(limit)
+      .all();
+  },
+
+  /** Drop spans older than `beforeIso`. Called opportunistically to cap growth. */
+  pruneSpansBefore(beforeIso: string): number {
+    const r = sqlite.prepare(`DELETE FROM trace_spans WHERE created_at < ?`).run(beforeIso);
+    return r.changes;
+  },
+
+  /* --- published rate packages (the upsell ladder) --- */
+
+  replaceRoomPackages(rows: InsertRoomPackage[]): number {
+    const tx = sqlite.transaction((batch: InsertRoomPackage[]) => {
+      sqlite.prepare(`DELETE FROM room_packages`).run();
+      for (const r of batch) db.insert(roomPackages).values(r).run();
+    });
+    tx(rows);
+    return rows.length;
+  },
+
+  listRoomPackages(): RoomPackageRow[] {
+    return db.select().from(roomPackages).orderBy(asc(roomPackages.publicPrice)).all();
+  },
+
+  /**
+   * Packages for one room category, cheapest first — the shape an upsell needs:
+   * quote [0], offer the rest as "what more money buys".
+   */
+  packagesForRoom(roomCode: string): RoomPackageRow[] {
+    return db
+      .select()
+      .from(roomPackages)
+      .where(eq(roomPackages.roomCode, roomCode))
+      .orderBy(asc(roomPackages.publicPrice))
+      .all();
+  },
+
+  /** Distinct room codes that actually have packages published. */
+  packagedRoomCodes(): string[] {
+    return (
+      sqlite.prepare(`SELECT DISTINCT room_code FROM room_packages ORDER BY room_code`).all() as {
+        room_code: string;
+      }[]
+    ).map((r) => r.room_code);
+  },
+
+  /* --- runtime key-value settings (e.g. Langfuse keys entered from the UI) --- */
+  getSetting(key: string): string | null {
+    const row = db.select().from(appSettings).where(eq(appSettings.key, key)).get();
+    return row?.value ?? null;
+  },
+  setSetting(key: string, value: string): void {
+    sqlite
+      .prepare(
+        `INSERT INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+      )
+      .run(key, value, nowIso());
+  },
+  deleteSetting(key: string): void {
+    sqlite.prepare(`DELETE FROM app_settings WHERE key = ?`).run(key);
   },
 };
 

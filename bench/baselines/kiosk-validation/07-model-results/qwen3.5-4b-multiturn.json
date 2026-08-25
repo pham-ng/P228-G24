@@ -1,0 +1,316 @@
+{
+  "model": "qwen3.5:4b",
+  "ranAt": "2026-08-24T16:29:32.497Z",
+  "conversations": [
+    {
+      "id": "mt-followup-checkout",
+      "lang": "vi",
+      "kind": "follow-up question",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mấy giờ tôi phải trả phòng?",
+          "reply": "Giờ trả phòng tiêu chuẩn là 12:00. Nếu bạn muốn ra muộn hơn, phí phụ thu sẽ được tính dựa trên mức giá công bố của gói dịch vụ và điều kiện phòng còn trống.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy nếu tôi ra muộn hơn thì sao?",
+          "reply": "Tiêu chuẩn trả phòng là 12:00; nếu muộn hơn, phí sẽ tính theo tỷ lệ phần trăm giá công bố của gói (50% từ 12:00–18:00 và 100% sau 18:00). Tuy nhiên, với khách hàng hạng vàng, bạch kim hoặc kim cương, nhân viên có thể miễn phí trả phòng muộn đến 14:00 nếu phòng chưa được bán lại.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "should have escalated but answered"
+        },
+        {
+          "turn": 3,
+          "q": "Được rồi, cảm ơn.",
+          "reply": "Vui lòng! Tôi đã ghi nhận thông tin của bạn và sẵn sàng hỗ trợ mọi yêu cầu khác trong suốt thời gian lưu trú tại khách sạn.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-omitted-subject",
+      "lang": "vi",
+      "kind": "omitted subject",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Spa mở cửa mấy giờ?",
+          "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00 và yêu cầu đặt trước ít nhất 2 giờ. Quý khách vui lòng liên hệ lễ tân để được hỗ trợ đặt lịch hoặc xem chi tiết dịch vụ.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Còn bể bơi thì sao?",
+          "reply": "Hồ bơi nước ngọt của resort mở cửa từ 06:00 đến 20:00, nhưng lưu ý là không có cứu hộ sau 19:00. Bạn vui lòng xác nhận lại giờ mở cửa cụ thể với lễ tân vì nó có thể thay đổi theo mùa.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn bạn.",
+          "reply": "Chào mừng quý khách đến với khách sạn của chúng tôi! Nếu quý khách cần hỗ trợ thêm về dịch vụ hay thông tin phòng, hãy cho tôi biết nhé.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-pronoun-reference",
+      "lang": "en",
+      "kind": "pronoun/reference",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tell me about the Grand Deluxe room.",
+          "reply": "The Grand Deluxe rooms are modern, 42 m² accommodations located right next to the beach, suitable for up to four guests. They feature amenities such as free Wi-Fi, air conditioning, and a flat-screen TV, with options available in both queen and twin bed configurations.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Does it have an ocean view?",
+          "reply": "Yes, several room types at the resort offer an ocean view, including the Deluxe Ocean View and Grand Deluxe Ocean View categories. Additionally, the 3-Bedroom Ocean View Villa features a private pool with sea-facing windows.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 3,
+          "q": "And what time can I check in to it?",
+          "reply": "The standard check-in time is 14:00. Early check-in must be confirmed in advance and is not granted before 12:00 without a charge. Please note that arrival before 06:00 incurs a 100% package price fee, while arrival between 06:00 and 12:00 incurs a 50% fee.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-correction",
+      "lang": "vi",
+      "kind": "correction",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Ăn sáng phục vụ từ mấy giờ?",
+          "reply": "Theo tài liệu, Lotus Restaurant (nhà hàng buffet truyền thống) phục vụ bữa sáng từ 06:00 đến 10:30.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Ý tôi là hỏi giờ đóng cửa cơ, không phải giờ mở cửa.",
+          "reply": "Lễ tân phục vụ 24/7 từ 00:00 đến 23:59. Về con số cụ thể, tôi cần xác nhận lại với lễ tân để tránh báo sai — tôi đang chuyển yêu cầu này ngay.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy ăn sáng ở nhà hàng nào?",
+          "reply": "Nhà hàng Lotus mở cửa từ 06:00–10:30 và phục vụ món Việt. Nhà hàng Halal VietFlavors và Bách Giai không có giờ mở cửa sáng trong tài liệu cung cấp.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        }
+      ]
+    },
+    {
+      "id": "mt-package-followup",
+      "lang": "vi",
+      "kind": "package -> follow-up",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Mã BB trong bảng giá nghĩa là gì?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": false,
+          "verdict": "unnecessary abstention"
+        },
+        {
+          "turn": 2,
+          "q": "Vậy có gói nào bao gồm cả bữa tối không?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "OK vậy để tôi hỏi lễ tân.",
+          "reply": "Chào quý khách, thông tin về giờ nhận và trả phòng tiêu chuẩn là 14:00 và 12:00; quý khách có thể đổi ngoại tệ trực tiếp tại quầy lễ tân với tỷ giá theo ngày; trong trường hợp khẩn cấp, hãy gọi số 0 từ điện thoại phòng để liên hệ lễ tân 24/7.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-breakfast-children",
+      "lang": "vi",
+      "kind": "breakfast -> children",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Ăn sáng ở nhà hàng nào?",
+          "reply": "Nhà hàng Lotus mở cửa từ 06:00–10:30 và phục vụ món Việt, phù hợp để ăn sáng. Các nhà hàng khác như Halal VietFlavors hay Bách Giai chỉ mở cửa vào buổi chiều hoặc tối nên không phục vụ bữa sáng.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "Trẻ em đi cùng có cần mang giấy tờ gì không?",
+          "reply": "Trẻ em đi cùng gia đình phải mang giấy khai sinh (birth certificate) khi nhận phòng.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "Cảm ơn.",
+          "reply": "Chào bạn, rất vui được phục vụ! Nếu cần hỗ trợ thêm về phòng, dịch vụ hay đặt vé đưa đón, hãy cho tôi biết nhé.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-room-price-breakfast",
+      "lang": "en",
+      "kind": "room -> price -> breakfast",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "What room types do you have?",
+          "reply": "We offer a variety of room types including Deluxe Queen, Deluxe Twin, Grand Deluxe categories, Deluxe Ocean View, and Deluxe Suite King. Additionally, we provide the 3-Bedroom Ocean View Villa for larger groups.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "What's the price for the Deluxe Twin room?",
+          "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "Does that room's package include breakfast?",
+          "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-continuity-ko",
+      "lang": "ko",
+      "kind": "language continuity",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "체크아웃은 몇 시인가요?",
+          "reply": "체크아웃 시간은 12:00 입니다.  \n늦은 체크아웃은 이용 가능하지만 가용성에 따라 추가 요금이 부과됩니다.  \n추가 요금은 18:00 이후에는 전체 금액의 100%입니다.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "그럼 체크인은요?",
+          "reply": "체크인은 표준 시간인 오후 2 시부터 가능합니다.  \n방금 도착이 아닌 경우 사전 확인 없이 오후 12 시 이후에는 체크인할 수 없습니다.  \n아이 동반 시 출생 증명서와 사진 촬영 동의가 필요합니다.",
+          "escalated": false,
+          "correct": false,
+          "verdict": "missing: 14:00"
+        },
+        {
+          "turn": 3,
+          "q": "감사합니다.",
+          "reply": "환영합니다! 체크인 시간은 오후 2 시이며 체크아웃은 정오입니다. 추가로 궁금한 점이 있으시면 언제든지 말씀해 주세요.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-language-continuity-zh",
+      "lang": "zh",
+      "kind": "language continuity",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "水疗中心几点开门？",
+          "reply": "水疗中心（Akoya Spa）的开放时间是每天上午 09:00 至晚上 22:00。建议至少提前 2 小时预订。如需确认具体安排，请联系前台。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 2,
+          "q": "那游泳池呢？",
+          "reply": "酒店拥有区域内最大的淡水游泳池，周围环绕着热带绿植、吊床和躺椅。由于营业时间可能随季节变化，建议您直接联系前台确认具体开放时间和相关费用。",
+          "escalated": false,
+          "correct": true,
+          "verdict": "correct"
+        },
+        {
+          "turn": 3,
+          "q": "谢谢。",
+          "reply": "不客气！如果您有任何关于入住时间、房型设施或餐厅服务的问题，随时欢迎向我咨询。祝您旅途愉快！",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    },
+    {
+      "id": "mt-pets-followup",
+      "lang": "vi",
+      "kind": "follow-up on a policy answer",
+      "turns": [
+        {
+          "turn": 1,
+          "q": "Tôi mang theo chó nhỏ được không?",
+          "reply": "Theo quy định của khách sạn, việc mang thú nuôi vào phòng là bị cấm. Bạn vui lòng liên hệ trực tiếp với lễ tân để được tư vấn thêm về các chính sách cụ thể hoặc dịch vụ chăm sóc thú cưng có thể được cung cấp.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        },
+        {
+          "turn": 2,
+          "q": "Nếu mang theo thì bị phạt bao nhiêu tiền?",
+          "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+          "escalated": true,
+          "correct": true,
+          "verdict": "ok"
+        },
+        {
+          "turn": 3,
+          "q": "Vậy tôi để nó ở nhà vậy.",
+          "reply": "Chào quý khách, thông tin về việc để đồ đạc tại nhà không có trong tài liệu của chúng tôi. Vui lòng liên hệ trực tiếp với lễ tân để được hỗ trợ thêm.",
+          "escalated": false,
+          "correct": true,
+          "verdict": "unscored (context-setting turn)"
+        }
+      ]
+    }
+  ]
+}

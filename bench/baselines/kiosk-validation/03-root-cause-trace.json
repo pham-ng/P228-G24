@@ -1,0 +1,3360 @@
+{
+  "ranAt": "2026-08-24T13:15:00.669Z",
+  "config": {
+    "LOCAL_MIN_SCORE": 0.005,
+    "LOCAL_PASSAGES": 5,
+    "MIN_COVERAGE": 0.34,
+    "model": "qwen3.5:4b",
+    "embed": "bge-m3"
+  },
+  "rows": [
+    {
+      "id": "spa-hours-vi",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Spa mở cửa mấy giờ?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0234,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0227,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0242,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Akoya Spa mở cửa từ 09:00 đến 22:00 hàng ngày. Quý khách vui lòng đặt trước ít nhất 2 giờ và liên hệ lễ tân để được hỗ trợ chi tiết về giá dịch vụ.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 33647
+    },
+    {
+      "id": "spa-hours-en",
+      "lang": "en",
+      "lane": "answer",
+      "q": "What are the spa opening hours?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "score": 0.0229,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Akoya Spa — treatments and prices",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Aquafield Nha Trang — Korean sauna",
+          "score": 0.0221,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0232,
+        "usedSemantic": true,
+        "bestCoverage": 0.67
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Akoya Spa is open from 09:00 to 22:00 daily. Aquafield Nha Trang operates from 09:00 to 22:00 as well. Please note that specific hours may vary and it is best to confirm with the front desk.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 22353
+    },
+    {
+      "id": "aquafield-hours",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Aquafield mở cửa lúc nào?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Aquafield Nha Trang — Korean sauna",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.023,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0228,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "score": 0.0214,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "score": 0.0213,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0241,
+        "usedSemantic": true,
+        "bestCoverage": 0.5
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Aquafield Nha Trang mở cửa từ 09:00 đến 22:00 hàng ngày.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 12131
+    },
+    {
+      "id": "breakfast-hours-vi",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Ăn sáng phục vụ từ mấy giờ đến mấy giờ?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0238,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.2
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0217,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0209,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Seaview Bar — ẩm thực",
+          "score": 0.0191,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0238,
+        "usedSemantic": true,
+        "bestCoverage": 0.8
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Theo tài liệu, Lotus Restaurant (tòa nhà Executive) phục vụ bữa sáng từ 06:00 đến 10:30.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 11563
+    },
+    {
+      "id": "breakfast-hours-en",
+      "lang": "en",
+      "lane": "answer",
+      "q": "When is breakfast served?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Breakfast and buffet pricing",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Families and children",
+          "score": 0.0161,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Pearl Club member benefits",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Package codes and booking classes",
+          "score": 0.0156,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": 0
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Breakfast is served at Lotus Restaurant from 06:00 to 10:30. It is also available for lunch from 12:00 to 14:30 and dinner from 18:00 to 22:00. Please note that the buffet hours are specifically mentioned as 06:00 to 10:30 in the provided text.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 18801
+    },
+    {
+      "id": "breakfast-where",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Ăn sáng ở nhà hàng nào?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0239,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Lotus Restaurant — ẩm thực",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0241,
+        "usedSemantic": true,
+        "bestCoverage": 0.75
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Bạn có thể ăn sáng tại Nhà hàng Halal VietFlavors (mở từ 10:30), Nhà hàng Bách Giai (mở từ 10:30) hoặc Nhà hàng Lotus (có giờ mở cửa sáng từ 06:00).",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 15780
+    },
+    {
+      "id": "cablecar-hours",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Cáp treo chạy từ mấy giờ tới mấy giờ?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0233,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0204,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "score": 0.0198,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.2
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0242,
+        "usedSemantic": true,
+        "bestCoverage": 0.8
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Cáp treo Vinpearl hoạt động từ 08:30 đến 23:00. Tuy nhiên, giờ chạy có thể thay đổi theo mùa nên bạn cần xác nhận lại với lễ tân trước khi đi. Từ 23:00 đến 02:00, dịch chuyển giữa đất liền và đảo sẽ bằng tàu cao tốc.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 25410
+    },
+    {
+      "id": "cablecar-duration",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Đi cáp treo mất bao lâu?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Cable car and Vinpearl Harbour ticket prices",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "score": 0.022,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "score": 0.0217,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 0.6
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Theo tài liệu, chuyến đi cáp treo mất khoảng 8 phút. Tuy nhiên, thời gian có thể dao động từ 8 đến 12 phút và giờ chạy cũng có thể thay đổi, nên bạn cần xác nhận lại với lễ tân trước khi di chuyển.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 19941
+    },
+    {
+      "id": "checkout-time-vi",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Mấy giờ phải trả phòng?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Loyalty goodwill on late departure (internal) (LOYALTY_LATE_CHECKOUT)",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Late departure charges (LATE_CHECKOUT)",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Dịch vụ đưa đón (TRANSPORT)",
+          "score": 0.0199,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0156,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.75
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 0.75
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Giờ trả phòng tiêu chuẩn là 12:00. Nếu khách muốn ra muộn hơn, phí sẽ được tính dựa trên mức giá công bố và điều kiện có phòng trống.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 13268
+    },
+    {
+      "id": "checkin-time-vi",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Mấy giờ tôi được nhận phòng?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Early arrival charges (EARLY_CHECKIN)",
+          "score": 0.023,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0228,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Loyalty goodwill on late departure (internal) (LOYALTY_LATE_CHECKOUT)",
+          "score": 0.021,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "score": 0.0201,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0161,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.023,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Giờ nhận phòng tiêu chuẩn của khách sạn là 14:00. Nếu bạn đến sớm hơn 12:00, bạn sẽ phải thanh toán phí cho việc nhận phòng trước giờ theo các mức giá cụ thể đã công bố.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 14576
+    },
+    {
+      "id": "checkin-time-en",
+      "lang": "en",
+      "lane": "answer",
+      "q": "What time can I check in?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Check-in, check-out and identification",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Early arrival charges (EARLY_CHECKIN)",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Late departure charges (LATE_CHECKOUT)",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Check-in deposit (DEPOSIT)",
+          "score": 0.0222,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Guest list deadlines and name changes",
+          "score": 0.0221,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "The standard check-in time is 14:00. Early check-in before 12:00 requires advance confirmation and may incur a charge depending on the arrival time. Please note that no early check-in is granted before 12:00 without a fee.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 19878
+    },
+    {
+      "id": "visitor-curfew",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Khách đến thăm được ở lại phòng tới mấy giờ?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0239,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0233,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.022,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Hủy dịch vụ đã đặt (SERVICE_CANCELLATION)",
+          "score": 0.0208,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Loyalty goodwill on late departure (internal) (LOYALTY_LATE_CHECKOUT)",
+          "score": 0.0208,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0239,
+        "usedSemantic": true,
+        "bestCoverage": 0.67
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Theo quy định của khách sạn, không có người lạ nào được phép vào phòng sau 20:00. Nếu muốn tiếp đón khách đến thăm, bạn cần để lại giấy tờ tùy thân tại lễ tân và đảm bảo họ không vào phòng trong khung giờ cấm này.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 15072
+    },
+    {
+      "id": "pets-vi",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi mang theo chó nhỏ được không?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0199,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "score": 0.0161,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Giá vé & giờ mở cửa VinWonders (thay đổi theo ngày)",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "quality": "placeholder",
+          "coverage": 0.25
+        },
+        {
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "score": 0.0156,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0199,
+        "usedSemantic": true,
+        "bestCoverage": 0.5
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "",
+      "abstained": true,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "không"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 15406
+    },
+    {
+      "id": "pets-en",
+      "lang": "en",
+      "lane": "answer",
+      "q": "Can I bring my dog to the resort?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Contacting the resort and on-site navigation",
+          "score": 0.0234,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        },
+        {
+          "title": "Đỗ xe / Bãi giữ xe",
+          "score": 0.0218,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        },
+        {
+          "title": "Tiện ích cho người khuyết tật",
+          "score": 0.0216,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0214,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        },
+        {
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "score": 0.0202,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        }
+      ],
+      "goldFactInTopK": false,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0234,
+        "usedSemantic": true,
+        "bestCoverage": 0.33
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "",
+      "abstained": true,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "not allowed"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 11559
+    },
+    {
+      "id": "smoking-where",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi hút thuốc trong phòng được không?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.024,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0204,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "score": 0.0156,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0242,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Theo quy định, việc hút thuốc trong phòng bị cấm và sẽ bị phạt tiền nếu vi phạm. Bạn vui lòng liên hệ Lễ tân để được hướng dẫn các khu vực cho phép hút thuốc hoặc xin giấy phép đặc biệt.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 17827
+    },
+    {
+      "id": "durian",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi mang sầu riêng vào phòng được không?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0212,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Biệt Thự 3 Phòng Ngủ Hướng Biển — phòng",
+          "score": 0.0156,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.5
+        }
+      ],
+      "goldFactInTopK": false,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Theo quy định của khách sạn, trái cây như sầu riêng không được phép mang vào phòng. Bạn cần đăng ký và thanh toán phí tại Trung tâm Dịch vụ Khách hàng nếu muốn sử dụng bếp trong biệt thự để hâm nóng thực phẩm bên ngoài.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 16132
+    },
+    {
+      "id": "id-required",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Nhận phòng cần giấy tờ gì?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "score": 0.0228,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "score": 0.0219,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "score": 0.0201,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "score": 0.0195,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.4
+        }
+      ],
+      "goldFactInTopK": false,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0228,
+        "usedSemantic": true,
+        "bestCoverage": 0.6
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "",
+      "abstained": true,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "căn cước"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 10846
+    },
+    {
+      "id": "child-doc",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Trẻ em đi cùng cần mang giấy tờ gì?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Families and children",
+          "score": 0.0229,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0215,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.38
+        },
+        {
+          "title": "Deluxe Hướng Biển Giường Đôi — phòng",
+          "score": 0.0212,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.38
+        },
+        {
+          "title": "Deluxe Giường Đôi — phòng",
+          "score": 0.0206,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.38
+        },
+        {
+          "title": "Occupancy, extra beds and children (OCCUPANCY)",
+          "score": 0.02,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0229,
+        "usedSemantic": true,
+        "bestCoverage": 0.38
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Trẻ em đi cùng gia đình cần mang giấy khai sinh (birth certificate) khi nhận phòng.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 13264
+    },
+    {
+      "id": "spa-treatments",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Spa có những loại massage nào?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Akoya Spa — treatments and prices",
+          "score": 0.0238,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Rooms and room types",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "score": 0.0216,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 0.5
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Spa Akoya cung cấp các liệu pháp massage trứ danh như Balinese, Hawaiian Lomi Lomi và Japanese Shiatsu. Ngoài ra còn có các dịch vụ khác như Warm Bamboo, Hot Stone Therapy, Vietnamese Traditional, Four Hands, Foot Therapy và Express Massage. Quý khách vui lòng liên hệ lễ tân để đặt lịch và xem chi tiết giá cả.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 21059
+    },
+    {
+      "id": "watersports",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Ở resort có hoạt động dưới nước gì?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Thể thao & hoạt động dưới nước",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Thể thao & hoạt động dưới nước",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Beach, pool and water sports",
+          "score": 0.0239,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Hồ bơi nước ngọt",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0217,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Resort có các hoạt động dưới nước như chèo thuyền kayak, lặn biển (Vinpearl Diving Club), mô tô nước, dù lượn và bóng chuyền bãi biển. Tuy nhiên, khả năng tham gia phụ thuộc vào mùa và thời tiết, nên vui lòng hỏi lễ tân để biết lựa chọn và giá hiện tại.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 16276
+    },
+    {
+      "id": "chinese-restaurant",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có nhà hàng Trung Hoa không?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "score": 0.0236,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.8
+        },
+        {
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "score": 0.023,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Có, resort có Nhà hàng Bách Giai thuộc khu Imperial Club trên đảo Hòn Tre, phục vụ ẩm thực Trung Hoa đích thực. Bạn có thể liên hệ qua điện thoại (+84) 705 754 343 hoặc hỏi lễ tân để biết giờ mở cửa và giá cả chi tiết.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [
+        "7           h"
+      ],
+      "finalEscalated": false,
+      "finalCorrect": false,
+      "ms": 19495
+    },
+    {
+      "id": "imperial-club",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Imperial Club có gì chơi?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Imperial Club — ẩm thực & giải trí",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Entertainment and golf on Hon Tre",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "score": 0.022,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Imperial Club cung cấp sàn nhảy disco, khu bowling và phòng karaoke. Bạn cũng có thể thưởng thức các món ăn tại nhà hàng Halal VietFlavors hoặc Nhà hàng Bách Giai (món Trung Hoa) nằm trong khuôn viên này. Vui lòng hỏi lễ tân để biết chi tiết về giờ hoạt động của các tiện ích giải trí.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 24011
+    },
+    {
+      "id": "vinwonders-zones",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "VinWonders Nha Trang gồm những phân khu nào?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.86
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.71
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0236,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.57
+        },
+        {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "score": 0.0234,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.57
+        },
+        {
+          "title": "Entertainment and golf on Hon Tre",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.57
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 0.86
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "VinWonders Nha Trang gồm 6 phân khu: Adventure Land, King's Garden, World Garden, Tropical Paradise, Sea World và Fairy Land.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 15519
+    },
+    {
+      "id": "vinwonders-access",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Đi VinWonders bằng cách nào?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "score": 0.0242,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0234,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        },
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0215,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Getting to the resort from Cam Ranh Airport",
+          "score": 0.0215,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "score": 0.0207,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0242,
+        "usedSemantic": true,
+        "bestCoverage": 0.75
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Để đến VinWonders Nha Trang, bạn có thể di chuyển bằng cáp treo Vinpearl (khoảng 8 phút) hoặc tàu cao tốc vào những giờ khuya. Vui lòng xác nhận lại giờ chạy và giá vé với lễ tân trước khi đi vì chúng có thể thay đổi theo ngày.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 17791
+    },
+    {
+      "id": "zipline",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Trên đảo có zipline không, dài bao xa?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Entertainment and golf on Hon Tre",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.6
+        },
+        {
+          "title": "Đỗ xe / Bãi giữ xe",
+          "score": 0.0223,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "VinWonders Nha Trang tickets and shows",
+          "score": 0.0214,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.2
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0208,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "score": 0.0206,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 0.6
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Có, trên đảo có zipline dài 880 mét.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 9774
+    },
+    {
+      "id": "beach-length",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Bãi biển riêng của resort dài bao nhiêu km?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Beach, pool and water sports",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "score": 0.0205,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        },
+        {
+          "title": "Thể thao & hoạt động dưới nước",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.67
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 0.67
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Bãi biển riêng của resort có độ dài 1,1 km.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 8868
+    },
+    {
+      "id": "sauna-rooms",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Aquafield có mấy phòng trị liệu?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Aquafield Nha Trang — Korean sauna",
+          "score": 0.0236,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "score": 0.0216,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "score": 0.0208,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "score": 0.0203,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "score": 0.02,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0236,
+        "usedSemantic": true,
+        "bestCoverage": 0.5
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Aquafield Nha Trang có 7 phòng trị liệu. Các loại phòng này bao gồm: Snow, Cypress Wood, Mist, Salt Stone, Bulgama, Charcoal và Yellow Earth.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 13446
+    },
+    {
+      "id": "ballroom",
+      "lang": "en",
+      "lane": "answer",
+      "q": "How many people fit in the grand ballroom?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Meetings and events (MICE)",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Grand Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.2
+        },
+        {
+          "title": "Grand Deluxe Giường Đôi — phòng",
+          "score": 0.0237,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.2
+        },
+        {
+          "title": "Grand Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "score": 0.0233,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.2
+        },
+        {
+          "title": "Grand Deluxe Hướng Biển Giường Đôi — phòng",
+          "score": 0.0227,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.2
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 0.4
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "The grand ballroom can seat up to 600 guests. Event enquiries regarding layout and catering should be directed through the front desk. Please let me know if you need further assistance with your event planning.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 12229
+    },
+    {
+      "id": "meeting-rooms",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có mấy phòng hội nghị?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Hội nghị & tiệc cưới (MICE)",
+          "score": 0.0245,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Meetings and events (MICE)",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Tiện ích cho người khuyết tật",
+          "score": 0.0233,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Rooms and room types",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "score": 0.0195,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.75
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0245,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Resort có 7 phòng họp bổ sung ngoài một đại sảnh lớn (tổng cộng 8 không gian hội nghị). Vui lòng liên hệ bộ phận sự kiện để được tư vấn chi tiết về sức chứa và cấu hình.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 13822
+    },
+    {
+      "id": "room-count",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có tất cả mấy phòng?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Occupancy, extra beds and children (OCCUPANCY)",
+          "score": 0.0202,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Tiện ích cho người khuyết tật",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.25
+        },
+        {
+          "title": "Deluxe Hướng Biển Giường Đôi — phòng",
+          "score": 0.0156,
+          "matchedBy": "keyword",
+          "quality": "curated",
+          "coverage": 0.25
+        }
+      ],
+      "goldFactInTopK": false,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0224,
+        "usedSemantic": true,
+        "bestCoverage": 0.5
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "",
+      "abstained": true,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "476"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 9556
+    },
+    {
+      "id": "pool",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có hồ bơi không?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Hồ bơi nước ngọt",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Beach, pool and water sports",
+          "score": 0.0237,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0233,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.67
+        },
+        {
+          "title": "Quầy bar (Pool Bar, Wave Bar)",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Có, resort có một hồ bơi nước ngọt lớn nhất khu vực. Hồ bơi này được mở từ 06:00 đến 20:00 và không có cứu hộ sau 19:00. Vui lòng xác nhận giờ cụ thể với lễ tân vì nó có thể thay đổi theo mùa.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 15319
+    },
+    {
+      "id": "occupancy-room",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Một phòng khách sạn ở tối đa mấy người?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Deluxe Giường Đôi — phòng",
+          "score": 0.0239,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Deluxe Hướng Biển Giường Đôi — phòng",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Grand Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0223,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.83
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Tùy thuộc vào loại phòng mà số lượng khách tối đa có thể từ 2 đến 4 người. Các phòng Deluxe và Grand Deluxe đều cho phép tối đa 4 khách (3 người lớn + 1 trẻ em hoặc 2 người lớn + 2 trẻ em).",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 14176
+    },
+    {
+      "id": "extra-bed-count",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Một phòng kê thêm được mấy giường phụ?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Occupancy, extra beds and children (OCCUPANCY)",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 1
+        },
+        {
+          "title": "Grand Deluxe Giường Đôi — phòng",
+          "score": 0.0234,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Deluxe Giường Đôi — phòng",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Grand Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0241,
+        "usedSemantic": true,
+        "bestCoverage": 1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Thông tin về số lượng giường phụ có thể kê thêm không được nêu rõ trong tài liệu; bạn cần liên hệ trực tiếp với lễ tân để được xác nhận chính xác.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "1"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": false,
+      "ms": 11542
+    },
+    {
+      "id": "package-codes",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Mã BB trong bảng giá nghĩa là gì?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 0
+    },
+    {
+      "id": "guestlist-lowseason",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Danh sách khách phải gửi trước bao nhiêu ngày mùa thấp điểm?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "score": 0.0234,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.5
+        },
+        {
+          "title": "Dịch vụ đưa đón (TRANSPORT)",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Dịch vụ giặt ủi (LAUNDRY)",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        },
+        {
+          "title": "Hủy dịch vụ đã đặt (SERVICE_CANCELLATION)",
+          "score": 0.0222,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.4
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0234,
+        "usedSemantic": true,
+        "bestCoverage": 0.5
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "",
+      "abstained": true,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "7"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 7150
+    },
+    {
+      "id": "complaint-steps",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi muốn khiếu nại thì quy trình thế nào?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Complaints and dispute resolution (DISPUTE)",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.33
+        },
+        {
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "score": 0.0224,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.17
+        },
+        {
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "score": 0.0217,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.17
+        },
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0212,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.17
+        },
+        {
+          "title": "House rules — visitors, pool, sea and noise",
+          "score": 0.0189,
+          "matchedBy": "keyword+semantic",
+          "quality": "curated",
+          "coverage": 0.17
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true,
+        "bestCoverage": 0.33
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "Để khiếu nại, bạn có thể liên hệ đường dây nóng của Tòa án nhân dân TP. Hồ Chí Minh qua số 1900 23 23 89 (chọn mục 3) hoặc thông qua các kênh khác như cổng khai báo lưu trú của Bộ Công an và ứng dụng VNeID.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 14331
+    },
+    {
+      "id": "payment-methods",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort nhận thanh toán bằng hình thức nào?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 0
+    },
+    {
+      "id": "spa-hours-ko",
+      "lang": "ko",
+      "lane": "answer",
+      "q": "스파는 몇 시에 문을 여나요?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "스파 (Akoya Spa) 는 오전 9시부터 오후 10시까지 운영됩니다. 최소 2 시간 전에 예약을 해야 합니다.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 11358
+    },
+    {
+      "id": "breakfast-ko",
+      "lang": "ko",
+      "lane": "answer",
+      "q": "조식은 몇 시부터인가요?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Breakfast and buffet pricing",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Restaurants and bars — hours",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "",
+      "abstained": true,
+      "factsCheck": {
+        "ok": false,
+        "missing": [
+          "06:00"
+        ]
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": false,
+      "ms": 9289
+    },
+    {
+      "id": "pets-ko",
+      "lang": "ko",
+      "lane": "answer",
+      "q": "반려견을 데려가도 되나요?",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "House rules — smoking, pets and outside food",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "House rules — visitors, pool, sea and noise",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Occupancy limits, extra beds and children",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": false,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "반려견은 성역이 없는 곳 어디에서도 허용되지 않습니다.",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 9160
+    },
+    {
+      "id": "spa-hours-zh",
+      "lang": "zh",
+      "lane": "answer",
+      "q": "水疗中心几点开门？",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Aquafield Nha Trang — Korean sauna",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "House rules — visitors, pool, sea and noise",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "水疗中心（Akoya Spa）的开放时间为每天上午 09:00 至晚上 22:00。建议至少提前 2 小时预订。如需确认具体安排，请联系前台。",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 12737
+    },
+    {
+      "id": "breakfast-zh",
+      "lang": "zh",
+      "lane": "answer",
+      "q": "早餐几点开始供应？",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Breakfast and buffet pricing",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Early arrival charges (EARLY_CHECKIN)",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "早餐在 Lotus Restaurant 从早上 06:00 开始供应。",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 9746
+    },
+    {
+      "id": "pool-zh",
+      "lang": "zh",
+      "lane": "answer",
+      "q": "酒店有游泳池吗？",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Beach, pool and water sports",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Rooms and room types",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "House rules — visitors, pool, sea and noise",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Hồ bơi nước ngọt",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": false,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "是的，酒店拥有私人白色沙滩、主泳池以及区域最大的淡水泳池。不过请注意，泳池的开放时间可能会随季节变化，建议入住前与前台确认具体时段。",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 11974
+    },
+    {
+      "id": "spa-hours-ja",
+      "lang": "ja",
+      "lane": "answer",
+      "q": "スパは何時から開いていますか？",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Akoya Spa — treatments and prices",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "アクアスパは午前9時から午後10時まで営業しています。ただし、水上スパについてはフロントデスクで確認が必要です。予約は少なくとも2時間前に行うことをお勧めします。",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 12490
+    },
+    {
+      "id": "checkout-ja",
+      "lang": "ja",
+      "lane": "answer",
+      "q": "チェックアウトは何時ですか？",
+      "route": "knowledge",
+      "retrieval": [
+        {
+          "title": "Late departure charges (LATE_CHECKOUT)",
+          "score": 0.0082,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Check-in, check-out and identification",
+          "score": 0.0081,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0079,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0078,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        },
+        {
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "score": 0.0077,
+          "matchedBy": "semantic",
+          "quality": "curated",
+          "coverage": -1
+        }
+      ],
+      "goldFactInTopK": true,
+      "gate": {
+        "ok": true,
+        "topScore": 0.0082,
+        "usedSemantic": true,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": true,
+      "gateWouldPassOnCoverageAlone": true,
+      "llmCalled": true,
+      "rawReply": "チェックアウト時間は午後12時です。\n遅延退室には利用可能状況に応じて追加料金が発生します。\n詳細な料金はパッケージ価格の割合で計算されます。",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": false,
+      "finalCorrect": true,
+      "ms": 11987
+    },
+    {
+      "id": "esc-folio",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tổng hoá đơn của tôi bao nhiêu tiền?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 2
+    },
+    {
+      "id": "esc-folio-en",
+      "lang": "en",
+      "lane": "escalate",
+      "q": "What is my current bill total?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-breakfast-price",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Buffet sáng giá bao nhiêu một người?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-breakfast-price-en",
+      "lang": "en",
+      "lane": "escalate",
+      "q": "How much is the breakfast buffet?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 19
+    },
+    {
+      "id": "esc-deposit",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Đặt cọc khi nhận phòng là bao nhiêu tiền?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-late-fee",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Trả phòng muộn tính phí thế nào?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 1
+    },
+    {
+      "id": "esc-cancel-fee",
+      "lang": "en",
+      "lane": "escalate",
+      "q": "What is the cancellation fee?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-cancel-fee-ko",
+      "lang": "ko",
+      "lane": "escalate",
+      "q": "취소 수수료는 얼마인가요?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-price-zh",
+      "lang": "zh",
+      "lane": "escalate",
+      "q": "延迟退房要收多少钱？",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-price-ja",
+      "lang": "ja",
+      "lane": "escalate",
+      "q": "朝食は一人いくらですか？",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-budget",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tôi có 5 triệu thì nên đặt phòng nào?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 1
+    },
+    {
+      "id": "esc-cheapest",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Gói nào rẻ nhất cho 4 người?",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-cancel",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tôi muốn huỷ phòng",
+      "route": "transaction",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-change-date",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Đổi ngày trả phòng giúp tôi",
+      "route": "transaction",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-book-table",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Cho tôi đặt bàn tối nay",
+      "route": "transaction",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-extend",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tôi muốn gia hạn thêm 1 đêm",
+      "route": "transaction",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 1
+    },
+    {
+      "id": "esc-towels",
+      "lang": "ko",
+      "lane": "escalate",
+      "q": "수건이 부족하고 에어컨이 작동하지 않아요",
+      "route": "transaction",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    },
+    {
+      "id": "esc-pay",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Cho tôi thanh toán bằng thẻ",
+      "route": "complex",
+      "retrieval": [],
+      "goldFactInTopK": null,
+      "gate": {
+        "ok": false,
+        "reason": "routed_away",
+        "topScore": 0,
+        "usedSemantic": false,
+        "bestCoverage": -1
+      },
+      "gateWouldPassOnScoreAlone": false,
+      "gateWouldPassOnCoverageAlone": false,
+      "llmCalled": false,
+      "rawReply": "",
+      "abstained": false,
+      "factsCheck": {
+        "ok": true,
+        "missing": []
+      },
+      "ungroundedNumbers": [],
+      "finalEscalated": true,
+      "finalCorrect": true,
+      "ms": 0
+    }
+  ]
+}

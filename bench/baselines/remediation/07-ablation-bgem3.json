@@ -1,0 +1,84 @@
+{
+  "ranAt": "2026-08-24T10:40:00.803Z",
+  "rows": [
+    {
+      "variant": "Baseline (BM25)",
+      "hit1": 0.885,
+      "hit3": 0.981,
+      "hit5": 0.981,
+      "mrr": 0.931,
+      "ndcg5": 0.848,
+      "latencyP50": 13,
+      "latencyP95": 15,
+      "misses": [
+        "P-pets-en"
+      ]
+    },
+    {
+      "variant": "Baseline + HyDE",
+      "hit1": 0.885,
+      "hit3": 0.981,
+      "hit5": 0.981,
+      "mrr": 0.931,
+      "ndcg5": 0.848,
+      "latencyP50": 13,
+      "latencyP95": 15,
+      "misses": [
+        "P-pets-en"
+      ]
+    },
+    {
+      "variant": "Hybrid",
+      "hit1": 0.923,
+      "hit3": 0.981,
+      "hit5": 0.981,
+      "mrr": 0.954,
+      "ndcg5": 0.872,
+      "latencyP50": 95,
+      "latencyP95": 146,
+      "misses": [
+        "P-pets-en"
+      ]
+    },
+    {
+      "variant": "Hybrid + HyDE",
+      "hit1": 0.923,
+      "hit3": 0.981,
+      "hit5": 0.981,
+      "mrr": 0.954,
+      "ndcg5": 0.872,
+      "latencyP50": 451,
+      "latencyP95": 860,
+      "misses": [
+        "P-pets-en"
+      ]
+    },
+    {
+      "variant": "Hybrid + Rerank",
+      "hit1": 0.923,
+      "hit3": 0.981,
+      "hit5": 0.981,
+      "mrr": 0.954,
+      "ndcg5": 0.872,
+      "latencyP50": 316,
+      "latencyP95": 379,
+      "misses": [
+        "P-pets-en"
+      ]
+    },
+    {
+      "variant": "Hybrid + HyDE + Rerank",
+      "hit1": 0.923,
+      "hit3": 0.981,
+      "hit5": 0.981,
+      "mrr": 0.954,
+      "ndcg5": 0.872,
+      "latencyP50": 320,
+      "latencyP95": 481,
+      "misses": [
+        "P-pets-en"
+      ]
+    }
+  ],
+  "winner": "Hybrid"
+}

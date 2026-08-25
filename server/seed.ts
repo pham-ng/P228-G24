@@ -62,7 +62,11 @@ export function seedIfEmpty() {
       checkInTime: "14:00",
       checkOutTime: "12:00",
       brandVoice:
-        "Warm, hospitable and precise — the voice of a 476-key island resort on Hon Tre, Nha Trang, reached by cable car across the bay. Vietnamese warmth without flourish. Short sentences. Use the guest's name once, not repeatedly. Quote prices in Vietnamese dong. Never invent facilities, prices, schedules or policies: if it is not in the knowledge base or the service list, say you will confirm with the team.",
+        "Warm, hospitable and precise — the voice of an island resort on Hon Tre, Nha Trang, reached by cable car across the bay. " +
+        "Vietnamese warmth without flourish. Short sentences. Use the guest's name once, not repeatedly. " +
+        "Quote prices in Vietnamese dong, but only when those prices have been returned by a tool in this conversation. " +
+        "Loyalty tier discounts are calculated by the pricing tool — never state a discounted amount or a discount percentage from memory. " +
+        "Never invent facilities, prices, schedules or policies: if it is not in the knowledge base or the service list, say you will confirm with the team.",
       slaMinutes: 10,
       aiEnabled: 1,
     })
@@ -498,28 +502,6 @@ export function seedIfEmpty() {
       capacityPerSlot: 12,
     },
     {
-      name: "Groove & Grill — Saturday beach BBQ",
-      category: "dining",
-      description:
-        "Saturdays 18:30–22:00 at Jasmine: welcome cocktail, BBQ seafood including lobster and oysters, unlimited beer, soft drinks and juice, plus a live band. Price confirmed by F&B at booking.",
-      price: 0,
-      unit: "per person",
-      dept: "fnb",
-      slots: JSON.stringify(["18:30", "19:00", "19:30"]),
-      capacityPerSlot: 15,
-    },
-    {
-      name: "Ozone Restaurant — seafood (Imperial Club)",
-      category: "dining",
-      description:
-        "Seafood restaurant at the Imperial Club serving 17 signature sauces. Open 10:30–14:30 and 17:30–22:00.",
-      price: 0,
-      unit: "à la carte",
-      dept: "fnb",
-      slots: JSON.stringify(["11:00", "12:00", "18:00", "19:00", "20:00"]),
-      capacityPerSlot: 10,
-    },
-    {
       name: "Bach Giai Restaurant — Chinese (Imperial Club)",
       category: "dining",
       description:
@@ -674,8 +656,8 @@ export function seedIfEmpty() {
       name: "Cam Ranh Airport transfer",
       category: "transport",
       description:
-        "Private car from Cam Ranh International Airport to Cau Da Port, 45–60 minutes, then cable car or speedboat to the island. Price quoted by concierge on confirmation.",
-      price: 0,
+        "Private car from Cam Ranh International Airport to Cau Da Port, 45–60 minutes, then cable car or speedboat to the island. Price 750,000 VND per vehicle.",
+      price: 750_000,
       unit: "per vehicle",
       dept: "front_desk",
       slots: JSON.stringify([

@@ -1,0 +1,3173 @@
+{
+  "ranAt": "2026-08-24T15:41:41.706Z",
+  "rows": [
+    {
+      "id": "pets-vi",
+      "lang": "vi",
+      "q": "Tôi mang theo chó nhỏ được không?",
+      "expect": [
+        [
+          "không"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/57",
+        "kb/61",
+        "kb/47",
+        "kb/50",
+        "kb/60",
+        "kb/53",
+        "kb/55",
+        "kb/132",
+        "kb/133",
+        "kb/134",
+        "kb/135",
+        "kb/136",
+        "kb/137",
+        "kb/138",
+        "kb/139",
+        "kb/140",
+        "kb/141",
+        "policy/14",
+        "policy/18",
+        "policy/17",
+        "policy/21",
+        "room/1",
+        "room/2",
+        "room/3",
+        "room/4",
+        "room/5",
+        "room/6",
+        "room/7",
+        "room/10",
+        "room/8",
+        "room/9",
+        "dining/6",
+        "dining/7",
+        "dining/1"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/57",
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Nhà hàng Bách Giai (món Trung Hoa) canonical, curated, bach_giai Nhà hàng Bách Giai (món Trung Hoa) Nhà hàng Bách Giai thuộc khu Imperial Club, là nhà hàng Trun"
+        },
+        {
+          "docKey": "kb/61",
+          "title": "Quầy bar (Pool Bar, Wave Bar)",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Quầy bar (Pool Bar, Wave Bar) canonical, curated, bars Quầy bar (Pool Bar, Wave Bar) Resort có Pool Bar phục vụ đồ uống ngay bên hồ bơi, và Wave Bar với cocktai"
+        },
+        {
+          "docKey": "kb/47",
+          "title": "Đỗ xe / Bãi giữ xe",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Đỗ xe / Bãi giữ xe canonical, curated, parking Đỗ xe / Bãi giữ xe Resort nằm trên đảo Hòn Tre, không có đường cho ô tô riêng lên đảo — Quý khách di chuyển bằng "
+        },
+        {
+          "docKey": "kb/50",
+          "title": "Đổi tiền / Ngoại tệ",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Đổi tiền / Ngoại tệ canonical, curated, currency_exchange Đổi tiền / Ngoại tệ Quý khách có thể đổi ngoại tệ trực tiếp tại quầy lễ tân, phục vụ các loại ngoại tệ"
+        },
+        {
+          "docKey": "kb/60",
+          "title": "Hồ bơi nước ngọt",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Hồ bơi nước ngọt canonical, curated, main_pool Hồ bơi nước ngọt Resort có hồ bơi nước ngọt lớn nhất khu vực, đặt giữa khu vườn xanh mát với võng và ghế nằm quan"
+        },
+        {
+          "docKey": "kb/53",
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "VinWonders Nha Trang (điểm tham quan gần resort) canonical, curated, vinwonders VinWonders Nha Trang (điểm tham quan gần resort) VinWonders Nha Trang là công vi"
+        },
+        {
+          "docKey": "kb/55",
+          "title": "Giá vé & giờ mở cửa VinWonders (thay đổi theo ngày)",
+          "kind": "kb",
+          "quality": "placeholder",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Giá vé & giờ mở cửa VinWonders (thay đổi theo ngày) canonical, placeholder, vinwonders_tickets Giá vé & giờ mở cửa VinWonders (thay đổi theo ngày) Giá vé và giờ"
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển package, rate, upsell, Biệt Thự 3 Phòng Ngủ Hướng Biển Biệt Thự 3 Phòng Ngủ Hướng Biển — các gói giá công bố Mọi"
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển package, rate, upsell, Biệt Thự 3 Phòng Ngủ Hướng Biển cuzzi · cáp treo 5. Giá Công Bố Tốt Nhất — 21.890.000đ/đê"
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển package, rate, upsell, Biệt thự Tropicana 3 phòng ngủ, hướng biển Biệt thự Tropicana 3 phòng ngủ, hướ"
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển package, rate, upsell, Biệt thự Tropicana 3 phòng ngủ, hướng biển cuzzi · cáp treo 5. Giá Công Bố Tốt"
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn Deluxe 2 Giường Đơn — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3.580.000đ/đê"
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquafield · xông "
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước ngày 04/10/26. Từ n"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi Deluxe giường đôi — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3.580.000đ/đêm Thêm"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi ông hơi & jacuzzi · cáp treo · giảm spa 30%, ẩm thực 20%, golf 20% 5. Giá Công Bố Tốt"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi 100%. • Giá không bao gồm phụ thu cuối tuần (Thứ 7 - Chủ Nhật), lễ tết, khách dùng gi"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn Deluxe Hướng Biển 2 Giường Đơn — các gói giá công bố 1. Giá"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới h"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn y 04/10/26 tính phí 100% . Không đến nhận phòng tính phí 10"
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi Deluxe Hướng Biển Giường Đôi — các gói giá công bố 1. Giá Công "
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn ·"
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước n"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn Grand Deluxe 2 Giường Đơn — các gói giá công bố 1. Giá Công Bố Tốt Nh"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquaf"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước ngày 04"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi Grand Deluxe Giường Đôi — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquafield"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước ngày 04/10/"
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn Grand Deluxe Hướng Biển 2 Giường Đơn — các gói "
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders "
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn y 04/10/26 tính phí 100% . Không đến nhận phòng"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi Grand Deluxe Hướng Biển Giường Đôi — các gói giá cô"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders khôn"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy p"
+        },
+        {
+          "docKey": "policy/14",
+          "title": "Hủy dịch vụ đã đặt (SERVICE_CANCELLATION)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Hủy dịch vụ đã đặt Hủy trước 24 giờ: miễn phí. Trong 24 giờ: 50% giá đã đặt. Không đến: 100%. free until hours before: 24 fee pct inside window: 50 no show fee "
+        },
+        {
+          "docKey": "policy/18",
+          "title": "Dịch vụ giặt ủi (LAUNDRY)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Dịch vụ giặt ủi Giá trị mặc định do hệ thống tạo — ban quản lý cần xác nhận/cập nhật. Món \"other\" phải để bộ phận giặt ủi báo giá, tuyệt đối không tự suy ra giá"
+        },
+        {
+          "docKey": "policy/17",
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Giờ mở cửa tiện ích Giá trị mặc định do hệ thống tạo — ban quản lý cần xác nhận/cập nhật. facilities key: pool facilities name: Hồ bơi ngoài trời facilities fro"
+        },
+        {
+          "docKey": "policy/21",
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Khai báo lưu trú theo quy định al_at required fields foreigner: full_name required fields foreigner: id_number required fields foreigner: nationality required f"
+        },
+        {
+          "docKey": "room/1",
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Deluxe 2 Giường Đơn Deluxe Twin Bed lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác. Tối đa 4 người trong một phòng (3 người lớn 1 trẻ em h"
+        },
+        {
+          "docKey": "room/2",
+          "title": "Deluxe Giường Đôi — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Deluxe Giường Đôi Deluxe Queen Bed lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác. Tối đa 4 người trong một phòng (3 người lớn 1 trẻ em ho"
+        },
+        {
+          "docKey": "room/3",
+          "title": "Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Deluxe Hướng Biển 2 Giường Đơn Deluxe Ocean View Twin Bed ra đại dương thoáng đãng, vị trí đắc địa ngay cạnh bãi biển, đây sẽ là lựa chọn lý tưởng dành cho các "
+        },
+        {
+          "docKey": "room/4",
+          "title": "Deluxe Hướng Biển Giường Đôi — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Deluxe Hướng Biển Giường Đôi Deluxe Ocean View Queen Bed lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác. Tối đa 4 người trong một phòng (3"
+        },
+        {
+          "docKey": "room/5",
+          "title": "Grand Deluxe 2 Giường Đơn — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Grand Deluxe 2 Giường Đơn Grand Deluxe Twin Bed bạn. Tầm nhìn thoáng đãng, vị trí đắc địa ngay cạnh bãi biển, đây sẽ là lựa chọn lý tưởng dành cho các cặp đôi, "
+        },
+        {
+          "docKey": "room/6",
+          "title": "Grand Deluxe Giường Đôi — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Grand Deluxe Giường Đôi Grand Deluxe Queen Bed Grand Deluxe Giường Đôi (Grand Deluxe Queen Bed) Diện tích 42 m². Giường đôi. Tối đa 4 khách (3 người lớn + 1 trẻ"
+        },
+        {
+          "docKey": "room/7",
+          "title": "Grand Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Grand Deluxe Hướng Biển 2 Giường Đơn Grand Deluxe Ocean View Twin Bed lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác. Tối đa 4 người trong"
+        },
+        {
+          "docKey": "room/10",
+          "title": "Grand Deluxe Hướng Biển Giường Đôi — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Grand Deluxe Hướng Biển Giường Đôi Grand Deluxe Ocean View Queen Bed Grand Deluxe Hướng Biển Giường Đôi (Grand Deluxe Ocean View Queen Bed) Diện tích 42 m². Giư"
+        },
+        {
+          "docKey": "room/8",
+          "title": "Biệt Thự 3 Phòng Ngủ Hướng Biển — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Biệt Thự 3 Phòng Ngủ Hướng Biển Villa 3-Bedroom Ocean View , cửa sổ hướng Biển và bể bơi riêng kín đáo, nơi đây sẽ là lựa chọn lý tưởng dành cho các gia đình, n"
+        },
+        {
+          "docKey": "room/9",
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Biệt thự Tropicana 3 phòng ngủ, hướng biển Tropicana Beachfront Villa 3-Bedroom Biệt thự Tropicana 3 phòng ngủ, hướng biển (Tropicana Beachfront Villa 3-Bedroom"
+        },
+        {
+          "docKey": "room/9",
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Biệt thự Tropicana 3 phòng ngủ, hướng biển Tropicana Beachfront Villa 3-Bedroom xanh trong vắt, biệt thự rất phù hợp cho các gia đình, nhóm bạn hoặc khách doanh"
+        },
+        {
+          "docKey": "dining/6",
+          "title": "Pool Bar — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Pool Bar Pool Bar Pool Bar (Pool Bar) — quầy bar. Giờ mở cửa: 09:00–23:00. Vị trí: Bên hồ bơi chính của Vinpearl Resort Nha Trang · Đảo Hòn Tre, Nha Trang, Khán"
+        },
+        {
+          "docKey": "dining/7",
+          "title": "Seaview Bar — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Seaview Bar Seaview Bar Seaview Bar (Seaview Bar) — quầy bar. Giờ mở cửa: 07:00–23:00. Vị trí: Tầng trệt, tòa nhà Executive · Đảo Hòn Tre, Nha Trang, Khánh Hòa,"
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "không"
+          ],
+          "snippet": "Nhà hàng Bách Giai Bach Giai Restaurant t heo 230.000đ, Gà hấp Tứ Xuyên 150.000đ, Mì kéo Kung Fu sốt bào ngư 160.000đ, Mì hoành thánh Quảng Đông 250.000đ, Mì xà"
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/57",
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "bm25Rank": 47,
+          "denseRank": 53,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/61",
+          "title": "Quầy bar (Pool Bar, Wave Bar)",
+          "bm25Rank": 45,
+          "denseRank": 72,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/47",
+          "title": "Đỗ xe / Bãi giữ xe",
+          "bm25Rank": 46,
+          "denseRank": 17,
+          "rrfRank": 46
+        },
+        {
+          "docKey": "kb/50",
+          "title": "Đổi tiền / Ngoại tệ",
+          "bm25Rank": 34,
+          "denseRank": 77,
+          "rrfRank": 34
+        },
+        {
+          "docKey": "kb/60",
+          "title": "Hồ bơi nước ngọt",
+          "bm25Rank": 35,
+          "denseRank": 64,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/53",
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "bm25Rank": 20,
+          "denseRank": 55,
+          "rrfRank": 27
+        },
+        {
+          "docKey": "kb/55",
+          "title": "Giá vé & giờ mở cửa VinWonders (thay đổi theo ngày)",
+          "bm25Rank": 5,
+          "denseRank": 90,
+          "rrfRank": 14
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "bm25Rank": 3,
+          "denseRank": 60,
+          "rrfRank": 11
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "bm25Rank": 4,
+          "denseRank": 63,
+          "rrfRank": 12
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "bm25Rank": 25,
+          "denseRank": 40,
+          "rrfRank": 16
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "bm25Rank": 24,
+          "denseRank": 49,
+          "rrfRank": 29
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "bm25Rank": 28,
+          "denseRank": 51,
+          "rrfRank": 30
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "bm25Rank": 29,
+          "denseRank": 56,
+          "rrfRank": 31
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "bm25Rank": 26,
+          "denseRank": 26,
+          "rrfRank": 13
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "bm25Rank": 27,
+          "denseRank": 28,
+          "rrfRank": 15
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "bm25Rank": 23,
+          "denseRank": 39,
+          "rrfRank": 19
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "bm25Rank": 30,
+          "denseRank": 42,
+          "rrfRank": 32
+        },
+        {
+          "docKey": "policy/14",
+          "title": "Hủy dịch vụ đã đặt (SERVICE_CANCELLATION)",
+          "bm25Rank": 42,
+          "denseRank": 78,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "policy/18",
+          "title": "Dịch vụ giặt ủi (LAUNDRY)",
+          "bm25Rank": 44,
+          "denseRank": 88,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "policy/17",
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "bm25Rank": 6,
+          "denseRank": 5,
+          "rrfRank": 1
+        },
+        {
+          "docKey": "policy/21",
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "bm25Rank": 1,
+          "denseRank": 18,
+          "rrfRank": 2
+        },
+        {
+          "docKey": "room/1",
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "bm25Rank": 7,
+          "denseRank": 15,
+          "rrfRank": 4
+        },
+        {
+          "docKey": "room/2",
+          "title": "Deluxe Giường Đôi — phòng",
+          "bm25Rank": 8,
+          "denseRank": 35,
+          "rrfRank": 7
+        },
+        {
+          "docKey": "room/3",
+          "title": "Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "bm25Rank": 19,
+          "denseRank": 74,
+          "rrfRank": 26
+        },
+        {
+          "docKey": "room/4",
+          "title": "Deluxe Hướng Biển Giường Đôi — phòng",
+          "bm25Rank": 12,
+          "denseRank": 37,
+          "rrfRank": 6
+        },
+        {
+          "docKey": "room/5",
+          "title": "Grand Deluxe 2 Giường Đơn — phòng",
+          "bm25Rank": 17,
+          "denseRank": 52,
+          "rrfRank": 24
+        },
+        {
+          "docKey": "room/6",
+          "title": "Grand Deluxe Giường Đôi — phòng",
+          "bm25Rank": 21,
+          "denseRank": 31,
+          "rrfRank": 8
+        },
+        {
+          "docKey": "room/7",
+          "title": "Grand Deluxe Hướng Biển 2 Giường Đơn — phòng",
+          "bm25Rank": 13,
+          "denseRank": 48,
+          "rrfRank": 21
+        },
+        {
+          "docKey": "room/10",
+          "title": "Grand Deluxe Hướng Biển Giường Đôi — phòng",
+          "bm25Rank": 22,
+          "denseRank": 50,
+          "rrfRank": 28
+        },
+        {
+          "docKey": "room/8",
+          "title": "Biệt Thự 3 Phòng Ngủ Hướng Biển — phòng",
+          "bm25Rank": 36,
+          "denseRank": 70,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "room/9",
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "bm25Rank": 9,
+          "denseRank": 69,
+          "rrfRank": 17
+        },
+        {
+          "docKey": "dining/6",
+          "title": "Pool Bar — ẩm thực",
+          "bm25Rank": 15,
+          "denseRank": 58,
+          "rrfRank": 22
+        },
+        {
+          "docKey": "dining/7",
+          "title": "Seaview Bar — ẩm thực",
+          "bm25Rank": 18,
+          "denseRank": 86,
+          "rrfRank": 25
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "bm25Rank": 2,
+          "denseRank": 44,
+          "rrfRank": 10
+        }
+      ],
+      "route": "knowledge",
+      "retrievedTop": [
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0226,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.5,
+          "quality": "curated"
+        },
+        {
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "score": 0.0221,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.5,
+          "quality": "curated"
+        },
+        {
+          "title": "House rules and fines (CONDUCT)",
+          "score": 0.0214,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.5,
+          "quality": "curated"
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0195,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.25,
+          "quality": "curated"
+        },
+        {
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "coverage": 0.25,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0226,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+        "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+        "House rules and fines (CONDUCT)",
+        "Deluxe 2 Giường Đơn — phòng",
+        "Khai báo lưu trú theo quy định (LODGING_DECLARATION)"
+      ],
+      "modelOutput": "Theo quy định của khách sạn, việc mang thú nuôi vào phòng là bị cấm. Bạn vui lòng liên hệ trực tiếp với lễ tân để được tư vấn thêm về các chính sách cụ thể hoặc dịch vụ chăm sóc thú cưng có thể được cung cấp.",
+      "abstained": false,
+      "factOk": false,
+      "stage": "MODEL — gate passed correct evidence, model answered wrong or with a different fact",
+      "rootCause": "MODEL_INTERPRETATION"
+    },
+    {
+      "id": "id-required",
+      "lang": "vi",
+      "q": "Nhận phòng cần giấy tờ gì?",
+      "expect": [
+        [
+          "căn cước",
+          "cccd",
+          "hộ chiếu",
+          "passport",
+          "giấy tờ"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/1"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/1",
+          "title": "Check-in, check-out and identification",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "căn cước",
+            "cccd",
+            "hộ chiếu",
+            "passport",
+            "giấy tờ"
+          ],
+          "snippet": "Check-in, check-out and identification checkin, checkout, late checkout, early checkin, id, passport, face recognition, fee Cũng được hỏi là: giấy tờ, căn cước,"
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/1",
+          "title": "Check-in, check-out and identification",
+          "bm25Rank": 1,
+          "denseRank": 1,
+          "rrfRank": 1
+        }
+      ],
+      "route": "knowledge",
+      "retrievedTop": [
+        {
+          "title": "Check-in, check-out and identification",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "coverage": 1,
+          "quality": "curated"
+        },
+        {
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "score": 0.0213,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.4,
+          "quality": "curated"
+        },
+        {
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "score": 0.0197,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.6,
+          "quality": "curated"
+        },
+        {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "score": 0.0161,
+          "matchedBy": "keyword",
+          "coverage": 0,
+          "quality": "curated"
+        },
+        {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "coverage": 0,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Check-in, check-out and identification",
+        "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+        "Phục vụ tại phòng (ROOM_SERVICE)",
+        "Giới thiệu Vinpearl Resort Nha Trang",
+        "VinWonders Nha Trang (điểm tham quan gần resort)"
+      ],
+      "modelOutput": "Để nhận phòng, khách hàng cần出示 giấy tờ tùy thân như căn cước công dân (CCCD), hộ chiếu hoặc chứng minh nhân dân. Ngoài ra, trẻ em đi cùng gia đình cần có giấy khai sinh và sẽ chụp ảnh để phục vụ kiểm tra nhận diện khuôn mặt.",
+      "abstained": false,
+      "factOk": true,
+      "stage": "NO FAILURE REPRODUCED",
+      "rootCause": "BENCHMARK_ERROR"
+    },
+    {
+      "id": "chinese-restaurant",
+      "lang": "vi",
+      "q": "Resort có nhà hàng Trung Hoa không?",
+      "expect": [
+        [
+          "bách giai",
+          "bach giai"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/5",
+        "kb/57",
+        "kb/15",
+        "dining/1"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/5",
+          "title": "Restaurants and bars — hours",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Restaurants and bars — hours restaurant, bar, hours, lotus, jasmine, ozone, bach giai, bbq, dinner Cũng được hỏi là: nhà hàng, quán bar, giờ mở cửa, giờ hoạt độ"
+        },
+        {
+          "docKey": "kb/5",
+          "title": "Restaurants and bars — hours",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Restaurants and bars — hours restaurant, bar, hours, lotus, jasmine, ozone, bach giai, bbq, dinner Cũng được hỏi là: nhà hàng, quán bar, giờ mở cửa, giờ hoạt độ"
+        },
+        {
+          "docKey": "kb/57",
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Nhà hàng Bách Giai (món Trung Hoa) canonical, curated, bach_giai Nhà hàng Bách Giai (món Trung Hoa) Nhà hàng Bách Giai thuộc khu Imperial Club, là nhà hàng Trun"
+        },
+        {
+          "docKey": "kb/57",
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Nhà hàng Bách Giai (món Trung Hoa) canonical, curated, bach_giai in an Asian royal-palace ambiance. For hours and prices see the service list or ask the front d"
+        },
+        {
+          "docKey": "kb/15",
+          "title": "Contacting the resort and on-site navigation",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Contacting the resort and on-site navigation contact, phone, address, reception, directions, map, buggy Resort hotline +84 258 359 8222; restaurant reservations"
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Nhà hàng Bách Giai Bach Giai Restaurant Nhà hàng Bách Giai (Bach Giai Restaurant) — nhà hàng. Giờ mở cửa: 10:30–14:30, 17:30–22:00. Vị trí: Vinpearl Resort Nha "
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bách giai",
+            "bach giai"
+          ],
+          "snippet": "Nhà hàng Bách Giai Bach Giai Restaurant t heo 230.000đ, Gà hấp Tứ Xuyên 150.000đ, Mì kéo Kung Fu sốt bào ngư 160.000đ, Mì hoành thánh Quảng Đông 250.000đ, Mì xà"
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/5",
+          "title": "Restaurants and bars — hours",
+          "bm25Rank": 16,
+          "denseRank": 2,
+          "rrfRank": 11
+        },
+        {
+          "docKey": "kb/57",
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "bm25Rank": 1,
+          "denseRank": 1,
+          "rrfRank": 1
+        },
+        {
+          "docKey": "kb/15",
+          "title": "Contacting the resort and on-site navigation",
+          "bm25Rank": 9,
+          "denseRank": 6,
+          "rrfRank": 5
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "bm25Rank": 3,
+          "denseRank": 5,
+          "rrfRank": 3
+        }
+      ],
+      "route": "knowledge",
+      "retrievedTop": [
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.8,
+          "quality": "curated"
+        },
+        {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "score": 0.0241,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.8,
+          "quality": "curated"
+        },
+        {
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "score": 0.0236,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.6,
+          "quality": "curated"
+        },
+        {
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.8,
+          "quality": "curated"
+        },
+        {
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "score": 0.023,
+          "matchedBy": "keyword+semantic",
+          "coverage": 1,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Nhà hàng Bách Giai (món Trung Hoa)",
+        "Nhà hàng Bách Giai (món Trung Hoa)",
+        "Nhà hàng Halal VietFlavors — ẩm thực",
+        "Nhà hàng Bách Giai — ẩm thực",
+        "Nhà hàng Bách Giai — ẩm thực"
+      ],
+      "modelOutput": "Có, resort có Nhà hàng Bách Giai thuộc khu Imperial Club trên đảo Hòn Tre, phục vụ ẩm thực Trung Hoa đích thực. Bạn có thể liên hệ qua điện thoại (+84) 705 754 343 hoặc hỏi lễ tân để biết giờ mở cửa và giá cả chi tiết.",
+      "abstained": false,
+      "factOk": true,
+      "stage": "NO FAILURE REPRODUCED",
+      "rootCause": "BENCHMARK_ERROR"
+    },
+    {
+      "id": "room-count",
+      "lang": "vi",
+      "q": "Resort có tất cả mấy phòng?",
+      "expect": [
+        [
+          "476"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/9"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/9",
+          "title": "Rooms and room types",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "476"
+          ],
+          "snippet": "Rooms and room types room, type, price, villa, ocean view, size, amenities Cũng được hỏi là: loại phòng, hạng phòng, các loại phòng, kiểu phòng, phòng nghỉ The "
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/9",
+          "title": "Rooms and room types",
+          "bm25Rank": 38,
+          "denseRank": 1,
+          "rrfRank": 11
+        }
+      ],
+      "route": "knowledge",
+      "retrievedTop": [
+        {
+          "title": "Phòng Gym / Fitness",
+          "score": 0.0225,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.5,
+          "quality": "curated"
+        },
+        {
+          "title": "Occupancy, extra beds and children (OCCUPANCY)",
+          "score": 0.0204,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.25,
+          "quality": "curated"
+        },
+        {
+          "title": "Occupancy, extra beds and children (OCCUPANCY)",
+          "score": 0.0202,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.25,
+          "quality": "curated"
+        },
+        {
+          "title": "Tiện ích cho người khuyết tật",
+          "score": 0.0164,
+          "matchedBy": "keyword",
+          "coverage": 0.5,
+          "quality": "curated"
+        },
+        {
+          "title": "Deluxe 2 Giường Đơn — phòng",
+          "score": 0.0159,
+          "matchedBy": "keyword",
+          "coverage": 0.25,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0225,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Phòng Gym / Fitness",
+        "Occupancy, extra beds and children (OCCUPANCY)",
+        "Occupancy, extra beds and children (OCCUPANCY)",
+        "Tiện ích cho người khuyết tật",
+        "Deluxe 2 Giường Đơn — phòng"
+      ],
+      "modelOutput": "",
+      "abstained": true,
+      "factOk": false,
+      "stage": "MODEL — gate passed correct evidence, model abstained anyway",
+      "rootCause": "MODEL_INTERPRETATION"
+    },
+    {
+      "id": "package-codes",
+      "lang": "vi",
+      "q": "Mã BB trong bảng giá nghĩa là gì?",
+      "expect": [
+        [
+          "bed and breakfast",
+          "bữa sáng",
+          "ăn sáng"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/6",
+        "kb/19",
+        "kb/132",
+        "kb/133",
+        "kb/134",
+        "kb/135",
+        "kb/136",
+        "kb/137",
+        "kb/138",
+        "kb/139",
+        "kb/140",
+        "kb/141"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/6",
+          "title": "Breakfast and buffet pricing",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Breakfast and buffet pricing breakfast, buffet, price, children, lotus, hours Cũng được hỏi là: ăn sáng, bữa sáng, buffet sáng, giá ăn sáng, suất ăn sáng, buffe"
+        },
+        {
+          "docKey": "kb/19",
+          "title": "Package codes and booking classes",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Package codes and booking classes package, code, rate plan, group, voucher, early departure, relocation, terms Package codes: RO room only, BB bed and breakfast"
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển package, rate, upsell, Biệt Thự 3 Phòng Ngủ Hướng Biển Biệt Thự 3 Phòng Ngủ Hướng Biển — các gói giá công bố Mọi"
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển package, rate, upsell, Biệt thự Tropicana 3 phòng ngủ, hướng biển Biệt thự Tropicana 3 phòng ngủ, hướ"
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn Deluxe 2 Giường Đơn — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3.580.000đ/đê"
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquafield · xông "
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi Deluxe giường đôi — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3.580.000đ/đêm Thêm"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi ông hơi & jacuzzi · cáp treo · giảm spa 30%, ẩm thực 20%, golf 20% 5. Giá Công Bố Tốt"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn Deluxe Hướng Biển 2 Giường Đơn — các gói giá công bố 1. Giá"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới h"
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi Deluxe Hướng Biển Giường Đôi — các gói giá công bố 1. Giá Công "
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn ·"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn Grand Deluxe 2 Giường Đơn — các gói giá công bố 1. Giá Công Bố Tốt Nh"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquaf"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi Grand Deluxe Giường Đôi — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquafield"
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn Grand Deluxe Hướng Biển 2 Giường Đơn — các gói "
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders "
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi Grand Deluxe Hướng Biển Giường Đôi — các gói giá cô"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "bed and breakfast",
+            "bữa sáng",
+            "ăn sáng"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders khôn"
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/6",
+          "title": "Breakfast and buffet pricing",
+          "bm25Rank": 41,
+          "denseRank": 9,
+          "rrfRank": 35
+        },
+        {
+          "docKey": "kb/19",
+          "title": "Package codes and booking classes",
+          "bm25Rank": 11,
+          "denseRank": 2,
+          "rrfRank": 2
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "bm25Rank": 17,
+          "denseRank": 12,
+          "rrfRank": 8
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "bm25Rank": 18,
+          "denseRank": 28,
+          "rrfRank": 12
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "bm25Rank": 6,
+          "denseRank": 25,
+          "rrfRank": 19
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "bm25Rank": 3,
+          "denseRank": 18,
+          "rrfRank": 4
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "bm25Rank": 19,
+          "denseRank": 29,
+          "rrfRank": 16
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "bm25Rank": 12,
+          "denseRank": 21,
+          "rrfRank": 18
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "bm25Rank": 8,
+          "denseRank": 36,
+          "rrfRank": 23
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "bm25Rank": 9,
+          "denseRank": 23,
+          "rrfRank": 24
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "bm25Rank": 14,
+          "denseRank": 35,
+          "rrfRank": 26
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "bm25Rank": 13,
+          "denseRank": 30,
+          "rrfRank": 25
+        }
+      ],
+      "route": "complex",
+      "retrievedTop": [
+        {
+          "title": "Booking classes, packages and early departure (BOOKING_CLASS)",
+          "score": 0.0246,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.33,
+          "quality": "curated"
+        },
+        {
+          "title": "Booking classes, packages and early departure (BOOKING_CLASS)",
+          "score": 0.0239,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.33,
+          "quality": "curated"
+        },
+        {
+          "title": "Package codes and booking classes",
+          "score": 0.022,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.17,
+          "quality": "curated"
+        },
+        {
+          "title": "Phí phục vụ và thuế GTGT (TAX_AND_SERVICE)",
+          "score": 0.022,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.33,
+          "quality": "curated"
+        },
+        {
+          "title": "Dịch vụ đưa đón (TRANSPORT)",
+          "score": 0.0199,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.33,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0246,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Booking classes, packages and early departure (BOOKING_CLASS)",
+        "Booking classes, packages and early departure (BOOKING_CLASS)",
+        "Package codes and booking classes",
+        "Phí phục vụ và thuế GTGT (TAX_AND_SERVICE)",
+        "Dịch vụ đưa đón (TRANSPORT)"
+      ],
+      "modelOutput": "Mã BB trong bảng giá có nghĩa là \"Bed and Breakfast\" (phòng ăn sáng).",
+      "abstained": false,
+      "factOk": true,
+      "stage": "NO FAILURE REPRODUCED",
+      "rootCause": "BENCHMARK_ERROR"
+    },
+    {
+      "id": "guestlist-lowseason",
+      "lang": "vi",
+      "q": "Danh sách khách phải gửi trước bao nhiêu ngày mùa thấp điểm?",
+      "expect": [
+        [
+          "7"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/5",
+        "kb/6",
+        "kb/3",
+        "kb/4",
+        "kb/13",
+        "kb/14",
+        "kb/18",
+        "kb/20",
+        "kb/22",
+        "kb/23",
+        "kb/24",
+        "kb/7",
+        "kb/9",
+        "kb/10",
+        "kb/11",
+        "kb/132",
+        "kb/133",
+        "kb/134",
+        "kb/135",
+        "kb/136",
+        "kb/137",
+        "kb/138",
+        "kb/139",
+        "kb/140",
+        "kb/141",
+        "kb/51",
+        "policy/5",
+        "policy/15",
+        "policy/16",
+        "policy/19",
+        "policy/7",
+        "policy/17",
+        "policy/9",
+        "policy/8",
+        "policy/12",
+        "policy/10",
+        "room/2",
+        "room/8",
+        "room/9",
+        "dining/7",
+        "dining/1",
+        "dining/2",
+        "dining/3",
+        "dining/4"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/5",
+          "title": "Restaurants and bars — hours",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Restaurants and bars — hours restaurant, bar, hours, lotus, jasmine, ozone, bach giai, bbq, dinner Cũng được hỏi là: nhà hàng, quán bar, giờ mở cửa, giờ hoạt độ"
+        },
+        {
+          "docKey": "kb/6",
+          "title": "Breakfast and buffet pricing",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Breakfast and buffet pricing breakfast, buffet, price, children, lotus, hours Cũng được hỏi là: ăn sáng, bữa sáng, buffet sáng, giá ăn sáng, suất ăn sáng, buffe"
+        },
+        {
+          "docKey": "kb/3",
+          "title": "Cable car and Vinpearl Harbour ticket prices",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Cable car and Vinpearl Harbour ticket prices cable car, ticket, price, hours, harbour, combo, aquafield Cũng được hỏi là: cáp treo, vé cáp treo, qua đảo, bến tà"
+        },
+        {
+          "docKey": "kb/4",
+          "title": "VinWonders Nha Trang tickets and shows",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "VinWonders Nha Trang tickets and shows vinwonders, ticket, price, show, tata, zipline, sky wheel, children Cũng được hỏi là: vé VinWonders, giá vé công viên, cô"
+        },
+        {
+          "docKey": "kb/13",
+          "title": "Pearl Club member benefits",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Pearl Club member benefits loyalty, member, pearl club, discount, benefit, credit, vpoint Cũng được hỏi là: thành viên, hội viên, ưu đãi thành viên, giảm giá hộ"
+        },
+        {
+          "docKey": "kb/14",
+          "title": "Families and children",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Families and children children, kids, family, baby, birth certificate, price Cũng được hỏi là: trẻ em, trẻ nhỏ, gia đình có con nhỏ, phụ thu trẻ em, giường cho "
+        },
+        {
+          "docKey": "kb/18",
+          "title": "Guest list deadlines and name changes",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Guest list deadlines and name changes guest list, name change, deadline, transfer, flight, shuttle, meal, full board, fee For individual bookings the guest list"
+        },
+        {
+          "docKey": "kb/20",
+          "title": "House rules — smoking, pets and outside food",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "House rules — smoking, pets and outside food smoking, fine, pets, outside food, durian, bbq, villa kitchen, prohibited, house rules Pets are not allowed anywher"
+        },
+        {
+          "docKey": "kb/22",
+          "title": "Payment methods and bank transfer details",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Payment methods and bank transfer details payment, bank transfer, card, qr, account number, swift, refund, invoice Cũng được hỏi là: thanh toán, chuyển khoản, s"
+        },
+        {
+          "docKey": "kb/23",
+          "title": "Complaints and dispute resolution",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Complaints and dispute resolution complaint, dispute, escalation, 7 days, hotline, legal, court, contact Complaints go through three steps. Customer service or "
+        },
+        {
+          "docKey": "kb/24",
+          "title": "Personal data and privacy",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Personal data and privacy privacy, personal data, gdpr, consent, children, rights, delete, card, cvv Vinpearl distinguishes basic personal data from sensitive p"
+        },
+        {
+          "docKey": "kb/7",
+          "title": "Akoya Spa — treatments and prices",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Akoya Spa — treatments and prices spa, akoya, massage, facial, price, hours, wellness Cũng được hỏi là: spa, mát xa, massage, xông hơi, liệu trình, trị liệu, ch"
+        },
+        {
+          "docKey": "kb/9",
+          "title": "Rooms and room types",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Rooms and room types room, type, price, villa, ocean view, size, amenities Cũng được hỏi là: loại phòng, hạng phòng, các loại phòng, kiểu phòng, phòng nghỉ The "
+        },
+        {
+          "docKey": "kb/10",
+          "title": "Aquafield Nha Trang — Korean sauna",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Aquafield Nha Trang — Korean sauna aquafield, sauna, korean, spa, hours, therapy Cũng được hỏi là: xông hơi, tắm hơi, phòng xông hơi kiểu Hàn Quốc, jjimjilbang,"
+        },
+        {
+          "docKey": "kb/11",
+          "title": "Meetings and events (MICE)",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Meetings and events (MICE) mice, meeting, conference, ballroom, event, wedding, gala Cũng được hỏi là: phòng họp, hội nghị, hội thảo, sự kiện, tổ chức tiệc, phò"
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển package, rate, upsell, Biệt Thự 3 Phòng Ngủ Hướng Biển Biệt Thự 3 Phòng Ngủ Hướng Biển — các gói giá công bố Mọi"
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển package, rate, upsell, Biệt Thự 3 Phòng Ngủ Hướng Biển cuzzi · cáp treo 5. Giá Công Bố Tốt Nhất — 21.890.000đ/đê"
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển package, rate, upsell, Biệt thự Tropicana 3 phòng ngủ, hướng biển Biệt thự Tropicana 3 phòng ngủ, hướ"
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn Deluxe 2 Giường Đơn — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3.580.000đ/đê"
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquafield · xông "
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe 2 Giường Đơn package, rate, upsell, Deluxe 2 Giường Đơn f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước ngày 04/10/26. Từ n"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi Deluxe giường đôi — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3.580.000đ/đêm Thêm"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi ông hơi & jacuzzi · cáp treo · giảm spa 30%, ẩm thực 20%, golf 20% 5. Giá Công Bố Tốt"
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe giường đôi package, rate, upsell, Deluxe giường đôi 100%. • Giá không bao gồm phụ thu cuối tuần (Thứ 7 - Chủ Nhật), lễ tết, khách dùng gi"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn Deluxe Hướng Biển 2 Giường Đơn — các gói giá công bố 1. Giá"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới h"
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Deluxe Hướng Biển 2 Giường Đơn y 04/10/26 tính phí 100% . Không đến nhận phòng tính phí 10"
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi Deluxe Hướng Biển Giường Đôi — các gói giá công bố 1. Giá Công "
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn ·"
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi package, rate, upsell, Deluxe Hướng Biển Giường Đôi f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước n"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn Grand Deluxe 2 Giường Đơn — các gói giá công bố 1. Giá Công Bố Tốt Nh"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquaf"
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe 2 Giường Đơn package, rate, upsell, Grand Deluxe 2 Giường Đơn f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước ngày 04"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi Grand Deluxe Giường Đôi — các gói giá công bố 1. Giá Công Bố Tốt Nhất — 3"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders không giới hạn · Aquafield"
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Giường Đôi package, rate, upsell, Grand Deluxe Giường Đôi f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy phòng trước ngày 04/10/"
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn Grand Deluxe Hướng Biển 2 Giường Đơn — các gói "
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders "
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn package, rate, upsell, Grand Deluxe Hướng Biển 2 Giường Đơn y 04/10/26 tính phí 100% . Không đến nhận phòng"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi Grand Deluxe Hướng Biển Giường Đôi — các gói giá cô"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi 00đ/đêm) Thêm: bữa sáng buffet · vé VinWonders khôn"
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi package, rate, upsell, Grand Deluxe Hướng Biển Giường Đôi f 20% Điều kiện áp dụng: • Miễn phí thay đổi/ hủy p"
+        },
+        {
+          "docKey": "kb/51",
+          "title": "Thông tin khẩn cấp / liên hệ",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Thông tin khẩn cấp / liên hệ canonical, curated, emergency_contact Thông tin khẩn cấp / liên hệ Trong tình huống khẩn cấp trong resort, quay số 0 từ điện thoại "
+        },
+        {
+          "docKey": "policy/5",
+          "title": "Guest list deadlines, name changes and transfers (GUEST_LIST)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Guest list deadlines, name changes and transfers Individual bookings send the guest list 7 days ahead in low season, 15 days in high season and at booking in pe"
+        },
+        {
+          "docKey": "policy/15",
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Hủy đặt phòng Tính theo số ngày trước ngày nhận phòng, theo giờ khách sạn. basis: first_night bands min days before: 7 bands fee pct: 0 bands label: hủy miễn ph"
+        },
+        {
+          "docKey": "policy/16",
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Phục vụ tại phòng Giá trị mặc định do hệ thống tạo — ban quản lý cần xác nhận/cập nhật. hours from: 06:00 hours to: 23:00 all night: false eta minutes normal: 3"
+        },
+        {
+          "docKey": "policy/19",
+          "title": "Dịch vụ đưa đón (TRANSPORT)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Dịch vụ đưa đón Giá trị mặc định do hệ thống tạo — ban quản lý cần xác nhận/cập nhật. Xe lớn hơn 4 khách phải để bộ phận vận chuyển báo giá. services key: airpo"
+        },
+        {
+          "docKey": "policy/7",
+          "title": "House rules and fines (CONDUCT)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "House rules and fines No pets. Smoking outside the signed areas costs 3,000,000 VND per stay. Outside food and drink must be declared and carries a 1,175,000 VN"
+        },
+        {
+          "docKey": "policy/17",
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Giờ mở cửa tiện ích Giá trị mặc định do hệ thống tạo — ban quản lý cần xác nhận/cập nhật. facilities key: pool facilities name: Hồ bơi ngoài trời facilities fro"
+        },
+        {
+          "docKey": "policy/17",
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Giờ mở cửa tiện ích es key: front_desk facilities name: Lễ tân facilities from: 00:00 facilities to: 23:59 facilities note: Phục vụ 24/7. facilities key: busine"
+        },
+        {
+          "docKey": "policy/9",
+          "title": "Complaints and dispute resolution (DISPUTE)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Complaints and dispute resolution Customer service answers a straightforward complaint immediately from the published policy. A complex case gets a written repl"
+        },
+        {
+          "docKey": "policy/8",
+          "title": "Payment methods and bank details (PAYMENT)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Payment methods and bank details Domestic card, credit card, QR, cash or bank transfer. Transfers for Vinpearl Resort Nha Trang go to Chi nhánh Nha Trang – Công"
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Quyền lợi hội viên Pearl Club Phần trăm giảm giá theo hạng thẻ, áp dụng cho phòng, spa, golf, F&B. tiers diamond room: 10 tiers diamond spa: 30 tiers diamond go"
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Quyền lợi hội viên Pearl Club s platinum experience: 0 tiers platinum early checkin free hours: 2 tiers platinum late checkout free hours: 2 tiers platinum note"
+        },
+        {
+          "docKey": "policy/10",
+          "title": "Personal data and privacy (PRIVACY)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Personal data and privacy Basic and sensitive personal data are processed to deliver and improve the service, for marketing and for legal obligations. Data is s"
+        },
+        {
+          "docKey": "room/2",
+          "title": "Deluxe Giường Đôi — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Deluxe Giường Đôi Deluxe Queen Bed lý tưởng dành cho các cặp đôi, gia đình nhỏ hay du khách đi công tác. Tối đa 4 người trong một phòng (3 người lớn 1 trẻ em ho"
+        },
+        {
+          "docKey": "room/8",
+          "title": "Biệt Thự 3 Phòng Ngủ Hướng Biển — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Biệt Thự 3 Phòng Ngủ Hướng Biển Villa 3-Bedroom Ocean View Biệt Thự 3 Phòng Ngủ Hướng Biển (Villa 3-Bedroom Ocean View) Diện tích 370 m². 3 phòng ngủ. Hướng biể"
+        },
+        {
+          "docKey": "room/9",
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "kind": "room",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Biệt thự Tropicana 3 phòng ngủ, hướng biển Tropicana Beachfront Villa 3-Bedroom Biệt thự Tropicana 3 phòng ngủ, hướng biển (Tropicana Beachfront Villa 3-Bedroom"
+        },
+        {
+          "docKey": "dining/7",
+          "title": "Seaview Bar — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Seaview Bar Seaview Bar Seaview Bar (Seaview Bar) — quầy bar. Giờ mở cửa: 07:00–23:00. Vị trí: Tầng trệt, tòa nhà Executive · Đảo Hòn Tre, Nha Trang, Khánh Hòa,"
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Nhà hàng Bách Giai Bach Giai Restaurant Nhà hàng Bách Giai (Bach Giai Restaurant) — nhà hàng. Giờ mở cửa: 10:30–14:30, 17:30–22:00. Vị trí: Vinpearl Resort Nha "
+        },
+        {
+          "docKey": "dining/2",
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Nhà hàng Halal VietFlavors Halal VietFlavors Nhà hàng Halal VietFlavors (Halal VietFlavors) — nhà hàng. Giờ mở cửa: 10:30–14:30, 17:30–22:00. Vị trí: Imperial C"
+        },
+        {
+          "docKey": "dining/3",
+          "title": "Jasmine Restaurant — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Jasmine Restaurant Jasmine Restaurant Jasmine Restaurant (Jasmine Restaurant) — nhà hàng. Giờ mở cửa: 11:00–22:00. Điện thoại: (+84)258 359 8900. Sức chứa 250 k"
+        },
+        {
+          "docKey": "dining/4",
+          "title": "Lotus Restaurant — ẩm thực",
+          "kind": "dining",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "7"
+          ],
+          "snippet": "Lotus Restaurant Lotus Restaurant Lotus Restaurant (Lotus Restaurant) — nhà hàng. Giờ mở cửa: 07:00–21:00 (Sáng 06:00–10:30, Trưa 12:00–14:00, Tối 18:00–22:00)."
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/5",
+          "title": "Restaurants and bars — hours",
+          "bm25Rank": -1,
+          "denseRank": 24,
+          "rrfRank": 48
+        },
+        {
+          "docKey": "kb/6",
+          "title": "Breakfast and buffet pricing",
+          "bm25Rank": -1,
+          "denseRank": 59,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/3",
+          "title": "Cable car and Vinpearl Harbour ticket prices",
+          "bm25Rank": -1,
+          "denseRank": 67,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/4",
+          "title": "VinWonders Nha Trang tickets and shows",
+          "bm25Rank": -1,
+          "denseRank": 85,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/13",
+          "title": "Pearl Club member benefits",
+          "bm25Rank": 48,
+          "denseRank": 43,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/14",
+          "title": "Families and children",
+          "bm25Rank": -1,
+          "denseRank": 28,
+          "rrfRank": 49
+        },
+        {
+          "docKey": "kb/18",
+          "title": "Guest list deadlines and name changes",
+          "bm25Rank": -1,
+          "denseRank": 1,
+          "rrfRank": 39
+        },
+        {
+          "docKey": "kb/20",
+          "title": "House rules — smoking, pets and outside food",
+          "bm25Rank": -1,
+          "denseRank": 48,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/22",
+          "title": "Payment methods and bank transfer details",
+          "bm25Rank": -1,
+          "denseRank": 42,
+          "rrfRank": 61
+        },
+        {
+          "docKey": "kb/23",
+          "title": "Complaints and dispute resolution",
+          "bm25Rank": 45,
+          "denseRank": 22,
+          "rrfRank": 47
+        },
+        {
+          "docKey": "kb/24",
+          "title": "Personal data and privacy",
+          "bm25Rank": 44,
+          "denseRank": 38,
+          "rrfRank": 57
+        },
+        {
+          "docKey": "kb/7",
+          "title": "Akoya Spa — treatments and prices",
+          "bm25Rank": -1,
+          "denseRank": 57,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/9",
+          "title": "Rooms and room types",
+          "bm25Rank": -1,
+          "denseRank": 54,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/10",
+          "title": "Aquafield Nha Trang — Korean sauna",
+          "bm25Rank": -1,
+          "denseRank": 63,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/11",
+          "title": "Meetings and events (MICE)",
+          "bm25Rank": -1,
+          "denseRank": 44,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "kb/132",
+          "title": "Gói giá phòng — Biệt Thự 3 Phòng Ngủ Hướng Biển",
+          "bm25Rank": 39,
+          "denseRank": 33,
+          "rrfRank": 52
+        },
+        {
+          "docKey": "kb/133",
+          "title": "Gói giá phòng — Biệt thự Tropicana 3 phòng ngủ, hướng biển",
+          "bm25Rank": 40,
+          "denseRank": 31,
+          "rrfRank": 51
+        },
+        {
+          "docKey": "kb/134",
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "bm25Rank": 6,
+          "denseRank": 21,
+          "rrfRank": 5
+        },
+        {
+          "docKey": "kb/135",
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "bm25Rank": 15,
+          "denseRank": 30,
+          "rrfRank": 17
+        },
+        {
+          "docKey": "kb/136",
+          "title": "Gói giá phòng — Deluxe Hướng Biển 2 Giường Đơn",
+          "bm25Rank": 12,
+          "denseRank": 25,
+          "rrfRank": 12
+        },
+        {
+          "docKey": "kb/137",
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "bm25Rank": 10,
+          "denseRank": 19,
+          "rrfRank": 10
+        },
+        {
+          "docKey": "kb/138",
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "bm25Rank": 7,
+          "denseRank": 20,
+          "rrfRank": 6
+        },
+        {
+          "docKey": "kb/139",
+          "title": "Gói giá phòng — Grand Deluxe Giường Đôi",
+          "bm25Rank": 8,
+          "denseRank": 23,
+          "rrfRank": 9
+        },
+        {
+          "docKey": "kb/140",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển 2 Giường Đơn",
+          "bm25Rank": 14,
+          "denseRank": 27,
+          "rrfRank": 15
+        },
+        {
+          "docKey": "kb/141",
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "bm25Rank": 11,
+          "denseRank": 18,
+          "rrfRank": 11
+        },
+        {
+          "docKey": "kb/51",
+          "title": "Thông tin khẩn cấp / liên hệ",
+          "bm25Rank": 53,
+          "denseRank": 35,
+          "rrfRank": 54
+        },
+        {
+          "docKey": "policy/5",
+          "title": "Guest list deadlines, name changes and transfers (GUEST_LIST)",
+          "bm25Rank": 35,
+          "denseRank": 2,
+          "rrfRank": 18
+        },
+        {
+          "docKey": "policy/15",
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "bm25Rank": 4,
+          "denseRank": 6,
+          "rrfRank": 2
+        },
+        {
+          "docKey": "policy/16",
+          "title": "Phục vụ tại phòng (ROOM_SERVICE)",
+          "bm25Rank": 23,
+          "denseRank": 5,
+          "rrfRank": 13
+        },
+        {
+          "docKey": "policy/19",
+          "title": "Dịch vụ đưa đón (TRANSPORT)",
+          "bm25Rank": 1,
+          "denseRank": 12,
+          "rrfRank": 3
+        },
+        {
+          "docKey": "policy/7",
+          "title": "House rules and fines (CONDUCT)",
+          "bm25Rank": 57,
+          "denseRank": 17,
+          "rrfRank": 46
+        },
+        {
+          "docKey": "policy/17",
+          "title": "Giờ mở cửa tiện ích (FACILITY_HOURS)",
+          "bm25Rank": 46,
+          "denseRank": 10,
+          "rrfRank": 42
+        },
+        {
+          "docKey": "policy/9",
+          "title": "Complaints and dispute resolution (DISPUTE)",
+          "bm25Rank": -1,
+          "denseRank": 15,
+          "rrfRank": 44
+        },
+        {
+          "docKey": "policy/8",
+          "title": "Payment methods and bank details (PAYMENT)",
+          "bm25Rank": -1,
+          "denseRank": 40,
+          "rrfRank": 59
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "bm25Rank": -1,
+          "denseRank": 29,
+          "rrfRank": 50
+        },
+        {
+          "docKey": "policy/10",
+          "title": "Personal data and privacy (PRIVACY)",
+          "bm25Rank": 42,
+          "denseRank": 39,
+          "rrfRank": 58
+        },
+        {
+          "docKey": "room/2",
+          "title": "Deluxe Giường Đôi — phòng",
+          "bm25Rank": 31,
+          "denseRank": 52,
+          "rrfRank": 33
+        },
+        {
+          "docKey": "room/8",
+          "title": "Biệt Thự 3 Phòng Ngủ Hướng Biển — phòng",
+          "bm25Rank": 29,
+          "denseRank": 64,
+          "rrfRank": 31
+        },
+        {
+          "docKey": "room/9",
+          "title": "Biệt thự Tropicana 3 phòng ngủ, hướng biển — phòng",
+          "bm25Rank": 34,
+          "denseRank": 76,
+          "rrfRank": 35
+        },
+        {
+          "docKey": "dining/7",
+          "title": "Seaview Bar — ẩm thực",
+          "bm25Rank": 55,
+          "denseRank": 68,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "dining/1",
+          "title": "Nhà hàng Bách Giai — ẩm thực",
+          "bm25Rank": 16,
+          "denseRank": 56,
+          "rrfRank": 21
+        },
+        {
+          "docKey": "dining/2",
+          "title": "Nhà hàng Halal VietFlavors — ẩm thực",
+          "bm25Rank": -1,
+          "denseRank": 72,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "dining/3",
+          "title": "Jasmine Restaurant — ẩm thực",
+          "bm25Rank": 59,
+          "denseRank": 37,
+          "rrfRank": 56
+        },
+        {
+          "docKey": "dining/4",
+          "title": "Lotus Restaurant — ẩm thực",
+          "bm25Rank": 51,
+          "denseRank": 46,
+          "rrfRank": -1
+        }
+      ],
+      "route": "knowledge",
+      "retrievedTop": [
+        {
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "score": 0.0239,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.4,
+          "quality": "curated"
+        },
+        {
+          "title": "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.5,
+          "quality": "curated"
+        },
+        {
+          "title": "Dịch vụ đưa đón (TRANSPORT)",
+          "score": 0.0232,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.4,
+          "quality": "curated"
+        },
+        {
+          "title": "Hủy dịch vụ đã đặt (SERVICE_CANCELLATION)",
+          "score": 0.0208,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.4,
+          "quality": "curated"
+        },
+        {
+          "title": "Loyalty goodwill on late departure (internal) (LOYALTY_LATE_CHECKOUT)",
+          "score": 0.0192,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0239,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+        "Hủy đặt phòng (RESERVATION_CANCELLATION)",
+        "Dịch vụ đưa đón (TRANSPORT)",
+        "Hủy dịch vụ đã đặt (SERVICE_CANCELLATION)",
+        "Loyalty goodwill on late departure (internal) (LOYALTY_LATE_CHECKOUT)"
+      ],
+      "modelOutput": "",
+      "abstained": true,
+      "factOk": false,
+      "stage": "MODEL — gate passed correct evidence, model abstained anyway",
+      "rootCause": "MODEL_INTERPRETATION"
+    },
+    {
+      "id": "payment-methods",
+      "lang": "vi",
+      "q": "Resort nhận thanh toán bằng hình thức nào?",
+      "expect": [
+        [
+          "thẻ",
+          "chuyển khoản",
+          "qr"
+        ]
+      ],
+      "dataGap": false,
+      "goldDocKeys": [
+        "kb/13",
+        "kb/22",
+        "kb/54",
+        "policy/8",
+        "policy/12",
+        "policy/13",
+        "policy/20",
+        "policy/10",
+        "policy/21"
+      ],
+      "containing": [
+        {
+          "docKey": "kb/13",
+          "title": "Pearl Club member benefits",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Pearl Club member benefits loyalty, member, pearl club, discount, benefit, credit, vpoint Cũng được hỏi là: thành viên, hội viên, ưu đãi thành viên, giảm giá hộ"
+        },
+        {
+          "docKey": "kb/22",
+          "title": "Payment methods and bank transfer details",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Payment methods and bank transfer details payment, bank transfer, card, qr, account number, swift, refund, invoice Cũng được hỏi là: thanh toán, chuyển khoản, s"
+        },
+        {
+          "docKey": "kb/54",
+          "title": "Sân bay Cam Ranh — khoảng cách & đưa đón",
+          "kind": "kb",
+          "quality": "curated",
+          "verified": "verified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Sân bay Cam Ranh — khoảng cách & đưa đón canonical, curated, cam_ranh_airport Sân bay Cam Ranh — khoảng cách & đưa đón Sân bay quốc tế Cam Ranh cách trung tâm N"
+        },
+        {
+          "docKey": "policy/8",
+          "title": "Payment methods and bank details (PAYMENT)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Payment methods and bank details Domestic card, credit card, QR, cash or bank transfer. Transfers for Vinpearl Resort Nha Trang go to Chi nhánh Nha Trang – Công"
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Quyền lợi hội viên Pearl Club Phần trăm giảm giá theo hạng thẻ, áp dụng cho phòng, spa, golf, F&B. tiers diamond room: 10 tiers diamond spa: 30 tiers diamond go"
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Quyền lợi hội viên Pearl Club s platinum experience: 0 tiers platinum early checkin free hours: 2 tiers platinum late checkout free hours: 2 tiers platinum note"
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Quyền lợi hội viên Pearl Club d notes: 20% off F&B (excl. alcohol) tiers gold notes: Complimentary Aquafield ticket tiers silver room: 5 tiers silver spa: 30 ti"
+        },
+        {
+          "docKey": "policy/13",
+          "title": "Phí phục vụ và thuế GTGT (TAX_AND_SERVICE)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Phí phục vụ và thuế GTGT Giá dịch vụ là giá net; hóa đơn cộng 5% phí phục vụ và 8% VAT. service charge pct: 5 vat pct: 8 vat applies to service charge: true pri"
+        },
+        {
+          "docKey": "policy/20",
+          "title": "Chương trình Pearl Club (LOYALTY_PROGRAM)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Chương trình Pearl Club Giá trị mặc định do hệ thống tạo — ban quản lý cần xác nhận/cập nhật. Số điểm và ngưỡng hạng phải khớp với hệ thống Pearl Club thật trướ"
+        },
+        {
+          "docKey": "policy/10",
+          "title": "Personal data and privacy (PRIVACY)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Personal data and privacy Basic and sensitive personal data are processed to deliver and improve the service, for marketing and for legal obligations. Data is s"
+        },
+        {
+          "docKey": "policy/10",
+          "title": "Personal data and privacy (PRIVACY)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Personal data and privacy ccess data subject rights: withdraw consent data subject rights: delete data subject rights: restrict processing data subject rights: "
+        },
+        {
+          "docKey": "policy/21",
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Khai báo lưu trú theo quy định Thông tư 55/2021/TT-BCA sửa đổi bởi 66/2023/TT-BCA; mức phạt theo Nghị định 282/2025. deadline hours after arrival: 12 deadline n"
+        },
+        {
+          "docKey": "policy/21",
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "kind": "policy",
+          "quality": "curated",
+          "verified": "unverified",
+          "matchedGroup": [
+            "thẻ",
+            "chuyển khoản",
+            "qr"
+          ],
+          "snippet": "Khai báo lưu trú theo quy định al_at required fields foreigner: full_name required fields foreigner: id_number required fields foreigner: nationality required f"
+        }
+      ],
+      "rankTable": [
+        {
+          "docKey": "kb/13",
+          "title": "Pearl Club member benefits",
+          "bm25Rank": 41,
+          "denseRank": 31,
+          "rrfRank": 21
+        },
+        {
+          "docKey": "kb/22",
+          "title": "Payment methods and bank transfer details",
+          "bm25Rank": 17,
+          "denseRank": 2,
+          "rrfRank": 9
+        },
+        {
+          "docKey": "kb/54",
+          "title": "Sân bay Cam Ranh — khoảng cách & đưa đón",
+          "bm25Rank": 40,
+          "denseRank": 85,
+          "rrfRank": 41
+        },
+        {
+          "docKey": "policy/8",
+          "title": "Payment methods and bank details (PAYMENT)",
+          "bm25Rank": 26,
+          "denseRank": 1,
+          "rrfRank": 10
+        },
+        {
+          "docKey": "policy/12",
+          "title": "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)",
+          "bm25Rank": 37,
+          "denseRank": 14,
+          "rrfRank": 14
+        },
+        {
+          "docKey": "policy/13",
+          "title": "Phí phục vụ và thuế GTGT (TAX_AND_SERVICE)",
+          "bm25Rank": 29,
+          "denseRank": 32,
+          "rrfRank": 34
+        },
+        {
+          "docKey": "policy/20",
+          "title": "Chương trình Pearl Club (LOYALTY_PROGRAM)",
+          "bm25Rank": 27,
+          "denseRank": 40,
+          "rrfRank": 33
+        },
+        {
+          "docKey": "policy/10",
+          "title": "Personal data and privacy (PRIVACY)",
+          "bm25Rank": 61,
+          "denseRank": 87,
+          "rrfRank": -1
+        },
+        {
+          "docKey": "policy/21",
+          "title": "Khai báo lưu trú theo quy định (LODGING_DECLARATION)",
+          "bm25Rank": 65,
+          "denseRank": 81,
+          "rrfRank": -1
+        }
+      ],
+      "route": "complex",
+      "retrievedTop": [
+        {
+          "title": "Gói giá phòng — Deluxe giường đôi",
+          "score": 0.0243,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.57,
+          "quality": "curated"
+        },
+        {
+          "title": "Gói giá phòng — Deluxe 2 Giường Đơn",
+          "score": 0.0237,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.57,
+          "quality": "curated"
+        },
+        {
+          "title": "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+          "score": 0.0231,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.57,
+          "quality": "curated"
+        },
+        {
+          "title": "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+          "score": 0.0229,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.57,
+          "quality": "curated"
+        },
+        {
+          "title": "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi",
+          "score": 0.0226,
+          "matchedBy": "keyword+semantic",
+          "coverage": 0.57,
+          "quality": "curated"
+        }
+      ],
+      "gate": {
+        "ok": true,
+        "topScore": 0.0243,
+        "usedSemantic": true
+      },
+      "evidenceTitles": [
+        "Gói giá phòng — Deluxe giường đôi",
+        "Gói giá phòng — Deluxe 2 Giường Đơn",
+        "Gói giá phòng — Deluxe Hướng Biển Giường Đôi",
+        "Gói giá phòng — Grand Deluxe 2 Giường Đơn",
+        "Gói giá phòng — Grand Deluxe Hướng Biển Giường Đôi"
+      ],
+      "modelOutput": "Khách hàng vui lòng thanh toán trực tiếp tại thời điểm đặt chỗ Golf đối với các gói phòng sử dụng giai đoạn cuối tuần (Thứ 7 - Chủ Nhật) hoặc lễ tết.",
+      "abstained": false,
+      "factOk": false,
+      "stage": "MODEL — gate passed correct evidence, model answered wrong or with a different fact",
+      "rootCause": "MODEL_INTERPRETATION"
+    }
+  ]
+}

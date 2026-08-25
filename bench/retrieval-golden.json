@@ -1,0 +1,655 @@
+{
+  "meta": {
+    "purpose": "Golden retrieval set for the Aurea knowledge base. Each query is labelled with the source document(s) that genuinely answer it, by stable natural key (policy topic, room/venue code, KB title) — never by database id — so the labels survive a reseed. Metrics: hit@k, recall@k, precision@k, nDCG@k, MRR, computed for BM25-only and for the fused hybrid.",
+    "relevance_note": "A document is relevant to a case when it matches ANY predicate in `relevant`. Predicate keys: policyTopic | room | dining | kbTitle | category.",
+    "labelled_against": "data.db corpus (82 documents) as reindexed on 2026-08.",
+    "relabelled": "2026-08-23: six cases relabelled to credit the Phase B verified facts (cable car, Cam Ranh airport, Akoya Spa, MICE). Those documents genuinely answer the query and carry an official source; the original labels simply predate them. Cases where the system ranks a document that does NOT answer the question were deliberately left failing."
+  },
+  "cases": [
+    {
+      "id": "P-pets-vi",
+      "lang": "vi",
+      "query": "Tôi mang theo chó nhỏ được không?",
+      "relevant": [
+        {
+          "policyTopic": "conduct"
+        }
+      ]
+    },
+    {
+      "id": "P-guestlist-vi",
+      "lang": "vi",
+      "query": "Danh sách khách phải gửi trước bao nhiêu ngày mùa thấp điểm?",
+      "relevant": [
+        {
+          "policyTopic": "booking"
+        },
+        {
+          "kbTitle": "Guest list deadlines and name changes"
+        }
+      ]
+    },
+    {
+      "id": "P-checkout-vi",
+      "lang": "vi",
+      "query": "Trả phòng muộn thì tính phí như thế nào?",
+      "relevant": [
+        {
+          "policyTopic": "checkout"
+        },
+        {
+          "kbTitle": "Check-in, check-out and identification"
+        }
+      ]
+    },
+    {
+      "id": "P-checkout-nodiacritic",
+      "lang": "vi",
+      "query": "tra phong muon mat bao nhieu tien",
+      "relevant": [
+        {
+          "policyTopic": "checkout"
+        },
+        {
+          "kbTitle": "Check-in, check-out and identification"
+        }
+      ]
+    },
+    {
+      "id": "P-checkout-en",
+      "lang": "en",
+      "query": "how much does a late check-out cost",
+      "relevant": [
+        {
+          "policyTopic": "checkout"
+        },
+        {
+          "kbTitle": "Check-in, check-out and identification"
+        }
+      ]
+    },
+    {
+      "id": "P-checkin-vi",
+      "lang": "vi",
+      "query": "Tôi muốn nhận phòng sớm buổi sáng có được không?",
+      "relevant": [
+        {
+          "policyTopic": "checkin"
+        },
+        {
+          "kbTitle": "Check-in, check-out and identification"
+        }
+      ]
+    },
+    {
+      "id": "P-occupancy-vi",
+      "lang": "vi",
+      "query": "Một phòng ở được tối đa mấy người, có kê thêm giường không?",
+      "relevant": [
+        {
+          "policyTopic": "occupancy"
+        },
+        {
+          "kbTitle": "Occupancy limits, extra beds and children"
+        }
+      ]
+    },
+    {
+      "id": "P-occupancy-children",
+      "lang": "vi",
+      "query": "Trẻ em mấy tuổi thì tính như người lớn?",
+      "relevant": [
+        {
+          "policyTopic": "occupancy"
+        },
+        {
+          "kbTitle": "Families and children"
+        },
+        {
+          "kbTitle": "Occupancy limits, extra beds and children"
+        }
+      ]
+    },
+    {
+      "id": "P-deposit-vi",
+      "lang": "vi",
+      "query": "Khi nhận phòng có phải đặt cọc không, cọc bao nhiêu?",
+      "relevant": [
+        {
+          "policyTopic": "deposit"
+        },
+        {
+          "kbTitle": "Check-in deposit"
+        }
+      ]
+    },
+    {
+      "id": "P-payment-vi",
+      "lang": "vi",
+      "query": "Cho tôi thông tin chuyển khoản ngân hàng để thanh toán",
+      "relevant": [
+        {
+          "policyTopic": "payment"
+        },
+        {
+          "kbTitle": "Payment methods and bank transfer details"
+        }
+      ]
+    },
+    {
+      "id": "P-smoking-vi",
+      "lang": "vi",
+      "query": "Hút thuốc trong phòng bị phạt bao nhiêu tiền?",
+      "relevant": [
+        {
+          "policyTopic": "conduct"
+        },
+        {
+          "kbTitle": "House rules — smoking, pets and outside food"
+        }
+      ]
+    },
+    {
+      "id": "P-pets-en",
+      "lang": "en",
+      "query": "can I bring my pet dog to the room",
+      "relevant": [
+        {
+          "policyTopic": "conduct"
+        },
+        {
+          "kbTitle": "House rules — smoking, pets and outside food"
+        }
+      ]
+    },
+    {
+      "id": "P-visitors-pool-vi",
+      "lang": "vi",
+      "query": "Khách đến thăm phòng và giờ đóng cửa hồ bơi quy định thế nào?",
+      "relevant": [
+        {
+          "policyTopic": "conduct"
+        },
+        {
+          "kbTitle": "House rules — visitors, pool, sea and noise"
+        }
+      ]
+    },
+    {
+      "id": "P-namechange-vi",
+      "lang": "vi",
+      "query": "Tôi muốn đổi tên khách trên đặt phòng, hạn chót là khi nào?",
+      "relevant": [
+        {
+          "policyTopic": "booking"
+        },
+        {
+          "kbTitle": "Guest list deadlines and name changes"
+        }
+      ]
+    },
+    {
+      "id": "P-dispute-vi",
+      "lang": "vi",
+      "query": "Tôi muốn khiếu nại thì liên hệ ai và bao lâu được trả lời?",
+      "relevant": [
+        {
+          "policyTopic": "dispute"
+        },
+        {
+          "kbTitle": "Complaints and dispute resolution"
+        }
+      ]
+    },
+    {
+      "id": "P-privacy-vi",
+      "lang": "vi",
+      "query": "Dữ liệu cá nhân và thông tin thẻ của tôi được bảo mật thế nào?",
+      "relevant": [
+        {
+          "policyTopic": "privacy"
+        },
+        {
+          "kbTitle": "Personal data and privacy"
+        }
+      ]
+    },
+    {
+      "id": "P-package-vi",
+      "lang": "vi",
+      "query": "Các mã gói phòng và hạng đặt phòng gồm những loại nào?",
+      "relevant": [
+        {
+          "policyTopic": "booking"
+        },
+        {
+          "kbTitle": "Package codes and booking classes"
+        }
+      ]
+    },
+    {
+      "id": "R-villa3-vi",
+      "lang": "vi",
+      "query": "Biệt thự 3 phòng ngủ hướng biển có hồ bơi riêng không?",
+      "relevant": [
+        {
+          "room": "Villa 3-Bedroom Ocean View"
+        },
+        {
+          "room": "Tropicana Beachfront Villa 3-Bedroom"
+        }
+      ]
+    },
+    {
+      "id": "R-deluxe-ocean-queen-vi",
+      "lang": "vi",
+      "query": "Phòng Deluxe hướng biển giường đôi rộng bao nhiêu?",
+      "relevant": [
+        {
+          "room": "Deluxe Ocean View Queen Bed"
+        }
+      ]
+    },
+    {
+      "id": "R-grand-twin-vi",
+      "lang": "vi",
+      "query": "Grand Deluxe 2 giường đơn có những tiện nghi gì?",
+      "relevant": [
+        {
+          "room": "Grand Deluxe Twin Bed"
+        }
+      ]
+    },
+    {
+      "id": "R-deluxe-twin-en",
+      "lang": "en",
+      "query": "deluxe twin bed room size and amenities",
+      "relevant": [
+        {
+          "room": "Deluxe Twin Bed"
+        }
+      ]
+    },
+    {
+      "id": "D-lotus-vi",
+      "lang": "vi",
+      "query": "Nhà hàng Lotus phục vụ những món gì?",
+      "relevant": [
+        {
+          "dining": "Lotus"
+        }
+      ]
+    },
+    {
+      "id": "D-bachgiai-vi",
+      "lang": "vi",
+      "query": "Nhà hàng Bách Giai mở cửa mấy giờ?",
+      "relevant": [
+        {
+          "dining": "Bach Giai"
+        }
+      ]
+    },
+    {
+      "id": "D-halal-vi",
+      "lang": "vi",
+      "query": "Có nhà hàng halal cho người Hồi giáo không?",
+      "relevant": [
+        {
+          "dining": "Halal"
+        }
+      ]
+    },
+    {
+      "id": "D-poolbar-vi",
+      "lang": "vi",
+      "query": "Quán bar bên hồ bơi mở đến mấy giờ?",
+      "relevant": [
+        {
+          "dining": "Pool Bar"
+        }
+      ]
+    },
+    {
+      "id": "D-jasmine-en",
+      "lang": "en",
+      "query": "what does Jasmine restaurant serve",
+      "relevant": [
+        {
+          "dining": "Jasmine"
+        }
+      ]
+    },
+    {
+      "id": "D-breakfast-vi",
+      "lang": "vi",
+      "query": "Ăn sáng buffet giá bao nhiêu một người?",
+      "relevant": [
+        {
+          "kbTitle": "Breakfast and buffet pricing"
+        }
+      ]
+    },
+    {
+      "id": "D-hours-en",
+      "lang": "en",
+      "query": "what are the restaurant and bar opening hours",
+      "relevant": [
+        {
+          "kbTitle": "Restaurants and bars — hours"
+        }
+      ]
+    },
+    {
+      "id": "N-cablecar-vi",
+      "lang": "vi",
+      "query": "Giá vé cáp treo qua đảo là bao nhiêu?",
+      "relevant": [
+        {
+          "kbTitle": "Cable car and Vinpearl Harbour ticket prices"
+        },
+        {
+          "kbTitle": "Cáp treo Vinpearl"
+        }
+      ]
+    },
+    {
+      "id": "N-cablecar-nodiacritic",
+      "lang": "vi",
+      "query": "gia ve cap treo qua dao bao nhieu",
+      "relevant": [
+        {
+          "kbTitle": "Cable car and Vinpearl Harbour ticket prices"
+        },
+        {
+          "kbTitle": "Cáp treo Vinpearl"
+        }
+      ]
+    },
+    {
+      "id": "N-vinwonders-vi",
+      "lang": "vi",
+      "query": "Vé vào VinWonders Nha Trang giá bao nhiêu, có show gì?",
+      "relevant": [
+        {
+          "kbTitle": "VinWonders Nha Trang tickets and shows"
+        }
+      ]
+    },
+    {
+      "id": "N-airport-vi",
+      "lang": "vi",
+      "query": "Đi từ sân bay Cam Ranh về resort như thế nào?",
+      "relevant": [
+        {
+          "kbTitle": "Getting to the resort from Cam Ranh Airport"
+        },
+        {
+          "kbTitle": "Sân bay Cam Ranh"
+        }
+      ]
+    },
+    {
+      "id": "N-airport-en",
+      "lang": "en",
+      "query": "how do I get from Cam Ranh airport to the resort",
+      "relevant": [
+        {
+          "kbTitle": "Getting to the resort from Cam Ranh Airport"
+        },
+        {
+          "kbTitle": "Sân bay Cam Ranh"
+        }
+      ]
+    },
+    {
+      "id": "N-golf-vi",
+      "lang": "vi",
+      "query": "Trên đảo Hòn Tre có sân golf không?",
+      "relevant": [
+        {
+          "kbTitle": "Entertainment and golf on Hon Tre"
+        }
+      ]
+    },
+    {
+      "id": "S-spa-vi",
+      "lang": "vi",
+      "query": "Spa Akoya có những liệu trình massage nào và giá ra sao?",
+      "relevant": [
+        {
+          "kbTitle": "Akoya Spa — treatments and prices"
+        },
+        {
+          "kbTitle": "Akoya Spa"
+        }
+      ]
+    },
+    {
+      "id": "S-pool-vi",
+      "lang": "vi",
+      "query": "Resort có hồ bơi và thể thao dưới nước gì?",
+      "relevant": [
+        {
+          "kbTitle": "Beach, pool and water sports"
+        }
+      ]
+    },
+    {
+      "id": "S-sauna-vi",
+      "lang": "vi",
+      "query": "Có phòng xông hơi kiểu Hàn Quốc không?",
+      "relevant": [
+        {
+          "kbTitle": "Aquafield Nha Trang — Korean sauna"
+        }
+      ]
+    },
+    {
+      "id": "S-mice-en",
+      "lang": "en",
+      "query": "meeting rooms and conference facilities for events",
+      "relevant": [
+        {
+          "kbTitle": "Meetings and events (MICE)"
+        },
+        {
+          "kbTitle": "Hội nghị & tiệc cưới"
+        }
+      ]
+    },
+    {
+      "id": "S-member-vi",
+      "lang": "vi",
+      "query": "Thành viên Pearl Club được ưu đãi giảm giá gì?",
+      "relevant": [
+        {
+          "kbTitle": "Pearl Club member benefits"
+        }
+      ]
+    },
+    {
+      "id": "B-cablecar-access-vi",
+      "lang": "vi",
+      "query": "Làm sao để ra đảo, resort đi bằng cáp treo phải không?",
+      "relevant": [
+        {
+          "kbTitle": "Cáp treo Vinpearl"
+        }
+      ],
+      "note": "Phase B recovered fact"
+    },
+    {
+      "id": "B-vinwonders-vi",
+      "lang": "vi",
+      "query": "Gần resort có khu vui chơi VinWonders không, ở đâu?",
+      "relevant": [
+        {
+          "kbTitle": "VinWonders Nha Trang"
+        }
+      ],
+      "note": "Phase B recovered fact"
+    },
+    {
+      "id": "B-airport-dist-vi",
+      "lang": "vi",
+      "query": "Sân bay Cam Ranh cách resort khoảng bao xa?",
+      "relevant": [
+        {
+          "kbTitle": "Sân bay Cam Ranh"
+        },
+        {
+          "kbTitle": "Getting to the resort from Cam Ranh Airport"
+        }
+      ],
+      "note": "Phase B recovered fact"
+    },
+    {
+      "id": "B-wifi-placeholder-vi",
+      "lang": "vi",
+      "query": "Mật khẩu wifi của khách sạn là gì?",
+      "relevant": [
+        {
+          "kbTitle": "Wi-Fi / Internet"
+        }
+      ],
+      "note": "Placeholder must be retrieved so the agent defers honestly"
+    },
+    {
+      "id": "B-parking-placeholder-vi",
+      "lang": "vi",
+      "query": "Khách sạn có bãi đỗ xe ô tô không?",
+      "relevant": [
+        {
+          "kbTitle": "Đỗ xe"
+        }
+      ],
+      "note": "Placeholder"
+    },
+    {
+      "id": "B-gym-placeholder-vi",
+      "lang": "vi",
+      "query": "Phòng gym mở cửa lúc mấy giờ?",
+      "relevant": [
+        {
+          "kbTitle": "Phòng Gym"
+        }
+      ],
+      "note": "Placeholder"
+    },
+    {
+      "id": "V-overview-vi",
+      "lang": "vi",
+      "query": "Giới thiệu cho tôi về resort này với",
+      "relevant": [
+        {
+          "kbTitle": "Giới thiệu Vinpearl Resort Nha Trang"
+        }
+      ],
+      "note": "Verified property fact"
+    },
+    {
+      "id": "V-bachgiai-vi",
+      "lang": "vi",
+      "query": "Nhà hàng Bách Giai phục vụ món gì?",
+      "relevant": [
+        {
+          "kbTitle": "Nhà hàng Bách Giai"
+        },
+        {
+          "dining": "Bach Giai"
+        }
+      ],
+      "note": "Verified"
+    },
+    {
+      "id": "V-imperial-bowling-vi",
+      "lang": "vi",
+      "query": "Buổi tối ở resort có chỗ nào chơi bowling hay karaoke không?",
+      "relevant": [
+        {
+          "kbTitle": "Imperial Club"
+        }
+      ],
+      "note": "Verified entertainment"
+    },
+    {
+      "id": "V-akoya-vi",
+      "lang": "vi",
+      "query": "Spa của resort có gì đặc biệt, massage trên biển phải không?",
+      "relevant": [
+        {
+          "kbTitle": "Akoya Spa"
+        },
+        {
+          "kbTitle": "Akoya Spa — treatments and prices"
+        }
+      ],
+      "note": "Verified spa"
+    },
+    {
+      "id": "V-pool-vi",
+      "lang": "vi",
+      "query": "Hồ bơi của resort thế nào?",
+      "relevant": [
+        {
+          "kbTitle": "Hồ bơi nước ngọt"
+        },
+        {
+          "kbTitle": "Beach, pool and water sports"
+        }
+      ],
+      "note": "Verified"
+    },
+    {
+      "id": "V-bars-vi",
+      "lang": "vi",
+      "query": "Resort có quầy bar nào uống cocktail không?",
+      "relevant": [
+        {
+          "kbTitle": "Quầy bar"
+        }
+      ],
+      "note": "Verified bars"
+    },
+    {
+      "id": "V-watersports-vi",
+      "lang": "vi",
+      "query": "Tôi muốn đi lặn biển và chèo kayak thì có không?",
+      "relevant": [
+        {
+          "kbTitle": "Thể thao & hoạt động dưới nước"
+        },
+        {
+          "kbTitle": "Beach, pool and water sports"
+        }
+      ],
+      "note": "Verified activities"
+    },
+    {
+      "id": "V-mice-vi",
+      "lang": "vi",
+      "query": "Resort có tổ chức hội nghị và tiệc cưới được không?",
+      "relevant": [
+        {
+          "kbTitle": "Hội nghị & tiệc cưới"
+        },
+        {
+          "kbTitle": "Meetings and events (MICE)"
+        }
+      ],
+      "note": "Verified MICE"
+    },
+    {
+      "id": "V-overview-en",
+      "lang": "en",
+      "query": "tell me about this resort and its facilities",
+      "relevant": [
+        {
+          "kbTitle": "Giới thiệu Vinpearl Resort Nha Trang"
+        }
+      ],
+      "note": "Verified, EN query on bilingual doc"
+    }
+  ]
+}

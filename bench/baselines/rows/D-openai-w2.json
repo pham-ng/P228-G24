@@ -1,0 +1,87 @@
+{
+  "label": "D · openai w=2",
+  "ranAt": "2026-08-24T03:58:00.347Z",
+  "config": {
+    "db": "bench/baselines/idx-openai-1536.db",
+    "embedProvider": "openai",
+    "embedModel": "text-embedding-3-small",
+    "vecWeight": "2",
+    "lexWeight": "1",
+    "titleBoost": "0.6",
+    "chunks": 139
+  },
+  "monolingual": {
+    "n": 52,
+    "hit1": 0.904,
+    "hit3": 0.962,
+    "hit5": 0.981,
+    "hit10": 0.981,
+    "mrr": 0.933,
+    "ndcg5": 0.863,
+    "ndcg10": 0.87,
+    "latencyMean": 369,
+    "latencyP50": 357,
+    "latencyP95": 461,
+    "vectorLegRan": 52,
+    "perLang": {
+      "vi": {
+        "n": 44,
+        "hit1": 40,
+        "hit5": 43
+      },
+      "en": {
+        "n": 8,
+        "hit1": 7,
+        "hit5": 8
+      }
+    },
+    "misses": [
+      "P-checkout-nodiacritic (vi)"
+    ]
+  },
+  "multilingual": {
+    "n": 30,
+    "hit1": 0.667,
+    "hit3": 0.867,
+    "hit5": 0.933,
+    "hit10": 0.933,
+    "mrr": 0.771,
+    "ndcg5": 0.739,
+    "ndcg10": 0.744,
+    "latencyMean": 321,
+    "latencyP50": 338,
+    "latencyP95": 362,
+    "vectorLegRan": 30,
+    "perLang": {
+      "vi": {
+        "n": 6,
+        "hit1": 5,
+        "hit5": 5
+      },
+      "en": {
+        "n": 6,
+        "hit1": 5,
+        "hit5": 6
+      },
+      "zh": {
+        "n": 6,
+        "hit1": 4,
+        "hit5": 6
+      },
+      "ja": {
+        "n": 6,
+        "hit1": 3,
+        "hit5": 6
+      },
+      "ko": {
+        "n": 6,
+        "hit1": 3,
+        "hit5": 5
+      }
+    },
+    "misses": [
+      "breakfast-ko (ko)",
+      "occupancy-vi (vi)"
+    ]
+  }
+}

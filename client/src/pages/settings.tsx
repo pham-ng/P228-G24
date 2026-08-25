@@ -127,6 +127,8 @@ export default function SettingsPage() {
           </div>
         </section>
 
+        <LangfuseSection />
+
         <section className="rounded-md border border-card-border bg-card p-4">
           <h2 className="text-sm font-semibold">Property</h2>
           <dl className="mt-2 grid gap-1.5 text-xs sm:grid-cols-2">
@@ -147,5 +149,145 @@ export default function SettingsPage() {
         </section>
       </div>
     </StaffShell>
+  );
+}
+
+type LangfuseStatus = {
+  enabled: boolean;
+  source: "env" | "stored" | "none";
+  baseUrl: string;
+  publicKeyMasked: string;
+  hasSecret: boolean;
+  envLocked: boolean;
+};
+
+/**
+ * "Paste your Langfuse key" panel. Saves the credentials into the app's runtime
+ * settings (server side) so tracing to Langfuse turns on without editing files
+ * or restarting. The secret is written but never read back — the form only ever
+ * shows a masked public key and whether a secret is on file.
+ */
+function LangfuseSection() {
+  const qc = useQueryClient();
+  const { data: st } = useQuery<LangfuseStatus>({ queryKey: ["/api/observability/langfuse"] });
+  const [publicKey, setPublicKey] = useState("");
+  const [secretKey, setSecretKey] = useState("");
+  const [baseUrl, setBaseUrl] = useState("");
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["/api/observability/langfuse"] });
+    qc.invalidateQueries({ queryKey: ["/api/observability/config"] });
+    qc.invalidateQueries({ queryKey: ["/api/observability/signals"] });
+  };
+
+  const save = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/observability/langfuse", {
+        publicKey: publicKey || undefined,
+        secretKey: secretKey || undefined,
+        baseUrl: baseUrl || undefined,
+      });
+    },
+    onSuccess: () => {
+      setPublicKey("");
+      setSecretKey("");
+      refresh();
+    },
+  });
+
+  const disconnect = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", "/api/observability/langfuse");
+    },
+    onSuccess: refresh,
+  });
+
+  const locked = st?.envLocked;
+
+  return (
+    <section className="space-y-3 rounded-md border border-card-border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold">Langfuse — giám sát & nhật ký</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Gửi mỗi lượt agent sang Langfuse để xem trace/log trên dashboard chuyên nghiệp. Bỏ trống thì tắt — nhật ký
+            nội bộ ở trang <span className="font-medium">Traces</span> vẫn hoạt động.
+          </p>
+        </div>
+        {st?.enabled ? (
+          <span className="flex shrink-0 items-center gap-1.5 rounded-md border border-chart-2/40 bg-chart-2/10 px-2 py-1 text-xs text-chart-2">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Đang kết nối
+          </span>
+        ) : (
+          <span className="shrink-0 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+            Chưa kết nối
+          </span>
+        )}
+      </div>
+
+      {locked ? (
+        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          Langfuse đang được cấu hình bằng biến môi trường trên máy chủ (khoá đã bị khoá cứng), nên không thể chỉnh từ
+          giao diện. Public key hiện tại: <span className="font-mono">{st?.publicKeyMasked || "—"}</span>.
+        </p>
+      ) : (
+        <>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Public key</Label>
+              <Input
+                placeholder={st?.publicKeyMasked ? `hiện tại: ${st.publicKeyMasked}` : "pk-lf-..."}
+                value={publicKey}
+                onChange={(e) => setPublicKey(e.target.value)}
+                data-testid="input-langfuse-public"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Secret key</Label>
+              <Input
+                type="password"
+                placeholder={st?.hasSecret ? "•••••••• (đã lưu)" : "sk-lf-..."}
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+                data-testid="input-langfuse-secret"
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Base URL (tuỳ chọn)</Label>
+            <Input
+              placeholder={st?.baseUrl || "https://cloud.langfuse.com"}
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              data-testid="input-langfuse-base"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Để trống nếu dùng Langfuse Cloud. Điền URL riêng nếu bạn tự dựng Langfuse (self-host).
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => save.mutate()}
+              disabled={save.isPending || (!publicKey && !secretKey && !baseUrl)}
+              data-testid="button-save-langfuse"
+            >
+              {save.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Lưu & kết nối
+            </Button>
+            {st?.enabled && (
+              <Button
+                variant="outline"
+                onClick={() => disconnect.mutate()}
+                disabled={disconnect.isPending}
+                data-testid="button-disconnect-langfuse"
+              >
+                Ngắt kết nối
+              </Button>
+            )}
+            {save.isSuccess && <span className="text-xs text-chart-2">Đã lưu. Lượt kế tiếp sẽ được gửi đi.</span>}
+          </div>
+        </>
+      )}
+    </section>
   );
 }

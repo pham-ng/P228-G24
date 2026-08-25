@@ -1,0 +1,469 @@
+{
+  "summary": {
+    "cases": 37,
+    "vectorAvailable": true,
+    "latencyMs": {
+      "p50": 168,
+      "p95": 187,
+      "max": 241
+    },
+    "legs": {
+      "bm25_production": {
+        "n": 37,
+        "hit": {
+          "1": 0.649,
+          "3": 0.919,
+          "5": 0.946,
+          "10": 0.946
+        },
+        "recall": {
+          "1": 0.428,
+          "3": 0.754,
+          "5": 0.777,
+          "10": 0.794
+        },
+        "precision": {
+          "1": 0.649,
+          "3": 0.396,
+          "5": 0.265,
+          "10": 0.146
+        },
+        "ndcg": {
+          "1": 0.649,
+          "3": 0.707,
+          "5": 0.716,
+          "10": 0.718
+        },
+        "mrr": 0.784
+      },
+      "vector_only": {
+        "n": 37,
+        "hit": {
+          "1": 0.108,
+          "3": 0.135,
+          "5": 0.216,
+          "10": 0.297
+        },
+        "recall": {
+          "1": 0.077,
+          "3": 0.126,
+          "5": 0.176,
+          "10": 0.279
+        },
+        "precision": {
+          "1": 0.108,
+          "3": 0.063,
+          "5": 0.054,
+          "10": 0.041
+        },
+        "ndcg": {
+          "1": 0.108,
+          "3": 0.117,
+          "5": 0.14,
+          "10": 0.176
+        },
+        "mrr": 0.174
+      },
+      "hybrid_equal_weight": {
+        "n": 37,
+        "hit": {
+          "1": 0.297,
+          "3": 0.486,
+          "5": 0.568,
+          "10": 0.892
+        },
+        "recall": {
+          "1": 0.221,
+          "3": 0.399,
+          "5": 0.492,
+          "10": 0.732
+        },
+        "precision": {
+          "1": 0.297,
+          "3": 0.189,
+          "5": 0.141,
+          "10": 0.124
+        },
+        "ndcg": {
+          "1": 0.297,
+          "3": 0.353,
+          "5": 0.393,
+          "10": 0.484
+        },
+        "mrr": 0.437
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "P-checkout-vi",
+      "lang": "vi",
+      "query": "Trả phòng muộn thì tính phí như thế nào?",
+      "relevant_count": 3,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 46,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-checkout-nodiacritic",
+      "lang": "vi",
+      "query": "tra phong muon mat bao nhieu tien",
+      "relevant_count": 3,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 38,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-checkout-en",
+      "lang": "en",
+      "query": "how much does a late check-out cost",
+      "relevant_count": 3,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 5,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "P-checkin-vi",
+      "lang": "vi",
+      "query": "Tôi muốn nhận phòng sớm buổi sáng có được không?",
+      "relevant_count": 2,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 52,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-occupancy-vi",
+      "lang": "vi",
+      "query": "Một phòng ở được tối đa mấy người, có kê thêm giường không?",
+      "relevant_count": 2,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 41,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-occupancy-children",
+      "lang": "vi",
+      "query": "Trẻ em mấy tuổi thì tính như người lớn?",
+      "relevant_count": 3,
+      "lexical_first_rank": 5,
+      "vector_first_rank": 59,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-deposit-vi",
+      "lang": "vi",
+      "query": "Khi nhận phòng có phải đặt cọc không, cọc bao nhiêu?",
+      "relevant_count": 2,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 13,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-payment-vi",
+      "lang": "vi",
+      "query": "Cho tôi thông tin chuyển khoản ngân hàng để thanh toán",
+      "relevant_count": 5,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 35,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-smoking-vi",
+      "lang": "vi",
+      "query": "Hút thuốc trong phòng bị phạt bao nhiêu tiền?",
+      "relevant_count": 3,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 47,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-pets-en",
+      "lang": "en",
+      "query": "can I bring my pet dog to the room",
+      "relevant_count": 3,
+      "lexical_first_rank": 13,
+      "vector_first_rank": 21,
+      "lexical_hit5": 0,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-visitors-pool-vi",
+      "lang": "vi",
+      "query": "Khách đến thăm phòng và giờ đóng cửa hồ bơi quy định thế nào?",
+      "relevant_count": 3,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 44,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-namechange-vi",
+      "lang": "vi",
+      "query": "Tôi muốn đổi tên khách trên đặt phòng, hạn chót là khi nào?",
+      "relevant_count": 8,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 16,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-dispute-vi",
+      "lang": "vi",
+      "query": "Tôi muốn khiếu nại thì liên hệ ai và bao lâu được trả lời?",
+      "relevant_count": 2,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 42,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "P-privacy-vi",
+      "lang": "vi",
+      "query": "Dữ liệu cá nhân và thông tin thẻ của tôi được bảo mật thế nào?",
+      "relevant_count": 3,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 1,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "P-package-vi",
+      "lang": "vi",
+      "query": "Các mã gói phòng và hạng đặt phòng gồm những loại nào?",
+      "relevant_count": 8,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 17,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "R-villa3-vi",
+      "lang": "vi",
+      "query": "Biệt thự 3 phòng ngủ hướng biển có hồ bơi riêng không?",
+      "relevant_count": 2,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 1,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "R-deluxe-ocean-queen-vi",
+      "lang": "vi",
+      "query": "Phòng Deluxe hướng biển giường đôi rộng bao nhiêu?",
+      "relevant_count": 1,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 16,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "R-grand-twin-vi",
+      "lang": "vi",
+      "query": "Grand Deluxe 2 giường đơn có những tiện nghi gì?",
+      "relevant_count": 1,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 1,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "R-deluxe-twin-en",
+      "lang": "en",
+      "query": "deluxe twin bed room size and amenities",
+      "relevant_count": 2,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 4,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "D-lotus-vi",
+      "lang": "vi",
+      "query": "Nhà hàng Lotus phục vụ những món gì?",
+      "relevant_count": 1,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 44,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "D-bachgiai-vi",
+      "lang": "vi",
+      "query": "Nhà hàng Bách Giai mở cửa mấy giờ?",
+      "relevant_count": 1,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 32,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "D-halal-vi",
+      "lang": "vi",
+      "query": "Có nhà hàng halal cho người Hồi giáo không?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 38,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "D-poolbar-vi",
+      "lang": "vi",
+      "query": "Quán bar bên hồ bơi mở đến mấy giờ?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 22,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "D-jasmine-en",
+      "lang": "en",
+      "query": "what does Jasmine restaurant serve",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 10,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "D-breakfast-vi",
+      "lang": "vi",
+      "query": "Ăn sáng buffet giá bao nhiêu một người?",
+      "relevant_count": 1,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 52,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "D-hours-en",
+      "lang": "en",
+      "query": "what are the restaurant and bar opening hours",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 1,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "N-cablecar-vi",
+      "lang": "vi",
+      "query": "Giá vé cáp treo qua đảo là bao nhiêu?",
+      "relevant_count": 1,
+      "lexical_first_rank": 3,
+      "vector_first_rank": 20,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "N-cablecar-nodiacritic",
+      "lang": "vi",
+      "query": "gia ve cap treo qua dao bao nhieu",
+      "relevant_count": 1,
+      "lexical_first_rank": 3,
+      "vector_first_rank": 6,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "N-vinwonders-vi",
+      "lang": "vi",
+      "query": "Vé vào VinWonders Nha Trang giá bao nhiêu, có show gì?",
+      "relevant_count": 1,
+      "lexical_first_rank": 15,
+      "vector_first_rank": 44,
+      "lexical_hit5": 0,
+      "vector_hit5": 0
+    },
+    {
+      "id": "N-airport-vi",
+      "lang": "vi",
+      "query": "Đi từ sân bay Cam Ranh về resort như thế nào?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 60,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "N-airport-en",
+      "lang": "en",
+      "query": "how do I get from Cam Ranh airport to the resort",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 9,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "N-golf-vi",
+      "lang": "vi",
+      "query": "Trên đảo Hòn Tre có sân golf không?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 2,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "S-spa-vi",
+      "lang": "vi",
+      "query": "Spa Akoya có những liệu trình massage nào và giá ra sao?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 25,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "S-pool-vi",
+      "lang": "vi",
+      "query": "Resort có hồ bơi và thể thao dưới nước gì?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 51,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "S-sauna-vi",
+      "lang": "vi",
+      "query": "Có phòng xông hơi kiểu Hàn Quốc không?",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 46,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    },
+    {
+      "id": "S-mice-en",
+      "lang": "en",
+      "query": "meeting rooms and conference facilities for events",
+      "relevant_count": 1,
+      "lexical_first_rank": 1,
+      "vector_first_rank": 4,
+      "lexical_hit5": 1,
+      "vector_hit5": 1
+    },
+    {
+      "id": "S-member-vi",
+      "lang": "vi",
+      "query": "Thành viên Pearl Club được ưu đãi giảm giá gì?",
+      "relevant_count": 1,
+      "lexical_first_rank": 2,
+      "vector_first_rank": 40,
+      "lexical_hit5": 1,
+      "vector_hit5": 0
+    }
+  ]
+}

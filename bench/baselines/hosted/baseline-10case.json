@@ -1,0 +1,294 @@
+{
+  "provider": "openai",
+  "mode": "openai",
+  "summary": {
+    "cases": 10,
+    "errors": 0,
+    "accuracy": 0.9,
+    "refusalRate": 0.4,
+    "fabricationRate": 0.2,
+    "knownBadQuoted": 0,
+    "latencyMedianMs": 2729,
+    "latencyMaxMs": 5503,
+    "meanToolTokens": 3100
+  },
+  "rows": [
+    {
+      "id": "folio-balance",
+      "lang": "vi",
+      "ask": "Cho tôi xem hoá đơn hiện tại của tôi, tổng cộng bao nhiêu?",
+      "reply": "Dạ, hoá đơn hiện tại của anh/chị như sau:\n\n- **Tạm tính:** 42.220.000 VND\n- **Phí phục vụ 5%:** 2.111.000 VND\n- **VAT 8%:** 3.546.000 VND\n- **Đã thanh toán:** 0 VND\n- **Còn lại phải thanh toán:** **47.877.000 VND**\n\nNếu anh/chị muốn, tôi có thể hỗ trợ **thanh toán**, **gửi link thanh toán**, hoặc **làm thủ tục trả phòng nhanh**.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 3522,
+      "toolTokens": 2069,
+      "toolFamilies": [
+        "core",
+        "billing"
+      ],
+      "toolCalls": [
+        "get_folio"
+      ],
+      "escalated": false,
+      "refused": false,
+      "hit": [
+        "47877000"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "folio-balance-en",
+      "lang": "en",
+      "ask": "What is my current bill total?",
+      "reply": "Your current bill total is **18.331.000 VND**.\n\n- **Subtotal:** 16.165.000 VND\n- **Service charge:** 808.000 VND\n- **VAT:** 1.358.000 VND\n- **Paid:** 0 VND\n- **Balance due:** 18.331.000 VND\n\nIf you would like, I can also help you settle it.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 1892,
+      "toolTokens": 2069,
+      "toolFamilies": [
+        "core",
+        "billing"
+      ],
+      "toolCalls": [
+        "get_folio"
+      ],
+      "escalated": false,
+      "refused": false,
+      "hit": [
+        "18331000"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "checkin-time",
+      "lang": "vi",
+      "ask": "Mấy giờ tôi được nhận phòng?",
+      "reply": "Dạ, giờ nhận phòng tiêu chuẩn là **14:00** ạ.\n\nNếu anh/chị muốn **nhận phòng sớm**, em sẽ kiểm tra và xác nhận theo khung giờ:\n- **Trước 06:00**: tính **100%** giá gói\n- **06:00–11:59**: tính **50%** giá gói\n\nNhận phòng sớm cần được xác nhận trước. Nếu anh/chị muốn, em có thể hỗ trợ kiểm tra khả năng nhận phòng sớm hôm nay.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 2729,
+      "toolTokens": 4362,
+      "toolFamilies": [
+        "core",
+        "rooms_info",
+        "dining_services",
+        "room_shopping"
+      ],
+      "toolCalls": [
+        "get_stay_details",
+        "search_knowledge",
+        "get_policy"
+      ],
+      "escalated": false,
+      "refused": false,
+      "hit": [
+        "14:00"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "early-checkin-price",
+      "lang": "en",
+      "ask": "I land at 8am. How much to check in early?",
+      "reply": "Phí là **50% giá gói công bố** và cần **xác nhận trước**. Em có thể kiểm tra phương án nhận phòng sớm cho đặt phòng của anh/chị với team ngay. For the exact figure I need the front desk to confirm it rather than risk quoting you wrongly — I am passing this on now.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 5503,
+      "toolTokens": 4362,
+      "toolFamilies": [
+        "core",
+        "rooms_info",
+        "dining_services",
+        "room_shopping"
+      ],
+      "toolCalls": [
+        "get_policy",
+        "search_knowledge",
+        "numeric_guard"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [
+        "50%"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [
+        "08:00"
+      ],
+      "correct": true
+    },
+    {
+      "id": "cancellation",
+      "lang": "vi",
+      "ask": "Tôi muốn huỷ phòng, phí huỷ là bao nhiêu?",
+      "reply": "Dạ anh Daniel, đặt phòng này **đã được hủy trước đó** nên hiện **không thể hủy thêm**.\n\n- **Phí hủy đã được tính trước đó:** **2.200.000 VND**\n- Trạng thái hiện tại: **cancelled**\n\nNếu anh muốn, em có thể **chuyển lễ tân kiểm tra lại hồ sơ** cho anh ngay ạ.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 2084,
+      "toolTokens": 3420,
+      "toolFamilies": [
+        "core",
+        "stay_changes",
+        "billing"
+      ],
+      "toolCalls": [
+        "get_stay_details",
+        "quote_cancellation"
+      ],
+      "escalated": false,
+      "refused": true,
+      "hit": [
+        "2200000"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "tax-gross-up",
+      "lang": "vi",
+      "ask": "Nếu dịch vụ là 12.000.000 đồng thì tôi phải trả tổng bao nhiêu sau thuế và phí?",
+      "reply": "Nếu **dịch vụ là 12.000.000 VND**, em chưa thể tự tính tổng sau thuế và phí bằng tay được ạ.\n\nTrong folio hiện tại của anh/chị, hệ thống đang tính:\n- **Tiền dịch vụ**: 10.310.000 VND\n- **Phí phục vụ 5%**: 516.000 VND\n- **VAT 8%**: 866.000 VND\n- **Đã thanh toán**: 0 VND\n- **Còn lại**: **11.692.000 VND**\n\nNếu anh/chị muốn, em có thể kiểm tra lại phần tính phí cho **mức 12.000.000 VND** với hệ thống để báo đúng số ạ.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 2132,
+      "toolTokens": 3745,
+      "toolFamilies": [
+        "core",
+        "dining_services",
+        "billing"
+      ],
+      "toolCalls": [
+        "get_folio"
+      ],
+      "escalated": false,
+      "refused": true,
+      "hit": [],
+      "miss": [
+        "13608000"
+      ],
+      "violations": [],
+      "ungrounded": [],
+      "correct": false
+    },
+    {
+      "id": "spa-discount-trap",
+      "lang": "vi",
+      "ask": "Massage ở spa giá bao nhiêu, tôi có được giảm không?",
+      "reply": "Dạ, em có thông tin spa Akoya như sau:\n\n- **Akoya Spa — Warm Bamboo Massage 85'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **2.700.000 VND** — **2.700.000 VND**\n- **Akoya Spa — Hot Stone Therapy 90'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **2.500.000 VND** — **2.500.000 VND**\n- **Akoya Spa — Balinese Massage 90'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **2.300.000 VND** — **2.300.000 VND**\n- **Akoya Spa — Vietnamese Traditional Massage 60'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **1.500.000 VND** — **1.500.000 VND**\n- **Akoya Spa — Foot Therapy 50'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **1.200.000 VND** — **1.200.000 VND**\n- **Akoya Spa — Spa Sampler 90'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **2.000.000 VND** — **2.000.000 VND**\n- **Akoya Spa — Thalgo Collagen Radiance facial 60'** [IMAGES: /services/spa/1.jpg,/services/spa/2.jpg,/services/spa/3.jpg] · **2.200.000 VND** — **2.200.000 VND**\n\nVề ưu đãi, anh **không có giảm giá spa** theo hồ sơ hiện tại, nên giá thành viên bằng giá niêm yết.\n\nNếu anh muốn, em có thể gợi ý liệu trình phù hợp nhất hoặc giữ chỗ giúp anh.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 4812,
+      "toolTokens": 4362,
+      "toolFamilies": [
+        "core",
+        "dining_services",
+        "room_shopping",
+        "rooms_info"
+      ],
+      "toolCalls": [
+        "list_services",
+        "search_knowledge"
+      ],
+      "escalated": false,
+      "refused": false,
+      "hit": [],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "occupancy-unknown",
+      "lang": "vi",
+      "ask": "Villa của tôi tối đa được mấy người ở?",
+      "reply": "Dạ, **Biệt thự Tropicana 3 phòng ngủ, hướng biển** của anh ở tối đa **8 khách**. - Phòng có **hồ bơi riêng** và **370 m²**. Nếu anh cần, em có thể gửi thêm chi tiết tiện nghi của villa này. Về con số cụ thể, tôi cần xác nhận lại với lễ tân để tránh báo sai — tôi đang chuyển yêu cầu này ngay.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 2319,
+      "toolTokens": 1427,
+      "toolFamilies": [
+        "core",
+        "rooms_info"
+      ],
+      "toolCalls": [
+        "get_stay_details",
+        "get_room_type_facts",
+        "numeric_guard"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [
+        "8"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [
+        "2 tr",
+        "4 tr"
+      ],
+      "correct": true
+    },
+    {
+      "id": "housekeeping-ko",
+      "lang": "ko",
+      "ask": "수건이 부족하고 에어컨이 작동하지 않아요",
+      "reply": "요청 접수했습니다.\n\n- **수건**: 하우스키핑에 전달되었습니다.  \n- **에어컨**: 엔지니어링 팀이 확인 중이며, 곧 방문할 예정입니다.\n\n불편 드려 죄송합니다. 필요하시면 추가로 더 도와드리겠습니다.",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 2105,
+      "toolTokens": 2643,
+      "toolFamilies": [
+        "core",
+        "housekeeping"
+      ],
+      "toolCalls": [
+        "request_housekeeping",
+        "report_maintenance_issue"
+      ],
+      "escalated": false,
+      "refused": false,
+      "hit": [],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "dining-zh",
+      "lang": "zh",
+      "ask": "今晚想订餐厅，几点开始？",
+      "reply": "今晚可以订，以下餐厅可用：\n\n- **Lotus Restaurant** [IMAGES: /dining/lotus/1.jpg,/dining/lotus/2.jpg,/dining/lotus/3.jpg,/dining/lotus/3.webp,/dining/lotus/4.jpg] · 晚餐时段 **18:00–22:00**，可订 **19:00**\n- **Jasmine Restaurant** [IMAGES: /dining/jasmine/1.jpg,/dining/jasmine/2.jpg,/dining/jasmine/3.jpg,/dining/jasmine/4.jpg,/dining/jasmine/5.jpg,/dining/jasmine/6.jpg,/dining/jasmine/7.jpg] · 营业 **11:00–22:00**，可订 **19:00**\n- **Bach Giai Restaurant** [IMAGES: /dining/bach-giai/1.webp,/dining/bach-giai/2.jpg,/dining/bach-giai/3.jpg,/dining/bach-giai/4.jpg,/dining/bach-giai/5.jpg] · 营业 **10:30–20:00**，可订 **17:30** 或 **18:30**\n- **Private beachfront dinner** [IMAGES: /dining/beachcomber/1.jpg,/dining/beachcomber/2.jpg,/dining/beachcomber/3.jpg] · 可订 **18:00、19:00、20:00**\n\n如果您想预订，请告诉我 **想订哪一家、几点、几位成人和几位儿童**。",
+      "servedBy": "openai",
+      "model": "gpt-5.4-mini",
+      "latencyMs": 3109,
+      "toolTokens": 2543,
+      "toolFamilies": [
+        "core",
+        "dining_services"
+      ],
+      "toolCalls": [
+        "list_services",
+        "get_dining_facts"
+      ],
+      "escalated": false,
+      "refused": false,
+      "hit": [],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    }
+  ]
+}

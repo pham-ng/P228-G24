@@ -1,0 +1,33 @@
+{
+  "model": "qwen3.5:4b",
+  "ranAt": "2026-08-24T18:10:13.753Z",
+  "results": [
+    {
+      "model": "qwen3.5:4b",
+      "concurrency": 1,
+      "wallMs": 15491,
+      "p50": 15482,
+      "p95": 15482,
+      "throughputPerSec": 0.065,
+      "errors": 0
+    },
+    {
+      "model": "qwen3.5:4b",
+      "concurrency": 2,
+      "wallMs": 17305,
+      "p50": 17132,
+      "p95": 17132,
+      "throughputPerSec": 0.116,
+      "errors": 0
+    },
+    {
+      "model": "qwen3.5:4b",
+      "concurrency": 4,
+      "wallMs": 44107,
+      "p50": 26228,
+      "p95": 43961,
+      "throughputPerSec": 0.091,
+      "errors": 0
+    }
+  ]
+}

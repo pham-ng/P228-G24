@@ -1,0 +1,1490 @@
+{
+  "ranAt": "2026-08-25T00:04:02.925Z",
+  "rows": [
+    {
+      "id": "q-hotline",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Số điện thoại của resort là gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-address",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Resort ở địa chỉ nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-architecture-en",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "What architectural style is the resort built in?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-submarine",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Resort có tàu ngầm tham quan không?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-golf-course",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Trên đảo có sân golf không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-beach-length-en",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How long is the private beach?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-ballroom-size",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Phòng đại tiệc rộng bao nhiêu mét vuông?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-diving-club",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Resort có câu lạc bộ lặn biển không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-imperial-hilltop",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Where is the Imperial Club located relative to the resort?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-buggy",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Đi lại giữa các khu trong resort bằng gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-room-floors",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Phòng khách sạn nằm ở tầng mấy?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-room-minibar",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Phòng có tủ lạnh minibar không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-balcony-which-room",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Loại phòng nào có ban công?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-deluxe-price",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Deluxe giá bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-deluxe-price-natural",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Deluxe giá bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-suite-size",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How big is the Deluxe Suite King Ocean View?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-deluxe-size",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Phòng Deluxe rộng bao nhiêu mét vuông?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-grand-deluxe-view",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Grand Deluxe Ocean View giá từ bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-villa-3br",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Is there a 3-bedroom villa option?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-room-count-natural",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Khách sạn có bao nhiêu phòng tất cả vậy?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-breakfast-complete",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "What are the breakfast hours and how much does it cost for children?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-breakfast-complete-vi",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Ăn sáng mấy giờ và giá cho trẻ em bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-breakfast-free-kids",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Trẻ em dưới 12 tuổi có được ăn sáng miễn phí không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-lotus-slots",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Nhà hàng Lotus phục vụ những khung giờ nào trong ngày?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-jasmine-capacity",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How many seats does Jasmine Restaurant have?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-beachcomber-hours",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Beach Comber Bar mở cửa mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-bachgiai-hours-unspecified",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "INSUFFICIENT_EVIDENCE",
+      "q": "Nhà hàng Bách Giai mở cửa mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-cuisine-cambodian",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Does Jasmine Restaurant serve Cambodian food?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-wifi-free",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Is Wi-Fi free at the resort?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-gym-hours",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Phòng gym mở cửa mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-parking-no-cars",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tôi có thể lái ô tô thẳng lên resort không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-accessibility",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Does the resort have wheelchair access?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-currency-exchange-rate",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "INSUFFICIENT_EVIDENCE",
+      "q": "Tỷ giá đổi tiền hôm nay là bao nhiêu?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-imperial-activities",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Imperial Club có bowling và karaoke không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-pool-largest",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Is the resort's pool notable in any way?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-aquafield-rooms",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Aquafield có bao nhiêu phòng trị liệu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-privacy-child-age",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Từ mấy tuổi trẻ em phải tự đồng ý việc xử lý dữ liệu cá nhân?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-complaint-timeline",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How long until a complex complaint gets a reply?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-dispute-court",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Nếu khiếu nại không giải quyết được thì xử lý thế nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-deposit-refund-condition",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tiền đặt cọc có được hoàn lại không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-villa-deposit",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How much is the deposit for a villa?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-guestlist-peak",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Mùa cao điểm thì danh sách khách gửi lúc nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-identity-change-fee",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Đổi tên khách sau hạn chót bị phạt bao nhiêu?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-data-not-sold",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Does the resort sell guest personal data?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-card-cvv-not-stored",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Resort có lưu số CVV thẻ của tôi không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-outside-food-fee",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Mang đồ ăn từ ngoài vào thì tính phí bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-earlycheckin-before6",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tôi đến resort lúc 5 giờ sáng thì tính phí nhận phòng sớm thế nào?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-earlycheckin-8am",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tôi muốn nhận phòng lúc 8 giờ sáng thì bị tính phí bao nhiêu phần trăm?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-latecheckout-3pm",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Can I leave at 4?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-latecheckout-8pm",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tôi trả phòng lúc 8 giờ tối thì tính phí sao?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-checkout-per-room",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Is the late check-out fee charged per guest or per room?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-goldtier-latecheckout",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tôi là khách hạng Platinum, trả phòng lúc 13:30 có bị tính phí không?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-checkin-standard-natural",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Mấy giờ tôi được vào phòng vậy?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-occupancy-combo",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Một phòng ở được tối đa mấy người lớn và mấy trẻ em?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-villa-occupancy",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How many people can stay in one villa bedroom?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-extrabed-villa",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Biệt thự có kê thêm giường phụ được không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-child-surcharge-amount",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "PARTIALLY_ANSWERABLE",
+      "q": "Trẻ em 8 tuổi thì phụ thu thêm bao nhiêu tiền?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-under4-free",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Do children under 4 count toward the room occupancy limit?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-cablecar-record",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Cáp treo Vinpearl có phải là dài nhất thế giới không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-cablecar-length",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How long is the cable car in meters?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-camranh-distance",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Sân bay Cam Ranh cách trung tâm Nha Trang bao xa?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-airport-pickup-price",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_TOOL",
+      "q": "Đón sân bay Cam Ranh giá bao nhiêu?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-citytransfer-price",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_TOOL",
+      "q": "How much for a transfer to central Nha Trang?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-airport-leadtime",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_TOOL",
+      "q": "Đặt xe đón sân bay cần báo trước bao lâu?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-buggy-free",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Xe điện đưa đón trong resort có tính phí không?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-cablecar-vs-boat",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "What happens if I need to cross to the island after the cable car stops?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-package-ro",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Mã RO trong bảng giá nghĩa là gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-package-hb",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Gói HB là gói gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-package-fb",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "What does the FB package code mean?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-group-threshold",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Đặt bao nhiêu phòng thì tính là đoàn (group)?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-voucher-surrender",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Tôi có voucher thì cần làm gì khi nhận phòng?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-early-departure-refund",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "If I leave a package stay early, do I get a refund for the unused nights?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-vat-rate",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Thuế VAT áp dụng bao nhiêu phần trăm?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-service-charge-rate",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "What is the service charge percentage added to the bill?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-total-surcharge-calc",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_WITH_CALCULATION",
+      "q": "Giá phòng net là 2,000,000đ thì tổng phụ thu phí dịch vụ và thuế là bao nhiêu phần trăm?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-diamond-discount",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Hạng Diamond được giảm giá phòng bao nhiêu phần trăm?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-platinum-discount",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "What room discount does a Platinum member get?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-bank-account",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Số tài khoản chuyển khoản VND là gì?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-refund-window",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "How many working days does a refund take?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-golf-discount",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Hội viên Pearl Club được giảm giá golf bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-vinwonders-price-daily",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "INSUFFICIENT_EVIDENCE",
+      "q": "Vé VinWonders hôm nay giá bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-loyalty-points-threshold",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "INSUFFICIENT_EVIDENCE",
+      "q": "Tôi cần bao nhiêu điểm Pearl Club để lên hạng Diamond?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-laundry-other-price",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "INSUFFICIENT_EVIDENCE",
+      "q": "How much does laundry cost for a jacket that's not on your price list?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-child-surcharge-vinwonders-partial",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "PARTIALLY_ANSWERABLE",
+      "q": "Trẻ 10 tuổi vào VinWonders giá bao nhiêu, và ăn sáng ở resort có tính phí không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-oos-weather",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "OUT_OF_SCOPE",
+      "q": "Ngày mai thời tiết Nha Trang thế nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-oos-medical",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "OUT_OF_SCOPE",
+      "q": "I have a headache, what medicine should I take?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-oos-outside-restaurant",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "OUT_OF_SCOPE",
+      "q": "Ở trung tâm Nha Trang có quán nào ngon không, ngoài resort ấy?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-ambiguous-pronoun",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "AMBIGUOUS",
+      "q": "Cái đó giá bao nhiêu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-ambiguous-short",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "AMBIGUOUS",
+      "q": "and the other one?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-synth-checkin-id",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Nhận phòng cần giấy tờ gì, và trẻ em thì cần thêm gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-synth-cancel-window",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "If I cancel 5 days before arrival, what percentage do I pay?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-synth-cancel-window-far",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Nếu tôi hủy phòng trước 10 ngày thì có mất phí không?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-synth-package-compare",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_TOOL",
+      "q": "Deluxe 2 giường đơn và Grand Deluxe giường đôi, gói nào rẻ hơn?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-synth-pool-hours-vs-swim",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Can I swim in the sea at 8pm?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-early-leave",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Do you guys have breakfast early?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-deluxe-price2",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Phòng thường thường giá nhiêu vậy shop ơi?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-child-breakfast-zh",
+      "set": "quality",
+      "lang": "zh",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "小孩早餐怎么收费？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-child-breakfast-ko",
+      "set": "quality",
+      "lang": "ko",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "조식 아이 요금은 어떻게 되나요?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-early-checkout-en",
+      "set": "quality",
+      "lang": "en",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Can I leave at 4?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-pets-ja",
+      "set": "quality",
+      "lang": "ja",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "犬を連れて行ってもいいですか？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "q-natural-shortquestion-vi",
+      "set": "quality",
+      "lang": "vi",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "Có wifi ko?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "q-natural-checkout-time-zh",
+      "set": "quality",
+      "lang": "zh",
+      "answerability": "ANSWERABLE_FROM_KB",
+      "q": "几点退房？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "spa-hours-vi",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Spa mở cửa mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "spa-hours-en",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "answer",
+      "q": "What are the spa opening hours?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "aquafield-hours",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Aquafield mở cửa lúc nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "breakfast-hours-vi",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Ăn sáng phục vụ từ mấy giờ đến mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "breakfast-hours-en",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "answer",
+      "q": "When is breakfast served?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "breakfast-where",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Ăn sáng ở nhà hàng nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "cablecar-hours",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Cáp treo chạy từ mấy giờ tới mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "cablecar-duration",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Đi cáp treo mất bao lâu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "checkout-time-vi",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Mấy giờ phải trả phòng?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "checkin-time-vi",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Mấy giờ tôi được nhận phòng?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "checkin-time-en",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "answer",
+      "q": "What time can I check in?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "visitor-curfew",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Khách đến thăm được ở lại phòng tới mấy giờ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "pets-vi",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi mang theo chó nhỏ được không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "pets-en",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "answer",
+      "q": "Can I bring my dog to the resort?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "smoking-where",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi hút thuốc trong phòng được không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "durian",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi mang sầu riêng vào phòng được không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "id-required",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Nhận phòng cần giấy tờ gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "child-doc",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Trẻ em đi cùng cần mang giấy tờ gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "spa-treatments",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Spa có những loại massage nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "watersports",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Ở resort có hoạt động dưới nước gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "chinese-restaurant",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có nhà hàng Trung Hoa không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "imperial-club",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Imperial Club có gì chơi?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "vinwonders-zones",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "VinWonders Nha Trang gồm những phân khu nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "vinwonders-access",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Đi VinWonders bằng cách nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "zipline",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Trên đảo có zipline không, dài bao xa?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "beach-length",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Bãi biển riêng của resort dài bao nhiêu km?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "sauna-rooms",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Aquafield có mấy phòng trị liệu?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "ballroom",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "answer",
+      "q": "How many people fit in the grand ballroom?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "meeting-rooms",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có mấy phòng hội nghị?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "room-count",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có tất cả mấy phòng?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "pool",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort có hồ bơi không?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "occupancy-room",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Một phòng khách sạn ở tối đa mấy người?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "extra-bed-count",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Một phòng kê thêm được mấy giường phụ?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "package-codes",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Mã BB trong bảng giá nghĩa là gì?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "guestlist-lowseason",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Danh sách khách phải gửi trước bao nhiêu ngày mùa thấp điểm?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "complaint-steps",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Tôi muốn khiếu nại thì quy trình thế nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "payment-methods",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "answer",
+      "q": "Resort nhận thanh toán bằng hình thức nào?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "spa-hours-ko",
+      "set": "offline63",
+      "lang": "ko",
+      "lane": "answer",
+      "q": "스파는 몇 시에 문을 여나요?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "breakfast-ko",
+      "set": "offline63",
+      "lang": "ko",
+      "lane": "answer",
+      "q": "조식은 몇 시부터인가요?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "pets-ko",
+      "set": "offline63",
+      "lang": "ko",
+      "lane": "answer",
+      "q": "반려견을 데려가도 되나요?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "spa-hours-zh",
+      "set": "offline63",
+      "lang": "zh",
+      "lane": "answer",
+      "q": "水疗中心几点开门？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "breakfast-zh",
+      "set": "offline63",
+      "lang": "zh",
+      "lane": "answer",
+      "q": "早餐几点开始供应？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "pool-zh",
+      "set": "offline63",
+      "lang": "zh",
+      "lane": "answer",
+      "q": "酒店有游泳池吗？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "spa-hours-ja",
+      "set": "offline63",
+      "lang": "ja",
+      "lane": "answer",
+      "q": "スパは何時から開いていますか？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "checkout-ja",
+      "set": "offline63",
+      "lang": "ja",
+      "lane": "answer",
+      "q": "チェックアウトは何時ですか？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "esc-folio",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tổng hoá đơn của tôi bao nhiêu tiền?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-folio-en",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "escalate",
+      "q": "What is my current bill total?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-breakfast-price",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Buffet sáng giá bao nhiêu một người?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "esc-breakfast-price-en",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "escalate",
+      "q": "How much is the breakfast buffet?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "esc-deposit",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Đặt cọc khi nhận phòng là bao nhiêu tiền?",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "esc-late-fee",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Trả phòng muộn tính phí thế nào?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-cancel-fee",
+      "set": "offline63",
+      "lang": "en",
+      "lane": "escalate",
+      "q": "What is the cancellation fee?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-cancel-fee-ko",
+      "set": "offline63",
+      "lang": "ko",
+      "lane": "escalate",
+      "q": "취소 수수료는 얼마인가요?",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-price-zh",
+      "set": "offline63",
+      "lang": "zh",
+      "lane": "escalate",
+      "q": "延迟退房要收多少钱？",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-price-ja",
+      "set": "offline63",
+      "lang": "ja",
+      "lane": "escalate",
+      "q": "朝食は一人いくらですか？",
+      "route": "knowledge",
+      "shortCircuited": false
+    },
+    {
+      "id": "esc-budget",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tôi có 5 triệu thì nên đặt phòng nào?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-cheapest",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Gói nào rẻ nhất cho 4 người?",
+      "route": "complex",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-cancel",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tôi muốn huỷ phòng",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-change-date",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Đổi ngày trả phòng giúp tôi",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-book-table",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Cho tôi đặt bàn tối nay",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-extend",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Tôi muốn gia hạn thêm 1 đêm",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-towels",
+      "set": "offline63",
+      "lang": "ko",
+      "lane": "escalate",
+      "q": "수건이 부족하고 에어컨이 작동하지 않아요",
+      "route": "transaction",
+      "shortCircuited": true
+    },
+    {
+      "id": "esc-pay",
+      "set": "offline63",
+      "lang": "vi",
+      "lane": "escalate",
+      "q": "Cho tôi thanh toán bằng thẻ",
+      "route": "transaction",
+      "shortCircuited": true
+    }
+  ]
+}

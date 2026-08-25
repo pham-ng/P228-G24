@@ -1,0 +1,66 @@
+LOCAL_MIN_SCORE hiện tại: 0.012 · LOCAL_PASSAGES: 5
+
+### spa-hours-ko (ko)  "스파는 몇 시에 문을 여나요?"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [1] score=0.00810 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [2] score=0.00790 (BỊ CHẶN)  Phòng Gym / Fitness
+   [3] score=0.00780 (BỊ CHẶN)  Restaurants and bars — hours
+   [4] score=0.00770 (BỊ CHẶN)  Phục vụ tại phòng (ROOM_SERVICE)
+
+### breakfast-ko (ko)  "조식은 몇 시부터인가요?"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Breakfast and buffet pricing <-- TÀI LIỆU VÀNG
+   [1] score=0.00810 (BỊ CHẶN)  Restaurants and bars — hours
+   [2] score=0.00790 (BỊ CHẶN)  Phục vụ tại phòng (ROOM_SERVICE)
+   [3] score=0.00780 (BỊ CHẶN)  Restaurants and bars — hours
+   [4] score=0.00770 (BỊ CHẶN)  Phòng Gym / Fitness
+
+### pets-ko (ko)  "반려견을 데려가도 되나요?"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  House rules — smoking, pets and outside food <-- TÀI LIỆU VÀNG
+   [1] score=0.00810 (BỊ CHẶN)  House rules and fines (CONDUCT)
+   [2] score=0.00790 (BỊ CHẶN)  House rules — visitors, pool, sea and noise
+   [3] score=0.00780 (BỊ CHẶN)  House rules and fines (CONDUCT)
+   [4] score=0.00770 (BỊ CHẶN)  Occupancy limits, extra beds and children
+
+### spa-hours-zh (zh)  "水疗中心几点开门？"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [1] score=0.00810 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [2] score=0.00790 (BỊ CHẶN)  Aquafield Nha Trang — Korean sauna
+   [3] score=0.00780 (BỊ CHẶN)  Phòng Gym / Fitness
+   [4] score=0.00770 (BỊ CHẶN)  House rules — visitors, pool, sea and noise
+
+### breakfast-zh (zh)  "早餐几点开始供应？"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Breakfast and buffet pricing <-- TÀI LIỆU VÀNG
+   [1] score=0.00810 (BỊ CHẶN)  Phục vụ tại phòng (ROOM_SERVICE)
+   [2] score=0.00790 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [3] score=0.00780 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [4] score=0.00770 (BỊ CHẶN)  Early arrival charges (EARLY_CHECKIN)
+
+### pool-zh (zh)  "酒店有游泳池吗？"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Beach, pool and water sports <-- TÀI LIỆU VÀNG
+   [1] score=0.00810 (BỊ CHẶN)  Rooms and room types
+   [2] score=0.00790 (BỊ CHẶN)  House rules — visitors, pool, sea and noise
+   [3] score=0.00780 (BỊ CHẶN)  Hồ bơi nước ngọt
+   [4] score=0.00770 (BỊ CHẶN)  House rules and fines (CONDUCT)
+
+### spa-hours-ja (ja)  "スパは何時から開いていますか？"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [1] score=0.00810 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [2] score=0.00790 (BỊ CHẶN)  Phòng Gym / Fitness
+   [3] score=0.00780 (BỊ CHẶN)  Akoya Spa — treatments and prices <-- TÀI LIỆU VÀNG
+   [4] score=0.00770 (BỊ CHẶN)  Akoya Spa — spa trên mặt nước
+
+### checkout-ja (ja)  "チェックアウトは何時ですか？"
+   chiến lược: bm25+embedding-rrf
+   [0] score=0.00820 (BỊ CHẶN)  Late departure charges (LATE_CHECKOUT)
+   [1] score=0.00810 (BỊ CHẶN)  Check-in, check-out and identification <-- TÀI LIỆU VÀNG
+   [2] score=0.00790 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [3] score=0.00780 (BỊ CHẶN)  Giờ mở cửa tiện ích (FACILITY_HOURS)
+   [4] score=0.00770 (BỊ CHẶN)  Phục vụ tại phòng (ROOM_SERVICE)
+

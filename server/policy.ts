@@ -8,6 +8,7 @@
  * audit it in the tool trace.
  */
 import { storage } from "./storage";
+import { getEntitlements } from "./pricing";
 import type { Policy } from "@shared/schema";
 
 export type Band = { from: string; to: string; pct: number; label: string };
@@ -184,6 +185,12 @@ export function quoteEarlyCheckin(input: {
   ratePerNight: number;
   currency: string;
   standardCheckinTime?: string;
+  /**
+   * The loyalty tier decides whether the first hours are free. Omitting it used
+   * to silently bill Diamond and Platinum guests for an arrival the programme
+   * promises them for nothing, so callers must pass it.
+   */
+  vipTier?: string;
 }) {
   const found = rulesOf("EARLY_CHECKIN");
   if (!found) return { quoted: false, error: "EARLY_CHECKIN policy is not loaded." };
@@ -211,6 +218,18 @@ export function quoteEarlyCheckin(input: {
       policy: cite,
     };
 
+  /* Tier benefit: free hours apply before 12:00 (since 12:00–14:00 is already free of surcharge). */
+  const ent = getEntitlements(input.vipTier);
+  const freeHours = ent.earlyCheckinFreeHours;
+  const freeBaseMinutes = toMinutes("12:00");
+  const freeFromMinutes = freeHours > 0 ? freeBaseMinutes - freeHours * 60 : freeBaseMinutes;
+  const wantMinutes = toMinutes(want);
+  const insideTierWindow = freeHours > 0 && wantMinutes >= freeFromMinutes;
+  const freeFromStr = `${Math.floor(freeFromMinutes / 60).toString().padStart(2, "0")}:${(freeFromMinutes % 60).toString().padStart(2, "0")}`;
+  const tierWaiver = insideTierWindow
+    ? `Hạng ${ent.tier.toUpperCase()} được miễn phí nhận phòng sớm ${freeHours} giờ (từ ${freeFromStr} đến 12:00).`
+    : null;
+
   const band = pickBand(rules.bands ?? [], want);
   if (!band)
     return {
@@ -220,12 +239,24 @@ export function quoteEarlyCheckin(input: {
       fee: 0,
       currency: input.currency,
       band: "free early-arrival window",
+      vip_tier: ent.tier,
+      tier_free_hours: freeHours,
+      waiver: tierWaiver,
       availability: "Subject to a room being ready — the front desk must confirm.",
       calculation: `${want} is inside the free early-arrival window (no published percentage applies below the standard check-in time), so there is no charge, only an availability check.`,
       policy: cite,
+      loyalty_rule: tierWaiver ? { code: "TIER_BENEFITS", note: tierWaiver } : null,
     };
 
-  const fee = roundVnd((input.ratePerNight * band.pct) / 100);
+  const gross = roundVnd((input.ratePerNight * band.pct) / 100);
+  let fee = gross;
+  if (insideTierWindow) {
+    fee = 0;
+  } else if (freeHours > 0 && wantMinutes < freeFromMinutes && band.pct === 50) {
+    const chargedMins = Math.min(360, freeFromMinutes - wantMinutes);
+    fee = roundVnd((input.ratePerNight * 0.5 * chargedMins) / 360);
+  }
+
   return {
     quoted: true,
     requested_time: want,
@@ -235,10 +266,18 @@ export function quoteEarlyCheckin(input: {
     package_rate_per_night: input.ratePerNight,
     fee,
     currency: input.currency,
+    vip_tier: ent.tier,
+    tier_free_hours: freeHours,
+    waiver: insideTierWindow ? tierWaiver : freeHours > 0 ? `Hạng ${ent.tier.toUpperCase()} được miễn ${freeHours} giờ (giảm phí từ ${gross.toLocaleString("vi-VN")} xuống ${fee.toLocaleString("vi-VN")} ${input.currency}).` : null,
     payable: rules.payable ?? "immediately once the early arrival is confirmed",
     availability: "Early arrival must be confirmed in advance and is subject to availability.",
-    calculation: `${want} falls in the ${band.label} band: ${band.pct}% × ${input.ratePerNight.toLocaleString("vi-VN")} ${input.currency} = ${fee.toLocaleString("vi-VN")} ${input.currency}.`,
+    calculation: insideTierWindow
+      ? `${want} nằm trong ${band.label} (${band.pct}% × ${input.ratePerNight.toLocaleString("vi-VN")} ${input.currency} = ${gross.toLocaleString("vi-VN")} ${input.currency}), được miễn về 0 theo quyền lợi hạng ${ent.tier.toUpperCase()} (${freeHours} giờ sớm từ 12:00).`
+      : freeHours > 0
+      ? `${want} nằm trong ${band.label}: được trừ ${freeHours} giờ miễn phí của hạng ${ent.tier.toUpperCase()} → phí giảm còn ${fee.toLocaleString("vi-VN")} ${input.currency} (thay vì ${gross.toLocaleString("vi-VN")} ${input.currency}).`
+      : `${want} falls in the ${band.label} band: ${band.pct}% × ${input.ratePerNight.toLocaleString("vi-VN")} ${input.currency} = ${fee.toLocaleString("vi-VN")} ${input.currency}.`,
     policy: cite,
+    loyalty_rule: (insideTierWindow || freeHours > 0) ? { code: "TIER_BENEFITS", note: tierWaiver || `Miễn ${freeHours} giờ sớm cho hạng ${ent.tier.toUpperCase()}` } : null,
   };
 }
 

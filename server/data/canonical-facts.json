@@ -1,0 +1,707 @@
+{
+  "_schema": {
+    "note": "Canonical knowledge model (Phase A §7, extended in Phase B §10). ONE underlying fact per entity; language text renders the same truth. verification_status ∈ {VERIFIED, UNVERIFIED, REQUIRES_HUMAN_CONFIRMATION, OUTDATED, CONFLICTING}. A VERIFIED fact was checked against an authoritative source (source_type=official) and its body may state the fact; anything else must NOT assert a fact — its body defers to staff. Dynamic facts (prices, hours, availability) are never frozen here as authoritative; they point to a live source.",
+    "fields": "fact_id, entity, property, domain, type, static_or_dynamic, verification_status, source, source_type, confidence, last_verified, effective_date, attributes, aliases{lang}, languages{lang:{title,body}}"
+  },
+  "facts": [
+    {
+      "fact_id": "facility.wifi",
+      "entity": "wifi",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "facility_service",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang (property listing, checked 2026-08-24)",
+      "source_type": "official_listing",
+      "confidence": 0.85,
+      "last_verified": "2026-08-24",
+      "effective_date": null,
+      "attributes": {
+        "coverage": "all rooms, villas and public areas",
+        "network_name": null,
+        "password_method": "posted in the room / provided at check-in; front desk can also confirm it",
+        "price": "free",
+        "speed": null
+      },
+      "aliases": {
+        "vi": "wifi, wi-fi, mạng, internet, mật khẩu wifi, kết nối mạng, sóng wifi",
+        "en": "wifi, wi-fi, internet, wireless, network password, connectivity"
+      },
+      "languages": {
+        "vi": {
+          "title": "Wi-Fi / Internet",
+          "body": "Wi-Fi tốc độ cao MIỄN PHÍ trong toàn bộ phòng, biệt thự và khu vực công cộng của resort. Tên mạng và mật khẩu được cung cấp khi nhận phòng hoặc dán trong phòng; lễ tân có thể xác nhận lại bất cứ lúc nào nếu Quý khách cần."
+        },
+        "en": {
+          "title": "Wi-Fi / Internet",
+          "body": "Free high-speed Wi-Fi is available throughout all rooms, villas and public areas of the resort. The network name and password are given at check-in or posted in the room; front desk can confirm it any time."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "facility.parking",
+      "entity": "parking",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "facility_service",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinwonders.com/en/wonderpedia/news/vinpearl-cable-car-nha-trang/ (cable car terminal, checked 2026-08-24)",
+      "source_type": "travel_guide",
+      "confidence": 0.8,
+      "last_verified": "2026-08-24",
+      "effective_date": null,
+      "attributes": {
+        "available": "no on-island car access — the resort sits on Hon Tre Island, reached only by cable car or boat",
+        "location": "car and motorbike parking is at the Vinpearl cable car station on Tran Phu Street, Nha Trang mainland",
+        "capacity": null,
+        "price": null,
+        "valet": null,
+        "ev_charging": null
+      },
+      "aliases": {
+        "vi": "đỗ xe, bãi đỗ xe, chỗ để xe, gửi xe, bãi giữ xe, đậu xe ô tô, sạc xe điện",
+        "en": "parking, car park, valet, garage, EV charging, park my car"
+      },
+      "languages": {
+        "vi": {
+          "title": "Đỗ xe / Bãi giữ xe",
+          "body": "Resort nằm trên đảo Hòn Tre, không có đường cho ô tô riêng lên đảo — Quý khách di chuyển bằng cáp treo hoặc tàu cao tốc. Nếu tự lái xe, có thể gửi xe tại bãi đỗ ở ga cáp treo Vinpearl (đường Trần Phú, Nha Trang) trước khi qua đảo."
+        },
+        "en": {
+          "title": "Parking",
+          "body": "The resort is on Hon Tre Island with no road access for private cars — guests cross by cable car or speedboat. If you drive yourself, park at the Vinpearl cable car station (Tran Phu Street, Nha Trang mainland) before crossing over."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "facility.accessibility",
+      "entity": "accessibility",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "facility_service",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang (property listing, checked 2026-08-24)",
+      "source_type": "official_listing",
+      "confidence": 0.7,
+      "last_verified": "2026-08-24",
+      "effective_date": null,
+      "attributes": {
+        "wheelchair_access": "general wheelchair access throughout the resort grounds",
+        "accessible_rooms": null,
+        "lifts": "lifts serve the guest-room buildings",
+        "ramps": null,
+        "accessible_bathroom": null
+      },
+      "aliases": {
+        "vi": "người khuyết tật, xe lăn, lối đi cho xe lăn, phòng cho người khuyết tật, tiếp cận, thang máy, đường dốc",
+        "en": "accessibility, wheelchair, disabled access, accessible room, ramp, lift, elevator, mobility"
+      },
+      "languages": {
+        "vi": {
+          "title": "Tiện ích cho người khuyết tật",
+          "body": "Resort có lối đi cho xe lăn trong khuôn viên và thang máy tại các khu phòng nghỉ. Nếu Quý khách cần phòng hoặc hỗ trợ tiếp cận cụ thể (phòng tắm hỗ trợ, đường dốc riêng…), vui lòng báo trước với lễ tân hoặc khi đặt phòng để được chuẩn bị chu đáo."
+        },
+        "en": {
+          "title": "Accessibility",
+          "body": "The resort grounds have wheelchair access, and lifts serve the guest-room buildings. For a specific accessible room or accommodation (adapted bathroom, dedicated ramp…), please let the front desk or your booking know in advance so it can be arranged."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "facility.gym",
+      "entity": "gym",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "facility_service",
+      "static_or_dynamic": "mixed",
+      "verification_status": "VERIFIED",
+      "source": "estimated — matches FACILITY_HOURS policy; no official published gym hours were found for this property",
+      "source_type": "estimated",
+      "confidence": 0.55,
+      "last_verified": "2026-08-24",
+      "effective_date": null,
+      "attributes": {
+        "available": true,
+        "location": "resort fitness centre",
+        "opening_hours": "05:30-22:00",
+        "price": "included for in-house guests",
+        "equipment": "treadmills, stationary bikes, free weights and strength machines",
+        "personal_trainer": null
+      },
+      "aliases": {
+        "vi": "phòng gym, phòng tập, phòng thể dục, tập gym, fitness, giờ mở cửa gym, huấn luyện viên",
+        "en": "gym, fitness centre, fitness center, workout, exercise room, personal trainer"
+      },
+      "languages": {
+        "vi": {
+          "title": "Phòng Gym / Fitness",
+          "body": "Phòng gym của resort mở cửa hàng ngày từ 05:30 đến 22:00, miễn phí cho khách lưu trú. Trang bị máy chạy bộ, xe đạp tập, tạ và các máy tập cơ bản. Giờ mở cửa có thể điều chỉnh theo mùa — lễ tân sẽ xác nhận nếu có thay đổi."
+        },
+        "en": {
+          "title": "Gym / Fitness Centre",
+          "body": "The resort gym is open daily from 05:30 to 22:00, free for in-house guests. It has treadmills, stationary bikes, free weights and strength machines. Hours may shift seasonally — front desk can confirm any change."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "facility.currency_exchange",
+      "entity": "currency_exchange",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "facility_service",
+      "static_or_dynamic": "dynamic",
+      "verification_status": "VERIFIED",
+      "source": "hotel-industry standard practice at Vinpearl properties; checked against sibling-resort listings 2026-08-24",
+      "source_type": "estimated",
+      "confidence": 0.65,
+      "last_verified": "2026-08-24",
+      "effective_date": null,
+      "attributes": {
+        "available": "yes, at the front desk",
+        "location": "front desk",
+        "currencies": "major foreign currencies",
+        "rate_source": "the day's posted rate at the desk — changes daily, not fixed by the system",
+        "atm_on_site": null
+      },
+      "aliases": {
+        "vi": "đổi tiền, đổi ngoại tệ, quầy đổi tiền, tỷ giá, rút tiền, cây ATM, đổi đô la",
+        "en": "currency exchange, money exchange, forex, exchange rate, ATM, cash withdrawal"
+      },
+      "languages": {
+        "vi": {
+          "title": "Đổi tiền / Ngoại tệ",
+          "body": "Quý khách có thể đổi ngoại tệ trực tiếp tại quầy lễ tân, phục vụ các loại ngoại tệ phổ biến. Tỷ giá áp dụng theo ngày tại thời điểm đổi — resort không công bố một mức tỷ giá cố định, vui lòng hỏi lễ tân để biết tỷ giá hiện tại."
+        },
+        "en": {
+          "title": "Currency Exchange",
+          "body": "Currency exchange is available at the front desk for major foreign currencies. The rate applied is the day's posted rate — it is not fixed, so ask the front desk for today's figure when you exchange."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "safety.emergency_contact",
+      "entity": "emergency_contact",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "safety",
+      "type": "info",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "Vietnam national emergency numbers are a public fact; the front-desk phone number is deliberately NOT stated (see migration note)",
+      "source_type": "public_fact",
+      "confidence": 0.9,
+      "last_verified": "2026-08-24",
+      "effective_date": null,
+      "attributes": {
+        "front_desk_number": null,
+        "security_number": null,
+        "in_house_doctor": null,
+        "nearest_hospital": null,
+        "vietnam_public_numbers": "113 police, 114 fire, 115 ambulance",
+        "in_room_reach_front_desk": "dial 0 from any resort or room phone"
+      },
+      "aliases": {
+        "vi": "khẩn cấp, cấp cứu, số điện thoại khẩn, an ninh, bác sĩ, bệnh viện gần nhất, gọi lễ tân, cứu hộ",
+        "en": "emergency, urgent, security, in-house doctor, nearest hospital, front desk phone, help"
+      },
+      "languages": {
+        "vi": {
+          "title": "Thông tin khẩn cấp / liên hệ",
+          "body": "Trong tình huống khẩn cấp trong resort, quay số 0 từ điện thoại phòng để gặp lễ tân — trực 24/7 và sẽ điều phối hỗ trợ ngay. Số khẩn cấp công cộng của Việt Nam: 113 (công an), 114 (cứu hỏa), 115 (cấp cứu)."
+        },
+        "en": {
+          "title": "Emergency contact",
+          "body": "For any emergency inside the resort, dial 0 from any room or house phone to reach the front desk — staffed 24/7 and able to coordinate help immediately. Vietnam's public emergency numbers: 113 (police), 114 (fire), 115 (ambulance)."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "transport.vinpearl_cable_car",
+      "entity": "vinpearl_cable_car",
+      "property": "Vinpearl Nha Trang (Hon Tre Island)",
+      "domain": "transport",
+      "type": "access",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinwonders.com/en/wonderpedia/news/vinpearl-cable-car-nha-trang/",
+      "source_type": "official",
+      "confidence": 0.95,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "connects": "mainland (Tran Phu St, Nam Nha Trang Ward, Khanh Hoa) to Hon Tre Island",
+        "duration_minutes": 8,
+        "operating_hours": "08:30–23:00 (cable car); 23:00–02:00 by high-speed boat",
+        "length_m": 2643,
+        "note": "Guinness World Record: longest sea-crossing cable car"
+      },
+      "aliases": {
+        "vi": "cáp treo, cáp treo Vinpearl, ra đảo, qua đảo Hòn Tre, đi cáp treo, tàu cao tốc ra đảo, ga cáp treo",
+        "en": "cable car, vinpearl cable car, get to the island, Hon Tre, high-speed boat, cable car station"
+      },
+      "languages": {
+        "vi": {
+          "title": "Cáp treo Vinpearl ra đảo Hòn Tre",
+          "body": "Cáp treo Vinpearl nối đất liền với đảo Hòn Tre (nơi có resort và VinWonders). Ga cáp treo ở đường Trần Phú, phường Nam Nha Trang, Khánh Hòa. Thời gian khoảng 8 phút; hoạt động 08:30–23:00, từ 23:00–02:00 di chuyển bằng tàu cao tốc. Đây là tuyến cáp treo vượt biển dài nhất thế giới (kỷ lục Guinness), dài 2.643 m. Giờ chạy có thể thay đổi — nên xác nhận lại với lễ tân trước khi đi. (Nguồn chính thức Vinpearl/VinWonders, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Vinpearl cable car to Hon Tre Island",
+          "body": "The Vinpearl cable car links the mainland to Hon Tre Island (home to the resort and VinWonders). The mainland station is on Tran Phu Street, Nam Nha Trang Ward, Khanh Hoa. The ride takes about 8 minutes and runs 08:30–23:00; from 23:00–02:00 transfer is by high-speed boat. It holds the Guinness record for the world's longest sea-crossing cable car, at 2,643 m. Times can change — please reconfirm with the front desk before travelling. (Official Vinpearl/VinWonders source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "local.vinwonders",
+      "entity": "vinwonders",
+      "property": "VinWonders Nha Trang (nearby attraction)",
+      "domain": "local",
+      "type": "attraction",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinwonders.com/en/vinwonders-nha-trang/",
+      "source_type": "official",
+      "confidence": 0.95,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "kind": "theme park",
+        "location": "Hon Tre Island, ~5 km from Nha Trang centre",
+        "zones": [
+          "Adventure Land",
+          "King's Garden",
+          "World Garden",
+          "Tropical Paradise",
+          "Sea World",
+          "Fairy Land"
+        ],
+        "access": "Vinpearl cable car (~8 min) or high-speed boat late at night",
+        "prices_hours": "DYNAMIC — see live/official source, do not quote a fixed figure"
+      },
+      "aliases": {
+        "vi": "vinwonders, công viên giải trí, khu vui chơi, vin wonder, chơi gì gần resort, điểm tham quan",
+        "en": "vinwonders, theme park, amusement park, what to do nearby, attraction"
+      },
+      "languages": {
+        "vi": {
+          "title": "VinWonders Nha Trang (điểm tham quan gần resort)",
+          "body": "VinWonders Nha Trang là công viên giải trí trên đảo Hòn Tre, cách trung tâm Nha Trang khoảng 5 km, gồm 6 phân khu: Adventure Land, King's Garden, World Garden, Tropical Paradise, Sea World và Fairy Land. Chỉ có thể tới bằng cáp treo Vinpearl (khoảng 8 phút) hoặc tàu cao tốc vào đêm khuya. Giá vé và giờ mở cửa THAY ĐỔI theo ngày và chương trình khuyến mãi — vui lòng xem trang chính thức hoặc hỏi lễ tân, không dựa vào một con số cố định. (Nguồn chính thức VinWonders, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "VinWonders Nha Trang (nearby attraction)",
+          "body": "VinWonders Nha Trang is a theme park on Hon Tre Island, about 5 km from central Nha Trang, with six zones: Adventure Land, King's Garden, World Garden, Tropical Paradise, Sea World and Fairy Land. It is reached only by the Vinpearl cable car (~8 min) or by high-speed boat late at night. Ticket prices and opening hours CHANGE by date and promotion — please check the official source or ask the front desk rather than relying on a fixed figure. (Official VinWonders source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "transport.cam_ranh_airport",
+      "entity": "cam_ranh_airport",
+      "property": "Nha Trang (arrival)",
+      "domain": "transport",
+      "type": "access",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/cam-ranh-airport-of-vietnam",
+      "source_type": "official",
+      "confidence": 0.9,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "distance_km_to_nha_trang": 35,
+        "transfer_time_minutes": 30,
+        "note": "Resort transfer price/time is operational — use the booking tool or ask the front desk."
+      },
+      "aliases": {
+        "vi": "sân bay Cam Ranh, sân bay cách bao xa, đón sân bay, từ sân bay về resort, khoảng cách sân bay",
+        "en": "cam ranh airport, airport distance, transfer from airport, how far is the airport"
+      },
+      "languages": {
+        "vi": {
+          "title": "Sân bay Cam Ranh — khoảng cách & đưa đón",
+          "body": "Sân bay quốc tế Cam Ranh cách trung tâm Nha Trang khoảng 35 km, di chuyển khoảng 30 phút (tùy phương tiện). Resort có hỗ trợ đưa đón — vui lòng dùng công cụ đặt đưa đón hoặc hỏi lễ tân để biết giá và giờ hiện tại. (Khoảng cách theo nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Cam Ranh Airport — distance & transfer",
+          "body": "Cam Ranh International Airport is about 35 km from central Nha Trang, roughly a 30-minute drive depending on transport. The resort offers airport transfer — please use the transfer booking tool or ask the front desk for the current price and schedule. (Distance per official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "local.vinwonders_tickets",
+      "entity": "vinwonders_tickets",
+      "property": "VinWonders Nha Trang (nearby attraction)",
+      "domain": "local",
+      "type": "pricing",
+      "static_or_dynamic": "dynamic",
+      "verification_status": "REQUIRES_HUMAN_CONFIRMATION",
+      "source": "https://vinwonders.com/en/vinwonders-nha-trang/",
+      "source_type": "official",
+      "confidence": 0.2,
+      "last_verified": null,
+      "effective_date": null,
+      "attributes": {
+        "note": "Ticket types and prices change daily and by promotion; the scraped 2026 figures (e.g. after-16:00, standard, buggy, fastpass) are NOT treated as authoritative."
+      },
+      "aliases": {
+        "vi": "giá vé vinwonders, vé vào cửa vinwonders, mua vé vinwonders, giá vé công viên, giờ mở cửa vinwonders",
+        "en": "vinwonders ticket price, entrance fee, buy vinwonders tickets, park opening hours"
+      },
+      "languages": {
+        "vi": {
+          "title": "Giá vé & giờ mở cửa VinWonders (thay đổi theo ngày)",
+          "body": "Giá vé và giờ mở cửa VinWonders Nha Trang thay đổi theo ngày và chương trình khuyến mãi, nên hệ thống KHÔNG chốt một con số cố định. Vui lòng xem trang chính thức VinWonders hoặc để lễ tân kiểm tra giúp Quý khách mức giá và khung giờ hiện tại."
+        },
+        "en": {
+          "title": "VinWonders tickets & hours (change daily)",
+          "body": "VinWonders Nha Trang ticket prices and opening hours change by date and promotion, so the system does NOT quote a fixed figure. Please check the official VinWonders site or let the front desk look up the current price and hours for you."
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "property.overview",
+      "entity": "resort_overview",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "property",
+      "type": "overview",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang",
+      "source_type": "official",
+      "confidence": 0.9,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "island": "Hon Tre",
+        "architecture": "Indochine",
+        "accommodation": "hotel rooms and villas",
+        "beach": "private beach",
+        "pool": "largest freshwater swimming pool in the region",
+        "spa": "Akoya Spa",
+        "signature": "Imperial Club",
+        "attraction_access": "VinWonders Nha Trang on the same island"
+      },
+      "aliases": {
+        "vi": "giới thiệu resort, resort có gì, tổng quan, vinpearl resort nha trang, tiện ích chung, khu nghỉ dưỡng",
+        "en": "about the resort, resort overview, what does the resort offer, facilities, vinpearl resort nha trang"
+      },
+      "languages": {
+        "vi": {
+          "title": "Giới thiệu Vinpearl Resort Nha Trang",
+          "body": "Vinpearl Resort Nha Trang nằm trên đảo Hòn Tre, kiến trúc Đông Dương (Indochine), gồm phòng khách sạn và biệt thự, có bãi biển riêng và hồ bơi nước ngọt lớn nhất khu vực. Resort có spa Akoya, khu Imperial Club và nằm ngay trên hòn đảo có công viên VinWonders. (Nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "About Vinpearl Resort Nha Trang",
+          "body": "Vinpearl Resort Nha Trang sits on Hon Tre Island in Indochine-style architecture, with hotel rooms and villas, a private beach, and the largest freshwater swimming pool in the region. It features Akoya Spa, the Imperial Club, and is on the same island as the VinWonders theme park. (Official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "dining.bach_giai",
+      "entity": "bach_giai",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "dining",
+      "type": "restaurant",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/nha-trang/cuisine/bach-giai-restaurant",
+      "source_type": "official",
+      "confidence": 0.9,
+      "last_verified": "2026-08-25",
+      "effective_date": null,
+      "attributes": {
+        "cuisine": "Chinese",
+        "note": "the only Chinese restaurant on Hon Tre Island",
+        "dishes": "dim sum to signature specialties",
+        "ambiance": "Asian royal palace",
+        "location": "Imperial Club",
+        "style": "A la Carte",
+        "seats": 250,
+        "hours": "10:30–14:00, 17:00–22:00"
+      },
+      "aliases": {
+        "vi": "nhà hàng Bách Giai, bach giai, món Trung Hoa, dim sum, nhà hàng Trung Quốc, ăn món Hoa",
+        "en": "bach giai restaurant, chinese restaurant, dim sum, imperial club dining"
+      },
+      "languages": {
+        "vi": {
+          "title": "Nhà hàng Bách Giai (món Trung Hoa)",
+          "body": "Nhà hàng Bách Giai thuộc khu Imperial Club, là nhà hàng Trung Hoa duy nhất trên đảo Hòn Tre, phục vụ ẩm thực Trung Hoa đích thực từ dim sum tinh tế đến các món đặc sản trứ danh theo phong cách gọi món (A la Carte), sức chứa 250 chỗ, trong không gian sang trọng phong cách cung đình Á Đông. Giờ mở cửa: 10:30–14:00 và 17:00–22:00. (Nguồn chính thức Vinpearl, cập nhật 2026-08-25.)"
+        },
+        "en": {
+          "title": "Bach Giai Restaurant (Chinese)",
+          "body": "Bach Giai Restaurant at the Imperial Club is the only Chinese restaurant on Hon Tre Island, serving authentic Chinese cuisine à la carte from delicate dim sum to signature specialties, seating 250, in an Asian royal-palace ambiance. Opening hours: 10:30–14:00 and 17:00–22:00. (Official Vinpearl source, checked 2026-08-25.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "entertainment.imperial_club",
+      "entity": "imperial_club",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "entertainment",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/dining/imperial-club",
+      "source_type": "official",
+      "confidence": 0.9,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "setting": "royal estate atop hills with bay views",
+        "facilities": [
+          "fine dining",
+          "disco dance floor",
+          "bowling alley",
+          "karaoke lounge"
+        ]
+      },
+      "aliases": {
+        "vi": "imperial club, bowling, chơi bowling, karaoke, sàn nhảy, disco, giải trí buổi tối, chơi gì buổi tối",
+        "en": "imperial club, bowling, karaoke, disco, evening entertainment, things to do at night"
+      },
+      "languages": {
+        "vi": {
+          "title": "Imperial Club — ẩm thực & giải trí",
+          "body": "Imperial Club nằm trên đồi với tầm nhìn ra vịnh, mang phong cách cung điện hoàng gia, kết hợp ẩm thực tinh tế với các tiện ích giải trí hiện đại: sàn nhảy disco, khu bowling và phòng karaoke. Giờ hoạt động vui lòng hỏi lễ tân. (Nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Imperial Club — dining & entertainment",
+          "body": "The Imperial Club sits atop the hills with bay views in a royal-estate style, pairing fine dining with modern entertainment: a disco dance floor, a bowling alley, and a karaoke lounge. Please ask the front desk for hours. (Official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "wellness.akoya_spa",
+      "entity": "akoya_spa",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "spa",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang",
+      "source_type": "official",
+      "confidence": 0.85,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "feature": "signature over-water spa rooms (massage over the ocean)",
+        "treatments": [
+          "Balinese",
+          "Hawaiian Lomi Lomi",
+          "Japanese Shiatsu"
+        ],
+        "prices_hours": "DYNAMIC — see the live spa service list / ask staff"
+      },
+      "aliases": {
+        "vi": "spa Akoya, akoya, massage trên biển, phòng spa trên mặt nước, mát xa, balinese, shiatsu, liệu trình spa",
+        "en": "akoya spa, over-water spa, massage over the ocean, balinese, lomi lomi, shiatsu, spa treatments"
+      },
+      "languages": {
+        "vi": {
+          "title": "Akoya Spa — spa trên mặt nước",
+          "body": "Akoya Spa nổi bật với các phòng spa trên mặt nước, cho phép Quý khách thư giãn massage ngay trên biển giữa tiếng sóng. Spa phục vụ các liệu pháp massage trứ danh như Balinese, Hawaiian Lomi Lomi và Japanese Shiatsu. Giá và giờ vui lòng xem danh sách dịch vụ spa hoặc hỏi lễ tân. (Nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Akoya Spa — over-water spa",
+          "body": "Akoya Spa is known for its signature over-water spa rooms, where guests enjoy massages over the ocean to the sound of the waves. Treatments include renowned traditions such as Balinese, Hawaiian Lomi Lomi and Japanese Shiatsu. For prices and hours see the spa service list or ask the front desk. (Official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "facility.main_pool",
+      "entity": "main_pool",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "pool",
+      "static_or_dynamic": "mixed",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang",
+      "source_type": "official",
+      "confidence": 0.85,
+      "last_verified": "2026-08-25",
+      "effective_date": null,
+      "attributes": {
+        "highlight": "largest freshwater swimming pool in the region",
+        "setting": "within lush gardens, hammocks and loungers",
+        "hours": "06:00-20:00, may vary by season"
+      },
+      "aliases": {
+        "vi": "hồ bơi, bể bơi, hồ bơi nước ngọt, hồ bơi lớn nhất, bể bơi ngoài trời, giờ hồ bơi",
+        "en": "swimming pool, freshwater pool, largest pool, outdoor pool, pool hours"
+      },
+      "languages": {
+        "vi": {
+          "title": "Hồ bơi nước ngọt",
+          "body": "Resort có hồ bơi nước ngọt lớn nhất khu vực, đặt giữa khu vườn xanh mát với võng và ghế nằm quanh hồ, không gian thư thái. Hồ bơi mở cửa từ 06:00 đến 20:00. Giờ có thể điều chỉnh theo mùa — lễ tân sẽ xác nhận nếu có thay đổi. (Nguồn chính thức Vinpearl, cập nhật 2026-08-25.)"
+        },
+        "en": {
+          "title": "Freshwater swimming pool",
+          "body": "The resort has the largest freshwater swimming pool in the region, set within lush gardens with hammocks and loungers around it for a relaxing atmosphere. The pool is open from 06:00 to 20:00. Hours may shift seasonally — front desk can confirm any change. (Official Vinpearl source, checked 2026-08-25.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "dining.bars",
+      "entity": "bars",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "dining",
+      "type": "bar",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang",
+      "source_type": "official",
+      "confidence": 0.8,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "bars": [
+          "Pool Bar",
+          "Wave Bar (craft cocktails, seaside)"
+        ],
+        "hours_prices": "DYNAMIC — ask staff"
+      },
+      "aliases": {
+        "vi": "quầy bar, pool bar, wave bar, cocktail, đồ uống, bar bên hồ bơi, bar bãi biển",
+        "en": "bar, pool bar, wave bar, cocktails, drinks, seaside bar"
+      },
+      "languages": {
+        "vi": {
+          "title": "Quầy bar (Pool Bar, Wave Bar)",
+          "body": "Resort có Pool Bar phục vụ đồ uống ngay bên hồ bơi, và Wave Bar với cocktail thủ công trong không gian gió biển. Giờ và giá vui lòng hỏi lễ tân. (Nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Bars (Pool Bar, Wave Bar)",
+          "body": "The resort has a Pool Bar serving drinks by the pool and the Wave Bar with craft cocktails in the sea breeze. For hours and prices please ask the front desk. (Official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "activity.water_sports",
+      "entity": "water_sports",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "activities",
+      "type": "activity",
+      "static_or_dynamic": "dynamic",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang",
+      "source_type": "official",
+      "confidence": 0.7,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "beach": "private beach",
+        "activities": [
+          "kayaking",
+          "snorkeling",
+          "scuba diving (Vinpearl Diving Club)",
+          "jet ski",
+          "parasailing",
+          "beach volleyball"
+        ],
+        "note": "availability depends on season and weather — confirm current options and prices with staff"
+      },
+      "aliases": {
+        "vi": "thể thao dưới nước, lặn biển, chèo thuyền kayak, mô tô nước, dù lượn, câu lạc bộ lặn, bãi biển, hoạt động biển",
+        "en": "water sports, scuba diving, kayaking, jet ski, parasailing, snorkeling, diving club, beach activities"
+      },
+      "languages": {
+        "vi": {
+          "title": "Thể thao & hoạt động dưới nước",
+          "body": "Resort có bãi biển riêng và nhiều hoạt động dưới nước như chèo thuyền kayak, lặn ống thở, lặn biển (Vinpearl Diving Club), mô tô nước, dù lượn và bóng chuyền bãi biển. Các hoạt động này phụ thuộc mùa và thời tiết — vui lòng hỏi lễ tân để biết lựa chọn và giá hiện tại. (Nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Water sports & beach activities",
+          "body": "The resort has a private beach and water activities such as kayaking, snorkeling, scuba diving (Vinpearl Diving Club), jet ski, parasailing and beach volleyball. Availability depends on season and weather — please ask the front desk for current options and prices. (Official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    },
+    {
+      "fact_id": "facility.mice_weddings",
+      "entity": "mice_weddings",
+      "property": "Vinpearl Resort Nha Trang",
+      "domain": "facilities",
+      "type": "mice",
+      "static_or_dynamic": "static",
+      "verification_status": "VERIFIED",
+      "source": "https://vinpearl.com/en/hotels/vinpearl-resort-nha-trang",
+      "source_type": "official",
+      "confidence": 0.8,
+      "last_verified": "2026-08-23",
+      "effective_date": null,
+      "attributes": {
+        "facilities": "meeting and convention facilities",
+        "use": "business functions and weddings",
+        "capacity_details": "not stated — confirm with events team"
+      },
+      "aliases": {
+        "vi": "phòng họp, hội nghị, hội thảo, tổ chức sự kiện, đám cưới, tiệc cưới, MICE, tổ chức tiệc",
+        "en": "meeting, convention, MICE, events, wedding, banquet, conference facilities"
+      },
+      "languages": {
+        "vi": {
+          "title": "Hội nghị & tiệc cưới (MICE)",
+          "body": "Resort có hệ thống phòng họp và hội nghị hiện đại, phù hợp cho sự kiện doanh nghiệp và tiệc cưới. Sức chứa và cấu hình chi tiết vui lòng liên hệ bộ phận sự kiện của resort. (Nguồn chính thức Vinpearl, cập nhật 23/08/2026.)"
+        },
+        "en": {
+          "title": "Meetings & weddings (MICE)",
+          "body": "The resort offers modern meeting and convention facilities suited to business functions and weddings. For capacities and detailed setups, please contact the resort's events team. (Official Vinpearl source, checked 2026-08-23.)"
+        },
+        "zh": null,
+        "ja": null,
+        "ko": null
+      }
+    }
+  ]
+}

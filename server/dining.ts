@@ -70,6 +70,31 @@ export function dishesOf(v: Venue): Array<MenuItem & { group: string | null }> {
 }
 
 /**
+ * Which dining venues a turn's real retrieved evidence actually named —
+ * for attaching "xem chi tiết / xem menu" buttons to a reply. Deliberately
+ * NOT keyword-matching the model's own reply text (that was the frontend's
+ * old, brittle per-dish/per-room hardcoding, one `if` per name, extended by
+ * hand for every new venue). This reads the retrieval chunks the server
+ * itself fetched — the same "dining_venue" category chunks `reindex()`
+ * builds one per venue, titled exactly `${nameVi} — ẩm thực` — so it stays
+ * correct for a venue added tomorrow with no frontend change at all.
+ */
+export function detectReferencedVenues(passages: { title: string; category: string }[]): { slug: string; name: string }[] {
+  const venues = listVenues();
+  const seen = new Set<string>();
+  const out: { slug: string; name: string }[] = [];
+  for (const p of passages) {
+    if (p.category !== "dining_venue") continue;
+    const v = venues.find((x) => p.title.startsWith(x.row.nameVi));
+    if (v && !seen.has(v.row.slug)) {
+      seen.add(v.row.slug);
+      out.push({ slug: v.row.slug, name: v.row.nameVi });
+    }
+  }
+  return out;
+}
+
+/**
  * Resolve a venue the guest named. Deliberately conservative: a query that does
  * not clearly land on one outlet returns null, because answering about the wrong
  * restaurant is worse than asking which one they meant. Kind words alone ("bar",
@@ -127,11 +152,24 @@ export function windowFor(v: Venue, hhmm: string): Hours | null {
   );
 }
 
-/** Human-readable published hours, for a reply the guest can act on. */
+/**
+ * Human-readable published hours, for a reply the guest can act on.
+ *
+ * Phase 9: when a venue has meal windows, `v.hours` is a separate, coarser
+ * span field that is not guaranteed to agree with them — Lotus Restaurant's
+ * record has `hours: 07:00–21:00` alongside three real meal windows
+ * (06:00–10:30, 12:00–14:00, 18:00–22:00) that do not even span that range.
+ * Leading with the coarse span put a single wrong number in front of the
+ * guest and the correct structure in a parenthetical afterthought — a guest
+ * or a model reads the first thing it sees. When meal windows exist they are
+ * the ground truth and are shown alone; `v.hours` only appears for a venue
+ * with no meal-window breakdown to fall back on.
+ */
 export function hoursText(v: Venue): string {
-  const main = v.hours.map((h) => `${h.open}–${h.close}`).join(", ");
-  const meals = v.mealWindows.map((m) => `${m.meal} ${m.open}–${m.close}`).join(", ");
-  return meals ? `${main} (${meals})` : main;
+  if (v.mealWindows.length) {
+    return v.mealWindows.map((m) => `${m.meal} ${m.open}–${m.close}`).join(", ");
+  }
+  return v.hours.map((h) => `${h.open}–${h.close}`).join(", ");
 }
 
 /**

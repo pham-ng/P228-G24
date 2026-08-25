@@ -1,0 +1,237 @@
+{
+  "model": "qwen3.5:4b",
+  "rows": [
+    {
+      "id": "h-spa-vi",
+      "lang": "vi",
+      "q": "Akoya Spa mở cửa mấy giờ?",
+      "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00. Quý khách cần đặt trước ít nhất 2 giờ để được phục vụ.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-gym-vi",
+      "lang": "vi",
+      "q": "Phòng gym mở cửa từ mấy giờ?",
+      "reply": "Phòng Gym của khách sạn mở cửa hàng ngày từ 05:30 đến 22:00. Tuy nhiên, giờ mở cửa có thể điều chỉnh theo mùa nên lễ tân sẽ xác nhận nếu có thay đổi.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-aquafield-vi",
+      "lang": "vi",
+      "q": "Aquafield mở cửa mấy giờ?",
+      "reply": "Aquafield Nha Trang mở cửa từ 09:00 đến 22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-poolbar-vi",
+      "lang": "vi",
+      "q": "Pool Bar mở cửa mấy giờ?",
+      "reply": "Pool Bar mở cửa từ 09:00 đến 23:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-seaviewbar-vi",
+      "lang": "vi",
+      "q": "Seaview Bar hoạt động từ mấy giờ đến mấy giờ?",
+      "reply": "Seaview Bar mở cửa từ 07:00 đến 23:00 hàng ngày.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-jasmine-en",
+      "lang": "en",
+      "q": "What time does Jasmine Restaurant open and close?",
+      "reply": "Jasmine Restaurant opens at 11:00 and closes at 22:00. It also offers dinner service from 18:30 to 22:00 with a welcome cocktail and live band. Please note that the restaurant is located on the ground floor of the Executive building.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-beachcomber-vi",
+      "lang": "vi",
+      "q": "Beach Comber Bar mở cửa mấy giờ?",
+      "reply": "Beach Comber Bar mở cửa từ 09:00 đến 23:00 hàng ngày.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-breakfast-vi",
+      "lang": "vi",
+      "q": "Ăn sáng phục vụ từ mấy giờ đến mấy giờ?",
+      "reply": "Chào bạn, theo thông tin đã cung cấp, Lotus Restaurant (tòa nhà Executive) phục vụ bữa sáng từ 06:00 đến 10:30.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-breakfast-en",
+      "lang": "en",
+      "q": "What are the breakfast serving hours?",
+      "reply": "Breakfast is served at Lotus Restaurant from 06:00 to 10:30. It is also available for lunch from 12:00 to 14:30 and dinner from 18:00 to 22:00. Please note that the buffet pricing varies by age, with children under 12 eating free when staying with a Pearl Club member.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-lotus-slots-vi",
+      "lang": "vi",
+      "q": "Nhà hàng Lotus phục vụ những khung giờ nào trong ngày?",
+      "reply": "Nhà hàng Lotus phục vụ khách từ sáng 06:00–10:30, trưa 12:00–14:00 và tối 18:00–22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-lotus-slots-en",
+      "lang": "en",
+      "q": "What are all of Lotus Restaurant's serving hours today?",
+      "reply": "Lotus Restaurant serves breakfast from 06:00 to 10:30, lunch from 12:00 to 14:30, and dinner from 18:00 to 22:00. Please note that the last customer is received at 20:30.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-halal-slots-vi",
+      "lang": "vi",
+      "q": "Nhà hàng Halal VietFlavors phục vụ những khung giờ nào?",
+      "reply": "Nhà hàng Halal VietFlavors mở cửa từ 10:30 đến 14:30 và từ 17:30 đến 22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-pool-facility-vi",
+      "lang": "vi",
+      "q": "Hồ bơi ngoài trời mở cửa mấy giờ?",
+      "reply": "Hồ bơi ngoài trời mở cửa từ 06:00 đến 20:00, với lưu ý không có cứu hộ sau 19:00. Vui lòng liên hệ lễ tân để xác nhận nếu có thay đổi theo mùa.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-beach-facility-vi",
+      "lang": "vi",
+      "q": "Bãi biển riêng mở cửa mấy giờ?",
+      "reply": "Bãi biển riêng của khách sạn mở cửa từ 06:00 đến 18:30.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-kidsclub-vi",
+      "lang": "vi",
+      "q": "Kids Club mở cửa mấy giờ?",
+      "reply": "Kids Club của khách sạn này hoạt động từ 08:00 đến 20:00. Trẻ dưới 4 tuổi cần có người lớn đi kèm khi tham gia. Bạn nên đặt trước ít nhất 2 giờ để đảm bảo chỗ.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-frontdesk-vi",
+      "lang": "vi",
+      "q": "Lễ tân làm việc mấy giờ?",
+      "reply": "Lễ tân phục vụ khách từ 00:00 đến 23:59 (24/7).",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-bachgiai-unknown",
+      "lang": "vi",
+      "q": "Nhà hàng Bách Giai mở cửa mấy giờ?",
+      "reply": "Nhà hàng Bách Giai mở cửa từ 10:30 đến 14:30 và từ 17:30 đến 22:00.",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "hỏi lễ tân"
+      ]
+    },
+    {
+      "id": "h-entity-poolbar-not-seaview",
+      "lang": "vi",
+      "q": "Quầy bar cạnh hồ bơi mở cửa mấy giờ?",
+      "reply": "Quầy Pool Bar (cạnh hồ bơi chính) mở cửa từ 09:00 đến 23:00, trong khi Wave Bar phục vụ đồ uống nhưng giờ và giá cần hỏi lễ tân.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-spa-zh",
+      "lang": "zh",
+      "q": "Akoya水疗中心几点营业？",
+      "reply": "Akoya Spa 的营业时间是从早上 9 点到晚上 10 点。如需预约，请至少提前 2 小时联系前台。",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "09:00",
+        "22:00"
+      ]
+    },
+    {
+      "id": "h-gym-ja",
+      "lang": "ja",
+      "q": "ジムは何時から何時までですか？",
+      "reply": "ジムは毎日午前5時30分から午後10時まで営業しています。季節によって開閉時間が変更される可能性があるため、フロントで確認することをお勧めします。",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "22:00"
+      ]
+    },
+    {
+      "id": "h-checkout-ko",
+      "lang": "ko",
+      "q": "체크아웃은 몇 시까지인가요?",
+      "reply": "체크아웃 시간은 12:00까지입니다.  \n늦게 체크아웃하려면 이용 가능 여부에 따라 추가 요금이 부과됩니다.  \n자세한 정보는 호텔 관리자에게 확인해 보시는 것이 좋습니다.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-checkin-zh",
+      "lang": "zh",
+      "q": "几点可以办理入住？",
+      "reply": "根据规定，标准入住时间为下午 14:00。如需提前入住，必须事先确认且可能产生费用。",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-spa-natural",
+      "lang": "vi",
+      "q": "Spa mấy giờ đóng cửa vậy?",
+      "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00. Bạn vui lòng đặt trước ít nhất 2 giờ để được phục vụ.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-gym-natural-en",
+      "lang": "en",
+      "q": "Is the gym open this early, like 6am?",
+      "reply": "Yes, the gym is open daily from 05:30 to 22:00 for free in-house guests. Please note that hours may shift seasonally, so the front desk can confirm any changes.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-breakfast-natural-en",
+      "lang": "en",
+      "q": "Do you guys have breakfast early?",
+      "reply": "Breakfast is served at the Lotus Restaurant from 06:00 to 10:30. Pearl Club members can also enjoy free breakfast for two children under 12. Please note that early check-in before 12:00 may incur charges depending on the arrival time.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    }
+  ]
+}

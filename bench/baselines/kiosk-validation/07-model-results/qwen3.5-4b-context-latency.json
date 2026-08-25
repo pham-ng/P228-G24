@@ -1,0 +1,116 @@
+{
+  "model": "qwen3.5:4b",
+  "ranAt": "2026-08-24T18:08:54.105Z",
+  "rows": [
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 300,
+      "sample": 0,
+      "wallMs": 40901,
+      "loadMs": 19985,
+      "promptEvalMs": 2646,
+      "promptEvalTokens": 381,
+      "evalMs": 18244,
+      "evalTokens": 150
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 300,
+      "sample": 1,
+      "wallMs": 18751,
+      "loadMs": 7,
+      "promptEvalMs": 217,
+      "promptEvalTokens": 381,
+      "evalMs": 18514,
+      "evalTokens": 150
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 600,
+      "sample": 0,
+      "wallMs": 14463,
+      "loadMs": 4,
+      "promptEvalMs": 5938,
+      "promptEvalTokens": 913,
+      "evalMs": 8511,
+      "evalTokens": 76
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 600,
+      "sample": 1,
+      "wallMs": 9638,
+      "loadMs": 3,
+      "promptEvalMs": 217,
+      "promptEvalTokens": 913,
+      "evalMs": 9408,
+      "evalTokens": 76
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 900,
+      "sample": 0,
+      "wallMs": 18629,
+      "loadMs": 4,
+      "promptEvalMs": 6017,
+      "promptEvalTokens": 1300,
+      "evalMs": 12594,
+      "evalTokens": 107
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 900,
+      "sample": 1,
+      "wallMs": 13645,
+      "loadMs": 4,
+      "promptEvalMs": 244,
+      "promptEvalTokens": 1300,
+      "evalMs": 13384,
+      "evalTokens": 107
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 1300,
+      "sample": 0,
+      "wallMs": 17123,
+      "loadMs": 14,
+      "promptEvalMs": 8436,
+      "promptEvalTokens": 1755,
+      "evalMs": 8656,
+      "evalTokens": 76
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 1300,
+      "sample": 1,
+      "wallMs": 9757,
+      "loadMs": 4,
+      "promptEvalMs": 233,
+      "promptEvalTokens": 1755,
+      "evalMs": 9505,
+      "evalTokens": 76
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 1800,
+      "sample": 0,
+      "wallMs": 21330,
+      "loadMs": 6,
+      "promptEvalMs": 11596,
+      "promptEvalTokens": 2265,
+      "evalMs": 9708,
+      "evalTokens": 82
+    },
+    {
+      "model": "qwen3.5:4b",
+      "targetTokens": 1800,
+      "sample": 1,
+      "wallMs": 10601,
+      "loadMs": 4,
+      "promptEvalMs": 229,
+      "promptEvalTokens": 2265,
+      "evalMs": 10347,
+      "evalTokens": 82
+    }
+  ]
+}

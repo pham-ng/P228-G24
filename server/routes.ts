@@ -6,6 +6,12 @@ import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
 import { chat, LlmError } from "./openai";
 import { reindex, indexStats, hybridSearch } from "./retrieval";
 import { getPolicyByTopic } from "./policy";
+import { confirmPayment, ensureOpsPolicies } from "./ops";
+import { AgentTracer } from "./tracer";
+import { aggregateSignals } from "./observability";
+import { preArrivalTargets } from "./crosssell";
+import { langfuseConfig, saveLangfuseSettings, clearLangfuseSettings } from "./langfuse";
+import { ensurePricingPolicies, folioSummary } from "./pricing";
 import { listVenues, dishesOf, hoursText } from "./dining";
 import { fold } from "./catalogue";
 import { searchAvailability, checkRestrictions, resolveDate, validateStayRequest } from "./booking";
@@ -14,6 +20,16 @@ import { join } from "node:path";
 import { conversations, tasks as tasksTable } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
+
+/** Parse a JSON column back to a value for the API, tolerating null/garbage. */
+function safeParse(s: string | null): unknown {
+  if (!s) return null;
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
+}
 
 /** Never let a staff PIN cross the API boundary. */
 function safeStaff<T extends { pin?: string } | undefined>(s: T) {
@@ -76,8 +92,79 @@ async function respondWithAi(conversationId: number) {
   return result;
 }
 
+/**
+ * Every /api route except the guest-facing ones is a staff surface: it reads
+ * other guests' names, folios, conversations and tasks. Until this file was
+ * patched, all of it was open to anyone who could reach the port.
+ *
+ * The included frontend does not send a staff token yet, so the default is
+ * warn-only: the hole is logged on every request instead of silently ignored.
+ * Set STAFF_API_TOKEN and API_AUTH_ENFORCE=1 to close it, which is required
+ * before this ever faces a real network.
+ */
+const STAFF_API_TOKEN = process.env.STAFF_API_TOKEN || "";
+const API_AUTH_ENFORCE = process.env.API_AUTH_ENFORCE === "1";
+
+/**
+ * The guest chat is NOT under /api/guest/*. A guest message is posted to the
+ * shared route POST /api/conversations/:id/messages with body.from === "guest",
+ * the same route staff use with from === "staff". So the guest surface can only
+ * be recognised by method + shape, not by a path prefix.
+ *
+ * express.json() is registered in index.ts before registerRoutes(), so req.body
+ * is already parsed by the time this guard runs.
+ *
+ * WARNING: this allowlist covers guest SENDING only. Whatever else the guest UI
+ * fetches to render a thread (conversation detail, hotel info, service list) is
+ * still treated as staff surface, because client/ has not been audited to
+ * establish the real guest surface. Identify those calls before switching
+ * API_AUTH_ENFORCE on, or the guest app will break along with the dashboard.
+ */
+function isGuestRoute(req: Request) {
+  return (
+    req.method === "POST" &&
+    /^\/api\/conversations\/\d+\/messages\/?$/.test(req.path) &&
+    (req.body as { from?: unknown } | undefined)?.from === "guest"
+  );
+}
+
+let warnedOnce = false;
+
+function staffApiGuard(req: Request, res: Response, next: () => void) {
+  if (!req.path.startsWith("/api/") || isGuestRoute(req)) return next();
+
+  const presented =
+    (req.headers["x-staff-token"] as string | undefined) ||
+    (typeof req.headers.authorization === "string" && req.headers.authorization.startsWith("Bearer ")
+      ? req.headers.authorization.slice(7)
+      : undefined);
+
+  if (STAFF_API_TOKEN && presented === STAFF_API_TOKEN) return next();
+
+  if (API_AUTH_ENFORCE) {
+    res.status(401).json({ message: "Staff authentication required." });
+    return;
+  }
+
+  if (!warnedOnce) {
+    warnedOnce = true;
+    console.warn(
+      "[security] /api/* staff routes are UNAUTHENTICATED. Set STAFF_API_TOKEN and API_AUTH_ENFORCE=1 " +
+        "before exposing this server to any network. Guest folios, conversations and staff records are readable by anyone.",
+    );
+  }
+  console.warn(`[security] unauthenticated staff API call: ${req.method} ${req.path}`);
+  return next();
+}
+
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   seedIfEmpty();
+  /* Money and operational policy rows must exist before the first tool call,
+   * or the first guest gets hard-coded defaults with no audit trail. */
+  ensurePricingPolicies();
+  ensureOpsPolicies();
+
+  app.use(staffApiGuard);
 
   // Build the retrieval index once at boot, in the background, so the agent has
   // embeddings available without blocking the port from opening.
@@ -131,6 +218,17 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   /* ---------------- guest surface ---------------- */
 
   app.get("/api/guest/keys", (_req, res) => {
+    /* This lists every guest's name, tier, room number and dates. It exists
+     * for the demo's room-picker only, so it is off unless explicitly enabled
+     * and never available in production. */
+    if (process.env.NODE_ENV === "production" && process.env.EXPOSE_GUEST_KEYS !== "1") {
+      res.status(404).json({ message: "Not found." });
+      return;
+    }
+    if (process.env.EXPOSE_GUEST_KEYS === "0") {
+      res.status(404).json({ message: "Not found." });
+      return;
+    }
     // The deep-link directory a real deployment would issue per reservation.
     const rows = storage.listReservations().map((r) => {
       const g = storage.getGuest(r.guestId)!;
@@ -213,20 +311,37 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
           createdAt: nowIso(),
         });
         const hotel = storage.getHotel();
+
+        // Auto-recover conversation to "ai" mode if guest sends a new message
+        if (conv.mode === "human" && hotel.aiEnabled === 1) {
+          storage.updateConversation(id, { mode: "ai" });
+          conv.mode = "ai";
+        }
+
         if (conv.mode === "ai" && hotel.aiEnabled === 1) {
+          const provider = (process.env.LLM_MODE === "local" ? "local" : "openai") as "local" | "openai";
+          const modelName = process.env.LOCAL_AGENT_MODEL || "qwen3.5:4b";
+          const traceId = AgentTracer.startTrace(id, provider, modelName);
+
           try {
-            await respondWithAi(id);
+            AgentTracer.recordStep(traceId, id, provider, modelName, "llm_chat", { input: body });
+            const res = await respondWithAi(id);
+            AgentTracer.recordStep(traceId, id, provider, modelName, "completed", {
+              replyLength: res.reply.length,
+              traceCount: res.trace.length,
+            }, res.latencyMs);
           } catch (e: any) {
+            AgentTracer.recordError(traceId, id, provider, modelName, e, "error");
             storage.addMessage({
               conversationId: id,
-              role: "system",
-              authorName: null,
-              body: `The AI agent could not answer (${e?.message ?? e}). The conversation has been handed to the front desk.`,
+              role: "ai",
+              authorName: "Aurea Concierge",
+              body: `⚠️ Hệ thống AI đang gặp gián đoạn tạm thời kết nối tới mô hình (${e?.message ?? e}). Vui lòng thử lại hoặc nhắn câu hỏi mới để kết nối lại ạ.`,
               toolTrace: null,
               latencyMs: null,
               createdAt: nowIso(),
             });
-            storage.updateConversation(id, { mode: "human", unreadForStaff: 1 });
+            storage.updateConversation(id, { mode: "ai", unreadForStaff: 1 });
           }
         } else {
           storage.updateConversation(id, { unreadForStaff: 1 });
@@ -389,7 +504,15 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   app.get("/api/room-types", (_req, res) => {
     const rooms = storage.listRooms();
     const published = storage.listRoomTypes();
-    const inventory = [...new Set(rooms.map((r) => r.type))];
+    /* Union, not just the inventory codes: a published room category (with
+     * its own photos/description/amenities) can genuinely have zero physical
+     * rooms allocated in the current inventory — that's a real state, not a
+     * bug, and hiding it here is what left a referenced room silently
+     * unfindable by the client forever (found live: "Grand Deluxe Ocean View
+     * Queen Bed" is a real published type with no rooms of that exact type in
+     * this dataset's 40-room inventory). `rooms: 0` / `rate: 0` says so
+     * honestly instead of omitting the type outright. */
+    const inventory = [...new Set([...rooms.map((r) => r.type), ...published.map((r) => r.code)])];
     res.json(
       inventory
         .map((code) => {
@@ -406,6 +529,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
             maxGuests: row?.maxGuests ?? null,
             combinations: JSON.parse(row?.combinations ?? "[]") as Array<{ adults: number; children: number }>,
             amenities: JSON.parse(row?.amenities ?? "[]") as string[],
+            images: JSON.parse(row?.images ?? "[]") as string[],
             description: row?.description ?? null,
             sourceUrl: row?.sourceUrl ?? null,
             rate: inType[0]?.baseRate ?? 0,
@@ -422,8 +546,12 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json(
       listVenues().map((v) => ({
         code: v.row.code,
+        slug: v.row.slug,
         nameVi: v.row.nameVi,
         kind: v.row.kind,
+        description: v.row.description,
+        images: v.images,
+        menuFile: v.row.menuFile,
         hoursText: hoursText(v),
         hours: v.hours,
         mealWindows: v.mealWindows,
@@ -501,6 +629,26 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     );
   });
 
+  app.get("/api/service-groups", (_req, res) => {
+    const all = storage.listServices().filter((s) => s.serviceGroup);
+    const groups = new Map<string, typeof all>();
+    for (const s of all) groups.set(s.serviceGroup!, [...(groups.get(s.serviceGroup!) ?? []), s]);
+    res.json(
+      [...groups.entries()].map(([key, items]) => ({
+        key,
+        name: key,
+        images: JSON.parse(items[0].images || "[]") as string[],
+        items: items.map((s) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          price: s.price,
+          unit: s.unit,
+        })),
+      })),
+    );
+  });
+
   app.get("/api/services", (_req, res) => {
     const date = String((_req.query.date as string) || today());
     res.json(
@@ -563,6 +711,150 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   app.get("/api/policies/:topic", (req, res) => {
     res.json(getPolicyByTopic(req.params.topic));
+  });
+
+  app.get("/api/tracer/traces", (_req, res) => {
+    res.json(AgentTracer.getRecentTraces(50));
+  });
+
+  /* ---------------- observability: structured agent traces ---------------- */
+
+  /** Recent agent turns, newest first — the top-level "what ran" listing. */
+  app.get("/api/traces", (req, res) => {
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50));
+    const turns = storage.listRecentTurns(limit).map((t) => ({
+      traceId: t.traceId,
+      conversationId: t.conversationId,
+      status: t.status,
+      durationMs: t.durationMs,
+      provider: t.provider,
+      model: t.model,
+      createdAt: t.createdAt,
+      signals: safeParse(t.signals),
+      attributes: safeParse(t.attributes),
+    }));
+    res.json(turns);
+  });
+
+  /** Full span tree for one turn — the drill-down when a listing row looks wrong. */
+  app.get("/api/traces/:traceId", (req, res) => {
+    const spans = storage.getTraceSpans(String(req.params.traceId));
+    if (!spans.length) return res.status(404).json({ message: "Trace not found." });
+    res.json(
+      spans.map((s) => ({
+        id: s.id,
+        parentId: s.parentId,
+        name: s.name,
+        kind: s.kind,
+        status: s.status,
+        durationMs: s.durationMs,
+        provider: s.provider,
+        model: s.model,
+        startedAt: s.startedAt,
+        signals: safeParse(s.signals),
+        attributes: safeParse(s.attributes),
+        error: s.error,
+      })),
+    );
+  });
+
+  /** Turns for one conversation, so staff can see why a specific chat misbehaved. */
+  app.get("/api/conversations/:id/traces", (req, res) => {
+    const id = Number(req.params.id);
+    res.json(
+      storage.listTurnsForConversation(id, 50).map((t) => ({
+        traceId: t.traceId,
+        status: t.status,
+        durationMs: t.durationMs,
+        provider: t.provider,
+        createdAt: t.createdAt,
+        signals: safeParse(t.signals),
+      })),
+    );
+  });
+
+  /**
+   * Aggregated observability over a time window (default 24h): per-signal counts,
+   * clean-turn rate, latency percentiles, and which tools fault most. This is the
+   * "what should I fix next" screen, not a per-turn drill-down.
+   */
+  app.get("/api/observability/signals", (req, res) => {
+    const hours = Math.min(24 * 30, Math.max(1, Number(req.query.hours) || 24));
+    const since = new Date(Date.now() - hours * 3600_000).toISOString();
+    const spans = storage.spansSince(since);
+    const turns = spans.filter((s) => s.kind === "turn");
+    const toolSpans = spans
+      .filter((s) => s.kind === "tool")
+      .map((s) => ({ name: s.name, status: s.status, signals: s.signals }));
+    res.json({ windowHours: hours, since, langfuse: langfuseConfig(), ...aggregateSignals(turns, toolSpans) });
+  });
+
+  /**
+   * Reservations in the pre-arrival conversion window (default 48–72h out).
+   *
+   * Industry practice puts the best moment to offer an upgrade or an experience
+   * two to three days before arrival, while the guest is still planning. This
+   * lists who is in that window and the angle worth using — it deliberately
+   * sends nothing: an outbound message to a guest stays a human decision.
+   */
+  app.get("/api/prearrival/targets", (req, res) => {
+    /* `|| default` would turn an explicit min_days=0 (arriving today) into 2,
+       because 0 is falsy — so the bound is read explicitly. */
+    const num = (v: unknown, fallback: number) => {
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 0 ? n : fallback;
+    };
+    const minDays = num(req.query.min_days, 2);
+    const maxDays = Math.max(minDays, num(req.query.max_days, 3));
+    const guests = new Map(storage.listGuests().map((g) => [g.id, g]));
+    const enriched = storage.listReservations().map((r) => {
+      const g = guests.get(r.guestId);
+      return { ...r, guestName: g?.name, guestLang: g?.lang, vipTier: g?.vipTier };
+    });
+    const targets = preArrivalTargets(enriched, hotelToday(), { minDays, maxDays });
+    res.json({ window: { min_days: minDays, max_days: maxDays }, hotel_date: hotelToday(), count: targets.length, targets });
+  });
+
+  /** Whether trace export to Langfuse is live — surfaced as a badge in the UI. */
+  app.get("/api/observability/config", (_req, res) => {
+    res.json({ langfuse: langfuseConfig() });
+  });
+
+  /** Read Langfuse connection status (never returns the secret key). */
+  app.get("/api/observability/langfuse", (_req, res) => {
+    res.json(langfuseConfig());
+  });
+
+  /**
+   * Save Langfuse credentials entered from the Settings UI. The secret is stored
+   * but never read back to any client. An env var of the same name overrides
+   * this, so when the deployment is env-locked we refuse the write and say so.
+   */
+  app.post(
+    "/api/observability/langfuse",
+    asyncH(async (req, res) => {
+      if (langfuseConfig().envLocked) {
+        return res.status(409).json({
+          message: "Langfuse is configured by environment variables on this server and cannot be changed from the UI.",
+        });
+      }
+      const { publicKey, secretKey, baseUrl } = (req.body ?? {}) as {
+        publicKey?: string;
+        secretKey?: string;
+        baseUrl?: string;
+      };
+      saveLangfuseSettings({ publicKey, secretKey, baseUrl });
+      res.json(langfuseConfig());
+    }),
+  );
+
+  /** Disconnect Langfuse: clear the stored credentials. */
+  app.delete("/api/observability/langfuse", (_req, res) => {
+    if (langfuseConfig().envLocked) {
+      return res.status(409).json({ message: "Langfuse is env-locked on this server." });
+    }
+    clearLangfuseSettings();
+    res.json(langfuseConfig());
   });
 
   app.get("/api/retrieval", (_req, res) => {
@@ -1092,6 +1384,48 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
       } catch (e: any) {
         res.status(e instanceof LlmError ? e.status : 500).json({ ok: false, message: e?.message });
       }
+    }),
+  );
+
+  /* ------------------------------------------------------------------ *
+   * Payments
+   *
+   * The concierge can only create a payment intent; it never claims money has
+   * arrived. A human (or a real PSP webhook) confirms it here, and only then
+   * is the negative payment line posted to the folio.
+   * ------------------------------------------------------------------ */
+
+  app.get(
+    "/api/payments",
+    asyncH(async (req, res) => {
+      const reservationId = Number(req.query.reservation_id);
+      if (!Number.isFinite(reservationId)) {
+        res.status(400).json({ message: "reservation_id is required." });
+        return;
+      }
+      res.json({
+        payments: storage.paymentsFor(reservationId),
+        folio: folioSummary(reservationId),
+      });
+    }),
+  );
+
+  app.post(
+    "/api/payments/:id/confirm",
+    asyncH(async (req, res) => {
+      const id = Number(req.params.id);
+      const body = z
+        .object({
+          reference: z.string().min(1),
+          staff: z.string().optional(),
+        })
+        .parse(req.body ?? {});
+      const out = confirmPayment(id, body.reference, body.staff ?? "staff");
+      if (!out.ok) {
+        res.status(400).json(out);
+        return;
+      }
+      res.json(out);
     }),
   );
 

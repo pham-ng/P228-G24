@@ -1,0 +1,247 @@
+{
+  "model": "qwen2.5:3b",
+  "rows": [
+    {
+      "id": "h-spa-vi",
+      "lang": "vi",
+      "q": "Akoya Spa mở cửa mấy giờ?",
+      "reply": "Akoya Spa mở cửa từ 09:00 đến 22:00, yêu cầu đặt trước ít nhất 2 giờ.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-gym-vi",
+      "lang": "vi",
+      "q": "Phòng gym mở cửa từ mấy giờ?",
+      "reply": "Phòng gym mở cửa từ 05:30 đến 22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-aquafield-vi",
+      "lang": "vi",
+      "q": "Aquafield mở cửa mấy giờ?",
+      "reply": "Aquafield mở cửa từ 09:00 đến 22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-poolbar-vi",
+      "lang": "vi",
+      "q": "Pool Bar mở cửa mấy giờ?",
+      "reply": "Pool Bar mở cửa từ 09:00 đến 23:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-seaviewbar-vi",
+      "lang": "vi",
+      "q": "Seaview Bar hoạt động từ mấy giờ đến mấy giờ?",
+      "reply": "Seaview Bar hoạt động từ 07:00 đến 23:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-jasmine-en",
+      "lang": "en",
+      "q": "What time does Jasmine Restaurant open and close?",
+      "reply": "Jasmine Restaurant opens at 11:00 and closes at 22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-beachcomber-vi",
+      "lang": "vi",
+      "q": "Beach Comber Bar mở cửa mấy giờ?",
+      "reply": "Beach Comber Bar mở cửa từ 09:00 đến 23:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-breakfast-vi",
+      "lang": "vi",
+      "q": "Ăn sáng phục vụ từ mấy giờ đến mấy giờ?",
+      "reply": "Lotus Restaurant phục vụ ăn sáng từ 06:00 đến 10:30.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-breakfast-en",
+      "lang": "en",
+      "q": "What are the breakfast serving hours?",
+      "reply": "Breakfast is served from 06:00 to 10:30 at Lotus Restaurant.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-lotus-slots-vi",
+      "lang": "vi",
+      "q": "Nhà hàng Lotus phục vụ những khung giờ nào trong ngày?",
+      "reply": "Lotus Restaurant phục vụ từ 06:00 - 22:00.",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "10:30",
+        "12:00",
+        "18:00"
+      ]
+    },
+    {
+      "id": "h-lotus-slots-en",
+      "lang": "en",
+      "q": "What are all of Lotus Restaurant's serving hours today?",
+      "reply": "Lotus Restaurant serves from 06:00 to 22:00 daily.",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "10:30",
+        "12:00",
+        "18:00"
+      ]
+    },
+    {
+      "id": "h-halal-slots-vi",
+      "lang": "vi",
+      "q": "Nhà hàng Halal VietFlavors phục vụ những khung giờ nào?",
+      "reply": "Nhà hàng Halal VietFlavors mở cửa từ 10:30 đến 14:30 và từ 17:30 đến 22:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-pool-facility-vi",
+      "lang": "vi",
+      "q": "Hồ bơi ngoài trời mở cửa mấy giờ?",
+      "reply": "Hồ bơi ngoài trời mở cửa từ 06:00 đến 20:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-beach-facility-vi",
+      "lang": "vi",
+      "q": "Bãi biển riêng mở cửa mấy giờ?",
+      "reply": "Bãi biển riêng mở cửa từ 06:00 đến 18:30.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-kidsclub-vi",
+      "lang": "vi",
+      "q": "Kids Club mở cửa mấy giờ?",
+      "reply": "Kids Club mở cửa từ 08:00.",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "20:00"
+      ]
+    },
+    {
+      "id": "h-frontdesk-vi",
+      "lang": "vi",
+      "q": "Lễ tân làm việc mấy giờ?",
+      "reply": "Lễ tân làm việc từ 00:00 đến 23:59.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-bachgiai-unknown",
+      "lang": "vi",
+      "q": "Nhà hàng Bách Giai mở cửa mấy giờ?",
+      "reply": "Nhà hàng Bách Giai mở cửa từ 10:30 đến 22:00.",
+      "escalated": false,
+      "correct": false,
+      "missing": [
+        "hỏi lễ tân"
+      ]
+    },
+    {
+      "id": "h-entity-poolbar-not-seaview",
+      "lang": "vi",
+      "q": "Quầy bar cạnh hồ bơi mở cửa mấy giờ?",
+      "reply": "Pool Bar mở cửa từ 09:00 đến 23:00.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-spa-zh",
+      "lang": "zh",
+      "q": "Akoya水疗中心几点营业？",
+      "reply": "Akoya水疗中心营业时间为09:00-22:00。",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-gym-ja",
+      "lang": "ja",
+      "q": "ジムは何時から何時までですか？",
+      "reply": "正確にお答えするため、フロントに確認いたします。担当者にお繋ぎいたしました。",
+      "escalated": true,
+      "correct": false,
+      "missing": [
+        "05:30",
+        "22:00"
+      ]
+    },
+    {
+      "id": "h-checkout-ko",
+      "lang": "ko",
+      "q": "체크아웃은 몇 시까지인가요?",
+      "reply": "체크아웃은 최대 12:00까지 가능합니다.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-checkin-zh",
+      "lang": "zh",
+      "q": "几点可以办理入住？",
+      "reply": "14:00可以办理入住。",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-spa-natural",
+      "lang": "vi",
+      "q": "Spa mấy giờ đóng cửa vậy?",
+      "reply": "Akoya Spa đóng cửa lúc 22:00 tối muộn.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    },
+    {
+      "id": "h-gym-natural-en",
+      "lang": "en",
+      "q": "Is the gym open this early, like 6am?",
+      "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+      "escalated": true,
+      "correct": false,
+      "missing": [
+        "05:30"
+      ]
+    },
+    {
+      "id": "h-breakfast-natural-en",
+      "lang": "en",
+      "q": "Do you guys have breakfast early?",
+      "reply": "Yes, early check-in for breakfast is possible but must be confirmed in advance and is not granted before 12:00 without a charge. Early arrival before 06:00 is charged 100% of the package price.",
+      "escalated": false,
+      "correct": true,
+      "missing": []
+    }
+  ]
+}

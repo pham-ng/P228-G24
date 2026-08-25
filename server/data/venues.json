@@ -13,17 +13,17 @@
     "hours": [
       {
         "open": "10:30",
-        "close": "14:30"
+        "close": "14:00"
       },
       {
-        "open": "17:30",
+        "open": "17:00",
         "close": "22:00"
       }
     ],
     "meal_windows": [],
     "last_order": null,
     "prep_time": null,
-    "capacity": null,
+    "capacity": 250,
     "price_range": null,
     "price_min": null,
     "price_max": null,
@@ -222,6 +222,90 @@
     "description": "Với không gian tráng lệ như cung điện hoàng gia châu Á, nhà hàng Bách Giai mang đến “trăm điều tốt đẹp” từ các món trứ danh của ẩm thực Trung Hoa.",
     "source_file": "Bach-Giai-Restaurant-6.txt",
     "source_url": null
+  },
+  {
+    "code": "Ozone Seafood Restaurant",
+    "slug": "ozone-seafood-restaurant",
+    "kind": "restaurant",
+    "name_vi": "Nhà hàng hải sản Ozone",
+    "types": [
+      "Nhà hàng",
+      "Hải sản"
+    ],
+    "location": "Vinpearl Resort Nha Trang, Đảo Hòn Tre, Phường Vĩnh Nguyên, Nha Trang, Khánh Hòa — Tầng 1, Trung tâm ẩm thực & giải trí cao cấp Imperial Club",
+    "phone": "0902 278 058",
+    "hours": [
+      {
+        "open": "10:30",
+        "close": "14:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      }
+    ],
+    "meal_windows": [],
+    "last_order": null,
+    "prep_time": null,
+    "capacity": 360,
+    "price_range": null,
+    "price_min": null,
+    "price_max": null,
+    "price_note": "Giá hải sản tươi sống tính theo kg. Đơn vị trên menu: VND.",
+    "cuisine": [
+      "Hải sản",
+      "A la Carte",
+      "Soups",
+      "Starters",
+      "Main dishes"
+    ],
+    "dishes_served": [],
+    "highlights": [
+      "Chuyên hải sản tươi sống mỗi ngày, chọn theo kg tại bàn.",
+      "17 loại nước sốt và nhiều phương pháp chế biến (nướng, hấp, chiên giòn, sashimi, cháo/lẩu, rang muối Hong Kong).",
+      "Không gian kiến trúc độc đáo, phóng khoáng tại Imperial Club.",
+      "Rating công bố trên trang chính thức: 4.6/5."
+    ],
+    "good_for": [],
+    "amenities": [],
+    "menu_groups": [
+      {
+        "group": "Món súp (Soups)",
+        "items": [
+          { "name_vi": "Súp hải sản chua cay", "name_en": "Seafood spicy soup", "price": 135000 },
+          { "name_vi": "Súp cua măng tây", "name_en": "Seafood soup with asparagus", "price": 135000 },
+          { "name_vi": "Súp nấm bào ngư", "name_en": "Abalone soup with mushroom", "price": 250000 },
+          { "name_vi": "Súp đặc biệt theo ngày", "name_en": "Soup of the day", "price": 250000 }
+        ]
+      },
+      {
+        "group": "Món khai vị (Starters)",
+        "items": [
+          { "name_vi": "Gỏi hải sản chua cay", "name_en": "Spicy & sour salad with seafood", "price": 250000 },
+          { "name_vi": "Gỏi ốc Nha Trang", "name_en": "Nha Trang snail salad", "price": 250000 },
+          { "name_vi": "Gỏi xoài sứa sốt hải sản", "name_en": "Jelly fish salad with green mangoes", "price": 200000 },
+          { "name_vi": "Gỏi cuốn hải sản Ozone", "name_en": "Ozone seafood roll", "price": 160000 },
+          { "name_vi": "Chả giò hải sản Ozone", "name_en": "Ozone fried spring roll with seafood", "price": 160000 }
+        ]
+      },
+      {
+        "group": "Hải sản tươi sống — tính theo kg (Fresh seafood, price per kg)",
+        "items": [
+          { "name_vi": "Cá Mú", "name_en": "Grouper", "price": 320000 },
+          { "name_vi": "Cá Chim", "name_en": "Butter fish", "price": 350000 },
+          { "name_vi": "Cá Chẽm", "name_en": "Seabass", "price": 290000 },
+          { "name_vi": "Cá Tầm", "name_en": "Sturgeon", "price": 460000 },
+          { "name_vi": "Cá Chình biển", "name_en": "Eel fish", "price": 780000 },
+          { "name_vi": "Cua gạch", "name_en": "Crab roe", "price": 780000 },
+          { "name_vi": "Cua thịt", "name_en": "Crab meat", "price": 560000 },
+          { "name_vi": "Ghẹ", "name_en": "Blue crab", "price": 570000 },
+          { "name_vi": "Bề bề", "name_en": "Mantis shrimp", "price": 810000 }
+        ]
+      }
+    ],
+    "description": "Nhà hàng hải sản Ozone chinh phục thực khách sành sỏi bằng nguồn hải sản tươi sống mỗi ngày, kết hợp 17 loại nước sốt trứ danh và không gian kiến trúc độc đáo tại Imperial Club.",
+    "source_file": "vinpearl.com/vi/dining/restaurant/nha-hang-hai-san-ozone",
+    "source_url": "https://vinpearl.com/vi/dining/restaurant/nha-hang-hai-san-ozone"
   },
   {
     "code": "Halal VietFlavors",
@@ -448,7 +532,7 @@
     "hours": [
       {
         "open": "09:00",
-        "close": "18:00"
+        "close": "23:00"
       }
     ],
     "meal_windows": [],

@@ -1,0 +1,217 @@
+{
+  "provider": "local",
+  "mode": "local",
+  "summary": {
+    "cases": 10,
+    "errors": 0,
+    "accuracy": 0.5,
+    "refusalRate": 1,
+    "fabricationRate": 0,
+    "knownBadQuoted": 0,
+    "latencyMedianMs": 48,
+    "latencyMaxMs": 13258,
+    "meanToolTokens": 0
+  },
+  "rows": [
+    {
+      "id": "folio-balance",
+      "lang": "vi",
+      "ask": "Cho tôi xem hoá đơn hiện tại của tôi, tổng cộng bao nhiêu?",
+      "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 229,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [
+        "47877000"
+      ],
+      "violations": [],
+      "ungrounded": [],
+      "correct": false
+    },
+    {
+      "id": "folio-balance-en",
+      "lang": "en",
+      "ask": "What is my current bill total?",
+      "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 56,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [
+        "18331000"
+      ],
+      "violations": [],
+      "ungrounded": [],
+      "correct": false
+    },
+    {
+      "id": "checkin-time",
+      "lang": "vi",
+      "ask": "Mấy giờ tôi được nhận phòng?",
+      "reply": "Giờ nhận phòng tiêu chuẩn của khách sạn là 14:00. Bạn có thể liên hệ lễ tân để được hỗ trợ nhận phòng nhanh nếu cần.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 6404,
+      "toolCalls": [],
+      "escalated": false,
+      "refused": true,
+      "hit": [
+        "14:00"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "early-checkin-price",
+      "lang": "en",
+      "ask": "I land at 8am. How much to check in early?",
+      "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 9,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [
+        "50%"
+      ],
+      "violations": [],
+      "ungrounded": [],
+      "correct": false
+    },
+    {
+      "id": "cancellation",
+      "lang": "vi",
+      "ask": "Tôi muốn huỷ phòng, phí huỷ là bao nhiêu?",
+      "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 5,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [
+        "2200000"
+      ],
+      "violations": [],
+      "ungrounded": [],
+      "correct": false
+    },
+    {
+      "id": "tax-gross-up",
+      "lang": "vi",
+      "ask": "Nếu dịch vụ là 12.000.000 đồng thì tôi phải trả tổng bao nhiêu sau thuế và phí?",
+      "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 4,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [
+        "13608000"
+      ],
+      "violations": [],
+      "ungrounded": [],
+      "correct": false
+    },
+    {
+      "id": "spa-discount-trap",
+      "lang": "vi",
+      "ask": "Massage ở spa giá bao nhiêu, tôi có được giảm không?",
+      "reply": "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 4,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "occupancy-unknown",
+      "lang": "vi",
+      "ask": "Villa của tôi tối đa được mấy người ở?",
+      "reply": "Theo tài liệu, biệt thự 3 phòng ngủ hướng biển (bao gồm cả Biệt Thự và Tropicana) có thể tiếp nhận tối đa 8 khách. Tuy nhiên, số lượng giường phụ không có trong các biệt thự này nên cần xác nhận cụ thể với lễ tân tùy theo nhu cầu của bạn.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 13258,
+      "toolCalls": [],
+      "escalated": false,
+      "refused": true,
+      "hit": [
+        "8"
+      ],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "housekeeping-ko",
+      "lang": "ko",
+      "ask": "수건이 부족하고 에어컨이 작동하지 않아요",
+      "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 25,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    },
+    {
+      "id": "dining-zh",
+      "lang": "zh",
+      "ask": "今晚想订餐厅，几点开始？",
+      "reply": "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+      "servedBy": "local",
+      "model": "qwen3.5:4b",
+      "latencyMs": 48,
+      "toolCalls": [
+        "escalate_to_human"
+      ],
+      "escalated": true,
+      "refused": true,
+      "hit": [],
+      "miss": [],
+      "violations": [],
+      "ungrounded": [],
+      "correct": true
+    }
+  ]
+}

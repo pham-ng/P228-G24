@@ -1,0 +1,67 @@
+OFFLINE ANSWER QUALITY — 63 cases (45 answerable · 18 must-escalate)
+model qwen3.5:4b via ollama
+==========================================================================
+
+ANSWER LANE — escalating here is a failure
+  answered by the model       26/45  57.8%
+  answered AND correct        25/45  55.6%   <-- usefulness
+  correct, of those answered  25/26  96.2%
+  gave up (escalated)         19
+
+ESCALATE LANE — answering here is a failure
+  correctly escalated         18/18  100.0%   <-- safety
+
+FABRICATED NUMBERS (present in the reply, in no passage): 0
+
+REPLY LANGUAGE MATCHES THE QUESTION: 26/26
+
+LATENCY
+  with a model call (32)  p50 14869ms · p95 22853ms · max 28800ms
+  no inference      (31)  p50 1ms · p95 121ms
+
+ANSWER-LANE FAILURES (20)
+  spa-hours-en             gave up: Không đủ căn cứ trong kho tri thức (unverified_only).
+      Q: What are the spa opening hours?
+  breakfast-hours-vi       gave up: Model nội bộ không tìm thấy câu trả lời trong tài liệu.
+      Q: Ăn sáng phục vụ từ mấy giờ đến mấy giờ?
+  pets-vi                  gave up: Model nội bộ không tìm thấy câu trả lời trong tài liệu.
+      Q: Tôi mang theo chó nhỏ được không?
+  pets-en                  gave up: Không đủ căn cứ trong kho tri thức (low_score).
+      Q: Can I bring my dog to the resort?
+  id-required              gave up: Model nội bộ không tìm thấy câu trả lời trong tài liệu.
+      Q: Nhận phòng cần giấy tờ gì?
+  child-doc                gave up: Model nội bộ không tìm thấy câu trả lời trong tài liệu.
+      Q: Trẻ em đi cùng cần mang giấy tờ gì?
+  room-count               gave up: Model nội bộ không tìm thấy câu trả lời trong tài liệu.
+      Q: Resort có tất cả mấy phòng?
+  extra-bed-count          answered but the expected fact is missing
+      Q: Một phòng kê thêm được mấy giường phụ?
+      A: Thông tin về số lượng giường phụ có thể kê thêm không được nêu rõ trong tài liệu.
+  package-codes            gave up: Yêu cầu cần tính toán hoặc nhiều bước — chuyển nhân viên.
+      Q: Mã BB trong bảng giá nghĩa là gì?
+  guestlist-lowseason      gave up: Model nội bộ không tìm thấy câu trả lời trong tài liệu.
+      Q: Danh sách khách phải gửi trước bao nhiêu ngày mùa thấp điểm?
+  complaint-steps          gave up: Không đủ căn cứ trong kho tri thức (low_score).
+      Q: Tôi muốn khiếu nại thì quy trình thế nào?
+  payment-methods          gave up: Yêu cầu cần tính toán hoặc nhiều bước — chuyển nhân viên.
+      Q: Resort nhận thanh toán bằng hình thức nào?
+  spa-hours-ko             gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: 스파는 몇 시에 문을 여나요?
+  breakfast-ko             gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: 조식은 몇 시부터인가요?
+  pets-ko                  gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: 반려견을 데려가도 되나요?
+  spa-hours-zh             gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: 水疗中心几点开门？
+  breakfast-zh             gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: 早餐几点开始供应？
+  pool-zh                  gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: 酒店有游泳池吗？
+  spa-hours-ja             gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: スパは何時から開いていますか？
+  checkout-ja              gave up: Không đủ căn cứ trong kho tri thức (no_match).
+      Q: チェックアウトは何時ですか？
+
+written to bench/baselines/remediation/03-offline-before.json
+
+[exited with code 0]

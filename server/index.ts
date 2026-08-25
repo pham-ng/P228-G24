@@ -92,7 +92,16 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(port, "127.0.0.1", () => {
+  httpServer.listen(port, "127.0.0.1", async () => {
     log(`serving on port ${port}`);
+    /* Verify the vector index against the running configuration before the first
+       guest asks anything. This deployment once ran with a 1536-d index and a
+       384-d embedder: the vector leg switched itself off, retrieval became
+       keyword-only, and Korean, Chinese and Japanese questions returned nothing
+       at all — with no error anywhere. The check runs after listen() so a broken
+       index degrades the answer quality rather than the availability of the
+       kiosk, but it is never silent again. */
+    const { reportIndexHealth } = await import("./index-health");
+    await reportIndexHealth();
   });
 })();

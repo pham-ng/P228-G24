@@ -1,0 +1,84 @@
+{
+  "label": "C · bge-m3 w=1.5",
+  "ranAt": "2026-08-24T03:55:09.120Z",
+  "config": {
+    "db": "bench/baselines/idx-bgem3.db",
+    "embedProvider": "local",
+    "embedModel": "bge-m3",
+    "vecWeight": "1.5",
+    "lexWeight": "1",
+    "titleBoost": "0.6",
+    "chunks": 139
+  },
+  "monolingual": {
+    "n": 52,
+    "hit1": 0.885,
+    "hit3": 0.962,
+    "hit5": 0.981,
+    "hit10": 0.981,
+    "mrr": 0.924,
+    "ndcg5": 0.874,
+    "ndcg10": 0.888,
+    "latencyMean": 131,
+    "latencyP50": 121,
+    "latencyP95": 185,
+    "vectorLegRan": 52,
+    "perLang": {
+      "vi": {
+        "n": 44,
+        "hit1": 39,
+        "hit5": 43
+      },
+      "en": {
+        "n": 8,
+        "hit1": 7,
+        "hit5": 8
+      }
+    },
+    "misses": [
+      "P-checkout-nodiacritic (vi)"
+    ]
+  },
+  "multilingual": {
+    "n": 30,
+    "hit1": 0.967,
+    "hit3": 1,
+    "hit5": 1,
+    "hit10": 1,
+    "mrr": 0.983,
+    "ndcg5": 0.845,
+    "ndcg10": 0.861,
+    "latencyMean": 118,
+    "latencyP50": 120,
+    "latencyP95": 142,
+    "vectorLegRan": 30,
+    "perLang": {
+      "vi": {
+        "n": 6,
+        "hit1": 6,
+        "hit5": 6
+      },
+      "en": {
+        "n": 6,
+        "hit1": 6,
+        "hit5": 6
+      },
+      "zh": {
+        "n": 6,
+        "hit1": 6,
+        "hit5": 6
+      },
+      "ja": {
+        "n": 6,
+        "hit1": 6,
+        "hit5": 6
+      },
+      "ko": {
+        "n": 6,
+        "hit1": 5,
+        "hit5": 6
+      }
+    },
+    "misses": []
+  }
+}

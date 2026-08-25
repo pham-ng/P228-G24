@@ -18,6 +18,7 @@ import PoliciesPage from "@/pages/policies";
 import CampaignsPage from "@/pages/campaigns";
 import AuditPage from "@/pages/audit";
 import BenchmarkPage from "@/pages/benchmark";
+import TracesPage from "@/pages/traces";
 import SettingsPage from "@/pages/settings";
 
 /**
@@ -54,6 +55,7 @@ function AppRouter() {
       <Route path="/staff/policies" component={() => <Protected component={PoliciesPage} />} />
       <Route path="/staff/campaigns" component={() => <Protected component={CampaignsPage} />} />
       <Route path="/staff/benchmark" component={() => <Protected component={BenchmarkPage} />} />
+      <Route path="/staff/traces" component={() => <Protected component={TracesPage} />} />
       <Route path="/staff/audit" component={() => <Protected component={AuditPage} />} />
       <Route path="/staff/settings" component={() => <Protected component={SettingsPage} />} />
       <Route component={NotFound} />

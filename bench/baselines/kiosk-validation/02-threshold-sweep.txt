@@ -1,0 +1,18 @@
+Case tri thức (route=knowledge): 43/45
+Case ESCALATE lọt vào route=knowledge (phải luôn = 0): 0
+
+ngưỡng   gate qua   đúng bằng chứng  chặn oan (đúng nhưng bị chặn)  qua nhưng SAI (nguy hiểm)
+0        43/43      37/43            0                              6
+0.002    43/43      37/43            0                              6
+0.004    43/43      37/43            0                              6
+0.006    43/43      37/43            0                              6
+0.0065   43/43      37/43            0                              6
+0.007    43/43      37/43            0                              6
+0.0075   43/43      37/43            0                              6
+0.008    43/43      37/43            0                              6
+0.009    35/43      31/43            6                              4
+0.01     35/43      31/43            6                              4
+0.012    35/43      31/43            6                              4
+
+'chặn oan' = câu có đúng bằng chứng trong top-k nhưng ngưỡng vẫn từ chối (mất cơ hội trả lời).
+'qua nhưng SAI' = ngưỡng cho qua nhưng đoạn văn trả về KHÔNG chứa sự thật cần — đây là rủi ro an toàn thật, phải bằng 0 hoặc gần 0 ở mọi ngưỡng được chọn.

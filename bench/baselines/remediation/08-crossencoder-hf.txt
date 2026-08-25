@@ -1,0 +1,12 @@
+  1/52  P-checkout-vi                 2/52  P-checkout-nodiacritic        3/52  P-checkout-en                 4/52  P-checkin-vi                  5/52  P-occupancy-vi                6/52  P-occupancy-children          7/52  P-deposit-vi                  8/52  P-payment-vi                  9/52  P-smoking-vi                  10/52  P-pets-en                     11/52  P-visitors-pool-vi            12/52  P-namechange-vi               13/52  P-dispute-vi                  14/52  P-privacy-vi                  15/52  P-package-vi                  16/52  R-villa3-vi                   17/52  R-deluxe-ocean-queen-vi       18/52  R-grand-twin-vi               19/52  R-deluxe-twin-en              20/52  D-lotus-vi                    21/52  D-bachgiai-vi                 22/52  D-halal-vi                    23/52  D-poolbar-vi                  24/52  D-jasmine-en                  25/52  D-breakfast-vi                26/52  D-hours-en                    27/52  N-cablecar-vi                 28/52  N-cablecar-nodiacritic        29/52  N-vinwonders-vi               30/52  N-airport-vi                  31/52  N-airport-en                  32/52  N-golf-vi                     33/52  S-spa-vi                      34/52  S-pool-vi                     35/52  S-sauna-vi                    36/52  S-mice-en                     37/52  S-member-vi                   38/52  B-cablecar-access-vi          39/52  B-vinwonders-vi               40/52  B-airport-dist-vi             41/52  B-wifi-placeholder-vi         42/52  B-parking-placeholder-vi      43/52  B-gym-placeholder-vi          44/52  V-overview-vi                 45/52  V-bachgiai-vi                 46/52  V-imperial-bowling-vi         47/52  V-akoya-vi                    48/52  V-pool-vi                     49/52  V-bars-vi                     50/52  V-watersports-vi              51/52  V-mice-vi                     52/52  V-overview-en                                                                           
+==========================================================================
+Hybrid + BAAI/bge-reranker-v2-m3 (cross-encoder thật, qua HF Inference API)
+==========================================================================
+hit@1  90.4%
+hit@3  96.2%
+hit@5  98.1%
+MRR    0.940
+nDCG@5 83.4%
+latency p50 1914ms · p95 2350ms
+
+các câu trượt hit@5: P-pets-en

@@ -1,0 +1,109 @@
+{
+  "label": "B · e5-small w=1",
+  "ranAt": "2026-08-24T03:53:58.118Z",
+  "config": {
+    "db": "bench/baselines/idx-e5-384.db",
+    "embedProvider": "local",
+    "embedModel": "qllama/multilingual-e5-small:q8_0",
+    "vecWeight": "1",
+    "lexWeight": "1",
+    "titleBoost": "0.6",
+    "chunks": 139
+  },
+  "monolingual": {
+    "n": 52,
+    "hit1": 0.5,
+    "hit3": 0.673,
+    "hit5": 0.827,
+    "hit10": 0.981,
+    "mrr": 0.625,
+    "ndcg5": 0.585,
+    "ndcg10": 0.643,
+    "latencyMean": 89,
+    "latencyP50": 86,
+    "latencyP95": 103,
+    "vectorLegRan": 52,
+    "perLang": {
+      "vi": {
+        "n": 44,
+        "hit1": 21,
+        "hit5": 36
+      },
+      "en": {
+        "n": 8,
+        "hit1": 5,
+        "hit5": 7
+      }
+    },
+    "misses": [
+      "P-occupancy-vi (vi)",
+      "P-occupancy-children (vi)",
+      "P-payment-vi (vi)",
+      "P-pets-en (en)",
+      "P-visitors-pool-vi (vi)",
+      "D-lotus-vi (vi)",
+      "N-airport-vi (vi)",
+      "S-pool-vi (vi)",
+      "V-imperial-bowling-vi (vi)"
+    ]
+  },
+  "multilingual": {
+    "n": 30,
+    "hit1": 0.233,
+    "hit3": 0.433,
+    "hit5": 0.467,
+    "hit10": 0.567,
+    "mrr": 0.332,
+    "ndcg5": 0.292,
+    "ndcg10": 0.326,
+    "latencyMean": 86,
+    "latencyP50": 89,
+    "latencyP95": 102,
+    "vectorLegRan": 30,
+    "perLang": {
+      "vi": {
+        "n": 6,
+        "hit1": 2,
+        "hit5": 4
+      },
+      "en": {
+        "n": 6,
+        "hit1": 3,
+        "hit5": 6
+      },
+      "zh": {
+        "n": 6,
+        "hit1": 2,
+        "hit5": 3
+      },
+      "ja": {
+        "n": 6,
+        "hit1": 0,
+        "hit5": 1
+      },
+      "ko": {
+        "n": 6,
+        "hit1": 0,
+        "hit5": 0
+      }
+    },
+    "misses": [
+      "late_checkout-zh (zh)",
+      "late_checkout-ja (ja)",
+      "late_checkout-ko (ko)",
+      "breakfast-ko (ko)",
+      "spa-ja (ja)",
+      "spa-ko (ko)",
+      "cable_car-vi (vi)",
+      "cable_car-ja (ja)",
+      "cable_car-ko (ko)",
+      "occupancy-vi (vi)",
+      "occupancy-zh (zh)",
+      "occupancy-ja (ja)",
+      "occupancy-ko (ko)",
+      "airport_transfer-zh (zh)",
+      "airport_transfer-ja (ja)",
+      "airport_transfer-ko (ko)"
+    ]
+  }
+}

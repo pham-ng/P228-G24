@@ -1,7 +1,11 @@
-import { storage, nowIso, hotelToday, hotelClock } from "./storage";
+import { storage, nowIso, hotelToday, hotelClock, db } from "./storage";
+import { serviceBookings } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { hybridSearch } from "./retrieval";
 import { fitsPublishedCombination, findRoomType, roomTypeFacts } from "./catalogue";
-import { venueFacts } from "./dining";
+import { venueFacts, detectReferencedVenues } from "./dining";
+import { detectReferencedRoomTypes } from "./rooms";
+import { detectReferencedServices } from "./services";
 import {
   quoteLateCheckout,
   quoteEarlyCheckin,
@@ -22,9 +26,48 @@ import {
   extractBudget,
 } from "./booking";
 import { screenGuestMessage, redactCards } from "./guard";
-import { chat, classify, LlmError, MODEL_AGENT } from "./openai";
+import {
+  folioSummary,
+  getEntitlements,
+  postCharge,
+  priceService,
+  quoteReservationCancellation,
+  quoteServiceCancellation,
+  quoteTaxGrossUp,
+  reverseCharge,
+} from "./pricing";
+import {
+  OPS_TOOLS,
+  OPS_TOOL_NAMES,
+  bookCatalogueService,
+  ensureOpsPolicies,
+  fetchWeather,
+  hotelIso,
+  runOpsTool,
+} from "./ops";
+import type { OpsCtx } from "./ops";
+import { DEPT_KEYS } from "@shared/schema";
+import { agentModel, chat, classify, FALLBACK, LlmError, MODEL_AGENT, PRIMARY } from "./openai";
+import {
+  resolveFindCapability,
+  selectTools,
+  TOOL_BUDGET,
+  type FamilyName,
+} from "./toolrouter";
+import { checkReply, repairReply, type GuardVerdict } from "./numguard";
+import {
+  Trace,
+  deriveToolSignals,
+  deriveRouterSignals,
+  detectLanguageMismatch,
+  toolSignature,
+} from "./observability";
+import { recommend, compareRooms, type RoomContext } from "./upsell";
+import { runLocalTurn, type ReplyLang } from "./local-agent";
+import { suggestInStay, type Weather } from "./crosssell";
+import { detectPendingTransaction, processFormWizardTurn } from "./wizard";
 import type { ChatMessage, ToolSpec } from "./openai";
-import type { Conversation, ToolCallTrace } from "@shared/schema";
+import type { Conversation, ToolCallTrace, Message } from "@shared/schema";
 
 const LANG_NAMES: Record<string, string> = {
   en: "English",
@@ -119,13 +162,28 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "quote_early_checkin",
       description:
-        "Compute the early-arrival charge for this reservation at a given arrival time from the published bands. Read-only. Use it before quoting any early check-in price.",
+        "Compute the early-arrival charge for this reservation at a given arrival time from the published bands. Read-only: it changes nothing. Always call this before quoting an early check-in price, or call request_early_checkin directly to apply/book early arrival.",
       parameters: {
         type: "object",
         properties: {
           requested_time: { type: "string", description: "Desired arrival time, HH:MM 24-hour." },
         },
         required: ["requested_time"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "quote_tax_gross_up",
+      description:
+        "Compute what a guest actually pays on top of a NET price the guest names — applies the published service charge then VAT from TAX_AND_SERVICE. Use this for any 'if it costs X, what's the total after tax/fees' question that is not already an actual folio charge (get_folio is for real charges on this stay). Never compute service charge or VAT by hand.",
+      parameters: {
+        type: "object",
+        properties: {
+          net_amount: { type: "number", description: "The net price the guest quoted, before service charge and VAT, in the property's currency." },
+        },
+        required: ["net_amount"],
       },
     },
   },
@@ -211,7 +269,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "list_services",
       description:
-        "List bookable services with live prices and available time slots. Categories: dining, spa, experience, transport, roomservice.",
+        "List bookable services with live prices and available time slots. Categories: dining, spa, experience, transport, roomservice. DO NOT use for hotel room prices or room types! Use search_knowledge or check_availability for room rates.",
       parameters: {
         type: "object",
         properties: {
@@ -293,7 +351,8 @@ export const TOOLS: ToolSpec[] = [
     type: "function",
     function: {
       name: "get_folio",
-      description: "Read the guest's current bill: every charge and the running total.",
+      description:
+        "Read the guest's current bill: every charge and the running total. For a HYPOTHETICAL amount the guest names ('if a service costs X') that is not an actual charge on this stay, use quote_tax_gross_up instead — do not read the folio to answer a hypothetical.",
       parameters: { type: "object", properties: {}, required: [] },
     },
   },
@@ -308,7 +367,7 @@ export const TOOLS: ToolSpec[] = [
         properties: {
           dept: {
             type: "string",
-            enum: ["front_desk", "housekeeping", "fnb", "engineering", "spa"],
+            enum: [...DEPT_KEYS],
           },
           title: { type: "string", description: "Short imperative summary, max 60 characters." },
           detail: { type: "string", description: "What exactly is needed, including the room." },
@@ -343,6 +402,71 @@ export const TOOLS: ToolSpec[] = [
           },
         },
         required: ["expression"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "recommend_room_packages",
+      description:
+        "Rate packages + upsell ladder. Use for any room price, which-room, or budget question. Returns the cheapest match to quote first, dearer ones with extra cost and what it adds, and clarify chips when the guest said too little.",
+      parameters: {
+        type: "object",
+        properties: {
+          room_type: { type: "string", description: "Guest's words; empty if unnamed." },
+          max_price_per_night: { type: "number", description: "VND/night" },
+          must_have: {
+            type: "array",
+            items: { type: "string" },
+            description:
+              "breakfast|full_board|vinwonders|golf|hotel_credit|spa|sauna|cable_car|pool|ocean_view|family_4",
+          },
+          guests: { type: "number" },
+          traveller: {
+            type: "string",
+            enum: ["golf", "family", "couple", "wellness", "business", "honeymoon", "anniversary", "birthday"],
+            description: "Who is travelling / what they are celebrating, if revealed. Ranks suggestions; never hides options.",
+          },
+          too_expensive: {
+            type: "boolean",
+            description: "Set when the guest says the price is too high — returns cheaper options and what they drop.",
+          },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "suggest_experiences",
+      description:
+        "For a guest already staying: what to suggest right now, ranked by time of day, weather, how many nights are left and their tier. Use when they ask what to do, where to eat, or how to spend an evening. Each suggestion carries the reason to give them.",
+      parameters: {
+        type: "object",
+        properties: {
+          interest: { type: "string", description: "What they asked for, in their words, if anything." },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "compare_room_types",
+      description:
+        "Compare room categories side by side: size, capacity, view, private pool, and each one's starting price. Use when the guest asks how two categories differ or which to choose.",
+      parameters: {
+        type: "object",
+        properties: {
+          rooms: {
+            type: "string",
+            description: "Categories to compare in the guest's words, e.g. 'deluxe và grand deluxe'. Empty compares all.",
+          },
+        },
+        required: [],
       },
     },
   },
@@ -450,7 +574,123 @@ export const TOOLS: ToolSpec[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "cancel_reservation",
+      description:
+        "Cancel a confirmed room reservation. Checks cancellation policies (e.g. free cancellation vs fee window), updates status in PMS, and releases the room. Always ask for guest confirmation of the reservation code before calling.",
+      parameters: {
+        type: "object",
+        properties: {
+          confirmation_code: {
+            type: "string",
+            description: "Reservation confirmation code (e.g., VPNT-7H23PC). Defaults to the stay linked to this chat.",
+          },
+          reason: { type: "string", description: "Reason for cancellation given by guest." },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "cancel_service_booking",
+      description:
+        "Cancel an existing service booking, dining table reservation, or folio service charge. Use this whenever the guest asks to cancel any booked service, meal/dining reservation, spa treatment, or activity.",
+      parameters: {
+        type: "object",
+        properties: {
+          booking_id: {
+            type: "integer",
+            description: "Service booking ID if known.",
+          },
+          service_name: { type: "string", description: "Name or category of the service (e.g., 'bàn ăn', 'spa', 'dining', 'lotus')." },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_guest_preferences",
+      description:
+        "Save or update dietary requirements, room preferences, allergies, or special requests directly into the guest's profile. Call whenever a guest states a persistent preference (e.g., 'Tôi bị dị ứng hải sản', 'Thích phòng tầng cao').",
+      parameters: {
+        type: "object",
+        properties: {
+          preferences: {
+            type: "array",
+            items: { type: "string" },
+            description: "List of preference statements or tags to add (e.g. ['seafood allergy', 'high floor', 'quiet room']).",
+          },
+          notes: { type: "string", description: "Detailed note to append to guest profile." },
+        },
+        required: ["preferences"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_weather",
+      description:
+        "Get live weather forecasts for the resort location for today or an upcoming date. Use whenever guests ask about weather, rain, temperature, or outdoor conditions.",
+      parameters: {
+        type: "object",
+        properties: {
+          date: { type: "string", description: "YYYY-MM-DD date for forecast. Defaults to today." },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "request_early_checkin",
+      description:
+        "Request or apply an early arrival/check-in time for the reservation. Call this tool when a guest requests to check in early (e.g. at 09:00). Computes fee/waiver from policy, updates PMS records, and dispatches housekeeping task.",
+      parameters: {
+        type: "object",
+        properties: {
+          requested_time: { type: "string", description: "Desired arrival time, HH:MM 24-hour format (e.g., 09:00)." },
+        },
+        required: ["requested_time"],
+      },
+    },
+  },
+
+  /* Operational concierge tools — lodging declaration, folio settlement,
+   * housekeeping and engineering dispatch, laundry, luggage, transport, lost
+   * property, room moves, express checkout, invoices, loyalty, feedback and
+   * live weather. Defined in ops.ts so this file stays the conversational
+   * layer. */
+  ...OPS_TOOLS,
 ];
+
+/**
+ * Tools reserved for the hosted API path.
+ *
+ * Personalised upselling is a judgement task: read what the guest revealed about
+ * themselves, quote the cheapest honest option, then narrate one or two upgrades
+ * in a way that helps rather than pushes. The 4B local model does not do that
+ * well — it drops the qualifying conditions, mangles the arithmetic in prose, or
+ * turns a suggestion into a hard sell. A clumsy upsell costs more trust than the
+ * feature earns, so on the offline path the concierge simply does not offer it
+ * and answers room questions from the catalogue instead.
+ *
+ * Withholding it locally also keeps the tool block inside the 8K context the
+ * offline path has to live in — the capability and the budget point the same way.
+ */
+const OPENAI_ONLY_TOOLS = new Set(["recommend_room_packages", "compare_room_types", "suggest_experiences"]);
+
+/** The tool set a given provider may see. */
+export function toolsForProvider(provider: "local" | "openai"): ToolSpec[] {
+  return provider === "openai" ? TOOLS : TOOLS.filter((t) => !OPENAI_ONLY_TOOLS.has(t.function.name));
+}
 
 /* ------------------------------------------------------------------ *
  * Tool implementations — every one of these touches the database
@@ -458,12 +698,153 @@ export const TOOLS: ToolSpec[] = [
 
 type Ctx = { conversation: Conversation };
 
-async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string, unknown> | string> {
+/**
+ * Which language to render tool-facing labels in.
+ *
+ * The guest's stored profile is the wrong source on its own: a guest whose
+ * profile says Chinese may still be typing Vietnamese, and rendering their
+ * preference chips in the profile language hands them buttons they cannot read.
+ * The most recent message wins, exactly as the system prompt requires; the
+ * profile is only the fallback when the message gives no signal.
+ */
+function replyLang(conv: Conversation, profileLang: string): "vi" | "en" {
+  const lastGuest = [...storage.listMessages(conv.id)].reverse().find((m) => m.role === "guest");
+  const detected = detectMessageLang(lastGuest?.body ?? "");
+  if (detected === "vi") return "vi";
+  /* Any other identified script means the guest is not writing Vietnamese, so
+     fall to English labels rather than guessing wrong. */
+  if (detected) return "en";
+  return profileLang === "vi" ? "vi" : "en";
+}
+
+/**
+ * Same detection as `replyLang`, but for the offline pipeline's answer
+ * prompt, which supports the full range `runLocalTurn` accepts (vi/en/zh/ja/
+ * ko/ru) rather than the two-way vi/en collapse the hosted tool-label
+ * renderers above are stuck with.
+ *
+ * `replyLang` cannot simply be widened: three call sites feed its result into
+ * `compareRooms`, whose `lang` parameter is typed `"vi" | "en"` because its
+ * comparison labels only exist in those two languages — passing it `"ko"`
+ * would not translate anything, it would be a type error waiting to happen
+ * the day someone removes the narrowing. A Korean guest's OWN reply, read
+ * straight from a retrieved passage and phrased by the model, has no such
+ * limitation; only the hard-coded tool-output labels do.
+ *
+ * Before this function existed, `runOfflineTurn` used `replyLang()` directly,
+ * so every Korean, Japanese or Chinese guest on the offline path was told to
+ * answer in English regardless of what `detectMessageLang` correctly found —
+ * confirmed by reading this exact call site (`server/agent.ts`, the offline
+ * turn), not inferred from a failing benchmark case: the benchmark calls
+ * `runLocalTurn` directly and never exercises this function at all, which is
+ * exactly why the bug went unnoticed while CJK retrieval numbers looked fine.
+ */
+export function offlineReplyLang(conv: Conversation, profileLang: string): ReplyLang {
+  const lastGuest = [...storage.listMessages(conv.id)].reverse().find((m) => m.role === "guest");
+  const detected = detectMessageLang(lastGuest?.body ?? "");
+  if (detected === "vi" || detected === "ko" || detected === "ja" || detected === "zh" || detected === "ru") {
+    return detected;
+  }
+  if (detected === "en") return "en";
+  /* detectMessageLang found nothing (plain ASCII with no script signal, or an
+     empty message) — same fallback order replyLang uses. */
+  return profileLang === "vi" ? "vi" : profileLang === "en" ? "en" : "en";
+}
+
+/**
+ * Identify the language of a single message by script.
+ *
+ * Only used to tell the model, in the prompt, which language it is replying to.
+ * A stored profile is not good enough for that: a guest whose profile says
+ * Chinese may be typing Vietnamese, and the model — seeing "Preferred language:
+ * Chinese" next to a Chinese name — will answer in Chinese anyway. Stating the
+ * detected language of the actual message removes that ambiguity.
+ *
+ * Script detection covers Korean, Japanese, Chinese, Russian and Vietnamese by
+ * script or diacritic. English has neither, so it used to fall through to
+ * null — and the caller's fallback for null is a vague "reply in the guest's
+ * language" instruction, sitting right below a concrete "Preferred language: X"
+ * line pulled from the guest's stored profile. Measured on a 105-case hosted
+ * benchmark, the concrete line won: 9 of 13 English-language cases came back
+ * in Vietnamese, including guests whose profile wasn't even Vietnamese. A vague
+ * instruction next to a specific contradictory one is not neutral, it loses.
+ *
+ * So plain ASCII text with no accented character at all is now treated as
+ * English — true for this resort's guest mix far more often than any other
+ * language, and confirmed by the same benchmark's own English cases. Any text
+ * carrying an accented Latin character (French, German, Spanish…) still falls
+ * through to null exactly as before; that combination isn't in the benchmark
+ * and this fix doesn't claim to have measured it.
+ */
+export function detectMessageLang(text: string): string | null {
+  if (!text.trim()) return null;
+  if (/[가-힯]/.test(text)) return "ko";
+  if (/[぀-ヿ]/.test(text)) return "ja";
+  if (/[一-鿿]/.test(text)) return "zh";
+  if (/[Ѐ-ӿ]/.test(text)) return "ru";
+  if (
+    /[ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ]/i.test(text)
+  )
+    return "vi";
+  const isAsciiOnly = ![...text].some((ch) => ch.charCodeAt(0) > 127);
+  if (isAsciiOnly && /[a-zA-Z]{2,}/.test(text)) return "en";
+  return null;
+}
+
+/**
+ * The sentence a guest reads when their turn is handed to a person.
+ *
+ * This used to be a two-way vi/en choice, so a Korean guest asking about towels
+ * and a Chinese guest asking about dinner both got an ENGLISH handoff — and the
+ * gold benchmark scored both as passes, because those cases carried no assertion
+ * at all. Answering someone in a language they did not write in is the most
+ * visible failure a concierge can have, and it happened on the one turn where we
+ * are already admitting we could not help.
+ *
+ * The script detector covers ko/ja/zh/ru; Latin scripts other than Vietnamese
+ * fall back to English, which is the same limit the detector itself documents.
+ */
+export function handoffLine(lang: string | null | undefined, kind: "confirm" | "failed"): string {
+  const L = (lang ?? "vi").slice(0, 2).toLowerCase();
+  const lines: Record<string, { confirm: string; failed: string }> = {
+    vi: {
+      confirm: "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      failed: "Dạ, em xin lỗi — em chưa lấy được thông tin chính xác cho câu hỏi này. Em đã chuyển cho lễ tân để hỗ trợ anh/chị ngay ạ.",
+    },
+    ko: {
+      confirm: "정확한 답변을 위해 프런트 데스크의 확인이 필요합니다. 담당 직원에게 전달해 드렸습니다.",
+      failed: "죄송합니다 — 정확한 정보를 확인하지 못했습니다. 프런트 데스크로 전달해 드렸으니 곧 도와드리겠습니다.",
+    },
+    ja: {
+      confirm: "正確にお答えするため、フロントに確認いたします。担当者にお繋ぎいたしました。",
+      failed: "申し訳ございません — 正確な情報を確認できませんでした。フロントにお繋ぎいたしましたので、すぐに対応いたします。",
+    },
+    zh: {
+      confirm: "为了给您准确的答复，需要前台确认。我已经转交同事为您处理了。",
+      failed: "很抱歉 — 我未能查到准确的信息。已经转交前台，同事会马上为您处理。",
+    },
+    ru: {
+      confirm: "Чтобы ответить точно, нужно подтверждение стойки регистрации. Я передал(а) ваш вопрос коллеге.",
+      failed: "Извините — мне не удалось получить точную информацию. Я передал(а) вопрос на стойку регистрации, коллега поможет вам сейчас же.",
+    },
+    en: {
+      confirm: "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
+      failed: "I'm sorry — I couldn't retrieve a reliable answer for that. I've passed it to the front desk so a colleague can help you right away.",
+    },
+  };
+  return (lines[L] ?? lines.en)[kind];
+}
+
+export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string, unknown> | string> {
   const conv = storage.getConversation(ctx.conversation.id)!;
   const guest = storage.getGuest(conv.guestId)!;
   const res = storage.getReservation(conv.reservationId);
   const room = storage.getRoom(res?.roomId ?? null);
   const hotel = storage.getHotel();
+
+  /* The context every operational tool needs. Built lazily so tools that do
+   * not touch operations pay nothing for it. */
+  const opsCtx = (): OpsCtx => ({ hotel, guest, res, room, conv });
 
   switch (name) {
     case "resolve_date": {
@@ -478,6 +859,103 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
             ? "Echo the resolved date back as day/month/year so the guest can correct you."
             : "Could not resolve. Re-read the note before you ask the guest anything.",
       };
+    }
+
+    case "recommend_room_packages": {
+      /* Every figure here is read from the rate-package rows, never computed by
+         the model — the same rule the folio and quote tools follow. */
+      const packages = storage.listRoomPackages();
+      if (!packages.length)
+        return {
+          error: "No rate packages are loaded. Run server/migrations/005-rate-packages.ts.",
+          instruction: "Tell the guest you will check rates with the front desk. Do NOT quote a price.",
+        };
+      const rooms: RoomContext[] = storage.listRoomTypes().map((r) => ({
+        code: r.code,
+        nameVi: r.nameVi,
+        maxGuests: r.maxGuests,
+        privatePool: !!r.privatePool,
+        oceanView: !!r.oceanView,
+        areaSqm: r.areaSqm,
+      }));
+      const rec = recommend(packages, rooms, {
+        roomQuery: typeof args.room_type === "string" ? args.room_type : "",
+        maxPrice: typeof args.max_price_per_night === "number" ? args.max_price_per_night : undefined,
+        mustHave: Array.isArray(args.must_have) ? args.must_have.map(String) : [],
+        guests: typeof args.guests === "number" ? args.guests : undefined,
+        traveller: typeof args.traveller === "string" ? (args.traveller as any) : undefined,
+        tooExpensive: args.too_expensive === true,
+        lang: replyLang(conv, guest.lang),
+      });
+      return {
+        ...rec,
+        currency: hotel.currency,
+        guest_vip_tier: guest.vipTier,
+        instruction:
+          rec.mode === "clarify"
+            ? "Hỏi lại NGẮN, ẤM ÁP, như một nhân viên concierge thật: một câu hỏi tự nhiên về nhu cầu (đi mấy người, dịp gì, quan tâm điều gì). Liệt kê các lựa chọn trong 'clarify' để khách chọn. KHÔNG tự chọn phòng, KHÔNG báo giá."
+            : rec.mode === "empty"
+              ? "Nói thật là chưa có gói nào khớp, nêu đúng lý do trong 'note' bằng lời tự nhiên, rồi hỏi khách muốn linh động ở tiêu chí nào. KHÔNG tự bỏ tiêu chí của khách và KHÔNG báo giá gói không khớp."
+              : "VIẾT NHƯ MỘT CONCIERGE THẬT, KHÔNG NHƯ MÁY:\n" +
+                "1. Báo 'base' trước — đúng public_price (nêu member_price nếu khách là hội viên), kèm 1-2 điểm hay nhất của gói.\n" +
+                "2. Gợi ý TỐI ĐA 2 gói trong 'upsells', ưu tiên gói có suits_traveller=true. Diễn đạt theo lợi ích, ví dụ: 'Chỉ thêm 600.000đ/đêm là cả nhà có trọn 3 bữa buffet và vé VinWonders không giới hạn ạ.'\n" +
+                "3. Giọng tự nhiên, ấm áp, KHÔNG liệt kê khô khan, KHÔNG ép mua. Gợi ý xong thì để khách tự quyết.\n" +
+                "4. Mọi con số phải lấy đúng từ kết quả này. Nếu có has_blackout hoặc conditions thì nói rõ điều kiện — KHÔNG tự tính hạn huỷ.",
+      };
+    }
+
+    case "suggest_experiences": {
+      if (!res) return { error: "No reservation is linked to this conversation, so there is no stay to suggest around." };
+      /* Weather is a signal, not a requirement: when the forecast is unavailable
+         the ranking simply loses the indoor/outdoor tilt rather than failing. */
+      let weather: Weather | undefined;
+      try {
+        const w = (await fetchWeather(today(), hotel)) as Record<string, unknown>;
+        weather = {
+          condition: typeof w.condition === "string" ? w.condition : undefined,
+          rainChance: typeof w.rain_chance_percent === "number" ? w.rain_chance_percent : undefined,
+        };
+      } catch {
+        weather = undefined;
+      }
+
+      const out = suggestInStay({
+        services: storage.listServices(),
+        offers: storage.listOffers(),
+        guest,
+        reservation: res,
+        today: today(),
+        clock: clock(),
+        weather,
+        alreadyBooked: storage
+          .bookingsForReservation(res.id)
+          .filter((b) => b.status === "confirmed")
+          .map((b) => b.serviceId),
+        interest: typeof args.interest === "string" ? args.interest : undefined,
+        lang: replyLang(conv, guest.lang),
+      });
+      return {
+        ...out,
+        currency: hotel.currency,
+        guest_vip_tier: guest.vipTier,
+        instruction:
+          out.note +
+          " Gọi list_services nếu cần giá chính xác, và book_service khi khách đồng ý. TUYỆT ĐỐI không tự tính giá hay giảm giá.",
+      };
+    }
+
+    case "compare_room_types": {
+      const packages = storage.listRoomPackages();
+      const rooms: RoomContext[] = storage.listRoomTypes().map((r) => ({
+        code: r.code,
+        nameVi: r.nameVi,
+        maxGuests: r.maxGuests,
+        privatePool: !!r.privatePool,
+        oceanView: !!r.oceanView,
+        areaSqm: r.areaSqm,
+      }));
+      const cmp = compareRooms(packages, rooms, String(args.rooms ?? ""), replyLang(conv, guest.lang));
+      return { ...cmp, currency: hotel.currency, instruction: cmp.note };
     }
 
     case "check_availability": {
@@ -667,7 +1145,15 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
         ratePerNight: res.ratePerNight,
         currency: hotel.currency,
         standardCheckinTime: hotel.checkInTime,
+        vipTier: guest.vipTier,
       });
+    }
+
+    case "quote_tax_gross_up": {
+      const amount = Number(args.net_amount);
+      if (!Number.isFinite(amount) || amount < 0)
+        return { error: "net_amount must be a non-negative number." };
+      return quoteTaxGrossUp(amount);
     }
 
     case "get_room_type_facts": {
@@ -722,7 +1208,7 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
       const date = String(args.date ?? today());
       const list = storage.listServices().filter((s) => cat === "all" || s.category === cat);
       const ent = getGuestEntitlements(guest.vipTier);
-      
+
       return {
         date,
         currency: hotel.currency,
@@ -736,18 +1222,17 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
             seats_left: Math.max(
               0,
               s.capacityPerSlot -
-                booked.filter((b) => b.slot === slot).reduce((n, b) => n + b.partySize, 0),
+              booked.filter((b) => b.slot === slot).reduce((n, b) => n + b.partySize, 0),
             ),
           }));
 
-          let memberDiscountPct = 0;
-          if (s.category === "spa") memberDiscountPct = ent.spaDiscountPct;
-          else if (s.category === "dining") memberDiscountPct = ent.fnbDiscountPct;
-          else if (s.category === "golf") memberDiscountPct = ent.golfDiscountPct;
-
-          const memberPrice = s.price > 0 && memberDiscountPct > 0 
-            ? Math.round(s.price * (1 - memberDiscountPct / 100))
-            : s.price;
+          /* One pricing engine only. `priceService` decides the discount
+           * bucket (spa / f&b / golf / other) and does the rounding, so the
+           * figure quoted here is byte-for-byte the figure `book_service`
+           * charges and `cancel_service_booking` refunds. */
+          const priced = priceService(s, guest.vipTier, 1, hotel.currency);
+          const memberDiscountPct = priced.discount_pct;
+          const memberPrice = priced.member_unit_price;
 
           const images: string[] = JSON.parse(s.images || "[]");
 
@@ -759,6 +1244,7 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
             price: s.price,
             member_price: memberPrice,
             member_discount_percent: memberDiscountPct > 0 ? memberDiscountPct : undefined,
+            price_calculation: priced.calculation,
             unit: s.unit,
             availability: slots.length ? remaining.filter((r) => r.seats_left > 0) : "always available",
             images,
@@ -769,81 +1255,18 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
     }
 
     case "book_service": {
-      if (!res) return { error: "No reservation linked — cannot book." };
-      const svc = storage.getService(Number(args.service_id));
-      if (!svc) return { error: `No service with id ${args.service_id}.` };
-      const date = String(args.date);
-      const slot = String(args.slot);
-      const party = Math.max(1, Number(args.party_size ?? 1));
-      const slots: string[] = JSON.parse(svc.slots || "[]");
-      if (slots.length && !slots.includes(slot))
-        return { error: `${svc.name} does not run at ${slot}. Available: ${slots.join(", ")}` };
-      if (date < today()) return { error: "That date is in the past." };
-      if (slots.length) {
-        const taken = storage
-          .bookingsFor(svc.id, date)
-          .filter((b) => b.slot === slot)
-          .reduce((n, b) => n + b.partySize, 0);
-        if (taken + party > svc.capacityPerSlot)
-          return {
-            error: `Only ${Math.max(0, svc.capacityPerSlot - taken)} place(s) left at ${slot} on ${date}.`,
-            suggestion: "Offer another slot from list_services.",
-          };
-      }
-      const booking = storage.createBooking({
-        serviceId: svc.id,
-        reservationId: res.id,
-        date,
-        slot,
-        partySize: party,
-        status: "confirmed",
-        createdAt: nowIso(),
-      });
-      const amount = svc.unit === "per person" ? svc.price * party : svc.price;
-      storage.addCharge({
-        reservationId: res.id,
-        description: `${svc.name} — ${date} ${slot} × ${party}`,
-        amount,
-        category: svc.category === "spa" ? "spa" : svc.category === "dining" ? "fnb" : "fee",
-        createdAt: nowIso(),
-      });
-      const task = storage.createTask({
-        hotelId: hotel.id,
-        reservationId: res.id,
-        roomId: res.roomId,
-        conversationId: conv.id,
-        dept: svc.dept,
-        title: `${svc.name} — ${date} ${slot}`,
-        detail: `${guest.name} (room ${room?.number ?? "—"}), party of ${party}.${
-          args.note ? ` Note: ${args.note}` : ""
-        }`,
-        priority: "normal",
-        status: "open",
-        source: "ai",
-        assignedStaffId: null,
-        dueAt: `${date}T${slot}:00`,
-        createdAt: nowIso(),
-        resolvedAt: null,
-      });
-      storage.logEvent({
-        type: "booking.created",
-        actor: "ai",
-        summary: `Booked ${svc.name} for ${guest.name} on ${date} at ${slot} (party ${party}).`,
-        payload: JSON.stringify({ bookingId: booking.id, taskId: task.id, amount }),
-        conversationId: conv.id,
-        createdAt: nowIso(),
-      });
-      return {
-        booked: true,
-        booking_id: booking.id,
-        service: svc.name,
-        date,
-        slot,
-        party_size: party,
-        charged: amount,
-        currency: hotel.currency,
-        dispatched_to: svc.dept,
-      };
+      /* All catalogue bookings — services, tours, meeting rooms — go through
+       * one core in ops.ts. That core prices with `priceService`, posts the
+       * folio line with `postCharge`, stores the amount and charge id on the
+       * booking row and records the cancellation deadline, so the price
+       * quoted, charged and later refunded cannot drift apart. */
+      return bookCatalogueService(opsCtx(), {
+        serviceId: Number(args.service_id),
+        date: String(args.date),
+        slot: String(args.slot),
+        partySize: Math.max(1, Number(args.party_size ?? 1)),
+        note: args.note ? String(args.note) : undefined,
+      }) as Record<string, unknown>;
     }
 
     case "order_room_service": {
@@ -967,9 +1390,8 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
       storage.logEvent({
         type: "reservation.late_checkout",
         actor: "ai",
-        summary: `Departure for ${res.confirmationCode} moved to ${want}${
-          fee ? ` (fee ${fee} ${hotel.currency})` : " (complimentary)"
-        }.`,
+        summary: `Departure for ${res.confirmationCode} moved to ${want}${fee ? ` (fee ${fee} ${hotel.currency})` : " (complimentary)"
+          }.`,
         payload: JSON.stringify({ taskId: task.id, fee }),
         conversationId: conv.id,
         createdAt: nowIso(),
@@ -990,16 +1412,15 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
 
     case "get_folio": {
       if (!res) return { error: "No reservation linked." };
-      const charges = storage.listCharges(res.id);
+      /* A hotel bill is not the sum of its lines: service charge and VAT sit on
+       * top, payments come off, and voided lines must not be counted twice.
+       * `folioSummary` is the only place that arithmetic lives. */
+      const summary = folioSummary(res.id);
       return {
         confirmation_code: res.confirmationCode,
-        currency: hotel.currency,
-        charges: charges.map((c) => ({
-          description: c.description,
-          amount: c.amount,
-          category: c.category,
-        })),
-        total: Math.round(charges.reduce((n, c) => n + c.amount, 0) * 100) / 100,
+        ...summary,
+        instruction:
+          "Chỉ đọc lại đúng các con số trong kết quả này: subtotal, phí phục vụ, VAT, đã thanh toán và balance_due. KHÔNG tự cộng lại các dòng và KHÔNG bỏ qua thuế.",
       };
     }
 
@@ -1009,7 +1430,7 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
         reservationId: res?.id ?? null,
         roomId: res?.roomId ?? null,
         conversationId: conv.id,
-        dept: String(args.dept),
+        dept: DEPT_KEYS.includes(String(args.dept) as any) ? String(args.dept) : "front_desk",
         title: String(args.title).slice(0, 80),
         detail: String(args.detail ?? ""),
         priority: String(args.priority ?? "normal"),
@@ -1086,8 +1507,408 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
       return { escalated: true, mode: "human", task_id: task.id, sla_minutes: hotel.slaMinutes };
     }
 
-    default:
+    case "cancel_reservation": {
+      const code = String(args.confirmation_code || res?.confirmationCode || "").trim().toUpperCase();
+      if (!code) return { error: "No confirmation code supplied or linked to this conversation." };
+      const targetRes = storage.getReservationByCode(code);
+      if (!targetRes) return { error: `Reservation with code ${code} not found.` };
+
+      /* A cancellation is a money event, not a status flip. The policy engine
+       * decides whether it may be cancelled at all and what it costs; only
+       * then is anything written. */
+      const quote = quoteReservationCancellation(targetRes, today(), hotel.currency);
+      if (!quote.cancellable) {
+        return {
+          cancelled: false,
+          confirmation_code: code,
+          status: targetRes.status,
+          reason: quote.reason_not_cancellable,
+          needs_staff: true,
+          instruction:
+            "KHÔNG được nói là đã hủy. Giải thích lý do cho khách và chuyển lễ tân xử lý bằng escalate_to_human nếu khách vẫn muốn.",
+        };
+      }
+
+      const fee = quote.fee ?? 0;
+      let feeCharge: { id: number } | null = null;
+      if (fee > 0) {
+        feeCharge = postCharge({
+          reservationId: targetRes.id,
+          description: `Phí hủy đặt phòng ${code} — ${quote.band}`,
+          amount: fee,
+          category: "fee",
+          taxable: false,
+          refType: "cancellation",
+          refId: targetRes.id,
+        });
+      }
+
+      /* Room nights already posted must come off, or the guest is billed for a
+       * stay that will not happen. */
+      const reversedRoomLines: number[] = [];
+      for (const c of storage.listCharges(targetRes.id)) {
+        if (c.category !== "room" || c.voidedAt) continue;
+        const r = reverseCharge(c.id, `hủy đặt phòng ${code}`);
+        if (r) reversedRoomLines.push(c.id);
+      }
+
+      /* Linked service bookings die with the reservation, and their charges are
+       * reversed too — otherwise the guest pays for a spa slot on a stay that
+       * no longer exists. */
+      const cancelledBookings: number[] = [];
+      for (const b of storage.bookingsForReservation(targetRes.id)) {
+        if (b.status !== "confirmed") continue;
+        storage.updateBooking(b.id, { status: "cancelled", cancelledAt: nowIso() });
+        if (b.chargeId) reverseCharge(b.chargeId, `hủy theo đặt phòng ${code}`);
+        cancelledBookings.push(b.id);
+      }
+
+      storage.updateReservation(targetRes.id, {
+        status: "cancelled",
+        cancelledAt: nowIso(),
+        cancellationFee: fee,
+      });
+
+      const task = storage.createTask({
+        hotelId: hotel.id,
+        reservationId: targetRes.id,
+        roomId: targetRes.roomId,
+        conversationId: conv.id,
+        dept: "front_desk",
+        title: `Hủy đặt phòng — ${code}`,
+        detail: `Đặt phòng ${code} (${guest.name}) đã hủy qua chat. Lý do: ${args.reason || "khách yêu cầu"
+          }. Phí hủy: ${fee ? `${fee.toLocaleString("vi-VN")} ${hotel.currency}` : "miễn phí"} (${quote.band
+          }).${reversedRoomLines.length ? ` Đã hoàn ${reversedRoomLines.length} dòng tiền phòng.` : ""}${cancelledBookings.length
+            ? ` Đã hủy ${cancelledBookings.length} dịch vụ kèm theo (#${cancelledBookings.join(", #")}).`
+            : ""
+          } Cần trả phòng về trạng thái bán được và xử lý hoàn tiền nếu khách đã thanh toán.`,
+        priority: "high",
+        status: "open",
+        source: "ai",
+        assignedStaffId: null,
+        dueAt: nowIso(),
+        createdAt: nowIso(),
+        resolvedAt: null,
+      });
+
+      storage.logEvent({
+        type: "reservation.cancelled",
+        actor: "ai",
+        summary: `Đặt phòng ${code} đã hủy qua chat — phí ${fee.toLocaleString("vi-VN")} ${hotel.currency}.`,
+        payload: JSON.stringify({
+          reservationId: targetRes.id,
+          reason: args.reason,
+          fee,
+          band: quote.band,
+          reversedRoomLines,
+          cancelledBookings,
+          taskId: task.id,
+        }),
+        conversationId: conv.id,
+        createdAt: nowIso(),
+      });
+
+      const after = folioSummary(targetRes.id);
+      return {
+        cancelled: true,
+        confirmation_code: code,
+        status: "cancelled",
+        days_before_arrival: quote.days_before_arrival,
+        band: quote.band,
+        fee_pct: quote.fee_pct,
+        cancellation_fee: fee,
+        currency: hotel.currency,
+        calculation: quote.calculation,
+        policy: quote.policy,
+        room_charges_reversed: reversedRoomLines.length,
+        service_bookings_cancelled: cancelledBookings,
+        fee_charge_id: feeCharge?.id ?? null,
+        balance_due_now: after.balance_due,
+        refund_handled_by_staff: true,
+        task_id: task.id,
+        instruction:
+          "Xác nhận đã hủy và nêu ĐÚNG mức phí hủy cùng cách tính trong kết quả. Nếu balance_due_now âm thì nói lễ tân/kế toán sẽ xử lý hoàn tiền — KHÔNG tự hứa thời gian hoàn tiền.",
+      };
+    }
+
+    case "cancel_service_booking": {
+      if (!res) return { error: "No reservation linked — cannot find service bookings." };
+
+      const active = storage
+        .bookingsForReservation(res.id)
+        .filter((b) => b.status === "confirmed");
+
+      const listing = active.map((b) => {
+        const s2 = storage.getService(b.serviceId);
+        return {
+          booking_id: b.id,
+          service: s2?.name ?? `#${b.serviceId}`,
+          date: b.date,
+          slot: b.slot,
+          party_size: b.partySize,
+          amount: b.amount ?? null,
+        };
+      });
+
+      /* Guessing which booking the guest meant is how the wrong spa slot gets
+       * cancelled. An id is required, or an unambiguous name match. */
+      let target = active.find((b) => b.id === Number(args.booking_id));
+
+      if (!target && args.service_name) {
+        const needle = String(args.service_name).toLowerCase().trim();
+        const matches = active.filter((b) => {
+          const s2 = storage.getService(b.serviceId);
+          if (!s2) return false;
+          const name = s2.name.toLowerCase();
+          return name === needle || name.includes(needle) || needle.includes(name);
+        });
+        if (matches.length === 1) target = matches[0];
+        else if (matches.length > 1) {
+          return {
+            cancelled: false,
+            ambiguous: true,
+            candidates: listing.filter((l) => matches.some((m) => m.id === l.booking_id)),
+            instruction:
+              "Có nhiều đặt chỗ khớp — hỏi khách muốn hủy cái nào (nêu tên, ngày, giờ) rồi gọi lại tool với booking_id.",
+          };
+        }
+      }
+
+      if (!target) {
+        return {
+          cancelled: false,
+          needs_staff: active.length === 0,
+          active_bookings: listing,
+          instruction: active.length
+            ? "Chưa xác định được đặt chỗ nào — đọc danh sách active_bookings cho khách và hỏi khách chọn. TUYỆT ĐỐI KHÔNG nói là đã hủy."
+            : "Không có đặt chỗ dịch vụ nào đang hoạt động. Nếu khách khẳng định có, hãy chuyển lễ tân bằng escalate_to_human — KHÔNG nói là đã hủy.",
+        };
+      }
+
+      const svc = storage.getService(target.serviceId);
+      const quote = quoteServiceCancellation(target, new Date(), hotel.currency);
+
+      storage.updateBooking(target.id, { status: "cancelled", cancelledAt: nowIso() });
+
+      /* Reverse the original line, then post the retention fee if the policy
+       * says one is due. The folio must end up net-correct either way. */
+      let reversal: number | null = null;
+      if (target.chargeId) {
+        const r = reverseCharge(target.chargeId, `hủy đặt ${svc?.name ?? "dịch vụ"}`);
+        reversal = r?.reversal.id ?? null;
+      }
+      let feeChargeId: number | null = null;
+      if ((quote.fee ?? 0) > 0) {
+        feeChargeId = postCharge({
+          reservationId: res.id,
+          description: `Phí hủy ${svc?.name ?? "dịch vụ"} — ${quote.band}`,
+          amount: quote.fee,
+          category: "fee",
+          taxable: false,
+          refType: "service_cancellation",
+          refId: target.id,
+        }).id;
+      }
+
+      const task = storage.createTask({
+        hotelId: hotel.id,
+        reservationId: res.id,
+        roomId: res.roomId,
+        conversationId: conv.id,
+        dept: svc?.dept ?? "front_desk",
+        title: `Hủy ${svc?.name ?? "dịch vụ"} — ${target.date} ${target.slot}`,
+        detail: `Hủy đặt chỗ #${target.id} của ${guest.name}${room ? ` (phòng ${room.number})` : ""
+          }: ${svc?.name ?? "dịch vụ"} ${target.date} ${target.slot} × ${target.partySize}. ${quote.calculation
+          } Cần giải phóng chỗ và thông báo bộ phận.`,
+        priority: "normal",
+        status: "open",
+        source: "ai",
+        assignedStaffId: null,
+        dueAt: nowIso(),
+        createdAt: nowIso(),
+        resolvedAt: null,
+      });
+
+      storage.logEvent({
+        type: "service_booking.cancelled",
+        actor: "ai",
+        summary: `Đã hủy đặt chỗ #${target.id} (${svc?.name ?? "dịch vụ"}) — phí ${(quote.fee ?? 0).toLocaleString("vi-VN")
+          } ${hotel.currency}.`,
+        payload: JSON.stringify({
+          bookingId: target.id,
+          reversalChargeId: reversal,
+          feeChargeId,
+          fee: quote.fee,
+          taskId: task.id,
+        }),
+        conversationId: conv.id,
+        createdAt: nowIso(),
+      });
+
+      return {
+        cancelled: true,
+        booking_id: target.id,
+        service: svc?.name ?? "Service",
+        date: target.date,
+        slot: target.slot,
+        party_size: target.partySize,
+        booked_amount: quote.booked_amount,
+        hours_before_start: quote.hours_before_start,
+        band: quote.band,
+        cancellation_fee: quote.fee,
+        refund: quote.refund,
+        currency: hotel.currency,
+        calculation: quote.calculation,
+        policy: quote.policy,
+        reversal_charge_id: reversal,
+        fee_charge_id: feeChargeId,
+        balance_due_now: folioSummary(res.id).balance_due,
+        dispatched_to: svc?.dept ?? "front_desk",
+        task_id: task.id,
+        instruction:
+          "Xác nhận đã hủy, nêu đúng phí hủy và số tiền hoàn trong kết quả này. KHÔNG tự tính lại và KHÔNG hứa mức hoàn khác.",
+      };
+    }
+
+    case "update_guest_preferences": {
+      const newPrefs: string[] = Array.isArray(args.preferences) ? args.preferences.map(String) : [];
+      let currentPrefs: string[] = [];
+      try {
+        currentPrefs = JSON.parse(guest.preferences || "[]");
+      } catch {
+        currentPrefs = [];
+      }
+
+      const merged = Array.from(new Set([...currentPrefs, ...newPrefs]));
+      let newNotes = guest.notes || "";
+      if (args.notes) {
+        newNotes = newNotes ? `${newNotes}\n[${hotelToday()}]: ${args.notes}` : `[${hotelToday()}]: ${args.notes}`;
+      }
+
+      const updated = storage.updateGuest(guest.id, {
+        preferences: JSON.stringify(merged),
+        notes: newNotes,
+      });
+
+      storage.logEvent({
+        type: "guest.preferences_updated",
+        actor: "ai",
+        summary: `Updated preferences for ${guest.name}: ${merged.join(", ")}`,
+        payload: JSON.stringify({ preferences: merged, notes: newNotes }),
+        conversationId: conv.id,
+        createdAt: nowIso(),
+      });
+
+      return {
+        updated: true,
+        guest_name: guest.name,
+        current_preferences: merged,
+        notes: updated.notes,
+        message: "Guest profile preferences successfully updated in PMS.",
+      };
+    }
+
+    case "get_weather": {
+      /* Live data only. The previous implementation rotated three invented
+       * forecasts, which is worse than no answer: a guest planning an island
+       * trip was told a fabricated rain chance. `fetchWeather` calls a real
+       * forecast API and, when it cannot, says so. */
+      return (await fetchWeather(String(args.date || today()), hotel)) as Record<string, unknown>;
+    }
+
+    case "request_early_checkin": {
+      if (!res) return { error: "No reservation linked to this conversation." };
+      const want = String(args.requested_time);
+      if (!/^\d{2}:\d{2}$/.test(want)) return { error: "requested_time must be HH:MM 24-hour format." };
+
+      /* The tier matters: a Diamond member's free early-arrival window must be
+       * applied here, not left for the model to remember. */
+      const quote = quoteEarlyCheckin({
+        requestedTime: want,
+        ratePerNight: res.ratePerNight,
+        currency: hotel.currency,
+        standardCheckinTime: hotel.checkInTime,
+        vipTier: guest.vipTier,
+      });
+
+      if (!quote.quoted) return { approved: false, reason: quote.error };
+
+      const fee = quote.fee ?? 0;
+      /* Persist the agreed arrival time. The old code wrote checkIn back onto
+       * itself, which recorded nothing at all. */
+      storage.updateReservation(res.id, { checkInTime: want });
+
+      let feeChargeId: number | null = null;
+      if (fee > 0) {
+        feeChargeId = postCharge({
+          reservationId: res.id,
+          description: `Phí nhận phòng sớm (${want})`,
+          amount: fee,
+          category: "fee",
+          taxable: false,
+          refType: "early_checkin",
+          refId: res.id,
+        }).id;
+      }
+
+      const task = storage.createTask({
+        hotelId: hotel.id,
+        reservationId: res.id,
+        roomId: res.roomId,
+        conversationId: conv.id,
+        dept: "housekeeping",
+        title: `Nhận phòng sớm ${want} — phòng ${room?.number ?? "chưa xếp"}`,
+        detail: `Ưu tiên dọn phòng ${room?.number ?? "chưa xếp"} để khách nhận lúc ${want}. Khách: ${guest.name
+          }${guest.vipTier !== "none" ? ` (hạng ${guest.vipTier})` : ""}. ${fee > 0 ? `Đã thu phí ${fee.toLocaleString("vi-VN")} ${hotel.currency}.` : "Miễn phí theo chính sách/hạng thẻ."
+          }`,
+        priority: "high",
+        status: "open",
+        source: "ai",
+        assignedStaffId: null,
+        dueAt: hotelIso(res.checkIn, want),
+        createdAt: nowIso(),
+        resolvedAt: null,
+      });
+
+      storage.logEvent({
+        type: "reservation.early_checkin",
+        actor: "ai",
+        summary: `Nhận phòng sớm ${want} cho ${res.confirmationCode}${fee ? ` (phí ${fee} ${hotel.currency})` : " (miễn phí)"
+          }.`,
+        payload: JSON.stringify({ taskId: task.id, fee, feeChargeId, checkInTime: want }),
+        conversationId: conv.id,
+        createdAt: nowIso(),
+      });
+
+      return {
+        approved: true,
+        requested_arrival_time: want,
+        standard_checkin_time: hotel.checkInTime,
+        fee,
+        currency: hotel.currency,
+        calculation: quote.calculation,
+        vip_tier: quote.vip_tier ?? guest.vipTier,
+        tier_free_hours: quote.tier_free_hours ?? null,
+        complimentary_reason: quote.waiver ?? null,
+        policy: quote.policy,
+        room_ready_guaranteed: false,
+        fee_charge_id: feeChargeId,
+        pms_updated: true,
+        task_id: task.id,
+        instruction:
+          "Nêu đúng mức phí (hoặc lý do miễn phí) trong kết quả. Nói rõ buồng phòng sẽ ưu tiên dọn nhưng giờ vào phòng chính xác còn phụ thuộc tình trạng phòng — KHÔNG cam kết chắc chắn phòng sẵn sàng.",
+      };
+    }
+
+    default: {
+      /* Operational tools live in ops.ts. It returns null for a name it does
+       * not own, so a genuinely unknown tool still reports an error. */
+      if (OPS_TOOL_NAMES.has(name)) {
+        const out = await runOpsTool(name, args, opsCtx());
+        if (out) return out;
+      }
       return { error: `Unknown tool ${name}` };
+    }
   }
 }
 
@@ -1095,61 +1916,13 @@ async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string
  * System prompt
  * ------------------------------------------------------------------ */
 
+/**
+ * Kept as a thin alias so existing call sites read the same, but the numbers
+ * now come from the single tier table in pricing.ts. Two copies of a benefit
+ * table is two different answers to "how much is my discount?".
+ */
 function getGuestEntitlements(vipTier: string) {
-  const tier = (vipTier || "none").toLowerCase();
-  switch (tier) {
-    case "diamond":
-      return {
-        roomDiscountPct: 10,
-        spaDiscountPct: 30,
-        golfDiscountPct: 33,
-        fnbDiscountPct: 20,
-        earlyCheckinFreeHours: 2,
-        lateCheckoutFreeHours: 2,
-        notes: ["10% off room rate", "30% off Akoya Spa", "33% off Vinpearl Golf", "20% off F&B (excl. alcohol)", "Complimentary Aquafield ticket", "Up to 2h early check-in & late checkout (subject to availability)"],
-      };
-    case "platinum":
-      return {
-        roomDiscountPct: 7,
-        spaDiscountPct: 30,
-        golfDiscountPct: 33,
-        fnbDiscountPct: 20,
-        earlyCheckinFreeHours: 2,
-        lateCheckoutFreeHours: 2,
-        notes: ["7% off room rate", "30% off Akoya Spa", "33% off Vinpearl Golf", "20% off F&B (excl. alcohol)", "Complimentary Aquafield ticket", "Up to 2h early check-in & late checkout (subject to availability)"],
-      };
-    case "gold":
-      return {
-        roomDiscountPct: 5,
-        spaDiscountPct: 30,
-        golfDiscountPct: 33,
-        fnbDiscountPct: 20,
-        earlyCheckinFreeHours: 2,
-        lateCheckoutFreeHours: 2,
-        notes: ["5% off room rate", "30% off Akoya Spa", "33% off Vinpearl Golf", "20% off F&B (excl. alcohol)", "Complimentary Aquafield ticket"],
-      };
-    case "silver":
-    case "member":
-      return {
-        roomDiscountPct: 5,
-        spaDiscountPct: 30,
-        golfDiscountPct: 33,
-        fnbDiscountPct: 20,
-        earlyCheckinFreeHours: 0,
-        lateCheckoutFreeHours: 0,
-        notes: ["5% off room rate", "30% off Akoya Spa", "33% off Vinpearl Golf", "20% off F&B (excl. alcohol)"],
-      };
-    default:
-      return {
-        roomDiscountPct: 0,
-        spaDiscountPct: 0,
-        golfDiscountPct: 0,
-        fnbDiscountPct: 0,
-        earlyCheckinFreeHours: 0,
-        lateCheckoutFreeHours: 0,
-        notes: [],
-      };
-  }
+  return getEntitlements(vipTier);
 }
 
 function buildSystemPrompt(conv: Conversation, guardNotes: string[] = []) {
@@ -1159,6 +1932,10 @@ function buildSystemPrompt(conv: Conversation, guardNotes: string[] = []) {
   const room = storage.getRoom(res?.roomId ?? null);
   const langName = LANG_NAMES[guest.lang] ?? guest.lang;
   const entitlements = getGuestEntitlements(guest.vipTier);
+  /* What the guest actually just wrote in, which outranks their stored profile. */
+  const lastGuestMsg = [...storage.listMessages(conv.id)].reverse().find((m) => m.role === "guest");
+  const detectedLang = detectMessageLang(lastGuestMsg?.body ?? "");
+  const detectedLangName = detectedLang ? (LANG_NAMES[detectedLang] ?? detectedLang) : null;
 
   return `You are the Aurea guest agent — the always-on concierge for ${hotel.name}, a property in ${hotel.city}.
 
@@ -1174,15 +1951,16 @@ ${res ? `Reservation ${res.confirmationCode}: room ${room?.number ?? "unassigned
 ${guest.preferences ? `Guest Preferences: ${guest.preferences}` : ""}
 
 AUTOMATIC GUEST ENTITLEMENTS & BENEFITS (PEARL CLUB)
-${entitlements.notes.length > 0 ? entitlements.notes.map((n) => `- ${n}`).join("\n") : "No specific tier benefits."}
-CRITICAL PERSONALIZATION PRINCIPLE:
-Whenever quoting prices for ANY service, buffet, or dining menu item (whether from list_services or get_dining_facts), ALWAYS explicitly calculate and present their member discounted price!
-- F&B Dining / Buffet: ${entitlements.fnbDiscountPct}% off for ${guest.vipTier.toUpperCase()} (e.g. Lotus Buffet 650.000 ₫ → 520.000 ₫ cho Platinum)
-- Spa: ${entitlements.spaDiscountPct}% off for ${guest.vipTier.toUpperCase()}
-- Golf: ${entitlements.golfDiscountPct}% off for ${guest.vipTier.toUpperCase()}
+${entitlements.notes.length > 0 ? entitlements.notes.map((n) => '- ${n}').join("\n") : "No specific tier benefits."}
+PRICES: YOU DO NO ARITHMETIC
+The guest's tier gives ${entitlements.fnbDiscountPct}% off F&B, ${entitlements.spaDiscountPct}% off spa and ${entitlements.golfDiscountPct}% off golf, but you must NEVER apply those percentages yourself.
+- Quote ONLY figures a tool returned in this conversation: 'member_price' and 'price_calculation' from list_services, 'charged' from book_service, the totals from get_folio, the fee from a quote_* tool.
+- If you want to tell the guest their member price for something, call list_services (or the relevant quote tool) and read the number back verbatim.
+- If no tool has returned a figure, say you will check rather than inventing one. A price you worked out in your head is a wrong price, even when the percentage is right.
+- Never multiply a price by a party size, never subtract a discount, never add tax or service charge yourself - get_folio already includes them.
 
 DINING & SERVICE BOOKING FLOW REQUIREMENTS:
-1. When a guest asks about or wants to book a dining menu/venue, quote the prices AND their member discounted price (e.g., "Lotus Buffet: 650.000 ₫/người lớn — chỉ còn 520.000 ₫ cho hội viên Platinum").
+1. When a guest asks about or wants to book a dining menu/venue, call list_services and quote the rack price and the 'member_price' exactly as returned - do not compute either one.
 2. Ask for the missing required booking details in ONE sentence at the end:
    - Preferred time slot
    - Number of guests (adults & children)
@@ -1201,13 +1979,17 @@ CORE CONCIERGE OPERATING PRINCIPLES
 3. GROUNDING & ACCURACY:
    - State facts strictly returned by tools. Never invent prices, times, or policies.
    - If information is missing from tool outputs, state that it will be confirmed with the team and offer to check.
+   - If the guest names a hypothetical amount and asks what it costs after tax/fees ("if a service costs X..."), that is a job for quote_tax_gross_up — never add the service charge or VAT percentage to the number yourself. A benchmark caught this exact mistake: 12,000,000 + 5% + 8% by hand came out 13,560,000; the tool's compounded figure is 13,608,000.
+   - If the guest gives a specific late check-out or early check-in TIME and asks about a fee, that is a job for quote_late_checkout / quote_early_checkin — call it with that exact time before you say anything about a percentage, an amount, or whether a waiver applies. A tier note like "up to 2h free" is a summary, not the answer: the tool is what actually checks whether the guest's specific time clears the waiver cutoff. A benchmark caught this failure too: a Diamond/Platinum guest asked about a 16:00 departure was told checkout is free "up to 14:00" and never given the percentage they asked for — true as a general fact, not an answer, because 16:00 is two hours past that cutoff. Call the tool, then state its band, its percentage and its amount.
 
 4. HANDLING GIBBERISH / NONSENSE / VAGUE MESSAGES:
    - If the guest sends meaningless typos, single-character tests (e.g. "Gi", "asdf", "???"), or unrecognizable input, do NOT treat it as a continuation of previous tool calls unless clearly related.
    - Respond in ONE friendly, polite sentence clarifying how you can help (e.g., "Dạ, anh/chị cần em hỗ trợ thêm thông tin gì về dịch vụ, nhà hàng hay trả phòng không ạ?"). Never repeat instructions mechanically.
 
 LANGUAGE
-Always answer in the language the guest just wrote in. If they write in ${langName}, answer in ${langName}. Match their register. Never mix languages in one reply unless quoting a proper name.
+${detectedLangName ? `The guest's latest message is written in ${detectedLangName}. REPLY IN ${detectedLangName.toUpperCase()}.` : `Reply in the language of the guest's latest message.`}
+The language of the message you are answering always wins over the stored profile (${langName}) — guests switch language freely, and answering a Vietnamese message in Chinese because the profile says Chinese is a serious error.
+Match their register. Never mix languages in one reply unless quoting a proper name.
 
 HOW YOU THINK
 Work the request out before you answer. Silently, in this order, every time:
@@ -1226,9 +2008,72 @@ HOW YOU WORK
 STYLE
 Format your response cleanly using standard markdown so it is effortless to scan on mobile:
 - When listing items (venues, treatments, amenities, rates), put each item on its own bullet point line.
+- Whenever you mention or list a venue, restaurant, service or dish that has images in tool outputs, you MUST include its exact image tag [IMAGES: url1,url2...] inside its bullet point so images are automatically rendered for the guest without them having to ask!
 - Keep item titles in **Bold**, followed by details (e.g., **Balinese Massage 90'** · 2.300.000 ₫ — **1.610.000 ₫** cho Platinum).
 - Group items logically with a short bold label when appropriate.
-- Keep explanations clear and concise. Never hardcode or fake data. Sign nothing.${guardNotes.length ? `\n\nSCREENING NOTES FOR THIS MESSAGE — these override the style rules above if they conflict.\n${guardNotes.join("\n")}` : ""}`;
+- Keep explanations clear and concise. Never hardcode or fake data. Sign nothing.
+
+FINAL CHECK BEFORE YOU REPLY
+If your reply is about to state a fee, a percentage, a waiver, or a total for check-in/check-out timing or for a tax/service-charge amount, stop: did you actually call quote_late_checkout, quote_early_checkin or quote_tax_gross_up in this turn? If not, call it now before you write anything — do not describe what a tier benefit "usually" covers instead of running the number.
+${detectedLangName ? `Write your reply in ${detectedLangName.toUpperCase()}. That is the language the guest just wrote in — it overrides everything above, including the stored profile line.` : `Write your reply in the same language as the guest's latest message.`}${guardNotes.length ? `
+
+SCREENING NOTES FOR THIS MESSAGE — these override the style rules above if they conflict.
+${guardNotes.join("\n")}` : ""}`;
+}
+
+/* ------------------------------------------------------------------ *
+ * Deterministic tool routing — forced calls for a narrow, proven set
+ * ------------------------------------------------------------------ */
+
+/**
+ * Force one specific tool call on round 1 instead of trusting prompt
+ * instructions, for the exact intents a benchmark caught failing.
+ *
+ * A 105-case hosted benchmark measured this directly: with only a prompt rule
+ * naming the tool and describing the failure mode in detail, the model still
+ * answered a late-checkout fee question by reciting a tier-benefit summary in
+ * prose instead of calling quote_late_checkout — three separate rewrites of
+ * the rule (including placing it at the very end of the prompt, which fixed a
+ * *different* instruction-following gap for reply language) did not make the
+ * call reliable. OpenAI's `tool_choice` forces the call at the API layer,
+ * which prompt text cannot do no matter how it is worded.
+ *
+ * This is deliberately narrow. Forcing every turn through a tool call adds
+ * latency and unnecessary calls for the ~85% of turns that do not need one —
+ * the router below only fires when the message both names the INTENT (a
+ * checkout/check-in time, or an amount plus a tax question) and supplies the
+ * SPECIFIC VALUE the tool needs (a time, or a money figure). Wanting to know
+ * the *policy* in general ("chính sách trả phòng muộn thế nào?") still goes
+ * through the model's own judgment — there is no proven failure there, and
+ * forcing a tool call with no real argument to extract would be worse than
+ * the problem this exists to fix.
+ */
+const HHMM_TIME = /\b([01]?\d|2[0-3])\s*[:h]\s*([0-5]\d)?\b/i;
+/* "giờ" ends in ờ (U+1EDD), which \w does not cover — \b never fires between it
+   and a following space, so a trailing \b silently kills the match. Same bug
+   documented in local-agent.ts's fold()/anyWord(); Unicode lookarounds fix it
+   the same way here. An English "8am"/"8pm" form is also accepted since the
+   F1 benchmark case is phrased that way. */
+const VN_HOUR_WORD = /(?<![\p{L}\p{N}])([01]?\d|2[0-3])\s*(giờ|gio)(?![\p{L}\p{N}])/iu;
+const AMPM_TIME = /\b([01]?\d)\s*(am|pm)\b/i;
+const CHECKOUT_WORDS = /trả phòng|tra phong|check[-\s]?out|checkout|departure|depart\b/i;
+const CHECKIN_WORDS = /nhận phòng|nhan phong|check[-\s]?in|checkin|arriv(e|al)/i;
+const TAX_WORDS = /thuế|thue|vat\b|phí phục vụ|phi phuc vu|service charge|after tax|gross.?up|sau thuế/i;
+const MONEY_AMOUNT = /\d[\d.,]*\s*(đ|₫|vnd|triệu|trieu|nghìn|nghin|k\b)/i;
+
+function hasTimeMention(text: string): boolean {
+  return HHMM_TIME.test(text) || VN_HOUR_WORD.test(text) || AMPM_TIME.test(text);
+}
+
+/**
+ * Returns the one tool that must be called this round, or null when no forced
+ * intent is detected — the ordinary tool loop runs unchanged in that case.
+ */
+function requiredToolFor(text: string): string | null {
+  if (TAX_WORDS.test(text) && MONEY_AMOUNT.test(text)) return "quote_tax_gross_up";
+  if (CHECKOUT_WORDS.test(text) && hasTimeMention(text)) return "quote_late_checkout";
+  if (CHECKIN_WORDS.test(text) && hasTimeMention(text)) return "quote_early_checkin";
+  return null;
 }
 
 /* ------------------------------------------------------------------ *
@@ -1238,13 +2083,186 @@ Format your response cleanly using standard markdown so it is effortless to scan
 /** How many times the model may come back for more tools before we force an answer. */
 const MAX_TOOL_ROUNDS = 10;
 
+/** Opt-in code-driven confirmation flow for the offline path. See the comment at
+ *  its call site for why this defaults off. */
+const WIZARD_ENABLED = process.env.WIZARD_ENABLED === "1" || process.env.WIZARD_ENABLED === "true";
+
+/** Route offline turns through the RAG-first pipeline instead of the tool loop. */
+const LOCAL_RAG_FIRST = process.env.LOCAL_RAG_FIRST !== "0" && process.env.LOCAL_RAG_FIRST !== "false";
+
 export type AgentResult = {
   reply: string;
   trace: ToolCallTrace[];
   escalated: boolean;
   latencyMs: number;
   model: string;
+  /** Which provider actually answered. "local" means the offline path served this turn. */
+  servedBy?: "local" | "openai";
+  /** True when the hosted API failed and the local model took over mid-turn. */
+  failedOver?: boolean;
+  /** Tool families exposed to the model, and the token cost of that block. */
+  toolFamilies?: string[];
+  toolTokens?: number;
+  /** Result of the numeric fabrication check on the drafted reply. */
+  numericGuard?: GuardVerdict;
+  /** Id of the persisted execution trace for this turn (see observability.ts). */
+  traceId?: string;
 };
+
+/**
+ * The tool budget a turn must respect.
+ *
+ * When failover is possible the tighter local budget applies even while the
+ * hosted API is serving. Sizing the tool block for the API and then failing over
+ * would hand the local model a prompt larger than its context window, so the
+ * outage the fallback exists for is exactly when it would break.
+ */
+function toolBudgetForRoute(): number {
+  const canServeLocal = PRIMARY === "local" || FALLBACK === "local";
+  return canServeLocal ? TOOL_BUDGET.local : TOOL_BUDGET.openai;
+}
+
+/**
+ * One offline turn, end to end.
+ *
+ * Wraps the RAG-first pipeline with the same guarantees the hosted path gets:
+ * an emergency escalates before anything else runs, every generated sentence
+ * passes the numeric guard, and a turn that cannot be answered becomes a task
+ * for a person rather than a guess.
+ *
+ * The reply is not stored here — routes.ts persists whatever runAgent returns —
+ * and no message is written twice.
+ */
+/**
+ * A short "Khách: ... / Trợ lý: ..." transcript of the turns immediately
+ * before the current question — the offline path's only source of working
+ * memory for a follow-up, since it otherwise sees just the latest message.
+ *
+ * Bounded to the last 2 exchanges (4 messages) and each line truncated,
+ * because this text is prepended to BOTH the retrieval query and the model
+ * prompt: too much of it dilutes BM25's keyword match on the current
+ * question and burns context budget for no benefit — a guest's actual
+ * follow-ups reference the immediately preceding turn, not five turns back.
+ * Returns "" for a conversation's first turn, which is what makes every
+ * already-measured single-turn benchmark case unaffected by this function.
+ */
+function recentOfflineHistory(history: Message[], excludingLast: boolean): string {
+  const prior = excludingLast ? history.slice(0, -1) : history;
+  const lines = prior
+    .slice(-4)
+    .filter((m) => m.role === "guest" || m.role === "ai")
+    .map((m) => `${m.role === "guest" ? "Khách" : "Trợ lý"}: ${m.body.replace(/\s+/g, " ").slice(0, 150)}`);
+  return lines.join("\n");
+}
+
+async function runOfflineTurn(ctx: {
+  conv: Conversation;
+  guest: { lang: string };
+  question: string;
+  guard: ReturnType<typeof screenGuestMessage>;
+  trace: ToolCallTrace[];
+  tr: Trace;
+  started: number;
+  history?: string;
+}): Promise<AgentResult> {
+  const { conv, guest, question, guard, trace, tr, started, history } = ctx;
+  const lang = offlineReplyLang(conv, guest.lang);
+  const span = tr.startSpan("local.rag_first", "wizard", { question_chars: question.length });
+
+  const hotel = storage.getHotel();
+  const turn = await runLocalTurn({
+    question,
+    isEmergency: guard.forceEscalation,
+    lang,
+    basics: { checkIn: hotel.checkInTime, checkOut: hotel.checkOutTime, currency: hotel.currency },
+    history,
+  });
+  span.setAttributes({
+    route: turn.route,
+    top_score: turn.topScore,
+    llm_calls: turn.llmCalls,
+    passages: turn.passages.length,
+  });
+
+  let reply = turn.reply ?? "";
+  let escalated = false;
+  let numericGuard: GuardVerdict | undefined;
+
+  /* The guard runs on the offline path too, unchanged. A small model is MORE
+     likely to invent a figure, not less, so this is the path that needs it most. */
+  if (reply) {
+    /* guestText now includes the recent-history block too: a figure the guest
+       stated two turns ago and the model correctly echoes back while
+       resolving a follow-up must not be flagged as an ungrounded number just
+       because it is not present in the LATEST message alone. */
+    numericGuard = checkReply(reply, {
+      toolResults: turn.passages.map((p) => p.content),
+      guestText: history ? `${history}\n${question}` : question,
+    });
+    if (!numericGuard.ok) {
+      span.addSignal("numeric_fabrication", numericGuard.ungrounded.map((c) => c.raw).join(", "));
+      /* repairReply's removal-notice template is a guard-owned "vi"|"en" contract,
+         out of scope for this fix (the guard itself is untouched) — the ANSWER
+         above is already generated in the guest's real language; only this rare
+         fallback notice (shown when a figure had to be trimmed) collapses,
+         exactly like the hosted tool-label renderers already did before this
+         change. */
+      const repaired = repairReply(reply, numericGuard, lang === "vi" ? "vi" : "en");
+      reply = repaired.text;
+      if (repaired.removed.length) span.addSignal("reply_repaired", `${repaired.removed.length} câu bị cắt`);
+      if (repaired.escalate) turn.escalate = true;
+    }
+  }
+
+  if (turn.escalate || !reply.trim()) {
+    span.addSignal("forced_escalation", turn.escalateReason ?? "offline path could not answer");
+    const t0 = Date.now();
+    const result = await runTool(
+      "escalate_to_human",
+      { reason: turn.escalateReason ?? "Offline path could not answer.", priority: guard.forceEscalation ? "urgent" : "high" },
+      { conversation: conv },
+    );
+    trace.push({ name: "escalate_to_human", args: { route: turn.route }, result, ms: Date.now() - t0 });
+    escalated = true;
+    if (!reply.trim()) {
+      reply = handoffLine(lang, "confirm");
+    }
+  }
+
+  const langSig = detectLanguageMismatch(guest.lang, reply);
+  if (langSig) span.addSignals([langSig]);
+  span.end();
+
+  /* Which dining venues the reply is actually grounded in, from the real
+     retrieved evidence — not a guess from the reply text. Skipped on
+     escalation: nothing was answered, so nothing to offer "xem chi tiết /
+     xem menu" for. Recorded as a trace entry (not a new column) so it rides
+     the same persisted, JSON toolTrace every other turn already writes. */
+  if (!escalated && reply) {
+    const venues = detectReferencedVenues(turn.passages);
+    if (venues.length) trace.push({ name: "dining_venues_referenced", args: {}, result: { venues }, ms: 0 });
+    const roomTypes = detectReferencedRoomTypes(turn.passages);
+    if (roomTypes.length) trace.push({ name: "room_types_referenced", args: {}, result: { roomTypes }, ms: 0 });
+    const serviceGroups = detectReferencedServices(turn.passages);
+    if (serviceGroups.length) trace.push({ name: "services_referenced", args: {}, result: { serviceGroups }, ms: 0 });
+  }
+
+  tr.setServedBy("local", MODEL_AGENT);
+  const latencyMs = Date.now() - started;
+  const traceId = tr.flush({ path: "local_rag_first", route: turn.route, latency_ms: latencyMs, escalated });
+
+  return {
+    reply,
+    trace,
+    escalated,
+    latencyMs,
+    model: MODEL_AGENT,
+    servedBy: "local",
+    failedOver: false,
+    numericGuard,
+    traceId,
+  };
+}
 
 export async function runAgent(conversationId: number): Promise<AgentResult> {
   const started = Date.now();
@@ -1267,28 +2285,243 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
   let escalated = false;
   let reply = "";
 
+  /* Structured execution trace for this turn. Every LLM call, tool call and
+     guard check below opens a child span on it; it is flushed once at the end,
+     from a try/catch, so observability never fails a guest's answer. */
+  const tr = new Trace(conversationId, { provider: PRIMARY, model: MODEL_AGENT });
+  /* Repeat detection: a tool called twice with identical arguments in one turn
+     is almost always the model looping, which is worth surfacing. */
+  const seenSignatures = new Set<string>();
+
+  /**
+   * Tool families unlocked for this turn. Seeded from the guest's message and
+   * grown by `find_capability`; never shrunk, so a capability the model had to
+   * go looking for stays available for the rest of the exchange.
+   */
+  const activeFamilies = new Set<FamilyName>();
+  const budget = toolBudgetForRoute();
+  let servedBy: "local" | "openai" | undefined;
+  let failedOver = false;
+  /* Which provider will serve this turn decides which tools may be offered.
+     In `auto` mode a failover can move a turn to the local model mid-flight, so
+     the narrower local set is used whenever local can serve — offering a tool the
+     fallback cannot use well is worse than never offering it. */
+  /* ---------------------------------------------------------------- *
+   * Offline path.
+   *
+   * When the local model is the one serving, the agentic tool loop below is the
+   * wrong shape for it (see local-agent.ts for the measurements). The whole turn
+   * is delegated to a RAG-first pipeline instead, and the loop below is never
+   * entered — which is also why the hosted path is untouched by any of this: the
+   * two share only the leaf building blocks (retrieval, the numeric guard, the
+   * tool implementations), never the control flow.
+   *
+   * Opt-in while the offline path is still being calibrated; PRIMARY must also
+   * actually be local, so enabling the flag on a hosted deployment does nothing.
+   * ---------------------------------------------------------------- */
+  if (LOCAL_RAG_FIRST && PRIMARY === "local") {
+    return await runOfflineTurn({
+      conv,
+      guest: storage.getGuest(conv.guestId)!,
+      question: lastGuest?.body ?? "",
+      history: recentOfflineHistory(history, true),
+      guard,
+      trace,
+      tr,
+      started,
+    });
+  }
+
+  const toolProvider: "local" | "openai" = PRIMARY === "local" || FALLBACK === "local" ? "local" : "openai";
+  const availableTools = toolsForProvider(toolProvider);
+  const reselect = () => {
+    const sel = selectTools({ text: lastGuest?.body ?? "", all: availableTools, active: [...activeFamilies], budget });
+    tr.addTurnSignals(deriveRouterSignals(sel));
+    return sel;
+  };
+
+  let lastSelection = reselect();
+  let familyCount = activeFamilies.size;
+
+  /* The form wizard is opt-in and OFF by default.
+   *
+   * Its first implementation matched confirmation with a bare substring regex
+   * that listed "hủy" (cancel) as an AFFIRMATIVE word, so "tôi không muốn hủy
+   * nữa", "đừng hủy" and even "phí hủy là bao nhiêu?" all executed the
+   * cancellation — an irreversible, chargeable action — and "book" matched
+   * because it contains "ok". It also returned before the numeric guard and
+   * before the emergency escalation check, which are the two protections this
+   * whole system is built around.
+   *
+   * It is rewritten now, but it stays behind a flag until the offline path has
+   * actually been measured: a wizard that mis-parses one word costs a guest
+   * their room, and the ordinary agent loop already handles these flows with
+   * every guard intact. */
+  /* An emergency outranks any pending paperwork. The previous version returned
+     from the wizard before this check, so a guest reporting chest pain during an
+     unfinished cancellation was answered with "reply Yes or No". */
+  const pending =
+    WIZARD_ENABLED && !guard.forceEscalation ? detectPendingTransaction(history) : null;
+  if (pending && (PRIMARY === "local" || process.env.LLM_MODE === "local")) {
+    const wizardSpan = tr.startSpan("wizard.form", "wizard", { pending: pending.type });
+    const wizardRes = await processFormWizardTurn(pending, lastGuest?.body ?? "", conv, runTool);
+    for (const t of wizardRes.toolTrace) {
+      trace.push(t);
+      wizardSpan.addSignals(deriveToolSignals({ name: t.name, args: t.args, result: t.result }));
+    }
+
+    /* The wizard only takes the turn when the guest actually answered the
+       question it asked. Anything else — a new request, an unrelated question —
+       falls through to the normal agent loop below, which is what keeps a stale
+       quote from swallowing the rest of the conversation. */
+    if (wizardRes.handled) {
+      reply = wizardRes.reply;
+      if (!reply.trim()) wizardSpan.addSignal("empty_reply");
+      wizardSpan.setAttributes({ completed: wizardRes.completed }).end();
+      tr.setServedBy("local", MODEL_AGENT);
+      const latencyMs = Date.now() - started;
+      /* The reply is NOT stored here: routes.ts persists whatever runAgent
+         returns, and doing it in both places posted every wizard answer twice. */
+      const traceId = tr.flush({ path: "wizard", latency_ms: latencyMs, completed: wizardRes.completed });
+      return {
+        reply,
+        trace,
+        escalated,
+        latencyMs,
+        model: MODEL_AGENT,
+        servedBy: "local",
+        /* Only a real provider failover sets this; local as the configured
+           primary is not a failure. */
+        failedOver: FALLBACK === "local" && PRIMARY !== "local",
+        traceId,
+      };
+    }
+    wizardSpan.setAttributes({ declined: true }).end();
+  }
+
   for (let turn = 0; turn < MAX_TOOL_ROUNDS; turn++) {
-    const completion = await chat({ model: MODEL_AGENT, messages: msgs, tools: TOOLS, maxTokens: 1100 });
+    /* Only rebuild the tool block when find_capability actually unlocked
+       something; otherwise the selection is identical to the previous round. */
+    if (activeFamilies.size !== familyCount) {
+      lastSelection = reselect();
+      familyCount = activeFamilies.size;
+    }
+
+    const maxTokens = PRIMARY === "local" ? 400 : 1100;
+
+    /* Forced tool call, round 1 only — see requiredToolFor's comment. Only
+       forces when the tool is actually in this round's selection; if
+       find_capability has not unlocked it yet, the ordinary loop runs and the
+       forced call is attempted again once activeFamilies picks it up (a
+       required tool absent from every family it belongs to would be a real bug
+       elsewhere, not something to paper over here). */
+    const forced =
+      turn === 0
+        ? requiredToolFor(lastGuest?.body ?? "")
+        : null;
+    /* Guarantee the forced tool is actually offered this round rather than
+       hoping the family keyword-scorer (an independently maintained lexicon)
+       happens to agree with requiredToolFor's own trigger words. A forced
+       tool_choice naming a function absent from `tools` is an API error, not a
+       graceful fallback, so this cannot be left to chance. */
+    let toolsThisRound = lastSelection.tools;
+    if (forced && !toolsThisRound.some((t) => t.function.name === forced)) {
+      const def = availableTools.find((t) => t.function.name === forced);
+      if (def) toolsThisRound = [...toolsThisRound, def];
+    }
+    const forcedAvailable = !!forced && toolsThisRound.some((t) => t.function.name === forced);
+
+    const llmSpan = tr.startSpan(`llm.chat.round${turn}`, "llm", {
+      round: turn,
+      tool_families: lastSelection.families,
+      tool_tokens: lastSelection.tokens,
+      forced_tool: forcedAvailable ? forced : undefined,
+    });
+    let completion;
+    try {
+      completion = await chat({
+        messages: msgs,
+        tools: toolsThisRound,
+        maxTokens,
+        ...(forcedAvailable ? { toolChoice: { name: forced! } } : {}),
+      });
+    } catch (e: any) {
+      llmSpan.addSignal("provider_error", e?.message ?? String(e)).end({ error: e?.message ?? String(e) });
+      tr.flush({ path: "agent", latency_ms: Date.now() - started, aborted: true });
+      throw e;
+    }
+
     const choice = completion.choices[0]?.message;
-    if (!choice) throw new LlmError("Empty response from the model.");
+    llmSpan.setAttributes({ served_by: completion.servedBy, model: completion.model });
+    if (!choice) {
+      llmSpan.addSignal("empty_reply", "no choices in completion").end({ error: "empty completion" });
+      throw new LlmError("Empty response from the model.");
+    }
+    if (completion.servedBy) {
+      servedBy = completion.servedBy;
+      tr.setServedBy(completion.servedBy, completion.model);
+    }
+    if (completion.failedOver) {
+      failedOver = true;
+      llmSpan.addSignal("failover", `answered by ${completion.servedBy} after primary failed`);
+    }
+    llmSpan.setAttributes({ tool_calls_requested: choice.tool_calls?.length ?? 0 });
+    llmSpan.end();
 
     if (choice.tool_calls?.length) {
       msgs.push({ role: "assistant", content: choice.content ?? "", tool_calls: choice.tool_calls });
       for (const call of choice.tool_calls) {
         let args: any = {};
+        let badArgs = false;
         try {
           args = JSON.parse(call.function.arguments || "{}");
         } catch {
           args = {};
+          badArgs = true;
         }
         const t0 = Date.now();
         let result: Record<string, unknown> | string;
+
+        /* find_capability is the router's own tool, not a hotel operation, so it
+           is answered here rather than in runTool. It unlocks families for the
+           following rounds, which is how a routing miss costs one round instead
+           of becoming "the hotel cannot do that". */
+        if (call.function.name === "find_capability") {
+          const capSpan = tr.startSpan("router.find_capability", "router", { need: args?.need });
+          // Search only what this provider is allowed to use, or the escape
+          // hatch would hand the local model the very tool it was denied.
+          const found = resolveFindCapability(String(args?.need ?? ""), availableTools);
+          for (const f of found.families) activeFamilies.add(f);
+          if (!found.matched) capSpan.addSignal("capability_miss", String(args?.need ?? ""));
+          if (badArgs) capSpan.addSignal("bad_arguments", call.function.arguments?.slice(0, 120));
+          result = {
+            available_tools: found.tools,
+            note: "These tools are now available to you. Call the one you need on your next step.",
+          };
+          capSpan.setAttributes({ unlocked_families: found.families }).end();
+          trace.push({ name: call.function.name, args, result, ms: Date.now() - t0 });
+          msgs.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
+          continue;
+        }
+
+        const sig = toolSignature(call.function.name, args);
+        const isRepeat = seenSignatures.has(sig);
+        seenSignatures.add(sig);
+        const toolSpan = tr.startSpan(`tool.${call.function.name}`, "tool", { args });
+
         try {
           result = await runTool(call.function.name, args, { conversation: conv });
         } catch (e: any) {
           result = { error: e?.message ?? String(e) };
         }
         if (call.function.name === "escalate_to_human") escalated = true;
+
+        if (badArgs) toolSpan.addSignal("bad_arguments", call.function.arguments?.slice(0, 120));
+        toolSpan.addSignals(deriveToolSignals({ name: call.function.name, args, result, isRepeat }));
+        toolSpan
+          .setAttributes({ result_keys: typeof result === "object" ? Object.keys(result) : undefined })
+          .end();
+
         trace.push({ name: call.function.name, args, result, ms: Date.now() - t0 });
         msgs.push({
           role: "tool",
@@ -1301,6 +2534,55 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
 
     reply = (choice.content ?? "").trim();
     break;
+  }
+
+  /* Numeric fabrication guard. Runs on whatever the model wrote, from either
+     provider, before the guest ever sees it. Prices, rates and times have to be
+     traceable to a tool result from this same turn; see numguard.ts for why the
+     system prompt is not accepted as evidence. */
+  let numericGuard: GuardVerdict | undefined;
+  if (reply) {
+    const guardSpan = tr.startSpan("guard.numeric", "guard");
+    const evidence = {
+      toolResults: trace.map((t) => t.result),
+      guestText: lastGuest?.body ?? "",
+    };
+    if (process.env.AGENT_DEBUG) console.log("[AGENT_DIAGNOSTIC] Generated raw reply before guard:\n", reply);
+    numericGuard = checkReply(reply, evidence);
+    guardSpan.setAttributes({ checked: numericGuard.checked, ok: numericGuard.ok });
+    if (process.env.AGENT_DEBUG) console.log("[AGENT_DIAGNOSTIC] NumericGuard ok?:", numericGuard.ok, "Ungrounded:", numericGuard.ungrounded);
+    if (!numericGuard.ok) {
+      guardSpan.addSignal(
+        "numeric_fabrication",
+        numericGuard.ungrounded.map((c) => c.raw).join(", "),
+      );
+      const guestLang = storage.getGuest(conv.guestId)?.lang;
+      const repaired = repairReply(reply, numericGuard, guestLang === "vi" ? "vi" : "en");
+      if (process.env.AGENT_DEBUG) console.log("[AGENT_DIAGNOSTIC] Repaired reply text:\n", repaired.text);
+      reply = repaired.text;
+      if (repaired.removed.length) guardSpan.addSignal("reply_repaired", `${repaired.removed.length} sentence(s) stripped`);
+      trace.push({
+        name: "numeric_guard",
+        args: { ungrounded: numericGuard.ungrounded.map((c) => c.raw) },
+        result: { removed_sentences: repaired.removed, checked: numericGuard.checked },
+        ms: 0,
+      });
+      if (repaired.escalate && !escalated) {
+        await runTool(
+          "escalate_to_human",
+          {
+            reason: `Reply contained figures with no source in this turn's tool results: ${numericGuard.ungrounded
+              .map((c) => c.raw)
+              .join(", ")}`,
+            priority: "high",
+          },
+          { conversation: conv },
+        );
+        guardSpan.addSignal("forced_escalation", "numeric guard could not salvage the reply");
+        escalated = true;
+      }
+    }
+    guardSpan.end();
   }
 
   // An emergency escalates whatever the model decided to write.
@@ -1318,12 +2600,22 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
       { conversation: conv },
     );
     trace.push({ name: "escalate_to_human", args: { forced_by: "guard" }, result, ms: Date.now() - t0 });
+    tr.addTurnSignals([{ code: "forced_escalation", severity: "warn", detail: `guard: ${guard.emergencyKind ?? "emergency"}` }]);
     escalated = true;
   }
 
   if (!reply) {
-    reply =
-      "I want to get this exactly right, so I am bringing a colleague from the front desk into this conversation now.";
+    tr.root.addSignal("empty_reply", "model produced no answer; served fallback");
+    /* This used to answer with a hard-coded Deluxe rate card. That meant any
+       failed turn — a question about wifi, a broken tool, a timeout — was
+       answered with specific prices the guest never asked for, in a system where
+       every other figure must trace back to a tool result. A failure has to
+       sound like a failure. */
+    /* The language the guest actually WROTE in outranks the language on their
+       profile: a Korean guest may have booked with an English profile. */
+    const askedIn =
+      detectMessageLang(lastGuest?.body ?? "") ?? storage.getGuest(conv.guestId)?.lang ?? "vi";
+    reply = handoffLine(askedIn, "failed");
     if (!escalated) {
       await runTool(
         "escalate_to_human",
@@ -1334,7 +2626,35 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
     }
   }
 
-  return { reply, trace, escalated, latencyMs: Date.now() - started, model: MODEL_AGENT };
+  /* Language check on the final reply, and flush the whole trace. Both are in a
+     try/catch-free tail only because flush() itself never throws; a mismatch
+     signal is cheap and conservative (see detectLanguageMismatch). */
+  const guestLang = storage.getGuest(conv.guestId)?.lang ?? "vi";
+  const langSig = detectLanguageMismatch(guestLang, reply);
+  if (langSig) tr.root.addSignals([langSig]);
+
+  const latencyMs = Date.now() - started;
+  const traceId = tr.flush({
+    path: "agent",
+    latency_ms: latencyMs,
+    served_by: servedBy,
+    escalated,
+    reply_chars: reply.length,
+  });
+
+  return {
+    reply,
+    trace,
+    escalated,
+    latencyMs,
+    model: servedBy ? agentModel(servedBy) : MODEL_AGENT,
+    servedBy,
+    failedOver,
+    toolFamilies: lastSelection.families,
+    toolTokens: lastSelection.tokens,
+    numericGuard,
+    traceId,
+  };
 }
 
 /* ------------------------------------------------------------------ *
