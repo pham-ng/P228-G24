@@ -16,6 +16,7 @@
 export type GuardFlag =
   | "medical_emergency"
   | "safety_threat"
+  | "prohibited_substance"
   | "prompt_injection"
   | "authority_claim"
   | "third_party_disclosure"
@@ -33,6 +34,10 @@ export type GuardResult = {
   forceEscalation: boolean;
   emergencyKind: "medical" | "safety" | null;
 };
+
+const PROHIBITED = [
+  /ma t(ú|u)y|ch(ấ|a)t c(ấ|a)m|thu(ố|o)c phi(ệ|e)n|c(ầ|a)n sa|b(ó|o)ng c(ườ|uo)i|heroin|cocaine|meth|ecstasy|illegal drugs|narcotics/i,
+];
 
 const BILLING_DISPUTE = [
   /refund|charge ?back|chargeback|overcharg|double ?charg|wrong(ly)? charged|dispute the bill|compensat|goodwill|waive the|money back/i,
@@ -134,8 +139,10 @@ export function screenGuestMessage(raw: string): GuardResult {
 
   const medical = any(MEDICAL, text);
   const safety = any(SAFETY, text);
+  const prohibited = any(PROHIBITED, text);
   if (medical) flags.push("medical_emergency");
   if (safety) flags.push("safety_threat");
+  if (prohibited) flags.push("prohibited_substance");
   if (any(INJECTION, text)) flags.push("prompt_injection");
   if (any(AUTHORITY, text)) flags.push("authority_claim");
   if (any(THIRD_PARTY, text)) flags.push("third_party_disclosure");
@@ -143,6 +150,10 @@ export function screenGuestMessage(raw: string): GuardResult {
   if (any(HUMAN, text)) flags.push("human_requested");
   if (any(BILLING_DISPUTE, text)) flags.push("billing_dispute");
 
+  if (prohibited)
+    notes.push(
+      "SCREENING: the guest is asking about illegal drugs or prohibited items. State clearly and politely that the resort strictly prohibits illegal substances under resort policy and applicable laws.",
+    );
   if (medical)
     notes.push(
       "SCREENING: this message reads as a possible MEDICAL EMERGENCY. Your first sentence must tell the guest to call 115 for an ambulance in Vietnam or press the room phone for the front desk, and say that security and the duty manager are being sent to the room now. Do not ask qualifying questions first, do not offer any other service, and do not book anything. The system has already escalated this to a human.",

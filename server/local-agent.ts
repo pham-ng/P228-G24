@@ -555,7 +555,12 @@ export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
      "đặt cọc" (the deposit, a noun) is not the verb "đặt" (to book), and
      "thanh toán bằng hình thức nào" (which payment methods exist — asking
      about a form/method) is not "thanh toán" as an imperative (pay now). */
-  if (anyWord(text, WRITE_WORDS) && !/đặt cọc|deposit|hình thức|phương thức/iu.test(text)) return "transaction";
+  if (
+    anyWord(text, WRITE_WORDS) &&
+    !/đặt cọc|deposit|hình thức|phương thức|nên đặt|đặt phòng nào|phù hợp|cho \d+ người|tư vấn|gợi ý/iu.test(text) &&
+    !anyWord(text, RECOMMENDATION_CUES)
+  )
+    return "transaction";
   return "knowledge";
 }
 
@@ -833,6 +838,15 @@ export type LocalAnswer = {
  * model running — the deterministic parts are where the risk lives, and they
  * should not be untestable just because inference is unavailable.
  */
+export function cleanSpuriousCjk(text: string, lang: ReplyLang | string): string {
+  if (lang === "vi" || lang === "en") {
+    let s = text.replace(/không\s*晚于/gi, "không muộn hơn ");
+    s = s.replace(/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+/g, " ");
+    return s.replace(/\s+/g, " ").trim();
+  }
+  return text;
+}
+
 export async function answerFromPassages(
   question: string,
   passages: Retrieved[],
@@ -852,7 +866,8 @@ export async function answerFromPassages(
       temperature: 0,
       maxTokens: 300,
     });
-    const text = (r.choices[0]?.message?.content ?? "").trim();
+    let text = (r.choices[0]?.message?.content ?? "").trim();
+    text = cleanSpuriousCjk(text, lang);
     if (!text) return { reply: null, abstained: true, timing: r.timing };
     if (isAbstention(text)) return { reply: null, abstained: true, timing: r.timing };
     return { reply: text, abstained: false, timing: r.timing };

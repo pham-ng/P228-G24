@@ -55,6 +55,7 @@ import {
   type FamilyName,
 } from "./toolrouter";
 import { checkReply, repairReply, type GuardVerdict } from "./numguard";
+import { cleanSpuriousCjk } from "./local-agent";
 import {
   Trace,
   deriveToolSignals,
@@ -2548,10 +2549,10 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
         "numeric_fabrication",
         numericGuard.ungrounded.map((c) => c.raw).join(", "),
       );
-      const guestLang = storage.getGuest(conv.guestId)?.lang;
+      const guestLang = storage.getGuest(conv.guestId)?.lang ?? "vi";
       const repaired = repairReply(reply, numericGuard, guestLang === "vi" ? "vi" : "en");
       if (process.env.AGENT_DEBUG) console.log("[AGENT_DIAGNOSTIC] Repaired reply text:\n", repaired.text);
-      reply = repaired.text;
+      reply = cleanSpuriousCjk(repaired.text, guestLang);
       if (repaired.removed.length) guardSpan.addSignal("reply_repaired", `${repaired.removed.length} sentence(s) stripped`);
       trace.push({
         name: "numeric_guard",

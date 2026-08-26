@@ -62,14 +62,23 @@ function rrfVecWeight(): number {
  * Tokenising
  * ------------------------------------------------------------------ */
 
-/** Fold diacritics so "muộn" and "muon" tokenise identically. */
+/** Fold diacritics so "muộn" and "muon" tokenise identically, and normalize common typos. */
 export function fold(s: string) {
-  return s
+  let normalized = s
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
     .toLowerCase();
+
+  // Normalize common room/venue name typos
+  normalized = normalized
+    .replace(/\bdeluxue\b/g, "deluxe")
+    .replace(/\bdelux\b/g, "deluxe")
+    .replace(/\bexecutiv\b/g, "executive")
+    .replace(/\bvillas\b/g, "villa");
+
+  return normalized;
 }
 
 /**

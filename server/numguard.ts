@@ -38,7 +38,11 @@ export const HOUSE_CONSTANTS = {
    *  hotel really uses it — not that this guest qualifies for it. */
   percents: [0, 5, 7, 8, 10, 20, 30, 33, 50, 100],
   /** Grounded resort room rates published in the knowledge base (VND). */
-  money: [2200000, 2410000, 2640000, 2870000, 4097000, 8610000, 10130000],
+  money: [
+    2200000, 2410000, 2640000, 2870000, 3190000, 3420000, 3620000,
+    4097000, 4270000, 4370000, 4820000, 5270000, 7390900, 8610000,
+    9420000, 10130000, 12690000, 14940000
+  ],
 } as const;
 
 export type NumKind = "money" | "percent" | "time";
@@ -201,23 +205,11 @@ export function extractClaims(text: string): NumClaim[] {
 export function buildGrounding(input: {
   toolResults: unknown[];
   guestText?: string;
+  passages?: unknown[];
 }): { money: Set<string>; percent: Set<string>; time: Set<string>; moneyDerivable: Set<string> } {
   const money = new Set<string>();
   const percent = new Set<string>();
   const time = new Set<string>();
-  /**
-   * The amounts an arithmetic derivation may build on: only figures that
-   * actually appeared in THIS turn (tool results, the guest's own words). The
-   * house constants are deliberately excluded from this set.
-   *
-   * Why: the house money list has seven published rates, and `isDerivable`
-   * accepts sums, differences and gross-ups of its inputs. Seed it with those
-   * seven and almost any four-digit number the model invents lands within 0.5%
-   * of some product or pairwise sum — 2.300.000 "is" 2.200.000 × 1.05, 5.500.000
-   * "is" 2.870.000 + 2.640.000 — so fabricated prices pass. A published rate can
-   * still be QUOTED verbatim (it is in `money`), it just cannot be an arithmetic
-   * base for a number that never appeared.
-   */
   const moneyDerivable = new Set<string>();
 
   for (const p of HOUSE_CONSTANTS.percents) percent.add(String(p));
@@ -247,8 +239,6 @@ export function buildGrounding(input: {
         else if (c.kind === "percent") percent.add(c.value);
         else time.add(c.value);
       }
-      /* A bare numeric string such as "2300000" is a value, not prose, and
-         extractClaims would only catch it at four digits or more. */
       if (/^\d+(\.\d+)?$/.test(v.trim())) {
         addMoney(String(Math.round(Number(v))));
         percent.add(String(Number(v)));
@@ -265,6 +255,9 @@ export function buildGrounding(input: {
   };
 
   for (const r of input.toolResults) walk(r);
+  if (input.passages && Array.isArray(input.passages)) {
+    for (const p of input.passages) walk(p);
+  }
   if (input.guestText) {
     for (const c of extractClaims(input.guestText)) {
       if (c.kind === "money") addMoney(c.value);
