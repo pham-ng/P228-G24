@@ -508,6 +508,11 @@ export function needsConversationContext(question: string): boolean {
   return anyWord(trimmed, CONTEXT_DEPENDENT_CUES) || /^it\b/i.test(trimmed);
 }
 
+export function isPriceInfoOnly(text: string): boolean {
+  return /giá|bao nhiêu|nhiêu tiền|bảng giá|price|cost|how much|fee|rate/i.test(text) &&
+    !/đặt|book|reserve|mua|thanh toán|hủy|cancel|order/i.test(text);
+}
+
 export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
   if (isEmergency) return "emergency";
   const scored = scoreFamilies(text);
@@ -547,7 +552,8 @@ export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
     top &&
     TRANSACTION_FAMILIES.includes(top) &&
     !(top === "housekeeping" && isWifiInfoOnly(text)) &&
-    !(top === "transport_tours" && isTransportInfoOnly(text))
+    !(top === "transport_tours" && isTransportInfoOnly(text)) &&
+    !isPriceInfoOnly(text)
   )
     return "transaction";
   /* A write verb in an otherwise informational message ("tôi muốn đặt bàn tối
