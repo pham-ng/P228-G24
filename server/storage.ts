@@ -361,45 +361,125 @@ CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
   addColumnIfMissing("service_bookings", "cancelled_at", "cancelled_at TEXT");
   addColumnIfMissing("dining_venues", "menu_file", "menu_file TEXT");
 
-  syncRoomTypeImages();
+  autoSyncAllMediaImages();
 }
 
-function syncRoomTypeImages() {
+function autoSyncAllMediaImages() {
   try {
-    const rows = sqlite.prepare("SELECT id, name_vi, images FROM room_types").all() as Array<{ id: number; name_vi: string; images: string }>;
-    const updateStmt = sqlite.prepare("UPDATE room_types SET images = ? WHERE id = ?");
-    for (const r of rows) {
-      const currentImages = JSON.parse(r.images || "[]") as string[];
-      if (currentImages.length > 0) continue;
-
-      const slug = r.name_vi
+    const toSlug = (str: string) =>
+      str
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
+        .replace(/đ/gi, "d")
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
 
+    // 1. Room Types
+    const rooms = sqlite.prepare("SELECT id, code, name_vi FROM room_types").all() as Array<{ id: number; code: string; name_vi: string }>;
+    const updateRoom = sqlite.prepare("UPDATE room_types SET images = ? WHERE id = ?");
+
+    for (const r of rooms) {
+      const candidates = [
+        toSlug(r.name_vi),
+        toSlug(r.code),
+        toSlug(r.name_vi).replace(/^nha-hang-/, ""),
+      ];
       let images: string[] = [];
-      const folderPath = join(process.cwd(), "client/public/rooms", slug);
-      if (existsSync(folderPath)) {
-        const files = readdirSync(folderPath).filter((f) => /\.(webp|jpg|png)$/i.test(f)).sort();
-        images = files.map((f) => `/rooms/${slug}/${f}`);
+
+      for (const s of candidates) {
+        const folder = join(process.cwd(), "client/public/rooms", s);
+        if (existsSync(folder)) {
+          const files = readdirSync(folder)
+            .filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f) && !f.endsWith(".pdf"))
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+          if (files.length > 0) {
+            images = files.map((f) => `/rooms/${s}/${f}`);
+            break;
+          }
+        }
       }
 
       if (images.length === 0) {
+        const slug = toSlug(r.name_vi);
         if (slug.includes("deluxe")) images = ["/rooms/deluxe.jpg", "/rooms/deluxe-1.jpg", "/rooms/deluxe-2.jpg"];
         else if (slug.includes("grand")) images = ["/rooms/grand-deluxe.jpg", "/rooms/grand-deluxe-ocean.jpg"];
         else if (slug.includes("biet-thu") || slug.includes("villa")) images = ["/rooms/villa.jpg"];
       }
 
+      updateRoom.run(JSON.stringify(images), r.id);
+    }
+
+    // 2. Dining Venues
+    const dining = sqlite.prepare("SELECT id, code, name_vi, slug FROM dining_venues").all() as Array<{ id: number; code: string; name_vi: string; slug: string }>;
+    const updateDining = sqlite.prepare("UPDATE dining_venues SET images = ? WHERE id = ?");
+
+    for (const d of dining) {
+      const candidates = [
+        d.slug,
+        toSlug(d.name_vi),
+        toSlug(d.code),
+        toSlug(d.name_vi).replace(/^nha-hang-/, ""),
+        d.slug.replace(/-bar$/, "").replace(/-restaurant$/, "").replace(/-/g, ""),
+        d.slug === "beach-comber-bar" ? "beachcomber" : "",
+        d.slug === "seaview-bar" ? "seaview-lounge" : "",
+      ].filter(Boolean);
+
+      let images: string[] = [];
+      for (const s of candidates) {
+        const folder = join(process.cwd(), "client/public/dining", s);
+        if (existsSync(folder)) {
+          const files = readdirSync(folder)
+            .filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f))
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+          if (files.length > 0) {
+            images = files.map((f) => `/dining/${s}/${f}`);
+            break;
+          }
+        }
+      }
+
+      updateDining.run(JSON.stringify(images), d.id);
+    }
+
+    // 3. Services
+    const services = sqlite.prepare("SELECT id, name, category FROM services").all() as Array<{ id: number; name: string; category: string }>;
+    const updateService = sqlite.prepare("UPDATE services SET images = ? WHERE id = ?");
+
+    for (const s of services) {
+      const nameSlug = toSlug(s.name);
+      let images: string[] = [];
+
+      if (s.category === "spa" || nameSlug.includes("spa") || nameSlug.includes("massage")) {
+        const folder = join(process.cwd(), "client/public/services/spa");
+        if (existsSync(folder)) {
+          const files = readdirSync(folder).filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f)).sort();
+          images = files.map((f) => `/services/spa/${f}`);
+        }
+      } else if (nameSlug.includes("cap-treo") || nameSlug.includes("cable-car")) {
+        const folder = join(process.cwd(), "client/public/transport/cable-car");
+        if (existsSync(folder)) {
+          const files = readdirSync(folder).filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f)).sort();
+          images = files.map((f) => `/transport/cable-car/${f}`);
+        }
+      } else if (nameSlug.includes("vinwonders")) {
+        const folder = join(process.cwd(), "client/public/services/vinwonder");
+        if (existsSync(folder)) {
+          const files = readdirSync(folder).filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f)).sort();
+          images = files.map((f) => `/services/vinwonder/${f}`);
+        }
+      } else if (s.category === "dining") {
+        if (nameSlug.includes("bach-giai")) images = ["/dining/bach-giai/1.webp", "/dining/bach-giai/2.jpg"];
+        else if (nameSlug.includes("lotus")) images = ["/dining/lotus/1.jpg", "/dining/lotus/2.jpg", "/dining/lotus/3.jpg"];
+        else if (nameSlug.includes("jasmine")) images = ["/dining/jasmine/1.jpg", "/dining/jasmine/2.jpg"];
+      }
+
       if (images.length > 0) {
-        updateStmt.run(JSON.stringify(images), r.id);
+        updateService.run(JSON.stringify(images), s.id);
       }
     }
   } catch (err) {
-    console.error("[syncRoomTypeImages] error:", err);
+    console.error("[autoSyncAllMediaImages] error:", err);
   }
 }
 
@@ -671,7 +751,7 @@ export const storage = {
 
   /* ---------------- room catalogue ---------------- */
   listRoomTypes(): RoomType[] {
-    syncRoomTypeImages();
+    autoSyncAllMediaImages();
     return db.select().from(roomTypes).orderBy(asc(roomTypes.areaSqm)).all();
   },
 
@@ -681,6 +761,7 @@ export const storage = {
 
   /* ---------------- dining venues ---------------- */
   listDiningVenues(): DiningVenue[] {
+    autoSyncAllMediaImages();
     return db.select().from(diningVenues).orderBy(asc(diningVenues.kind), asc(diningVenues.code)).all();
   },
 
