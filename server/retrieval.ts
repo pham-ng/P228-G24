@@ -62,23 +62,84 @@ function rrfVecWeight(): number {
  * Tokenising
  * ------------------------------------------------------------------ */
 
-/** Fold diacritics so "muộn" and "muon" tokenise identically, and normalize common typos. */
+/** Fold diacritics so "muộn" and "muon" tokenise identically. */
 export function fold(s: string) {
-  let normalized = s
+  return s
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
     .toLowerCase();
+}
 
-  // Normalize common room/venue name typos
-  normalized = normalized
-    .replace(/\bdeluxue\b/g, "deluxe")
-    .replace(/\bdelux\b/g, "deluxe")
-    .replace(/\bexecutiv\b/g, "executive")
-    .replace(/\bvillas\b/g, "villa");
+/**
+ * Generalized Damerau-Levenshtein distance calculation for typo tolerance.
+ * Handles insertions, deletions, substitutions, and single-character transpositions.
+ */
+export function damerauLevenshtein(a: string, b: string): number {
+  const lenA = a.length;
+  const lenB = b.length;
+  if (a === b) return 0;
+  if (lenA === 0) return lenB;
+  if (lenB === 0) return lenA;
 
-  return normalized;
+  const d: number[][] = [];
+  for (let i = 0; i <= lenA; i++) {
+    d[i] = [];
+    d[i][0] = i;
+  }
+  for (let j = 0; j <= lenB; j++) {
+    d[0][j] = j;
+  }
+
+  for (let i = 1; i <= lenA; i++) {
+    for (let j = 1; j <= lenB; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(
+        d[i - 1][j] + 1,      // deletion
+        d[i][j - 1] + 1,      // insertion
+        d[i - 1][j - 1] + cost // substitution
+      );
+      if (
+        i > 1 &&
+        j > 1 &&
+        a[i - 1] === b[j - 2] &&
+        a[i - 2] === b[j - 1]
+      ) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost); // transposition
+      }
+    }
+  }
+  return d[lenA][lenB];
+}
+
+/** Canonical resort domain terms for dynamic typo resolution across room/venue/service queries. */
+const DOMAIN_DICTIONARY = [
+  "deluxe", "executive", "suite", "villa", "superior", "ocean", "view", "grand",
+  "king", "twin", "bedroom", "lotus", "jasmine", "bach", "giai", "halal", "vietflavors",
+  "ozone", "buffet", "restaurant", "akoya", "spa", "massage", "sauna", "cable",
+  "car", "pool", "swimming", "beach", "vinwonders", "harbour", "shuttle", "checkout", "checkin"
+];
+
+/** Find canonical domain token if rawToken contains minor typos (distance <= 2). */
+export function findFuzzyCanonicalToken(rawToken: string): string | null {
+  if (rawToken.length < 4) return null;
+  let bestMatch: string | null = null;
+  let minDistance = 3;
+
+  for (const term of DOMAIN_DICTIONARY) {
+    if (Math.abs(term.length - rawToken.length) > 2) continue;
+    const dist = damerauLevenshtein(rawToken, term);
+    if (dist > 0 && dist <= 2 && dist < minDistance) {
+      const maxLen = Math.max(rawToken.length, term.length);
+      const similarity = (maxLen - dist) / maxLen;
+      if (similarity >= 0.65) {
+        minDistance = dist;
+        bestMatch = term;
+      }
+    }
+  }
+  return bestMatch;
 }
 
 /**
@@ -106,10 +167,20 @@ const STOP = new Set(
 );
 
 export function tokenise(s: string): string[] {
-  return fold(s)
+  const rawTokens = fold(s)
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .split(/\s+/)
     .filter((t) => t.length > 1 && !STOP.has(t));
+
+  const result: string[] = [];
+  for (const t of rawTokens) {
+    result.push(t);
+    const fuzzy = findFuzzyCanonicalToken(t);
+    if (fuzzy && fuzzy !== t && !result.includes(fuzzy)) {
+      result.push(fuzzy);
+    }
+  }
+  return result;
 }
 
 /* ------------------------------------------------------------------ *

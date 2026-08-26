@@ -16,14 +16,34 @@ import { clock } from "@/lib/format";
 import { LANG_LABELS, type ConversationDetail, type GuestKey, type Hotel } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+const ROOM_QUICK_CHIPS: Record<string, string[]> = {
+  vi: [
+    "🛏️ Deluxe giường đôi",
+    "🛏️ Deluxe 2 giường đơn",
+    "🏨 Grand Deluxe giường đôi",
+    "🌟 Executive Suite",
+    "🏡 Villa 2 phòng ngủ",
+    "🌊 Villa 3 phòng ngủ hướng biển",
+  ],
+  en: [
+    "🛏️ Deluxe Double Bed",
+    "🛏️ Deluxe Twin Bed",
+    "🏨 Grand Deluxe King",
+    "🌟 Executive Suite",
+    "🏡 2-Bedroom Villa",
+  ],
+};
+
 const PROMPTS: Record<string, string[]> = {
   en: [
+    "🛏️ Room types & pricing",
     "🍽️ Restaurant menus & pricing",
     "💆 Spa treatments & hours",
     "🚪 Late check-out pricing",
     "🚠 Cable car schedule",
   ],
   vi: [
+    "🛏️ Các hạng phòng & giá phòng",
     "🍽️ Menu nhà hàng",
     "🍲 Nhà hàng Lotus",
     "🥩 Nhà hàng Jasmine",
@@ -33,13 +53,14 @@ const PROMPTS: Record<string, string[]> = {
     "🚠 Giờ chạy cáp treo",
   ],
   ko: [
+    "🛏️ 객실 종류 및 요금",
     "🍽️ 레스토랑 메뉴 및 가격",
     "💆 스파 트리트먼트 및 운영시간",
     "🚪 레이트 체크아웃 안내",
   ],
-  zh: ["🍽️ 餐厅菜单与价格", "💆 水疗 Spa 价格", "🚪 延迟退房费用"],
-  ru: ["🍽️ Меню ресторанов", "💆 Услуги спа", "🚪 Поздний выезд"],
-  ja: ["🍽️ レストランメニューと料金", "💆 スパの営業時間と料金", "🚪 レイトチェックアウト費用"],
+  zh: ["🛏️ 房型与价格", "🍽️ 餐厅菜单与价格", "💆 水疗 Spa 价格", "🚪 延迟退房费用"],
+  ru: ["🛏️ Номера и цены", "🍽️ Меню ресторанов", "💆 Услуги спа", "🚪 Поздний выезд"],
+  ja: ["🛏️ 客室と料金", "🍽️ レストランメニューと料金", "💆 スパの営業時間と料金", "🚪 レイトチェックアウト費用"],
 };
 
 const Bubble = memo(function Bubble({
@@ -281,10 +302,21 @@ export default function GuestPage() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [detail?.messages.length, send.isPending]);
 
+  const roomRelated = useMemo(() => {
+    const d = draft.toLowerCase();
+    const lastMessageText = (detail?.messages[detail.messages.length - 1]?.body ?? "").toLowerCase();
+    return /delu|phong|phồng|phòng|room|gia|giá|bed|giường|villa|hạng|loại/.test(d + lastMessageText);
+  }, [draft, detail?.messages]);
+
   const prompts = useMemo(() => {
     const lang = detail?.guest.lang ?? "en";
-    return PROMPTS[lang] ?? PROMPTS.en;
-  }, [detail?.guest.lang]);
+    const base = PROMPTS[lang] ?? PROMPTS.en;
+    if (roomRelated) {
+      const roomChips = ROOM_QUICK_CHIPS[lang] ?? ROOM_QUICK_CHIPS.en;
+      return Array.from(new Set([...roomChips, ...base]));
+    }
+    return base;
+  }, [detail?.guest.lang, roomRelated]);
 
   if (!code) return <KeyPicker onPick={setCode} />;
 
@@ -367,7 +399,7 @@ export default function GuestPage() {
               )}
               {rooms.length > 0 && (
                 <div className="ml-9 mt-1">
-                  <RoomActions rooms={rooms} lang={detail.guest.lang} />
+                  <RoomActions rooms={rooms} lang={detail.guest.lang} onSend={(text) => send.mutate(text)} />
                 </div>
               )}
               {svcGroups.length > 0 && (

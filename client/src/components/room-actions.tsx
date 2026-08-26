@@ -149,26 +149,61 @@ function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void;
   );
 }
 
-export function RoomActions({ rooms, lang }: { rooms: RoomTypeRef[]; lang: string }) {
+export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lang: string; onSend?: (text: string) => void }) {
   const vi = lang === "vi";
   const [openCode, setOpenCode] = useState<string | null>(null);
   if (!rooms.length) return null;
 
+  const hasDeluxe = rooms.some((r) => r.name.toLowerCase().includes("deluxe"));
+
   return (
-    <div className="mt-2 flex flex-wrap gap-1.5">
-      {rooms.map((r) => (
-        <button
-          key={r.code}
-          type="button"
-          onClick={() => setOpenCode(r.code)}
-          data-testid={`button-view-room-${r.code}`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10"
-        >
-          <BedDouble className="h-3.5 w-3.5" />
-          {vi ? `Xem ${r.name}` : `View ${r.name}`}
-          <Info className="h-3 w-3 opacity-60" />
-        </button>
-      ))}
+    <div className="mt-2 flex flex-col gap-2">
+      <div className="flex flex-wrap gap-1.5">
+        {rooms.map((r) => (
+          <button
+            key={r.code}
+            type="button"
+            onClick={() => setOpenCode(r.code)}
+            data-testid={`button-view-room-${r.code}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-all hover:scale-105"
+          >
+            <BedDouble className="h-3.5 w-3.5" />
+            {vi ? `Xem ảnh & chi tiết ${r.name}` : `View details for ${r.name}`}
+            <Info className="h-3 w-3 opacity-60" />
+          </button>
+        ))}
+      </div>
+
+      {onSend && (
+        <div className="flex flex-wrap gap-1.5 pt-0.5">
+          {hasDeluxe && (
+            <>
+              <button
+                type="button"
+                onClick={() => onSend(vi ? "Giá Deluxe giường đôi bao nhiêu?" : "Deluxe double bed price?")}
+                className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
+              >
+                🛏️ {vi ? "Deluxe Giường Đôi" : "Deluxe Double"}
+              </button>
+              <button
+                type="button"
+                onClick={() => onSend(vi ? "Giá Deluxe 2 giường đơn bao nhiêu?" : "Deluxe twin bed price?")}
+                className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
+              >
+                🛏️ {vi ? "Deluxe 2 Giường Đơn" : "Deluxe Twin"}
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => onSend(vi ? "So sánh các hạng phòng Deluxe và Villa" : "Compare Deluxe vs Villa")}
+            className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
+          >
+            ⚖️ {vi ? "So sánh hạng phòng" : "Compare room types"}
+          </button>
+        </div>
+      )}
+
       {openCode && <RoomModal code={openCode} lang={lang} onClose={() => setOpenCode(null)} />}
     </div>
   );
