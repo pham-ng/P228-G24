@@ -944,6 +944,41 @@ export async function runLocalTurn(input: {
     };
   }
   if (route === "transaction") {
+    /* Hybrid Info-First: retrieve room/service details and rates so guest gets photos, details and pricing,
+       while still escalating to front desk for actual reservation handling. */
+    try {
+      const found = await search(input.question, { k: LOCAL_PASSAGES });
+      const gate = gateRetrieval(found.results, input.minScore ?? LOCAL_MIN_SCORE);
+      if (gate.ok) {
+        const answer = await answerFromPassages(
+          input.question,
+          gate.passages,
+          input.lang,
+          input.callChat,
+          input.basics,
+          undefined,
+          found.note,
+        );
+        if (answer.reply) {
+          const vi = input.lang === "vi";
+          const handoffNote = vi
+            ? "\n\nDạ, em xin gửi thông tin chi tiết và mức giá niêm yết ở trên. Để hoàn tất thủ tục đặt phòng và chọn ngày lưu trú, em đã chuyển thông tin cho Lễ tân hỗ trợ anh/chị ngay ạ."
+            : "\n\nHere are the room details and published rates. To complete your reservation and confirm stay dates, I have transferred this request to our front desk team to assist you right away.";
+          return {
+            route,
+            reply: cleanSpuriousCjk(answer.reply + handoffNote, input.lang),
+            escalate: true,
+            escalateReason: "Yêu cầu đặt phòng/dịch vụ — đã trả lời thông tin & chuyển lễ tân xác nhận.",
+            passages: gate.passages,
+            topScore: gate.topScore,
+            llmCalls: 1,
+          };
+        }
+      }
+    } catch {
+      /* Fallback to default escalation if retrieval fails */
+    }
+
     return {
       route,
       reply: null,

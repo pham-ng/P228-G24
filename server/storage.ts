@@ -65,6 +65,8 @@ import type {
   InvoiceRequest,
   FeedbackEntry,
 } from "@shared/schema";
+import { readdirSync, existsSync } from "fs";
+import { join } from "path";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import { and, asc, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
@@ -358,6 +360,47 @@ CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
   addColumnIfMissing("service_bookings", "cancel_deadline", "cancel_deadline TEXT");
   addColumnIfMissing("service_bookings", "cancelled_at", "cancelled_at TEXT");
   addColumnIfMissing("dining_venues", "menu_file", "menu_file TEXT");
+
+  syncRoomTypeImages();
+}
+
+function syncRoomTypeImages() {
+  try {
+    const rows = sqlite.prepare("SELECT id, name_vi, images FROM room_types").all() as Array<{ id: number; name_vi: string; images: string }>;
+    const updateStmt = sqlite.prepare("UPDATE room_types SET images = ? WHERE id = ?");
+    for (const r of rows) {
+      const currentImages = JSON.parse(r.images || "[]") as string[];
+      if (currentImages.length > 0) continue;
+
+      const slug = r.name_vi
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      let images: string[] = [];
+      const folderPath = join(process.cwd(), "client/public/rooms", slug);
+      if (existsSync(folderPath)) {
+        const files = readdirSync(folderPath).filter((f) => /\.(webp|jpg|png)$/i.test(f)).sort();
+        images = files.map((f) => `/rooms/${slug}/${f}`);
+      }
+
+      if (images.length === 0) {
+        if (slug.includes("deluxe")) images = ["/rooms/deluxe.jpg", "/rooms/deluxe-1.jpg", "/rooms/deluxe-2.jpg"];
+        else if (slug.includes("grand")) images = ["/rooms/grand-deluxe.jpg", "/rooms/grand-deluxe-ocean.jpg"];
+        else if (slug.includes("biet-thu") || slug.includes("villa")) images = ["/rooms/villa.jpg"];
+      }
+
+      if (images.length > 0) {
+        updateStmt.run(JSON.stringify(images), r.id);
+      }
+    }
+  } catch (err) {
+    console.error("[syncRoomTypeImages] error:", err);
+  }
 }
 
 export const nowIso = () => new Date().toISOString();
@@ -628,6 +671,7 @@ export const storage = {
 
   /* ---------------- room catalogue ---------------- */
   listRoomTypes(): RoomType[] {
+    syncRoomTypeImages();
     return db.select().from(roomTypes).orderBy(asc(roomTypes.areaSqm)).all();
   },
 
