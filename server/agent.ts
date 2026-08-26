@@ -2231,7 +2231,7 @@ async function runOfflineTurn(ctx: {
      escalation: nothing was answered, so nothing to offer "xem chi tiết /
      xem menu" for. Recorded as a trace entry (not a new column) so it rides
      the same persisted, JSON toolTrace every other turn already writes. */
-  if (!escalated && reply) {
+  if (reply) {
     const venues = detectReferencedVenues(turn.passages);
     if (venues.length) trace.push({ name: "dining_venues_referenced", args: {}, result: { venues }, ms: 0 });
     const roomTypes = detectReferencedRoomTypes(turn.passages);
