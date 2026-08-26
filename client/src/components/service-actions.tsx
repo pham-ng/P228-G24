@@ -1,15 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Info, Sparkles, X, ChevronLeft, ChevronRight } from "lucide-react";
-
-/**
- * "Xem chi tiết" button for a service group (cable car, Akoya Spa, VinWonders...)
- * the reply actually used as evidence. Same data-driven principle as
- * dining-actions.tsx/room-actions.tsx: reads `services_referenced` (real
- * retrieval evidence, written server-side by detectReferencedServices) and
- * fetches the group's own images/items from GET /api/service-groups. A new
- * service linked via migration needs no change here.
- */
+import { Info, Sparkles, X, ChevronLeft, ChevronRight, Tag } from "lucide-react";
 
 export type ServiceGroupRef = { key: string; name: string };
 
@@ -42,47 +33,61 @@ function ServiceGroupModal({ groupKey, onClose, lang }: { groupKey: string; onCl
   const notFound = !isLoading && !isError && !g;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 sm:p-4 backdrop-blur-xs" onClick={onClose}>
       <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl bg-background shadow-2xl"
+        className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-background shadow-2xl border border-border/80"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <div className="min-w-0 truncate text-sm font-semibold">{g?.name ?? "..."}</div>
-          <button onClick={onClose} className="shrink-0 rounded-full p-1 hover:bg-muted" data-testid="button-close-service-modal">
-            <X className="h-4 w-4" />
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5 bg-card/50">
+          <div className="min-w-0 pr-2 truncate text-base font-bold text-foreground flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary shrink-0" />
+            <span>{g?.name ?? "..."}</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            data-testid="button-close-service-modal"
+          >
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {isLoading && <div className="p-6 text-center text-xs text-muted-foreground">{vi ? "Đang tải..." : "Loading..."}</div>}
+          {isLoading && <div className="p-8 text-center text-xs text-muted-foreground">{vi ? "Đang tải thông tin..." : "Loading..."}</div>}
           {isError && (
-            <div className="p-6 text-center text-xs text-destructive">
-              {vi ? "Không tải được thông tin. Vui lòng thử lại." : "Couldn't load this. Please try again."}
+            <div className="p-8 text-center text-xs text-destructive">
+              {vi ? "Không tải được thông tin dịch vụ. Vui lòng thử lại." : "Couldn't load service details."}
             </div>
           )}
           {notFound && (
-            <div className="p-6 text-center text-xs text-muted-foreground">
-              {vi ? "Dịch vụ này hiện chưa có thông tin chi tiết." : "No details available for this service yet."}
+            <div className="p-8 text-center text-xs text-muted-foreground">
+              {vi ? "Dịch vụ này hiện chưa có thông tin chi tiết." : "No details available."}
             </div>
           )}
 
           {g && (
-            <div className="space-y-3 p-4">
+            <div className="space-y-4 p-4 sm:p-5">
+              {/* Carousel */}
               {g.images.length > 0 && (
-                <div className="relative overflow-hidden rounded-lg bg-black/5">
-                  <img src={g.images[imgIndex]} alt={g.name} className="h-48 w-full object-cover" />
+                <div className="relative overflow-hidden rounded-xl bg-black/10 shadow-inner group">
+                  <img src={g.images[imgIndex]} alt={g.name} className="h-52 w-full object-cover transition-all duration-300" />
+                  
+                  <span className="absolute top-2.5 right-2.5 rounded-full bg-black/65 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md border border-white/20">
+                    📷 {imgIndex + 1}/{g.images.length}
+                  </span>
+
                   {g.images.length > 1 && (
                     <>
                       <button
                         onClick={() => setImgIndex((i) => (i === 0 ? g.images.length - 1 : i - 1))}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white hover:bg-black/60"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/80 transition-all opacity-80 group-hover:opacity-100"
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setImgIndex((i) => (i === g.images.length - 1 ? 0 : i + 1))}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white hover:bg-black/60"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/80 transition-all opacity-80 group-hover:opacity-100"
                       >
                         <ChevronRight className="h-4 w-4" />
                       </button>
@@ -90,16 +95,19 @@ function ServiceGroupModal({ groupKey, onClose, lang }: { groupKey: string; onCl
                   )}
                 </div>
               )}
-              <ul className="space-y-2">
+
+              {/* Service Items List */}
+              <ul className="space-y-2.5">
                 {g.items.map((it) => (
-                  <li key={it.id} className="rounded-lg border border-border p-2.5">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm font-medium">{it.name}</span>
-                      <span className="shrink-0 text-xs font-medium text-muted-foreground">
-                        {vnd(it.price)}/{it.unit}
+                  <li key={it.id} className="rounded-xl border border-border/70 bg-card p-3.5 shadow-2xs">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-xs sm:text-sm font-bold text-foreground leading-snug">{it.name}</span>
+                      <span className="shrink-0 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 font-extrabold text-primary text-xs flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        {vnd(it.price)} <span className="text-[10px] font-normal text-muted-foreground">/{it.unit}</span>
                       </span>
                     </div>
-                    {it.description && <p className="mt-1 text-xs text-foreground/80">{it.description}</p>}
+                    {it.description && <p className="mt-2 text-xs leading-relaxed text-foreground/80">{it.description}</p>}
                   </li>
                 ))}
               </ul>
@@ -117,14 +125,14 @@ export function ServiceActions({ groups, lang }: { groups: ServiceGroupRef[]; la
   if (!groups.length) return null;
 
   return (
-    <div className="mt-2 flex flex-wrap gap-1.5">
+    <div className="mt-2.5 flex flex-wrap gap-1.5">
       {groups.map((g) => (
         <button
           key={g.key}
           type="button"
           onClick={() => setOpenKey(g.key)}
           data-testid={`button-view-service-${g.key}`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10"
+          className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-all hover:scale-[1.02] shadow-2xs"
         >
           <Sparkles className="h-3.5 w-3.5" />
           {vi ? `Xem ${g.name}` : `View ${g.name}`}

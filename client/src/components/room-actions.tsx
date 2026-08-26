@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BedDouble, Info, X, ChevronLeft, ChevronRight } from "lucide-react";
-
-/**
- * "Xem chi tiết" button for a room type the reply actually used as evidence.
- * Same data-driven principle as dining-actions.tsx: no per-room-name
- * hardcoding, reads `room_types_referenced` (real retrieval evidence,
- * written server-side by detectReferencedRoomTypes) and fetches the room's
- * own images/description from GET /api/room-types.
- */
+import { BedDouble, Info, X, ChevronLeft, ChevronRight, Maximize2, Users, Compass, CheckCircle2, Tag } from "lucide-react";
 
 export type RoomTypeRef = { code: string; name: string };
 
@@ -42,6 +34,21 @@ export function readRoomReference(toolTrace: string | null): RoomTypeRef[] {
 
 const vnd = (n: number) => `${n.toLocaleString("vi-VN")}₫`;
 
+function parseDescription(desc: string | null) {
+  if (!desc) return { body: null, prices: null };
+
+  const pricePattern = /(Giá công bố|Giá chỉ từ)[^]*$/i;
+  const match = desc.match(pricePattern);
+
+  if (match) {
+    const body = desc.replace(pricePattern, "").trim();
+    const priceText = match[0].trim();
+    return { body, prices: priceText };
+  }
+
+  return { body: desc, prices: null };
+}
+
 function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void; lang: string }) {
   const vi = lang === "vi";
   const [imgIndex, setImgIndex] = useState(0);
@@ -49,56 +56,74 @@ function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void;
   const r = types?.find(
     (x) => x.code === code || x.nameVi === code || x.code.toLowerCase() === code.toLowerCase() || x.nameVi?.toLowerCase() === code.toLowerCase()
   );
-  /* Never hang forever on a blank "Loading...": once the request itself has
-     resolved, either the room is there or it genuinely is not — found live,
-     a published room type with no physical inventory left a guest staring
-     at a spinner with no way out. */
   const notFound = !isLoading && !isError && !r;
 
+  const { body, prices } = parseDescription(r?.description ?? null);
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 sm:p-4 backdrop-blur-xs" onClick={onClose}>
       <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl bg-background shadow-2xl"
+        className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-background shadow-2xl border border-border/80"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold">{r?.nameVi ?? code}</div>
-            {r?.rate ? <div className="text-[11px] text-muted-foreground">{vnd(r.rate)}/{vi ? "đêm" : "night"}</div> : null}
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5 bg-card/50">
+          <div className="min-w-0 pr-2">
+            <div className="truncate text-base font-bold text-foreground">{r?.nameVi ?? code}</div>
+            {r?.rate ? (
+              <div className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary">
+                <Tag className="h-3 w-3" />
+                <span>{vnd(r.rate)}</span>
+                <span className="text-[10px] font-normal text-muted-foreground">/{vi ? "đêm" : "night"}</span>
+              </div>
+            ) : null}
           </div>
-          <button onClick={onClose} className="shrink-0 rounded-full p-1 hover:bg-muted" data-testid="button-close-room-modal">
-            <X className="h-4 w-4" />
+          <button
+            onClick={onClose}
+            className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            data-testid="button-close-room-modal"
+          >
+            <X className="h-5 w-5" />
           </button>
         </div>
 
+        {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
-          {isLoading && <div className="p-6 text-center text-xs text-muted-foreground">{vi ? "Đang tải..." : "Loading..."}</div>}
+          {isLoading && <div className="p-8 text-center text-xs text-muted-foreground">{vi ? "Đang tải thông tin..." : "Loading..."}</div>}
           {isError && (
-            <div className="p-6 text-center text-xs text-destructive">
-              {vi ? "Không tải được thông tin. Vui lòng thử lại." : "Couldn't load this. Please try again."}
+            <div className="p-8 text-center text-xs text-destructive">
+              {vi ? "Không tải được thông tin phòng. Vui lòng thử lại." : "Couldn't load room details."}
             </div>
           )}
           {notFound && (
-            <div className="p-6 text-center text-xs text-muted-foreground">
-              {vi ? "Loại phòng này hiện chưa có thông tin chi tiết." : "No details available for this room type yet."}
+            <div className="p-8 text-center text-xs text-muted-foreground">
+              {vi ? "Loại phòng này hiện chưa có thông tin chi tiết." : "No details available."}
             </div>
           )}
+
           {r && (
-            <div className="space-y-3 p-4">
+            <div className="space-y-4 p-4 sm:p-5">
+              {/* Image Gallery Carousel */}
               {r.images.length > 0 && (
-                <div className="relative overflow-hidden rounded-lg bg-black/5">
-                  <img src={r.images[imgIndex]} alt={r.nameVi ?? code} className="h-48 w-full object-cover" />
+                <div className="relative overflow-hidden rounded-xl bg-black/10 shadow-inner group">
+                  <img src={r.images[imgIndex]} alt={r.nameVi ?? code} className="h-52 w-full object-cover transition-all duration-300" />
+                  
+                  {/* Photo Counter Pill */}
+                  <span className="absolute top-2.5 right-2.5 rounded-full bg-black/65 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md border border-white/20">
+                    📷 {imgIndex + 1}/{r.images.length}
+                  </span>
+
                   {r.images.length > 1 && (
                     <>
                       <button
                         onClick={() => setImgIndex((i) => (i === 0 ? r.images.length - 1 : i - 1))}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white hover:bg-black/60"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/80 transition-all opacity-80 group-hover:opacity-100"
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setImgIndex((i) => (i === r.images.length - 1 ? 0 : i + 1))}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white hover:bg-black/60"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/80 transition-all opacity-80 group-hover:opacity-100"
                       >
                         <ChevronRight className="h-4 w-4" />
                       </button>
@@ -106,37 +131,85 @@ function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void;
                   )}
                 </div>
               )}
-              {r.description && <p className="text-sm leading-relaxed text-foreground/90">{r.description}</p>}
-              <dl className="grid grid-cols-2 gap-2 text-xs">
+
+              {/* 4-Card Feature Highlights Grid */}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {r.areaSqm != null && (
-                  <div>
-                    <dt className="text-muted-foreground">{vi ? "Diện tích" : "Size"}</dt>
-                    <dd>{r.areaSqm} m²</dd>
+                  <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2.5 shadow-2xs">
+                    <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
+                      <Maximize2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{vi ? "Diện tích" : "Size"}</div>
+                      <div className="text-xs font-bold text-foreground">{r.areaSqm} m²</div>
+                    </div>
                   </div>
                 )}
                 {r.maxGuests != null && (
-                  <div>
-                    <dt className="text-muted-foreground">{vi ? "Sức chứa" : "Max guests"}</dt>
-                    <dd>{r.maxGuests}</dd>
+                  <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2.5 shadow-2xs">
+                    <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{vi ? "Sức chứa" : "Capacity"}</div>
+                      <div className="text-xs font-bold text-foreground">{r.maxGuests} {vi ? "khách" : "guests"}</div>
+                    </div>
                   </div>
                 )}
                 {r.bed && (
-                  <div>
-                    <dt className="text-muted-foreground">{vi ? "Giường" : "Bed"}</dt>
-                    <dd>{r.bed}</dd>
+                  <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2.5 shadow-2xs">
+                    <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
+                      <BedDouble className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{vi ? "Loại giường" : "Bed"}</div>
+                      <div className="text-xs font-bold text-foreground capitalize truncate max-w-[70px]">{r.bed}</div>
+                    </div>
                   </div>
                 )}
-                <div>
-                  <dt className="text-muted-foreground">{vi ? "Hướng biển" : "Ocean view"}</dt>
-                  <dd>{r.oceanView ? (vi ? "Có" : "Yes") : (vi ? "Không" : "No")}</dd>
+                <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2.5 shadow-2xs">
+                  <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
+                    <Compass className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{vi ? "Tầm nhìn" : "View"}</div>
+                    <div className="text-xs font-bold text-foreground">{r.oceanView ? (vi ? "Hướng biển" : "Ocean") : (vi ? "Hướng vườn" : "Garden")}</div>
+                  </div>
                 </div>
-              </dl>
+              </div>
+
+              {/* Description Body */}
+              {body && (
+                <div className="rounded-xl border border-border/60 bg-card/40 p-3.5">
+                  <p className="text-xs sm:text-sm leading-relaxed text-foreground/90">{body}</p>
+                </div>
+              )}
+
+              {/* Highlighted Price Callout Box */}
+              {prices && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 mb-1">
+                    <Tag className="h-3.5 w-3.5" />
+                    <span>{vi ? "Thông tin mức giá tham khảo" : "Rate Information"}</span>
+                  </div>
+                  <p className="text-xs leading-normal font-medium text-amber-900/90 dark:text-amber-200/90">{prices}</p>
+                </div>
+              )}
+
+              {/* Amenities Badges */}
               {r.amenities.length > 0 && (
-                <div>
-                  <div className="mb-1 text-xs font-semibold text-primary">{vi ? "Tiện ích" : "Amenities"}</div>
-                  <div className="flex flex-wrap gap-1">
+                <div className="pt-1">
+                  <div className="mb-2 text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                    <span>{vi ? "Trang thiết bị & Tiện ích phòng" : "Room Amenities"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
                     {r.amenities.map((a, i) => (
-                      <span key={i} className="rounded-full bg-muted px-2 py-0.5 text-[11px]">
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1 rounded-lg border border-border/50 bg-card px-2.5 py-1 text-[11px] font-medium text-foreground/85 shadow-2xs hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
                         {a}
                       </span>
                     ))}
@@ -159,7 +232,7 @@ export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lan
   const hasDeluxe = rooms.some((r) => r.name.toLowerCase().includes("deluxe"));
 
   return (
-    <div className="mt-2 flex flex-col gap-2">
+    <div className="mt-2.5 flex flex-col gap-2">
       <div className="flex flex-wrap gap-1.5">
         {rooms.map((r) => (
           <button
@@ -167,7 +240,7 @@ export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lan
             type="button"
             onClick={() => setOpenCode(r.code)}
             data-testid={`button-view-room-${r.code}`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-all hover:scale-105"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-all hover:scale-[1.02] shadow-2xs"
           >
             <BedDouble className="h-3.5 w-3.5" />
             {vi ? `Xem ảnh & chi tiết ${r.name}` : `View details for ${r.name}`}
@@ -183,14 +256,14 @@ export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lan
               <button
                 type="button"
                 onClick={() => onSend(vi ? "Giá Deluxe giường đôi bao nhiêu?" : "Deluxe double bed price?")}
-                className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
+                className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all shadow-2xs"
               >
                 🛏️ {vi ? "Deluxe Giường Đôi" : "Deluxe Double"}
               </button>
               <button
                 type="button"
                 onClick={() => onSend(vi ? "Giá Deluxe 2 giường đơn bao nhiêu?" : "Deluxe twin bed price?")}
-                className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
+                className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all shadow-2xs"
               >
                 🛏️ {vi ? "Deluxe 2 Giường Đơn" : "Deluxe Twin"}
               </button>
@@ -199,7 +272,7 @@ export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lan
           <button
             type="button"
             onClick={() => onSend(vi ? "So sánh các hạng phòng Deluxe và Villa" : "Compare Deluxe vs Villa")}
-            className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
+            className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all shadow-2xs"
           >
             ⚖️ {vi ? "So sánh hạng phòng" : "Compare room types"}
           </button>
