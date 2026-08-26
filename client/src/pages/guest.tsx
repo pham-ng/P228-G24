@@ -8,6 +8,7 @@ import { PackageActions, readRecommendation } from "@/components/package-actions
 import { DiningActions, readDiningReference } from "@/components/dining-actions";
 import { RoomActions, readRoomReference } from "@/components/room-actions";
 import { ServiceActions, readServiceReference } from "@/components/service-actions";
+import { SourceAndFeedback } from "@/components/source-and-feedback";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -406,6 +407,14 @@ export default function GuestPage() {
                 <div className="ml-9 mt-1">
                   <ServiceActions groups={svcGroups} lang={detail.guest.lang} />
                 </div>
+              )}
+              {m.role === "ai" && (
+                <SourceAndFeedback
+                  messageId={m.id}
+                  conversationId={detail.conversation.id}
+                  toolTrace={m.toolTrace}
+                  lang={detail.guest.lang}
+                />
               )}
             </div>
           );

@@ -451,6 +451,74 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json(storage.updateConversation(Number(req.params.id), { unreadForStaff: 0 }));
   });
 
+  app.post("/api/conversations/:id/feedback", (req, res) => {
+    const conversationId = Number(req.params.id);
+    const { messageId, rating, comment, escalate } = z
+      .object({
+        messageId: z.number().int().optional(),
+        rating: z.number().int(),
+        comment: z.string().optional(),
+        escalate: z.boolean().optional(),
+      })
+      .parse(req.body);
+
+    const conv = storage.getConversation(conversationId);
+    if (!conv) return res.status(404).json({ message: "Conversation not found" });
+
+    const fb = storage.createFeedback({
+      hotelId: conv.hotelId,
+      reservationId: conv.reservationId ?? null,
+      guestId: conv.guestId,
+      conversationId,
+      rating,
+      category: rating < 3 ? "ai_response_incorrect" : "ai_response_helpful",
+      comment: comment ?? (rating < 3 ? "Khách báo câu trả lời chưa chính xác." : "Khách hài lòng."),
+      sentiment: rating < 3 ? "negative" : "positive",
+      taskId: null,
+      status: "new",
+      createdAt: nowIso(),
+    });
+
+    if (escalate || rating < 3) {
+      storage.updateConversation(conversationId, {
+        mode: "human",
+        unreadForStaff: 1,
+        sentiment: "negative",
+        topic: "Phản hồi AI chưa chính xác",
+        lastMessageAt: nowIso(),
+      });
+
+      const task = storage.createTask({
+        hotelId: conv.hotelId,
+        reservationId: conv.reservationId ?? null,
+        roomId: null,
+        conversationId,
+        dept: "front_desk",
+        title: "⚠️ Khách báo câu trả lời AI chưa chính xác",
+        detail: `Khách phản hồi câu trả lời #${messageId ?? ""} chưa đúng: "${comment ?? "Phản hồi từ giao diện Concierge"}". Chuyển Lễ tân tiếp quản khẩn cấp.`,
+        priority: "urgent",
+        status: "open",
+        source: "guest",
+        assignedStaffId: null,
+        dueAt: new Date(Date.now() + 10 * 60_000).toISOString(),
+        createdAt: nowIso(),
+        resolvedAt: null,
+      });
+
+      storage.addMessage({
+        conversationId,
+        role: "ai",
+        authorName: "Aurea Concierge",
+        body: "Dạ, em rất xin lỗi vì thông tin chưa chính xác. Em đã chuyển ngay câu hỏi này cho Lễ tân hỗ trợ anh/chị trực tiếp ạ!",
+        toolTrace: JSON.stringify([{ name: "escalate_to_human", args: { reason: "guest_reported_incorrect_info" }, result: { escalated: true, task_id: task.id } }]),
+        latencyMs: 0,
+        createdAt: nowIso(),
+      });
+    }
+
+    res.json({ ok: true, feedback: fb, conversation: conversationDetail(conversationId) });
+  });
+
   /** Staff-side AI draft: real model call, nothing is sent until staff sends it. */
   app.post(
     "/api/conversations/:id/suggest",
