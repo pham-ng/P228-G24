@@ -96,7 +96,7 @@ const STOP = new Set(
     .split(" "),
 );
 
-function tokenise(s: string): string[] {
+export function tokenise(s: string): string[] {
   return fold(s)
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .split(/\s+/)
@@ -488,11 +488,37 @@ const TITLE_BOOST = Number(process.env.BM25_TITLE_BOOST ?? 0.6);
  *  in under a fifth of the corpus, so it says something about this document. */
 const TITLE_IDF_FLOOR = Number(process.env.BM25_TITLE_IDF_FLOOR ?? 1.6);
 
+/** Contiguous 2-token phrases, in order — order is exactly what a per-term
+ *  Set throws away, and a compound Vietnamese term ("cáp treo") is only
+ *  recognisable as a unit if adjacency is preserved. */
+function bigrams(tokens: string[]): Set<string> {
+  const out = new Set<string>();
+  for (let i = 0; i + 1 < tokens.length; i++) out.add(`${tokens[i]} ${tokens[i + 1]}`);
+  return out;
+}
+
+/**
+ * Flat bonus when a query BIGRAM matches a title bigram exactly, independent
+ * of either token's own IDF. Live-found bug: "cáp treo" — one of exactly two
+ * words in the dedicated article's own title — still lost to room-package
+ * chunks that merely list "cáp treo" among many other perks, because
+ * TITLE_BOOST scores "cáp" and "treo" as two independent unigrams, and
+ * "treo" alone is too common (df 25/136) to clear TITLE_IDF_FLOOR — so the
+ * multi-word subject name.title match was worth less than its two halves
+ * suggest. A bigram match is rare enough by construction (few titles share a
+ * two-word run with an arbitrary query) that it does not need an IDF gate
+ * the way single words do.
+ */
+const PHRASE_BOOST = Number(process.env.BM25_PHRASE_BOOST ?? 1.2);
+
 function bm25(query: string, chunks: DocChunk[]): Scored[] {
   const qTerms = tokenise(query);
   if (!qTerms.length) return [];
   const docs = chunks.map((c) => tokenise(c.body));
-  const titles = chunks.map((c) => new Set(tokenise(c.title ?? "")));
+  const titleTokens = chunks.map((c) => tokenise(c.title ?? ""));
+  const titles = titleTokens.map((t) => new Set(t));
+  const titleBigramSets = titleTokens.map((t) => bigrams(t));
+  const qBigrams = bigrams(qTerms);
   const N = docs.length || 1;
   const avgdl = docs.reduce((n, d) => n + d.length, 0) / N || 1;
   const df = new Map<string, number>();
@@ -514,6 +540,9 @@ function bm25(query: string, chunks: DocChunk[]): Scored[] {
         /* Scaled by the term's own IDF, and only for terms rare enough to
            identify a subject — naming "Lotus" counts, saying "nhà hàng" does not. */
         if (title.has(term) && idf >= TITLE_IDF_FLOOR) score += TITLE_BOOST * idf;
+      }
+      for (const bg of qBigrams) {
+        if (titleBigramSets[i].has(bg)) score += PHRASE_BOOST;
       }
       return { chunk, score };
     })
@@ -699,16 +728,30 @@ export async function hybridSearch(
   }
 
   // Weighted Reciprocal Rank Fusion (see RRF_*_WEIGHT for why the legs are not equal).
+  //
+  // Live-found bug: a generic query ("tôi muốn hỏi về dịch vụ cáp treo") that
+  // names its real topic ("cáp treo") alongside filler words ("dịch vụ", "tôi
+  // muốn hỏi về") let dozens of loosely-related chunks (room packages that
+  // merely list "cáp treo" as one of several bundled perks) crowd the on-topic
+  // article out of a top-20 cutoff, even though the on-topic article scores
+  // higher head-to-head on BM25. retrievalRanking() (the eval/bench harness)
+  // already uses a top-50 cutoff for exactly this reason; hybridSearch() — the
+  // live path — did not. Traced directly: at top-20 the real cable-car article
+  // ranked 22nd (never reaches the model); at top-50 it ranks 8th. Matching the
+  // harness's depth here is the same fix, applied where guests actually feel
+  // it. Verified against bench/retrieval-golden.json before shipping (see
+  // bench/baselines/kiosk-validation/13-RRF-DEPTH-FIX.md).
+  const RRF_CANDIDATE_DEPTH = Number(process.env.RRF_CANDIDATE_DEPTH || 50);
   const fused = new Map<number, { chunk: DocChunk; score: number; by: string[] }>();
   const lexW = rrfLexWeight();
   const vecW = rrfVecWeight();
-  lex.slice(0, 20).forEach((s, rank) => {
+  lex.slice(0, RRF_CANDIDATE_DEPTH).forEach((s, rank) => {
     const cur = fused.get(s.chunk.id) ?? { chunk: s.chunk, score: 0, by: [] };
     cur.score += lexW / (RRF_K + rank + 1);
     cur.by.push("keyword");
     fused.set(s.chunk.id, cur);
   });
-  vec.slice(0, 20).forEach((s, rank) => {
+  vec.slice(0, RRF_CANDIDATE_DEPTH).forEach((s, rank) => {
     const cur = fused.get(s.chunk.id) ?? { chunk: s.chunk, score: 0, by: [] };
     cur.score += vecW / (RRF_K + rank + 1);
     cur.by.push("semantic");

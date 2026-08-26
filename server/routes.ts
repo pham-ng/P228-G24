@@ -6,7 +6,7 @@ import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
 import { chat, LlmError } from "./openai";
 import { reindex, indexStats, hybridSearch } from "./retrieval";
 import { getPolicyByTopic } from "./policy";
-import { confirmPayment, ensureOpsPolicies } from "./ops";
+import { confirmPayment, ensureOpsPolicies, finalizeApproval } from "./ops";
 import { AgentTracer } from "./tracer";
 import { aggregateSignals } from "./observability";
 import { preArrivalTargets } from "./crosssell";
@@ -121,17 +121,63 @@ const API_AUTH_ENFORCE = process.env.API_AUTH_ENFORCE === "1";
  * API_AUTH_ENFORCE on, or the guest app will break along with the dashboard.
  */
 function isGuestRoute(req: Request) {
-  return (
+  if (
     req.method === "POST" &&
     /^\/api\/conversations\/\d+\/messages\/?$/.test(req.path) &&
     (req.body as { from?: unknown } | undefined)?.from === "guest"
-  );
+  )
+    return true;
+
+  /* The guest thread polls GET /api/conversations/:id every few seconds to
+   * pick up staff replies. That path also serves STAFF reading any OTHER
+   * guest's conversation, so it cannot be exempted by shape alone — that
+   * would let anyone read any conversation by guessing sequential ids. The
+   * guest's own confirmation code (already the bearer secret /api/guest/session
+   * trusts) doubles as the credential here: only exempt when the code in the
+   * query string actually owns this specific conversation. */
+  const convMatch = req.method === "GET" && req.path.match(/^\/api\/conversations\/(\d+)\/?$/);
+  if (convMatch) {
+    const code = typeof req.query.code === "string" ? req.query.code : "";
+    if (!code) return false;
+    const reservation = storage.getReservationByCode(code);
+    if (!reservation) return false;
+    const conv = storage.getConversationForReservation(reservation.id);
+    return !!conv && conv.id === Number(convMatch[1]);
+  }
+
+  if (req.method === "GET" && (req.path === "/api/guest/keys" || req.path === "/api/guest/keys/")) return true;
+  if (req.method === "POST" && req.path === "/api/guest/session") return true;
+
+  /* Staff login itself must be reachable without the token — the PIN check
+   * inside the handler IS the credential check, and it is what MINTS the
+   * token the client presents on every request after this one. */
+  if (req.method === "POST" && req.path === "/api/staff/login") return true;
+
+  return false;
 }
+
+/** Public reference data with no guest PII — safe exactly like a hotel's own
+ * public website page. The guest app needs these before any session exists.
+ * /api/staff is the login page's team picker — names/roles only, PINs are
+ * already stripped in the handler — and must load before login succeeds. */
+const PUBLIC_REFERENCE_ROUTES = new Set([
+  "/api/hotel",
+  "/api/dining-venues",
+  "/api/room-types",
+  "/api/service-groups",
+  "/api/staff",
+  "/api/guest/keys",
+]);
 
 let warnedOnce = false;
 
 function staffApiGuard(req: Request, res: Response, next: () => void) {
-  if (!req.path.startsWith("/api/") || isGuestRoute(req)) return next();
+  if (
+    !req.path.startsWith("/api/") ||
+    isGuestRoute(req) ||
+    (req.method === "GET" && PUBLIC_REFERENCE_ROUTES.has(req.path))
+  )
+    return next();
 
   const presented =
     (req.headers["x-staff-token"] as string | undefined) ||
@@ -212,7 +258,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     const s = storage.authStaff(name, pin);
     if (!s) return res.status(401).json({ message: "Wrong name or PIN." });
     const { pin: _p, ...safe } = s;
-    res.json(safe);
+    /* Hands the client the one thing it needs to actually present on every
+     * later request — see staffApiGuard above. Correct PIN is what earns it;
+     * omitted entirely when no token is configured, so a dev deployment with
+     * enforcement off behaves exactly as before. */
+    res.json({ ...safe, ...(STAFF_API_TOKEN ? { staffApiToken: STAFF_API_TOKEN } : {}) });
   });
 
   /* ---------------- guest surface ---------------- */
@@ -496,6 +546,30 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       createdAt: nowIso(),
     });
     res.json(t);
+  });
+
+  /* HITL: every book_service / cancel_service_booking / order_room_service
+   * call from the AI lands here as pending — nothing is charged, cancelled
+   * or dispatched until a staff member approves or rejects it below. */
+  app.get("/api/approvals", (_req, res) => {
+    res.json(storage.listApprovals());
+  });
+
+  app.post("/api/approvals/:id/approve", (req, res) => {
+    const id = Number(req.params.id);
+    const staffName = typeof req.body?.staffName === "string" && req.body.staffName.trim() ? req.body.staffName.trim() : "Staff";
+    const result = finalizeApproval(id, "approve", staffName);
+    if (!result.ok) return res.status(400).json({ message: result.error });
+    res.json(result.approval);
+  });
+
+  app.post("/api/approvals/:id/reject", (req, res) => {
+    const id = Number(req.params.id);
+    const staffName = typeof req.body?.staffName === "string" && req.body.staffName.trim() ? req.body.staffName.trim() : "Staff";
+    const reason = typeof req.body?.reason === "string" ? req.body.reason : undefined;
+    const result = finalizeApproval(id, "reject", staffName, reason);
+    if (!result.ok) return res.status(400).json({ message: result.error });
+    res.json(result.approval);
   });
 
   /* ---------------- rooms, reservations, catalogue ---------------- */

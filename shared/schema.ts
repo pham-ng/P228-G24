@@ -585,6 +585,35 @@ export const guestRequests = sqliteTable("guest_requests", {
 });
 
 /**
+ * Human-in-the-loop gate for every AI-initiated service request (book,
+ * cancel, room-service order). The AI's tool call stops at "queued" — it
+ * never posts a charge or flips a booking to confirmed itself. A staff
+ * member approving or rejecting here is what actually commits the write
+ * (see `finalizeApproval` in server/ops.ts). `payload` carries exactly the
+ * arguments needed to perform that deferred write, so the executor has no
+ * other source of truth to drift from.
+ */
+export const serviceApprovals = sqliteTable("service_approvals", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hotelId: integer("hotel_id").notNull(),
+  reservationId: integer("reservation_id"),
+  guestId: integer("guest_id"),
+  conversationId: integer("conversation_id"),
+  taskId: integer("task_id"),
+  /** book_service | cancel_service_booking | order_room_service */
+  kind: text("kind").notNull(),
+  summary: text("summary").notNull(),
+  payload: text("payload").notNull().default("{}"),
+  amount: real("amount"),
+  status: text("status").notNull().default("pending"), // pending | approved | rejected
+  createdAt: text("created_at").notNull(),
+  resolvedAt: text("resolved_at"),
+  resolvedBy: text("resolved_by"),
+  rejectionReason: text("rejection_reason"),
+});
+export type ServiceApproval = typeof serviceApprovals.$inferSelect;
+
+/**
  * Statutory lodging declaration (khai báo lưu trú) — Thông tư 55/2021/TT-BCA as
  * amended by 66/2023/TT-BCA. Aurea collects and queues it; a human submits it
  * through the police portal or VNeID, and that submission is recorded here.

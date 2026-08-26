@@ -186,7 +186,7 @@ export const OPENAI_BASE = trimSlash(GATEWAY_URL || "https://api.openai.com");
  */
 export function agentModel(provider: Provider): string {
   return provider === "local"
-    ? process.env.LOCAL_AGENT_MODEL || "qwen3.5:4b"
+    ? process.env.LOCAL_AGENT_MODEL || "qwen2.5:3b"
     : process.env.OPENAI_AGENT_MODEL || "gpt-5.4-mini";
 }
 
@@ -500,8 +500,22 @@ async function chatOllamaNative(opts: ChatOptions, model: string): Promise<ChatR
     stream: false,
     /* The whole reason this transport exists. */
     think: false,
+    /* Ollama's default keep_alive is 5 minutes — any gap longer than that
+     * between guest turns forces a full model reload (measured on this
+     * deployment: 9-19s just to reload qwen2.5:3b), which is what actually
+     * blows a p95 latency SLA, not the model's own decode speed. Keeping it
+     * resident indefinitely trades idle VRAM for a predictable tail. */
+    keep_alive: process.env.LOCAL_KEEP_ALIVE || -1,
     options: {
       temperature: opts.temperature ?? 0,
+      /* No request ever set this before — Ollama silently applied its own
+       * default (~2048 tokens) with no error on overflow. Measured on this
+       * deployment: single-turn production prompts (system + 5 passages +
+       * question) top out around 1387 tokens, so 2048 never actually bit a
+       * single-turn case; the risk is history-bearing multi-turn prompts,
+       * which can grow past it unnoticed. Set explicitly so the ceiling is a
+       * documented decision, not an accident. */
+      num_ctx: Number(process.env.LOCAL_NUM_CTX || 4096),
       ...(opts.maxTokens ? { num_predict: opts.maxTokens } : {}),
     },
   };

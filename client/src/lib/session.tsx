@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { Staff } from "./types";
+import { setStaffToken } from "./queryClient";
 
 /**
  * Staff session lives in React state only. Browser storage APIs are blocked in
@@ -7,7 +8,7 @@ import type { Staff } from "./types";
  */
 type Ctx = {
   staff: Staff | null;
-  signIn: (s: Staff) => void;
+  signIn: (s: Staff & { staffApiToken?: string }) => void;
   signOut: () => void;
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -22,8 +23,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       staff,
-      signIn: setStaff,
-      signOut: () => setStaff(null),
+      /* The login response carries the shared staff API token (server/routes.ts
+       * /api/staff/login) only when STAFF_API_TOKEN + API_AUTH_ENFORCE are set.
+       * PIN correctness is what earns it, same trust boundary as before —
+       * this just gives the client something to actually present on every
+       * later request instead of nothing. */
+      signIn: ({ staffApiToken, ...s }) => {
+        setStaffToken(staffApiToken ?? null);
+        setStaff(s);
+      },
+      signOut: () => {
+        setStaffToken(null);
+        setStaff(null);
+      },
       theme,
       toggleTheme: () =>
         setTheme((t) => {

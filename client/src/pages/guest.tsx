@@ -255,7 +255,7 @@ export default function GuestPage() {
 
   // Poll so a staff takeover reply lands in the guest thread without a refresh.
   const live = useQuery<ConversationDetail>({
-    queryKey: [`/api/conversations/${conversationId}`],
+    queryKey: [`/api/conversations/${conversationId}?code=${encodeURIComponent(code ?? "")}`],
     enabled: !!conversationId,
     refetchInterval: 5000,
   });
@@ -271,7 +271,7 @@ export default function GuestPage() {
       return res.json() as Promise<ConversationDetail>;
     },
     onSuccess: (data) => {
-      qc.setQueryData([`/api/conversations/${conversationId}`], data);
+      qc.setQueryData([`/api/conversations/${conversationId}?code=${encodeURIComponent(code ?? "")}`], data);
       setError(null);
     },
     onError: (e: Error) => setError(e.message),

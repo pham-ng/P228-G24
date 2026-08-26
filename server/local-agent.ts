@@ -39,7 +39,7 @@
  * against this property's own traffic — see LOCAL_MIN_SCORE.
  */
 
-import { hybridSearch, type Retrieved } from "./retrieval";
+import { hybridSearch, tokenise, type Retrieved } from "./retrieval";
 import { chat } from "./llm";
 import { scoreFamilies, type FamilyName } from "./toolrouter";
 
@@ -137,10 +137,203 @@ const ROOM_SHOPPING_COMPLEX_SCORE_FLOOR = 4;
  * recommendation cue is required too — checked independently and precisely
  * with anyWord — not just the family score, which "tầm giá" can inflate on
  * its own regardless of what the guest actually meant. */
-const RECOMMENDATION_CUES = ["rẻ nhất", "gói nào", "nên đặt phòng nào", "ngân sách", "so sánh giúp", "khoảng giá"];
+/* Live bug: a guest asked "chọn phòng nào" (which room should I pick) instead
+ * of "nên đặt phòng nào" (which room should I book) — swapping one verb —
+ * and the exact-phrase list let it straight through to the model, which
+ * answered as if occupancy/budget were known when neither had been given.
+ * This is not a hardcoding-vs-not-answering tradeoff: escalating here is
+ * correct because the guest is asking staff to DECIDE for them without
+ * having supplied the numbers a decision needs, and this path has no way to
+ * ask a clarifying question mid-turn. The bug was that the phrase list was
+ * too NARROW, not that it existed — every synonym for "decide/pick for me"
+ * paired with a room/package noun belongs here, not just the one verb a
+ * benchmark case happened to use. */
+const RECOMMENDATION_CUES = [
+  "rẻ nhất", "gói nào", "nên đặt phòng nào", "ngân sách", "so sánh giúp", "khoảng giá",
+  "chọn phòng nào", "chọn loại nào", "nên chọn", "nên ở phòng nào", "loại nào phù hợp",
+  "phòng nào phù hợp", "loại nào tốt nhất", "gợi ý giúp", "tư vấn giúp",
+  "which room should", "recommend a room", "suggest a room", "help me choose",
+];
 
 /** Families whose flows are driven by deterministic code plus a confirmation. */
 const TRANSACTION_FAMILIES: FamilyName[] = ["stay_changes", "housekeeping", "transport_tours"];
+
+/**
+ * The `housekeeping` family's lexicon (toolrouter.ts) mixes bare amenity nouns
+ * ("wifi", "điều hoà", "khăn"...) with real fault/request words ("hỏng",
+ * "không hoạt động"...) so the family scorer can catch "wifi không hoạt động"
+ * as a dispatchable fault. Most of those nouns have no KB fact behind them
+ * either way (no article answers "do you have towels"), so routing them to
+ * transaction unconditionally is harmless. WiFi is the one exception — a
+ * published "Wi-Fi / Internet" KB article exists — so a bare informational
+ * "wifi có miễn phí không?" was being force-escalated with zero retrieval
+ * purely because "phí" and "wifi" are both in a lexicon, live-reproduced and
+ * confirmed via classifyLocal() directly, not assumed. Only fall through to
+ * retrieval when NO fault/request word is also present — a real complaint
+ * ("wifi yếu quá", "wifi không vào được") must still dispatch as before.
+ */
+const WIFI_FAULT_CUES = [
+  "hỏng", "không hoạt động", "không kết nối", "không vào được", "không dùng được",
+  "rớt mạng", "mất mạng", "không có sóng", "yếu quá", "chậm quá", "lỗi", "sự cố",
+  "broken", "not working", "can't connect", "cannot connect", "no connection", "down", "slow",
+];
+function isWifiInfoOnly(text: string): boolean {
+  return anyWord(text, ["wifi", "wi-fi"]) && !anyWord(text, WIFI_FAULT_CUES);
+}
+
+/**
+ * The same shape of bug as WiFi above, found live in the same session:
+ * `transport_tours`'s lexicon (toolrouter.ts) mixes bare nouns ("sân bay",
+ * "xe", "taxi"...) with the family's real job, dispatching a transfer
+ * booking — so "Giá đưa đón sân bay Cam Ranh bao nhiêu?" (a plain published-
+ * rate lookup, now answerable from the KB article this session added the
+ * price to) was being force-escalated with zero retrieval purely because
+ * "đưa đón" and "sân bay" are both in the lexicon. A genuine booking request
+ * always carries its own WRITE_WORDS verb ("đặt xe", "book a transfer"),
+ * which is checked independently right after this — so letting a bare
+ * price/quantity question fall through to knowledge here never lets an
+ * actual booking slip past; it only stops a lookup from being escalated for
+ * no reason. */
+const TRANSPORT_BOOKING_CUES = [
+  "đặt xe", "gọi xe", "cần xe", "book a car", "book a taxi", "arrange a transfer",
+  "arrange transport", "reserve a car", "schedule a pickup", "call a taxi",
+];
+function isTransportInfoOnly(text: string): boolean {
+  return (anyWord(text, HARD_MONEY_WORDS) || anyWord(text, ARITHMETIC_WORDS)) && !anyWord(text, TRANSPORT_BOOKING_CUES);
+}
+
+/** Max characters kept per passage in the model's context. Configurable so
+ * the context-compression experiment can sweep it against the real
+ * benchmark without a code change. */
+export const PASSAGE_CHAR_CAP = Number(process.env.LOCAL_PASSAGE_CHAR_CAP || 700);
+
+/**
+ * Cut passage content at a sentence boundary, never mid-fact.
+ *
+ * The previous cut was a bare `.slice(0, cap)` — for a passage like
+ * "...phòng gồm 2 giường đơn. Giá 2.870.000đ/đêm. Trẻ em dưới 6 tuổi ở miễn
+ * phí." a naive cut at, say, char 620 could land mid-price ("Giá 2.870.0")
+ * and hand the model a truncated number instead of no number at all. This
+ * looks for the last sentence-ending punctuation within the allowed window
+ * and cuts there; only when no sentence boundary exists anywhere in a
+ * reasonable range does it fall back to a word boundary, and it always cuts
+ * on whitespace, never inside a word/number.
+ */
+export function truncateAtBoundary(text: string, cap: number): string {
+  if (text.length <= cap) return text;
+  const window = text.slice(0, cap + 1);
+  const sentenceEnd = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf(".\n"),
+    window.lastIndexOf("! "),
+    window.lastIndexOf("? "),
+    window.lastIndexOf("।"),
+  );
+  // Accept a sentence boundary only if it doesn't throw away most of the
+  // passage — a boundary at char 40 of a 700-char cap is not a good cut.
+  const minAcceptable = cap * 0.5;
+  if (sentenceEnd >= minAcceptable) return text.slice(0, sentenceEnd + 1).trim();
+  const lastSpace = window.lastIndexOf(" ");
+  if (lastSpace >= minAcceptable) return text.slice(0, lastSpace).trim() + "…";
+  // No good boundary anywhere reasonable (e.g. one long unbroken clause) —
+  // still better than an arbitrary mid-word cut.
+  return text.slice(0, cap).trim() + "…";
+}
+
+function splitSentences(text: string): string[] {
+  return text.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0);
+}
+
+/**
+ * Pick the sentences most relevant to the guest's question, instead of
+ * always keeping the head of the passage.
+ *
+ * Live bug: "villa giá bao nhiêu" got answered with the deposit amount
+ * (3,000,000đ/villa) instead of the room rate (8,610,000 / 10,130,000đ).
+ * Root cause: the "Rooms and room types" KB chunk bundles six room/villa
+ * prices into one 773-char paragraph, and the villa sentence sits at char
+ * 492 — past the frozen 400-char PASSAGE_CHAR_CAP (see 10-FROZEN-CONTEXT-
+ * CONFIG.md). truncateAtBoundary always kept the HEAD of the passage, so
+ * the villa fact was silently cut before the model ever saw it, and it
+ * answered from the nearest number it could see in a different passage.
+ * A scan of every seed KB chunk found 9 more chunks with a numeric fact
+ * sitting past char 400 — the same failure mode was latent, not villa-
+ * specific — so the fix has to be general: score each sentence against the
+ * guest's own question and keep the ones that match, wherever they sit in
+ * the passage, still cutting only on sentence boundaries. Falls back to the
+ * old head-truncation when nothing in the passage matches the question at
+ * all (short/no-token queries, or a genuinely irrelevant passage) — that is
+ * exactly the case the existing 73-case regression benchmark already
+ * measured, so this changes nothing for it.
+ */
+export function selectRelevantWindow(text: string, cap: number, question: string): string {
+  if (text.length <= cap) return text;
+  const sentences = splitSentences(text);
+  if (sentences.length <= 1) return truncateAtBoundary(text, cap);
+
+  const qTokens = new Set(tokenise(question));
+  if (!qTokens.size) return truncateAtBoundary(text, cap);
+  const sentenceTokens = sentences.map((s) => new Set(tokenise(s)));
+
+  /* Greedily pick sentences by MARGINAL new coverage of the question's
+   * tokens, not by raw occurrence count.
+   *
+   * Live regression, found by re-tracing this exact fix against the "Ozone"
+   * capacity question: the venue's own title/description sentence repeats
+   * "Ozone", "hải sản" and "nhà hàng" several times (Vietnamese name +
+   * English name + description all restate them), scoring 14 raw token
+   * hits against the question — versus 2 for "Giờ mở cửa: ..." and 3 for
+   * "Sức chứa 360 khách." A raw-count anchor-and-grow window anchored on
+   * the repetitive title and spent its whole budget on adjacent menu items
+   * that also happen to repeat "hải sản", never reaching the hours or
+   * capacity sentence at all — the model then filled the gap by copying
+   * Lotus's capacity (800) from a different passage instead. Scoring by
+   * how many QUESTION TOKENS NOT YET COVERED a sentence adds fixes this
+   * generally: once the title sentence is taken for "ozone"/"hải sản", it
+   * stops paying for those tokens again, so "giờ"/"mở"/"sức"/"chứa"/"khách"
+   * — genuinely new information — outweigh another menu line that only
+   * repeats what is already covered. */
+  const covered = new Set<string>();
+  const picked: number[] = [];
+  /* A sentence that doesn't fit the remaining budget must be skipped, not
+   * treated as "we're done" — otherwise the single best-scoring sentence
+   * being too big to fit stops a much smaller, still-useful sentence from
+   * ever being considered. Found live: the top pick after the venue's menu
+   * block was the short "Giờ mở cửa: ..." sentence, but an earlier version
+   * of this loop `break`-ed the moment ANY top candidate didn't fit,
+   * discarding it and everything after it in the same pass. */
+  const excluded = new Set<number>();
+  let len = 0;
+  while (true) {
+    let bestIdx = -1;
+    let bestGain = 0;
+    for (let i = 0; i < sentences.length; i++) {
+      if (picked.includes(i) || excluded.has(i)) continue;
+      let gain = 0;
+      for (const t of sentenceTokens[i]) if (qTokens.has(t) && !covered.has(t)) gain++;
+      if (gain > bestGain) {
+        bestGain = gain;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx === -1) break;
+    const candidateLen = len + (picked.length ? 1 : 0) + sentences[bestIdx].length;
+    if (candidateLen > cap) {
+      excluded.add(bestIdx);
+      continue;
+    }
+    picked.push(bestIdx);
+    len = candidateLen;
+    for (const t of sentenceTokens[bestIdx]) covered.add(t);
+  }
+  if (!picked.length) return truncateAtBoundary(text, cap);
+
+  return picked
+    .sort((a, b) => a - b)
+    .map((i) => sentences[i])
+    .join(" ")
+    .trim();
+}
 
 /**
  * Word-boundary matching that works for Vietnamese.
@@ -350,7 +543,13 @@ export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
       ((scored[0]?.score ?? 0) >= ROOM_SHOPPING_COMPLEX_SCORE_FLOOR && anyWord(text, RECOMMENDATION_CUES)))
   )
     return "complex";
-  if (top && TRANSACTION_FAMILIES.includes(top)) return "transaction";
+  if (
+    top &&
+    TRANSACTION_FAMILIES.includes(top) &&
+    !(top === "housekeeping" && isWifiInfoOnly(text)) &&
+    !(top === "transport_tours" && isTransportInfoOnly(text))
+  )
+    return "transaction";
   /* A write verb in an otherwise informational message ("tôi muốn đặt bàn tối
      nay") is a transaction, not a lookup. Two exclusions for the same reason:
      "đặt cọc" (the deposit, a noun) is not the verb "đặt" (to book), and
@@ -482,7 +681,7 @@ export function buildAnswerPrompt(
     factBlock +
     noteBlock +
     passages
-      .map((p, i) => `[${i + 1}] ${p.title}\n${p.content.replace(/\s+/g, " ").slice(0, 700)}`)
+      .map((p, i) => `[${i + 1}] ${p.title}\n${selectRelevantWindow(p.content.replace(/\s+/g, " "), PASSAGE_CHAR_CAP, question)}`)
       .join("\n\n");
 
   /* The reply must be in the language the GUEST wrote, which is not always one
@@ -510,17 +709,54 @@ export function buildAnswerPrompt(
       : " Use the conversation history ONLY to understand what the guest is asking about (an omitted subject, a pronoun, a correction) — every fact in your answer must still come from the passages, never from the history."
     : "";
 
+  /* Two live, reproduced generation-layer bugs, both addressed here rather
+   * than by touching retrieval (which was already correct in both cases):
+   *
+   *  - Wifi answered a plain "is it free?" question with a circular
+   *    restatement of the question instead of the yes/no the passage already
+   *    contained. Fixed by requiring the direct answer to come FIRST.
+   *  - The model abstained on three separate live turns (dog, explosives,
+   *    durian-sometimes) even though a passage stated a general rule that
+   *    plainly covered the guest's specific case — it appears to require the
+   *    question's own wording to appear in the passage before treating a
+   *    match as real, which a general "CHỈ trả lời dựa trên tài liệu"
+   *    instruction does not rule out. This line is a targeted mitigation,
+   *    not the full investigation the recurring pattern still needs (see
+   *    the roadmap) — it tells the model that a general rule applying to
+   *    the guest's case counts as evidence, without loosening the "no facts
+   *    outside the passages" guarantee that keeps ungrounded answers at 0%.
+   */
+  /* A separate, known qwen2.5:3b failure: given a passage listing several
+   * time slots (e.g. a schedule with 3+ distinct times), the model
+   * sometimes compresses them into a wrong single time or a wrong range
+   * instead of reporting them as they appear. Naming the behavior directly
+   * is cheap (one short clause) and is the documented mitigation to try
+   * before accepting it as a hard model limitation — see the roadmap. */
+  /* A third live gap, found while writing the regression test for the villa
+   * fix above: a "giá bao nhiêu" question about a room/villa that has
+   * several PACKAGE rates (room+breakfast, room+breakfast+cáp treo, ...)
+   * retrieves several passages each naming its OWN "Giá Công Bố Tốt Nhất"
+   * for a different package — there is no single canonical nightly rate to
+   * report, and nothing previously told the model that. Instructing it to
+   * name the lowest figure AS a package price, not as THE room rate, keeps
+   * the reply grounded in a real number while not overclaiming certainty
+   * the data does not have. */
+  const directnessInstruction =
+    lang === "vi"
+      ? " Trả lời thẳng vào trọng tâm ngay câu đầu tiên — đừng lặp lại câu hỏi thay cho câu trả lời. Nếu tài liệu nêu một quy định chung áp dụng đúng cho trường hợp khách hỏi, hãy dùng quy định đó để trả lời dù từ ngữ trong câu hỏi khác với tài liệu — chỉ từ chối khi tài liệu thực sự không nói gì liên quan. Nếu tài liệu liệt kê nhiều mốc giờ, hãy liệt kê đúng và đủ các mốc giờ đó, không gộp hay tự suy ra một mốc giờ khác. Nếu tài liệu cho nhiều mức giá khác nhau cho cùng một loại phòng do có nhiều gói khác nhau, đừng chọn đại một số làm giá duy nhất — nêu giá thấp nhất kèm theo tên gói của nó, và nói rõ còn có các gói giá khác."
+      : " Answer the actual question directly in your first sentence — never restate the question in place of an answer. If a passage states a general rule that plainly covers the guest's specific case, use it even if the guest's wording differs from the passage's — only decline when the passages truly say nothing relevant. If a passage lists several distinct times, report them exactly as listed — never merge them into a different single time. If the passages give several different prices for the same room because of different packages, do not pick one as THE price — name the lowest one together with its package, and note that other packages exist.";
+
   const system =
     lang === "vi"
       ? `Bạn là lễ tân khách sạn. CHỈ trả lời dựa trên các đoạn tài liệu bên dưới.
 Nếu tài liệu không chứa câu trả lời, hãy trả lời đúng một dòng: ${ABSTAIN}
 Không suy đoán, không thêm số liệu nào không có trong tài liệu.
-Trả lời ngắn gọn 1-3 câu, lịch sự, bằng tiếng Việt.${historyInstruction}`
+Trả lời ngắn gọn 1-3 câu, lịch sự, bằng tiếng Việt.${directnessInstruction}${historyInstruction}`
       : `You are a hotel concierge. Answer ONLY from the passages below.
 If the passages do not contain the answer, reply with exactly one line: ${ABSTAIN}
 Do not speculate and do not introduce any figure that is not in the passages.
 Answer in 1-3 short, polite sentences.
-The passages may be in Vietnamese or English; write your reply in ${replyIn}.${historyInstruction}`;
+The passages may be in Vietnamese or English; write your reply in ${replyIn}.${directnessInstruction}${historyInstruction}`;
 
   /* Working memory for a follow-up turn. The offline path used to see only the
      latest guest message — never the turns before it, even though they sit

@@ -57,5 +57,24 @@ ok(classifyLocal("Cá tầm giá bao nhiêu?", false) === "knowledge", "dish-pri
 ok(classifyLocal("Gói nào rẻ nhất cho 4 người?", false) === "complex", "genuine recommendation request (rẻ nhất + gói nào) still escalates");
 ok(classifyLocal("Tôi có 5 triệu thì nên đặt phòng nào?", false) === "complex", "budget recommendation request still escalates");
 
+console.log("\n=== wifi false-escalation — bare amenity noun collides with fault lexicon (found live) ===");
+// "Có wifi miễn phí không?" escalated with ZERO retrieval: toolrouter's
+// housekeeping lexicon lists bare "wifi" alongside real fault words (so
+// "wifi không hoạt động" can still be caught as a dispatchable complaint),
+// and housekeeping is a TRANSACTION_FAMILIES member — so any wifi mention at
+// all forced "transaction" before retrieval ever ran, even though a real
+// "Wi-Fi / Internet" KB article exists. Fixed by requiring an actual
+// fault/request cue alongside a bare "wifi" mention, mirroring the
+// "tầm giá"/room_shopping fix above — never a broad rewrite of the shared
+// housekeeping lexicon, which other bare nouns (khăn, điều hoà...) still need
+// to force-escalate since no KB article answers those.
+ok(classifyLocal("Có wifi miễn phí không?", false) === "knowledge", "informational wifi question no longer force-escalated");
+ok(classifyLocal("Mật khẩu wifi là gì?", false) === "knowledge", "wifi password question no longer force-escalated");
+// Must still escalate: a genuine fault report needs a real dispatch.
+ok(classifyLocal("Wifi phòng tôi không hoạt động", false) === "transaction", "wifi fault report still escalates");
+ok(classifyLocal("Wifi yếu quá, sửa giúp tôi", false) === "transaction", "wifi complaint still escalates");
+// Bare amenity nouns with no KB fact behind them are unaffected by this fix.
+ok(classifyLocal("Khăn tắm bẩn quá", false) === "transaction", "unrelated housekeeping noun (towel) still escalates — fix is wifi-specific");
+
 console.log(failures === 0 ? "\nALL ROUTING TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

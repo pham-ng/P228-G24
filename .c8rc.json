@@ -1,0 +1,18 @@
+{
+  "reporter": ["text", "json-summary", "html"],
+  "report-dir": "coverage",
+  "exclude": [
+    "server/seed.ts",
+    "server/migrations/**",
+    "server/data/**",
+    "scripts/**",
+    "test/**",
+    "bench/**",
+    "client/**",
+    "shared/**",
+    "*.test.ts",
+    "debug-*.ts",
+    "bootstrap-db.ts"
+  ],
+  "all": false
+}

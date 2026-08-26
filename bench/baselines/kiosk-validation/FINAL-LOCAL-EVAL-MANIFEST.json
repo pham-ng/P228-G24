@@ -1,0 +1,96 @@
+{
+  "frozen_at": "2026-08-26T00:00:00Z",
+  "purpose": "Release-grade evaluation of the Aurea LOCAL/OFFLINE branch. Evaluation only — no system modification during or after this run until the report is filed.",
+  "git": {
+    "head_commit": "daf0fddb8a53c1791d39555aa33d65dfee34153e",
+    "head_subject": "Add local SLM multi-turn memory, dining/room/service detail cards, and data accuracy fixes",
+    "working_tree_clean": false,
+    "uncommitted_files_count": 47,
+    "note": "Working tree has 47 uncommitted changes (22 modified, 25 new) accumulated across this and prior sessions, including the data.db rebuild, retrieval fixes (RRF depth + phrase boost), local-agent prompt/window fixes, and test infra added this session. None of these will change between now and the report. Full list captured below for reproducibility."
+  },
+  "uncommitted_files": [
+    ".env.example", ".gitignore", "bench/cases.json", "bench/offline-cases.ts",
+    "client/src/App.tsx", "client/src/components/staff-shell.tsx", "client/src/lib/queryClient.ts",
+    "client/src/lib/session.tsx", "client/src/lib/types.ts", "client/src/pages/guest.tsx",
+    "client/src/pages/login.tsx", "package-lock.json", "package.json", "server/agent.ts",
+    "server/llm.ts", "server/local-agent.ts", "server/ops.ts", "server/retrieval.ts",
+    "server/routes.ts", "server/seed.ts", "server/storage.ts", "shared/schema.ts",
+    "test/routing-informational.test.ts",
+    "[new] .c8rc.json", "[new] bench/baselines/kiosk-validation/10-CONTEXT-COMPRESSION.md",
+    "[new] bench/baselines/kiosk-validation/10-FROZEN-CONTEXT-CONFIG.md",
+    "[new] bench/baselines/kiosk-validation/11-TOOL-CALLING-SPIKE.md",
+    "[new] bench/tool-spike.ts", "[new] scripts/run-tests.mjs",
+    "[new] test/api-integration.test.ts", "[new] test/truncate-boundary.test.ts",
+    "[new] client/src/pages/approvals.tsx (unrelated, pre-existing feature work)"
+  ],
+  "content_hashes_md5": {
+    "server/local-agent.ts": "2979606e845e53af0478e63fd528e426",
+    "server/seed.ts": "699a4ef31c94b3b68a5758115ce237f2",
+    "server/retrieval.ts": "ce0307f14f90f26cc0f6bcbe378ffc23",
+    "data.db": "8977ac7e7dcfb334f811608e81fd5fe8"
+  },
+  "model": {
+    "name": "qwen2.5:3b",
+    "ollama_version": "0.32.15",
+    "architecture": "qwen2",
+    "parameters": "3.1B",
+    "quantization": "Q4_K_M",
+    "declared_context_length": 32768,
+    "capabilities": ["completion", "tools"]
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce GTX 1650 Ti",
+    "vram_mb": 4096
+  },
+  "embedding_model": {
+    "name": "bge-m3",
+    "provider": "ollama"
+  },
+  "retrieval_config": {
+    "fusion": "Reciprocal Rank Fusion (RRF)",
+    "RRF_K": 60,
+    "RRF_CANDIDATE_DEPTH": 50,
+    "RRF_VEC_WEIGHT_env_override": null,
+    "RRF_VEC_WEIGHT_effective_in_production": 0,
+    "note_on_vec_weight": "Production fuses at RRF_VEC_WEIGHT=0 per bench/retrieval-eval.ts's own comment — guests currently receive BM25(prod) ranking, not the hybrid. This eval measures what guests actually get.",
+    "BM25_TITLE_IDF_FLOOR": 1.6,
+    "BM25_PHRASE_BOOST": 1.2,
+    "LOCAL_MIN_SCORE": 0.005,
+    "LOCAL_MIN_COVERAGE": 0.34,
+    "LOCAL_PASSAGES": 5,
+    "LOCAL_PASSAGE_CHAR_CAP": 400
+  },
+  "generation_config": {
+    "LOCAL_AGENT_MODEL": "qwen2.5:3b",
+    "LOCAL_NUM_CTX": 4096,
+    "LOCAL_KEEP_ALIVE": -1,
+    "LLM_LOCAL_TIMEOUT_MS": 600000,
+    "temperature": 0,
+    "maxTokens": 300
+  },
+  "knowledge_base": {
+    "source": "server/seed.ts + server/data/*.json, seeded via seedIfEmpty() + 14 migration scripts replayed in order this session",
+    "chunk_count": 136,
+    "embedded_count": 136,
+    "note": "data.db rebuilt from a clean state this session; golden retrieval set (bench/retrieval-golden.json, 54 queries) re-verified at hit@5 98.1% after rebuild, matching pre-rebuild baseline exactly — no drift from the rebuild itself."
+  },
+  "system_prompt_version": "local-agent.ts buildAnswerPrompt(), content hash 2979606e845e53af0478e63fd528e426 (whole-file hash, includes the directness/multi-price/multi-time instructions added this session)",
+  "changes_made_in_the_immediately_preceding_session_now_frozen": [
+    "selectRelevantWindow(): marginal-coverage sentence selection replacing raw-occurrence scoring, plus skip-not-break budget handling",
+    "classifyLocal(): added isTransportInfoOnly() carve-out for transport_tours (mirrors the existing wifi carve-out)",
+    "RECOMMENDATION_CUES expanded (chọn/đặt verb-swap bypass closed)",
+    "buildAnswerPrompt(): added directness / cross-lingual-general-rule / multi-time / multi-price instructions",
+    "KB content: CONDUCT policy summary now names durian/weapons/explosives; cable-car hours reconciled to 08:30-23:00/~8min across both conflicting seed.ts docs; airport-transfer price hardcode reverted (left as canonical 'ask reception')",
+    "storage.ts: added missing room_types.images / dining_venues.images bootstrap columns"
+  ],
+  "reproduction": {
+    "steps": [
+      "1. git status must match the 47-file list above (or note new deviations)",
+      "2. rm data.db data.db-shm data.db-wal data.db-journal",
+      "3. npx tsx bootstrap-db.ts equivalent: migrate() + seedIfEmpty() + ensurePricingPolicies() + ensureOpsPolicies() + reindex()",
+      "4. Replay server/migrations/001 through 014 in numeric order",
+      "5. Verify: npx tsx bench/retrieval-eval.ts reports hit@5 98.1%, sole miss P-pets-en",
+      "6. LLM_MODE=local npx tsx bench/final-local-eval-runner.ts (this evaluation's own runner)"
+    ]
+  }
+}

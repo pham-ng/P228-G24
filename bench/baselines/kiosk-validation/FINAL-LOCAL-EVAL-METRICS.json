@@ -1,0 +1,1038 @@
+{
+  "overall": {
+    "n": 403,
+    "correct": 201,
+    "partial": 51,
+    "wrong": 149,
+    "critical": 2,
+    "correct_pct": 49.9,
+    "partial_pct": 12.7,
+    "wrong_pct": 37,
+    "critical_pct": 0.5,
+    "knowledge_state_accuracy_pct": 78.4,
+    "language_accuracy_pct": 94,
+    "fabrication_count": 2,
+    "fabrication_pct": 0.5,
+    "latency_p50": 2463,
+    "latency_p95": 3993,
+    "latency_p99": 4625
+  },
+  "bySplit": {
+    "dev": {
+      "n": 283,
+      "correct": 143,
+      "partial": 37,
+      "wrong": 102,
+      "critical": 1,
+      "correct_pct": 50.5,
+      "partial_pct": 13.1,
+      "wrong_pct": 36,
+      "critical_pct": 0.4,
+      "knowledge_state_accuracy_pct": 79.9,
+      "language_accuracy_pct": 96.1,
+      "fabrication_count": 1,
+      "fabrication_pct": 0.4,
+      "latency_p50": 2560,
+      "latency_p95": 3951,
+      "latency_p99": 4945
+    },
+    "holdout": {
+      "n": 120,
+      "correct": 58,
+      "partial": 14,
+      "wrong": 47,
+      "critical": 1,
+      "correct_pct": 48.3,
+      "partial_pct": 11.7,
+      "wrong_pct": 39.2,
+      "critical_pct": 0.8,
+      "knowledge_state_accuracy_pct": 75,
+      "language_accuracy_pct": 89.2,
+      "fabrication_count": 1,
+      "fabrication_pct": 0.8,
+      "latency_p50": 2355,
+      "latency_p95": 4126,
+      "latency_p99": 4625
+    }
+  },
+  "byCategory": {
+    "FACTUAL": {
+      "n": 141,
+      "correct": 41,
+      "partial": 35,
+      "wrong": 65,
+      "critical": 0,
+      "correct_pct": 29.1,
+      "partial_pct": 24.8,
+      "wrong_pct": 46.1,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 77.3,
+      "language_accuracy_pct": 91.5,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2503,
+      "latency_p95": 4062,
+      "latency_p99": 15421
+    },
+    "PRICING": {
+      "n": 71,
+      "correct": 24,
+      "partial": 7,
+      "wrong": 39,
+      "critical": 1,
+      "correct_pct": 33.8,
+      "partial_pct": 9.9,
+      "wrong_pct": 54.9,
+      "critical_pct": 1.4,
+      "knowledge_state_accuracy_pct": 77.5,
+      "language_accuracy_pct": 93,
+      "fabrication_count": 1,
+      "fabrication_pct": 1.4,
+      "latency_p50": 2468,
+      "latency_p95": 3740,
+      "latency_p99": 4945
+    },
+    "MULTI_FACT": {
+      "n": 38,
+      "correct": 16,
+      "partial": 9,
+      "wrong": 12,
+      "critical": 1,
+      "correct_pct": 42.1,
+      "partial_pct": 23.7,
+      "wrong_pct": 31.6,
+      "critical_pct": 2.6,
+      "knowledge_state_accuracy_pct": 81.6,
+      "language_accuracy_pct": 97.4,
+      "fabrication_count": 1,
+      "fabrication_pct": 2.6,
+      "latency_p50": 3169,
+      "latency_p95": 4535,
+      "latency_p99": 4625
+    },
+    "UNKNOWN_BOUNDARY": {
+      "n": 55,
+      "correct": 51,
+      "partial": 0,
+      "wrong": 4,
+      "critical": 0,
+      "correct_pct": 92.7,
+      "partial_pct": 0,
+      "wrong_pct": 7.3,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 92.7,
+      "language_accuracy_pct": 100,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2330,
+      "latency_p95": 3570,
+      "latency_p99": 4394
+    },
+    "AMBIGUITY": {
+      "n": 26,
+      "correct": 10,
+      "partial": 0,
+      "wrong": 16,
+      "critical": 0,
+      "correct_pct": 38.5,
+      "partial_pct": 0,
+      "wrong_pct": 61.5,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 38.5,
+      "language_accuracy_pct": 84.6,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2745,
+      "latency_p95": 4165,
+      "latency_p99": 4331
+    },
+    "CONFLICTING": {
+      "n": 10,
+      "correct": 6,
+      "partial": 0,
+      "wrong": 4,
+      "critical": 0,
+      "correct_pct": 60,
+      "partial_pct": 0,
+      "wrong_pct": 40,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 60,
+      "language_accuracy_pct": 100,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 1901,
+      "latency_p95": 3533,
+      "latency_p99": 3533
+    },
+    "SAFETY_ESCALATION": {
+      "n": 62,
+      "correct": 53,
+      "partial": 0,
+      "wrong": 9,
+      "critical": 0,
+      "correct_pct": 85.5,
+      "partial_pct": 0,
+      "wrong_pct": 14.5,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 87.1,
+      "language_accuracy_pct": 96.8,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 1,
+      "latency_p95": 3424,
+      "latency_p99": 3678
+    }
+  },
+  "byLanguage": {
+    "vi": {
+      "n": 142,
+      "correct": 71,
+      "partial": 8,
+      "wrong": 61,
+      "critical": 2,
+      "correct_pct": 50,
+      "partial_pct": 5.6,
+      "wrong_pct": 43,
+      "critical_pct": 1.4,
+      "knowledge_state_accuracy_pct": 74.6,
+      "language_accuracy_pct": 99.3,
+      "fabrication_count": 2,
+      "fabrication_pct": 1.4,
+      "latency_p50": 2399,
+      "latency_p95": 3394,
+      "latency_p99": 3951
+    },
+    "en": {
+      "n": 66,
+      "correct": 35,
+      "partial": 11,
+      "wrong": 20,
+      "critical": 0,
+      "correct_pct": 53,
+      "partial_pct": 16.7,
+      "wrong_pct": 30.3,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 72.7,
+      "language_accuracy_pct": 95.5,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 1639,
+      "latency_p95": 3345,
+      "latency_p99": 3853
+    },
+    "ko": {
+      "n": 67,
+      "correct": 32,
+      "partial": 11,
+      "wrong": 24,
+      "critical": 0,
+      "correct_pct": 47.8,
+      "partial_pct": 16.4,
+      "wrong_pct": 35.8,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 82.1,
+      "language_accuracy_pct": 88.1,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 3045,
+      "latency_p95": 4419,
+      "latency_p99": 4945
+    },
+    "zh": {
+      "n": 65,
+      "correct": 34,
+      "partial": 10,
+      "wrong": 21,
+      "critical": 0,
+      "correct_pct": 52.3,
+      "partial_pct": 15.4,
+      "wrong_pct": 32.3,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 81.5,
+      "language_accuracy_pct": 92.3,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2893,
+      "latency_p95": 4144,
+      "latency_p99": 4369
+    },
+    "ja": {
+      "n": 63,
+      "correct": 29,
+      "partial": 11,
+      "wrong": 23,
+      "critical": 0,
+      "correct_pct": 46,
+      "partial_pct": 17.5,
+      "wrong_pct": 36.5,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 85.7,
+      "language_accuracy_pct": 88.9,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2888,
+      "latency_p95": 4165,
+      "latency_p99": 15421
+    }
+  },
+  "byAnswerability": {
+    "answerable": {
+      "n": 226,
+      "correct": 64,
+      "partial": 50,
+      "wrong": 110,
+      "critical": 2,
+      "correct_pct": 28.3,
+      "partial_pct": 22.1,
+      "wrong_pct": 48.7,
+      "critical_pct": 0.9,
+      "knowledge_state_accuracy_pct": 78.8,
+      "language_accuracy_pct": 92.5,
+      "fabrication_count": 2,
+      "fabrication_pct": 0.9,
+      "latency_p50": 2742,
+      "latency_p95": 4144,
+      "latency_p99": 8897
+    },
+    "unknown": {
+      "n": 62,
+      "correct": 57,
+      "partial": 1,
+      "wrong": 4,
+      "critical": 0,
+      "correct_pct": 91.9,
+      "partial_pct": 1.6,
+      "wrong_pct": 6.5,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 93.5,
+      "language_accuracy_pct": 98.4,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2330,
+      "latency_p95": 3570,
+      "latency_p99": 4394
+    },
+    "escalate": {
+      "n": 89,
+      "correct": 70,
+      "partial": 0,
+      "wrong": 19,
+      "critical": 0,
+      "correct_pct": 78.7,
+      "partial_pct": 0,
+      "wrong_pct": 21.3,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 78.7,
+      "language_accuracy_pct": 97.8,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 1,
+      "latency_p95": 3424,
+      "latency_p99": 3732
+    },
+    "ambiguous": {
+      "n": 26,
+      "correct": 10,
+      "partial": 0,
+      "wrong": 16,
+      "critical": 0,
+      "correct_pct": 38.5,
+      "partial_pct": 0,
+      "wrong_pct": 61.5,
+      "critical_pct": 0,
+      "knowledge_state_accuracy_pct": 38.5,
+      "language_accuracy_pct": 84.6,
+      "fabrication_count": 0,
+      "fabrication_pct": 0,
+      "latency_p50": 2745,
+      "latency_p95": 4165,
+      "latency_p99": 4331
+    }
+  },
+  "usefulness": {
+    "overall": {
+      "n": 226,
+      "correct": 64,
+      "pct": 28.3
+    },
+    "dev": {
+      "n": 161,
+      "correct": 49,
+      "pct": 30.4
+    },
+    "holdout": {
+      "n": 65,
+      "correct": 15,
+      "pct": 23.1
+    }
+  },
+  "failure_taxonomy": {
+    "MODEL_REASONING": 102,
+    "GATE": 48,
+    "MODEL_LANGUAGE": 11,
+    "SAFETY": 19,
+    "GROUNDING": 2,
+    "KNOWLEDGE_STATE": 20
+  },
+  "critical_failures": [
+    {
+      "case_id": "P-013",
+      "category": "PRICING",
+      "language": "vi",
+      "query": "vé cáp treo qua đảo giá bao nhiêu một người",
+      "reply": "Giá vé cáp treo qua đảo Hòn Tre là từ 250.000 VND.",
+      "forbidden_present": [],
+      "fabricated_numbers": [
+        "250.000"
+      ]
+    },
+    {
+      "case_id": "M-018",
+      "category": "MULTI_FACT",
+      "language": "vi",
+      "query": "khách đến thăm phòng được ở lại tới mấy giờ, và có cần để lại giấy tờ không",
+      "reply": "Khách đến thăm phòng được ở lại tới giờ đóng cửa của resort, thường là 22:00 hoặc 23:00. Cần để lại giấy tờ tùy thân.",
+      "forbidden_present": [],
+      "fabricated_numbers": [
+        "23:00"
+      ]
+    }
+  ],
+  "multi_turn": {
+    "conversations_total": 60,
+    "conversations_success": 34,
+    "conversation_success_pct": 56.7,
+    "turn_level_accuracy_pct": 80.3,
+    "by_pattern": {
+      "simple_follow_up": {
+        "total": 19,
+        "success": 19
+      },
+      "multi_fact_reasoning_across_turns": {
+        "total": 2,
+        "success": 2
+      },
+      "omitted_subject": {
+        "total": 10,
+        "success": 0
+      },
+      "topic_switch": {
+        "total": 11,
+        "success": 0
+      },
+      "return_to_previous_topic": {
+        "total": 10,
+        "success": 0
+      },
+      "pronoun_reference_resolution": {
+        "total": 9,
+        "success": 8
+      },
+      "clarification": {
+        "total": 12,
+        "success": 10
+      },
+      "correction_by_guest": {
+        "total": 1,
+        "success": 1
+      },
+      "changing_requirements": {
+        "total": 10,
+        "success": 10
+      },
+      "package_comparison_across_turns": {
+        "total": 2,
+        "success": 1
+      },
+      "language_switch": {
+        "total": 14,
+        "success": 12
+      },
+      "incomplete_user_message": {
+        "total": 1,
+        "success": 1
+      },
+      "conflicting_user_statements": {
+        "total": 1,
+        "success": 0
+      },
+      "previous_answer_referenced_later": {
+        "total": 1,
+        "success": 0
+      },
+      "room_service_context_carried_across_turns": {
+        "total": 10,
+        "success": 0
+      }
+    },
+    "failed_conversations": [
+      {
+        "conv_id": "CONV-02",
+        "patterns": [
+          "omitted_subject",
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Còn hồ bơi thì sao?",
+            "reply": "Hồ bơi mở cửa từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-03",
+        "patterns": [
+          "pronoun_reference_resolution",
+          "clarification"
+        ],
+        "failing_turns": [
+          {
+            "turn": 3,
+            "message": "And can I bring an extra bed into it for a third adult?",
+            "reply": "The hotel room takes a maximum of 4 people including children under 4, either 3 adults and 1 child, or 2 adults and 2 children. Therefore, an extra bed is not available in the room.",
+            "facts_missing": [
+              "except Vinpearl Luxury"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-06",
+        "patterns": [
+          "language_switch"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Sorry, can you answer in English? Is it available in the villas too?",
+            "reply": "",
+            "facts_missing": [
+              "villas"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-09",
+        "patterns": [
+          "language_switch"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "度假村里有中餐厅吗？",
+            "reply": "是的，度假村有一个中餐厅，名为Bách Giai。",
+            "facts_missing": [
+              "Bach Giai",
+              "百佳"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 2,
+            "message": "Great, switch to English please — what are its hours?",
+            "reply": "",
+            "facts_missing": [
+              "10:30"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-12",
+        "patterns": [
+          "conflicting_user_statements"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Con tôi năm nay 5 tuổi, cháu có tính phí phụ thu ở nhà hàng không?",
+            "reply": "Không, cháu không tính phí phụ thu ở nhà hàng Bách Giai.",
+            "facts_missing": [
+              "surcharge"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-13",
+        "patterns": [
+          "previous_answer_referenced_later",
+          "topic_switch"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "What's the cancellation policy if I book directly?",
+            "reply": "",
+            "facts_missing": [
+              "7"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "Back to what you said about cancelling — does that 50% apply to the whole stay or just the first night?",
+            "reply": "",
+            "facts_missing": [
+              "first night"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-14",
+        "patterns": [
+          "package_comparison_across_turns",
+          "clarification"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Mã gói BB với FB khác nhau thế nào?",
+            "reply": "Mã gói BB và FB không khác nhau về mã gói, chỉ khác về mức giá và dịch vụ bao gồm.",
+            "facts_missing": [
+              "breakfast",
+              "full board"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-15",
+        "patterns": [
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "그랜드 디럭스 오션뷰 방에 발코니가 있나요?",
+            "reply": "",
+            "facts_missing": [
+              "balcony",
+              "발코니"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-19",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-20",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-24",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-25",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-29",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-30",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-34",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-35",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-39",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-40",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-44",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-45",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-49",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-50",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-54",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-55",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-59",
+        "patterns": [
+          "omitted_subject",
+          "room_service_context_carried_across_turns"
+        ],
+        "failing_turns": [
+          {
+            "turn": 1,
+            "message": "Tell me about the Villa 2-Bedroom Ocean View.",
+            "reply": "",
+            "facts_missing": [
+              "180"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      },
+      {
+        "conv_id": "CONV-60",
+        "patterns": [
+          "topic_switch",
+          "return_to_previous_topic"
+        ],
+        "failing_turns": [
+          {
+            "turn": 2,
+            "message": "Có phục vụ món ăn Việt Nam không hay chỉ đồ Trung Quốc?",
+            "reply": "",
+            "facts_missing": [
+              "Trung"
+            ],
+            "forbidden_present": []
+          },
+          {
+            "turn": 3,
+            "message": "À mà hồ bơi chính mở tới mấy giờ vậy?",
+            "reply": "Hồ bơi chính mở từ 06:00 đến 18:30.",
+            "facts_missing": [
+              "20:00"
+            ],
+            "forbidden_present": []
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -34,3 +34,6 @@ bench/baselines/*.db
 .pplx-probe.txt
 _live.ts
 _smoke.ts
+
+# Coverage reports — regenerate with `npm run test:coverage`
+coverage/

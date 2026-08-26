@@ -19,7 +19,7 @@ export default function LoginPage() {
   const login = useMutation({
     mutationFn: async (creds: { name: string; pin: string }) => {
       const res = await apiRequest("POST", "/api/staff/login", creds);
-      return res.json() as Promise<Staff>;
+      return res.json() as Promise<Staff & { staffApiToken?: string }>;
     },
     onSuccess: signIn,
   });

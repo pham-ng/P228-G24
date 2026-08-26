@@ -39,6 +39,7 @@ import type {
   Reservation,
   Room,
   Service,
+  ServiceApproval,
 } from "@shared/schema";
 import { DEPT_KEYS } from "@shared/schema";
 
@@ -498,13 +499,17 @@ export function bookCatalogueService(
   const freeUntilHours = Number((cancelRules as any).free_until_hours_before) || 0;
   const cancelDeadline = new Date(startsAt.getTime() - freeUntilHours * 3_600_000).toISOString();
 
+  /* HITL gate: the booking is created as pending_approval and no charge is
+   * posted yet. A staff member approving it (see finalizeApproval below) is
+   * what actually confirms the booking and posts the folio line — the AI
+   * never commits this itself. */
   const booking = storage.createBooking({
     serviceId: svc.id,
     reservationId: res.id,
     date,
     slot,
     partySize: party,
-    status: "confirmed",
+    status: "pending_approval",
     createdAt: nowIso(),
     amount: priced.net_amount,
     chargeId: null,
@@ -512,17 +517,6 @@ export function bookCatalogueService(
     cancelDeadline,
     cancelledAt: null,
   });
-
-  const charge = postCharge({
-    reservationId: res.id,
-    description: `${svc.name} — ${date} ${slot} × ${party}${priced.discount_pct ? ` (ưu đãi ${priced.discount_pct}% hạng ${guest.vipTier})` : ""}`,
-    amount: priced.net_amount,
-    category: svc.category === "spa" ? "spa" : svc.category === "dining" || svc.category === "roomservice" ? "fnb" : "fee",
-    taxable: true,
-    refType: "service_booking",
-    refId: booking.id,
-  });
-  storage.updateBooking(booking.id, { chargeId: charge.id });
 
   const allergies = svc.category === "dining" || svc.category === "roomservice" ? allergyNotes(guest) : [];
 
@@ -532,10 +526,10 @@ export function bookCatalogueService(
     roomId: res.roomId,
     conversationId: conv.id,
     dept: svc.dept,
-    title: `${svc.name} — ${date} ${slot}`,
+    title: `CẦN DUYỆT — ${svc.name} — ${date} ${slot}`,
     detail: `${guest.name} (room ${room?.number ?? "—"}), party of ${party}.${
       input.note ? ` Note: ${input.note}` : ""
-    }${allergies.length ? ` ⚠ Ghi nhận từ hồ sơ khách: ${allergies.join("; ")}.` : ""} Đã ghi nợ ${vnd(priced.net_amount)} vào folio (line #${charge.id}).`,
+    }${allergies.length ? ` ⚠ Ghi nhận từ hồ sơ khách: ${allergies.join("; ")}.` : ""} Đang chờ duyệt — sẽ ghi nợ ${vnd(priced.net_amount)} vào folio nếu được duyệt.`,
     priority: "normal",
     status: "open",
     source: "ai",
@@ -545,35 +539,31 @@ export function bookCatalogueService(
     resolvedAt: null,
   });
 
-  const request = storage.createRequest({
+  const approval = storage.createApproval({
     hotelId: hotel.id,
     reservationId: res.id,
     guestId: guest.id,
     conversationId: conv.id,
     taskId: task.id,
-    kind: input.kind ?? "service_booking",
-    dept: svc.dept,
-    summary: `${svc.name} ${date} ${slot} × ${party} — ${vnd(priced.net_amount)}`,
-    payload: JSON.stringify({ bookingId: booking.id, serviceId: svc.id, chargeId: charge.id }),
-    scheduledFor: hotelIso(date, slots.length ? slot : "00:00"),
-    status: "open",
+    kind: "book_service",
+    summary: `Đặt ${svc.name} — ${date} ${slot} × ${party} — ${vnd(priced.net_amount)}`,
+    payload: JSON.stringify({ bookingId: booking.id, serviceId: svc.id, netAmount: priced.net_amount, svcName: svc.name, date, slot, party, discountPct: priced.discount_pct, dept: svc.dept, category: svc.category, vipTier: guest.vipTier }),
     amount: priced.net_amount,
-    chargeId: charge.id,
+    status: "pending",
     createdAt: nowIso(),
-    updatedAt: nowIso(),
     resolvedAt: null,
-    resolutionNote: null,
+    resolvedBy: null,
+    rejectionReason: null,
   });
 
   storage.logEvent({
-    type: "booking.created",
+    type: "booking.queued_for_approval",
     actor: "ai",
-    summary: `Booked ${svc.name} for ${guest.name} on ${date} at ${slot} (party ${party}) — ${vnd(priced.net_amount)}.`,
+    summary: `Queued ${svc.name} for ${guest.name} on ${date} at ${slot} (party ${party}) — ${vnd(priced.net_amount)}, awaiting staff approval.`,
     payload: JSON.stringify({
       bookingId: booking.id,
       taskId: task.id,
-      requestId: request.id,
-      chargeId: charge.id,
+      approvalId: approval.id,
       amount: priced.net_amount,
       rackAmount: priced.rack_amount,
       discountPct: priced.discount_pct,
@@ -583,28 +573,195 @@ export function bookCatalogueService(
   });
 
   return {
-    booked: true,
+    booked: false,
+    pending_approval: true,
     booking_id: booking.id,
-    request_id: request.id,
+    approval_id: approval.id,
     service: svc.name,
     date,
     slot,
     party_size: party,
-    /* What actually went on the folio — the member price, not the rack rate. */
-    charged: priced.net_amount,
+    /* Not yet on the folio — this is the amount that WOULD be charged once staff approve. */
+    pending_amount: priced.net_amount,
     rack_amount: priced.rack_amount,
     member_discount_percent: priced.discount_pct,
     saved: priced.saved,
     price_calculation: priced.calculation,
     price_basis: "Giá net, chưa gồm phí phục vụ và VAT — xem get_folio để có tổng phải trả.",
-    folio_charge_id: charge.id,
     currency: hotel.currency,
     free_cancellation_until: cancelDeadline,
     allergy_notes_on_file: allergies,
     dispatched_to: svc.dept,
     task_id: task.id,
     policy: priced.policy,
+    instruction:
+      "Yêu cầu đã được ghi nhận và chuyển lễ tân duyệt — nói với khách là ĐANG CHỜ XÁC NHẬN, TUYỆT ĐỐI KHÔNG nói là đã đặt/xác nhận thành công.",
   };
+}
+
+/**
+ * Approve or reject a queued service-approval — the only place a
+ * book_service / cancel_service_booking / order_room_service request
+ * actually takes effect (posts a charge, flips a booking's status,
+ * dispatches a fulfillment task). Called only from the staff-authenticated
+ * /api/approvals routes, never from the AI tool loop.
+ */
+export function finalizeApproval(
+  approvalId: number,
+  action: "approve" | "reject",
+  staffName: string,
+  reason?: string,
+): { ok: true; approval: ServiceApproval } | { ok: false; error: string } {
+  const approval = storage.getApproval(approvalId);
+  if (!approval) return { ok: false, error: `No approval #${approvalId}.` };
+  if (approval.status !== "pending") return { ok: false, error: `Approval #${approvalId} already ${approval.status}.` };
+
+  const payload = JSON.parse(approval.payload || "{}");
+
+  if (action === "reject") {
+    if (approval.kind === "book_service") {
+      storage.updateBooking(Number(payload.bookingId), { status: "cancelled", cancelledAt: nowIso() });
+    }
+    // cancel_service_booking / order_room_service rejections simply never execute — nothing to undo.
+    const updated = storage.updateApproval(approvalId, {
+      status: "rejected",
+      resolvedAt: nowIso(),
+      resolvedBy: staffName,
+      rejectionReason: reason ?? null,
+    });
+    if (approval.taskId) storage.updateTask(approval.taskId, { status: "done", resolvedAt: nowIso() });
+    storage.logEvent({
+      type: `${approval.kind}.rejected`,
+      actor: "staff",
+      summary: `${staffName} từ chối: ${approval.summary}${reason ? ` — ${reason}` : ""}`,
+      payload: JSON.stringify({ approvalId }),
+      conversationId: approval.conversationId,
+      createdAt: nowIso(),
+    });
+    return { ok: true, approval: updated };
+  }
+
+  // action === "approve" — perform the deferred write for this approval's kind.
+  if (approval.kind === "book_service") {
+    const booking = storage.getBooking(Number(payload.bookingId));
+    if (!booking) return { ok: false, error: `Booking #${payload.bookingId} no longer exists.` };
+    const charge = postCharge({
+      reservationId: Number(booking.reservationId),
+      description: `${payload.svcName} — ${payload.date} ${payload.slot} × ${payload.party}${payload.discountPct ? ` (ưu đãi ${payload.discountPct}% hạng ${payload.vipTier})` : ""}`,
+      amount: Number(payload.netAmount),
+      category: payload.category === "spa" ? "spa" : payload.category === "dining" || payload.category === "roomservice" ? "fnb" : "fee",
+      taxable: true,
+      refType: "service_booking",
+      refId: booking.id,
+    });
+    storage.updateBooking(booking.id, { status: "confirmed", chargeId: charge.id });
+  } else if (approval.kind === "cancel_service_booking") {
+    const booking = storage.getBooking(Number(payload.bookingId));
+    if (!booking) return { ok: false, error: `Booking #${payload.bookingId} no longer exists.` };
+    storage.updateBooking(booking.id, { status: "cancelled", cancelledAt: nowIso() });
+    if (booking.chargeId) reverseCharge(booking.chargeId, `hủy đặt ${payload.svcName ?? "dịch vụ"}`);
+    if (Number(payload.fee ?? 0) > 0) {
+      postCharge({
+        reservationId: Number(booking.reservationId),
+        description: `Phí hủy ${payload.svcName ?? "dịch vụ"} — ${payload.band}`,
+        amount: Number(payload.fee),
+        category: "fee",
+        taxable: false,
+        refType: "service_cancellation",
+        refId: booking.id,
+      });
+    }
+  } else if (approval.kind === "cancel_reservation") {
+    const targetRes = storage.getReservation(Number(payload.reservationId));
+    if (!targetRes) return { ok: false, error: `Reservation #${payload.reservationId} no longer exists.` };
+    const fee = Number(payload.fee ?? 0);
+    if (fee > 0) {
+      postCharge({
+        reservationId: targetRes.id,
+        description: `Phí hủy đặt phòng ${payload.code} — ${payload.band}`,
+        amount: fee,
+        category: "fee",
+        taxable: false,
+        refType: "cancellation",
+        refId: targetRes.id,
+      });
+    }
+    for (const c of storage.listCharges(targetRes.id)) {
+      if (c.category !== "room" || c.voidedAt) continue;
+      reverseCharge(c.id, `hủy đặt phòng ${payload.code}`);
+    }
+    for (const b of storage.bookingsForReservation(targetRes.id)) {
+      if (b.status !== "confirmed") continue;
+      storage.updateBooking(b.id, { status: "cancelled", cancelledAt: nowIso() });
+      if (b.chargeId) reverseCharge(b.chargeId, `hủy theo đặt phòng ${payload.code}`);
+    }
+    storage.updateReservation(targetRes.id, { status: "cancelled", cancelledAt: nowIso(), cancellationFee: fee });
+  } else if (approval.kind === "request_late_checkout") {
+    const targetRes = storage.getReservation(Number(payload.reservationId));
+    if (!targetRes) return { ok: false, error: `Reservation #${payload.reservationId} no longer exists.` };
+    storage.updateReservation(targetRes.id, { checkOutTime: String(payload.want) });
+    if (Number(payload.fee ?? 0) > 0) {
+      postCharge({
+        reservationId: targetRes.id,
+        description: `Late departure until ${payload.want}`,
+        amount: Number(payload.fee),
+        category: "fee",
+        taxable: false,
+        refType: "late_checkout",
+        refId: targetRes.id,
+      });
+    }
+  } else if (approval.kind === "request_early_checkin") {
+    const targetRes = storage.getReservation(Number(payload.reservationId));
+    if (!targetRes) return { ok: false, error: `Reservation #${payload.reservationId} no longer exists.` };
+    storage.updateReservation(targetRes.id, { checkInTime: String(payload.want) });
+    if (Number(payload.fee ?? 0) > 0) {
+      postCharge({
+        reservationId: targetRes.id,
+        description: `Phí nhận phòng sớm (${payload.want})`,
+        amount: Number(payload.fee),
+        category: "fee",
+        taxable: false,
+        refType: "early_checkin",
+        refId: targetRes.id,
+      });
+    }
+  } else if (approval.kind === "order_room_service") {
+    const items = Array.isArray(payload.items) ? payload.items : [];
+    postCharge({
+      reservationId: Number(payload.reservationId),
+      description: `In-room dining — ${items.map((i: any) => i.line).join(", ")}`,
+      amount: Number(payload.total),
+      category: "fnb",
+      taxable: true,
+      refType: "room_service_order",
+      refId: approval.id,
+    });
+  }
+
+  const updated = storage.updateApproval(approvalId, {
+    status: "approved",
+    resolvedAt: nowIso(),
+    resolvedBy: staffName,
+  });
+  if (approval.taskId) {
+    const task = storage.getTask(approval.taskId);
+    /* The task title carried "CẦN DUYỆT — " while the request was pending so
+     * it stood out on the board; once approved it's a normal fulfillment
+     * task and should stop reading as still-awaiting-approval. */
+    if (task && task.title.startsWith("CẦN DUYỆT — ")) {
+      storage.updateTask(approval.taskId, { title: task.title.slice("CẦN DUYỆT — ".length) });
+    }
+  }
+  storage.logEvent({
+    type: `${approval.kind}.approved`,
+    actor: "staff",
+    summary: `${staffName} duyệt: ${approval.summary}`,
+    payload: JSON.stringify({ approvalId }),
+    conversationId: approval.conversationId,
+    createdAt: nowIso(),
+  });
+  return { ok: true, approval: updated };
 }
 
 /* ------------------------------------------------------------------ *

@@ -121,6 +121,29 @@ export type Task = {
   assignee: string | null;
 };
 
+export type ServiceApproval = {
+  id: number;
+  reservationId: number | null;
+  guestId: number | null;
+  conversationId: number | null;
+  taskId: number | null;
+  kind:
+    | "book_service"
+    | "cancel_service_booking"
+    | "order_room_service"
+    | "cancel_reservation"
+    | "request_late_checkout"
+    | "request_early_checkin";
+  summary: string;
+  payload: string;
+  amount: number | null;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  resolvedAt: string | null;
+  resolvedBy: string | null;
+  rejectionReason: string | null;
+};
+
 export type ConversationDetail = {
   conversation: Conversation;
   guest: Guest;

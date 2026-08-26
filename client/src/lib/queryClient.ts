@@ -2,6 +2,22 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
 
+/**
+ * The staff API token, kept in module state rather than localStorage — the
+ * sandboxed preview frame blocks browser storage APIs, and the session
+ * (client/src/lib/session.tsx) is already in-memory-only for the same reason.
+ * Set once on staff sign-in (see session.tsx's signIn), cleared on sign-out.
+ * Guest routes never need this — the guest surface authenticates with the
+ * reservation confirmation code instead (see server/routes.ts isGuestRoute).
+ */
+let staffToken: string | null = null;
+export function setStaffToken(token: string | null) {
+  staffToken = token;
+}
+function staffAuthHeaders(): Record<string, string> {
+  return staffToken ? { "x-staff-token": staffToken } : {};
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -16,7 +32,7 @@ export async function apiRequest(
 ): Promise<Response> {
   const res = await fetch(`${API_BASE}${url}`, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: { ...staffAuthHeaders(), ...(data ? { "Content-Type": "application/json" } : {}) },
     body: data ? JSON.stringify(data) : undefined,
   });
 
@@ -30,7 +46,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(`${API_BASE}${queryKey.join("/")}`);
+    const res = await fetch(`${API_BASE}${queryKey.join("/")}`, { headers: staffAuthHeaders() });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;

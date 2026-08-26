@@ -291,7 +291,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "book_service",
       description:
-        "Actually reserve a service slot for this guest. Only call after the guest has confirmed the service, date, time and party size. This writes a booking, charges the folio and dispatches a task to the owning department.",
+        "Queue a service slot reservation for this guest to be reviewed by staff. Only call after the guest has confirmed the service, date, time and party size. This does NOT confirm the booking or charge the folio itself — it creates a pending request a staff member must approve before it takes effect. Tell the guest it is awaiting confirmation, never that it is booked.",
       parameters: {
         type: "object",
         properties: {
@@ -310,7 +310,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "order_room_service",
       description:
-        "Place an in-room dining order. Charges the folio and dispatches a preparation task to Food & Beverage. Only call after the guest confirms the items.",
+        "Queue an in-room dining order for Food & Beverage to review and approve. Only call after the guest confirms the items. This does NOT charge the folio or start preparation itself — a staff member must approve it first. Tell the guest it is awaiting confirmation, never that it is being prepared.",
       parameters: {
         type: "object",
         properties: {
@@ -337,7 +337,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "request_late_checkout",
       description:
-        "Check whether a later departure time is possible and, if it is, apply it to the reservation. The system verifies whether the room is resold that day and applies the correct fee for the guest's tier. Never promise a late check-out without calling this.",
+        "Check whether a later departure time is possible and queue it for staff approval. The system verifies whether the room is resold that day and computes the correct fee for the guest's tier, but does NOT apply it or post the fee itself — a staff member must approve first. Tell the guest it is awaiting confirmation, never that it is applied.",
       parameters: {
         type: "object",
         properties: {
@@ -579,7 +579,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "cancel_reservation",
       description:
-        "Cancel a confirmed room reservation. Checks cancellation policies (e.g. free cancellation vs fee window), updates status in PMS, and releases the room. Always ask for guest confirmation of the reservation code before calling.",
+        "Queue cancellation of a confirmed room reservation for staff approval. Checks cancellation policies (e.g. free cancellation vs fee window) and computes the fee, but does NOT cancel it, reverse charges, or release the room itself — a staff member must approve first. Always ask for guest confirmation of the reservation code before calling. Tell the guest it is awaiting confirmation, never that it is cancelled.",
       parameters: {
         type: "object",
         properties: {
@@ -598,7 +598,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "cancel_service_booking",
       description:
-        "Cancel an existing service booking, dining table reservation, or folio service charge. Use this whenever the guest asks to cancel any booked service, meal/dining reservation, spa treatment, or activity.",
+        "Queue a cancellation of an existing service booking, dining table reservation, or folio service charge, for staff to review. Use this whenever the guest asks to cancel any booked service, meal/dining reservation, spa treatment, or activity. This does NOT cancel it or reverse the charge itself — a staff member must approve the cancellation before it takes effect. Tell the guest it is awaiting confirmation, never that it is cancelled.",
       parameters: {
         type: "object",
         properties: {
@@ -652,7 +652,7 @@ export const TOOLS: ToolSpec[] = [
     function: {
       name: "request_early_checkin",
       description:
-        "Request or apply an early arrival/check-in time for the reservation. Call this tool when a guest requests to check in early (e.g. at 09:00). Computes fee/waiver from policy, updates PMS records, and dispatches housekeeping task.",
+        "Request an early arrival/check-in time for the reservation and queue it for staff approval. Call this tool when a guest requests to check in early (e.g. at 09:00). Computes fee/waiver from policy, but does NOT apply it or update PMS records itself — a staff member must approve first. Tell the guest it is awaiting confirmation, never that it is applied.",
       parameters: {
         type: "object",
         properties: {
@@ -1289,21 +1289,17 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         total += svc.price * qty;
         lines.push(`${qty} × ${svc.name}`);
       }
-      storage.addCharge({
-        reservationId: res.id,
-        description: `In-room dining — ${lines.join(", ")}`,
-        amount: total,
-        category: "fnb",
-        createdAt: nowIso(),
-      });
+      /* HITL gate: no charge posted yet — only queued. Staff approval (see
+       * finalizeApproval in ops.ts) is what actually posts it and starts
+       * the kitchen clock. */
       const task = storage.createTask({
         hotelId: hotel.id,
         reservationId: res.id,
         roomId: res.roomId,
         conversationId: conv.id,
         dept: "fnb",
-        title: `In-room dining — room ${room?.number ?? "—"}`,
-        detail: `${lines.join(", ")}.${args.note ? ` Note: ${args.note}` : ""} Guest: ${guest.name}.`,
+        title: `CẦN DUYỆT — In-room dining — room ${room?.number ?? "—"}`,
+        detail: `${lines.join(", ")}.${args.note ? ` Note: ${args.note}` : ""} Guest: ${guest.name}. Đang chờ duyệt.`,
         priority: "high",
         status: "open",
         source: "ai",
@@ -1312,21 +1308,41 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         createdAt: nowIso(),
         resolvedAt: null,
       });
+      const approval = storage.createApproval({
+        hotelId: hotel.id,
+        reservationId: res.id,
+        guestId: guest.id,
+        conversationId: conv.id,
+        taskId: task.id,
+        kind: "order_room_service",
+        summary: `In-room dining — ${lines.join(", ")} — ${total.toLocaleString("vi-VN")} ${hotel.currency}`,
+        payload: JSON.stringify({ reservationId: res.id, items: items.map((it: any, i: number) => ({ line: lines[i] })), total }),
+        amount: total,
+        status: "pending",
+        createdAt: nowIso(),
+        resolvedAt: null,
+        resolvedBy: null,
+        rejectionReason: null,
+      });
       storage.logEvent({
-        type: "order.created",
+        type: "order.queued_for_approval",
         actor: "ai",
-        summary: `In-room dining order for ${guest.name}: ${lines.join(", ")}.`,
-        payload: JSON.stringify({ taskId: task.id, total }),
+        summary: `In-room dining order queued for ${guest.name}: ${lines.join(", ")}.`,
+        payload: JSON.stringify({ taskId: task.id, approvalId: approval.id, total }),
         conversationId: conv.id,
         createdAt: nowIso(),
       });
       return {
-        ordered: true,
+        ordered: false,
+        pending_approval: true,
+        approval_id: approval.id,
         items: lines,
-        charged: total,
+        pending_amount: total,
         currency: hotel.currency,
         eta_minutes: 35,
         dispatched_to: "fnb",
+        instruction:
+          "Yêu cầu đã được ghi nhận và chuyển bếp/FnB duyệt — nói với khách là ĐANG CHỜ XÁC NHẬN, TUYỆT ĐỐI KHÔNG nói là đã đặt món/đang chuẩn bị.",
       };
     }
 
@@ -1361,24 +1377,17 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         };
       const fee = quote.fee ?? 0;
       const tierFree = !!quote.waiver;
-      storage.updateReservation(res.id, { checkOutTime: want });
-      if (fee > 0) {
-        storage.addCharge({
-          reservationId: res.id,
-          description: `Late departure until ${want}`,
-          amount: fee,
-          category: "fee",
-          createdAt: nowIso(),
-        });
-      }
+
+      /* HITL gate: checkOutTime is not written and no fee is posted until
+       * staff approve — the PMS/folio must not move on the AI's say-so alone. */
       const task = storage.createTask({
         hotelId: hotel.id,
         reservationId: res.id,
         roomId: res.roomId,
         conversationId: conv.id,
         dept: "housekeeping",
-        title: `Late departure ${want} — room ${room?.number ?? "—"}`,
-        detail: `Reschedule cleaning for room ${room?.number}. ${guest.name} departs ${res.checkOut} at ${want}.`,
+        title: `CẦN DUYỆT — Trả phòng muộn ${want} — phòng ${room?.number ?? "—"}`,
+        detail: `${guest.name} muốn trả phòng muộn lúc ${want} ngày ${res.checkOut}. ${fee ? `Phí dự kiến ${fee.toLocaleString("vi-VN")} ${hotel.currency}.` : "Miễn phí theo chính sách/hạng thẻ."} Đang chờ duyệt.`,
         priority: "normal",
         status: "open",
         source: "ai",
@@ -1387,26 +1396,45 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         createdAt: nowIso(),
         resolvedAt: null,
       });
+      const approval = storage.createApproval({
+        hotelId: hotel.id,
+        reservationId: res.id,
+        guestId: guest.id,
+        conversationId: conv.id,
+        taskId: task.id,
+        kind: "request_late_checkout",
+        summary: `Trả phòng muộn ${want} — ${res.confirmationCode} — ${fee.toLocaleString("vi-VN")} ${hotel.currency}`,
+        payload: JSON.stringify({ reservationId: res.id, want, fee }),
+        amount: fee,
+        status: "pending",
+        createdAt: nowIso(),
+        resolvedAt: null,
+        resolvedBy: null,
+        rejectionReason: null,
+      });
       storage.logEvent({
-        type: "reservation.late_checkout",
+        type: "reservation.late_checkout_queued",
         actor: "ai",
-        summary: `Departure for ${res.confirmationCode} moved to ${want}${fee ? ` (fee ${fee} ${hotel.currency})` : " (complimentary)"
-          }.`,
-        payload: JSON.stringify({ taskId: task.id, fee }),
+        summary: `Yêu cầu trả phòng muộn cho ${res.confirmationCode} lúc ${want} — chờ duyệt${fee ? ` (phí ${fee} ${hotel.currency})` : " (miễn phí)"}.`,
+        payload: JSON.stringify({ approvalId: approval.id, taskId: task.id, fee }),
         conversationId: conv.id,
         createdAt: nowIso(),
       });
       return {
-        approved: true,
-        new_departure_time: want,
+        approved: false,
+        pending_approval: true,
+        approval_id: approval.id,
+        requested_departure_time: want,
         band: quote.band,
         percent_of_package_rate: quote.percent_of_package_rate,
-        fee,
+        expected_fee: fee,
         currency: hotel.currency,
         calculation: quote.calculation,
         complimentary_reason: tierFree ? quote.waiver : null,
         policy: quote.policy,
-        pms_updated: true,
+        task_id: task.id,
+        instruction:
+          "Yêu cầu đã được ghi nhận và chuyển lễ tân duyệt — nêu đúng mức phí dự kiến, nói rõ ĐANG CHỜ XÁC NHẬN. TUYỆT ĐỐI KHÔNG nói là đã xác nhận/đã áp dụng.",
       };
     }
 
@@ -1530,58 +1558,20 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
       }
 
       const fee = quote.fee ?? 0;
-      let feeCharge: { id: number } | null = null;
-      if (fee > 0) {
-        feeCharge = postCharge({
-          reservationId: targetRes.id,
-          description: `Phí hủy đặt phòng ${code} — ${quote.band}`,
-          amount: fee,
-          category: "fee",
-          taxable: false,
-          refType: "cancellation",
-          refId: targetRes.id,
-        });
-      }
 
-      /* Room nights already posted must come off, or the guest is billed for a
-       * stay that will not happen. */
-      const reversedRoomLines: number[] = [];
-      for (const c of storage.listCharges(targetRes.id)) {
-        if (c.category !== "room" || c.voidedAt) continue;
-        const r = reverseCharge(c.id, `hủy đặt phòng ${code}`);
-        if (r) reversedRoomLines.push(c.id);
-      }
-
-      /* Linked service bookings die with the reservation, and their charges are
-       * reversed too — otherwise the guest pays for a spa slot on a stay that
-       * no longer exists. */
-      const cancelledBookings: number[] = [];
-      for (const b of storage.bookingsForReservation(targetRes.id)) {
-        if (b.status !== "confirmed") continue;
-        storage.updateBooking(b.id, { status: "cancelled", cancelledAt: nowIso() });
-        if (b.chargeId) reverseCharge(b.chargeId, `hủy theo đặt phòng ${code}`);
-        cancelledBookings.push(b.id);
-      }
-
-      storage.updateReservation(targetRes.id, {
-        status: "cancelled",
-        cancelledAt: nowIso(),
-        cancellationFee: fee,
-      });
-
+      /* HITL gate: nothing is reversed, cancelled or flipped yet — staff
+       * approval (finalizeApproval in ops.ts) performs this exact sequence
+       * (fee charge, room-line reversal, linked-booking cancellation,
+       * reservation status flip) only once approved. */
       const task = storage.createTask({
         hotelId: hotel.id,
         reservationId: targetRes.id,
         roomId: targetRes.roomId,
         conversationId: conv.id,
         dept: "front_desk",
-        title: `Hủy đặt phòng — ${code}`,
-        detail: `Đặt phòng ${code} (${guest.name}) đã hủy qua chat. Lý do: ${args.reason || "khách yêu cầu"
-          }. Phí hủy: ${fee ? `${fee.toLocaleString("vi-VN")} ${hotel.currency}` : "miễn phí"} (${quote.band
-          }).${reversedRoomLines.length ? ` Đã hoàn ${reversedRoomLines.length} dòng tiền phòng.` : ""}${cancelledBookings.length
-            ? ` Đã hủy ${cancelledBookings.length} dịch vụ kèm theo (#${cancelledBookings.join(", #")}).`
-            : ""
-          } Cần trả phòng về trạng thái bán được và xử lý hoàn tiền nếu khách đã thanh toán.`,
+        title: `CẦN DUYỆT — Hủy đặt phòng — ${code}`,
+        detail: `Yêu cầu hủy đặt phòng ${code} (${guest.name}). Lý do: ${args.reason || "khách yêu cầu"
+          }. Phí hủy dự kiến: ${fee ? `${fee.toLocaleString("vi-VN")} ${hotel.currency}` : "miễn phí"} (${quote.band}). Đang chờ duyệt.`,
         priority: "high",
         status: "open",
         source: "ai",
@@ -1591,43 +1581,48 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         resolvedAt: null,
       });
 
+      const approval = storage.createApproval({
+        hotelId: hotel.id,
+        reservationId: targetRes.id,
+        guestId: guest.id,
+        conversationId: conv.id,
+        taskId: task.id,
+        kind: "cancel_reservation",
+        summary: `Hủy đặt phòng ${code} — phí ${fee.toLocaleString("vi-VN")} ${hotel.currency} (${quote.band})`,
+        payload: JSON.stringify({ reservationId: targetRes.id, code, fee, band: quote.band, reason: args.reason ?? null }),
+        amount: fee,
+        status: "pending",
+        createdAt: nowIso(),
+        resolvedAt: null,
+        resolvedBy: null,
+        rejectionReason: null,
+      });
+
       storage.logEvent({
-        type: "reservation.cancelled",
+        type: "reservation.cancel_queued",
         actor: "ai",
-        summary: `Đặt phòng ${code} đã hủy qua chat — phí ${fee.toLocaleString("vi-VN")} ${hotel.currency}.`,
-        payload: JSON.stringify({
-          reservationId: targetRes.id,
-          reason: args.reason,
-          fee,
-          band: quote.band,
-          reversedRoomLines,
-          cancelledBookings,
-          taskId: task.id,
-        }),
+        summary: `Yêu cầu hủy đặt phòng ${code} — chờ duyệt, phí dự kiến ${fee.toLocaleString("vi-VN")} ${hotel.currency}.`,
+        payload: JSON.stringify({ reservationId: targetRes.id, approvalId: approval.id, fee, taskId: task.id }),
         conversationId: conv.id,
         createdAt: nowIso(),
       });
 
-      const after = folioSummary(targetRes.id);
       return {
-        cancelled: true,
+        cancelled: false,
+        pending_approval: true,
+        approval_id: approval.id,
         confirmation_code: code,
-        status: "cancelled",
+        status: targetRes.status,
         days_before_arrival: quote.days_before_arrival,
         band: quote.band,
         fee_pct: quote.fee_pct,
-        cancellation_fee: fee,
+        expected_cancellation_fee: fee,
         currency: hotel.currency,
         calculation: quote.calculation,
         policy: quote.policy,
-        room_charges_reversed: reversedRoomLines.length,
-        service_bookings_cancelled: cancelledBookings,
-        fee_charge_id: feeCharge?.id ?? null,
-        balance_due_now: after.balance_due,
-        refund_handled_by_staff: true,
         task_id: task.id,
         instruction:
-          "Xác nhận đã hủy và nêu ĐÚNG mức phí hủy cùng cách tính trong kết quả. Nếu balance_due_now âm thì nói lễ tân/kế toán sẽ xử lý hoàn tiền — KHÔNG tự hứa thời gian hoàn tiền.",
+          "Yêu cầu hủy đã được ghi nhận và chuyển lễ tân duyệt — nêu ĐÚNG mức phí hủy dự kiến, nói rõ là ĐANG CHỜ XÁC NHẬN. TUYỆT ĐỐI KHÔNG nói là đã hủy thành công.",
       };
     }
 
@@ -1688,38 +1683,19 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
       const svc = storage.getService(target.serviceId);
       const quote = quoteServiceCancellation(target, new Date(), hotel.currency);
 
-      storage.updateBooking(target.id, { status: "cancelled", cancelledAt: nowIso() });
-
-      /* Reverse the original line, then post the retention fee if the policy
-       * says one is due. The folio must end up net-correct either way. */
-      let reversal: number | null = null;
-      if (target.chargeId) {
-        const r = reverseCharge(target.chargeId, `hủy đặt ${svc?.name ?? "dịch vụ"}`);
-        reversal = r?.reversal.id ?? null;
-      }
-      let feeChargeId: number | null = null;
-      if ((quote.fee ?? 0) > 0) {
-        feeChargeId = postCharge({
-          reservationId: res.id,
-          description: `Phí hủy ${svc?.name ?? "dịch vụ"} — ${quote.band}`,
-          amount: quote.fee,
-          category: "fee",
-          taxable: false,
-          refType: "service_cancellation",
-          refId: target.id,
-        }).id;
-      }
-
+      /* HITL gate: nothing is cancelled or refunded yet — that only happens
+       * once staff approve (see finalizeApproval in ops.ts). The booking
+       * stays exactly as it is until then. */
       const task = storage.createTask({
         hotelId: hotel.id,
         reservationId: res.id,
         roomId: res.roomId,
         conversationId: conv.id,
         dept: svc?.dept ?? "front_desk",
-        title: `Hủy ${svc?.name ?? "dịch vụ"} — ${target.date} ${target.slot}`,
-        detail: `Hủy đặt chỗ #${target.id} của ${guest.name}${room ? ` (phòng ${room.number})` : ""
+        title: `CẦN DUYỆT — Hủy ${svc?.name ?? "dịch vụ"} — ${target.date} ${target.slot}`,
+        detail: `Yêu cầu hủy đặt chỗ #${target.id} của ${guest.name}${room ? ` (phòng ${room.number})` : ""
           }: ${svc?.name ?? "dịch vụ"} ${target.date} ${target.slot} × ${target.partySize}. ${quote.calculation
-          } Cần giải phóng chỗ và thông báo bộ phận.`,
+          } Đang chờ duyệt.`,
         priority: "normal",
         status: "open",
         source: "ai",
@@ -1729,24 +1705,42 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         resolvedAt: null,
       });
 
-      storage.logEvent({
-        type: "service_booking.cancelled",
-        actor: "ai",
-        summary: `Đã hủy đặt chỗ #${target.id} (${svc?.name ?? "dịch vụ"}) — phí ${(quote.fee ?? 0).toLocaleString("vi-VN")
-          } ${hotel.currency}.`,
+      const approval = storage.createApproval({
+        hotelId: hotel.id,
+        reservationId: res.id,
+        guestId: guest.id,
+        conversationId: conv.id,
+        taskId: task.id,
+        kind: "cancel_service_booking",
+        summary: `Hủy ${svc?.name ?? "dịch vụ"} — ${target.date} ${target.slot} — phí ${(quote.fee ?? 0).toLocaleString("vi-VN")} ${hotel.currency}`,
         payload: JSON.stringify({
           bookingId: target.id,
-          reversalChargeId: reversal,
-          feeChargeId,
+          svcName: svc?.name ?? "dịch vụ",
           fee: quote.fee,
-          taskId: task.id,
+          band: quote.band,
         }),
+        amount: quote.fee ?? null,
+        status: "pending",
+        createdAt: nowIso(),
+        resolvedAt: null,
+        resolvedBy: null,
+        rejectionReason: null,
+      });
+
+      storage.logEvent({
+        type: "service_booking.cancel_queued",
+        actor: "ai",
+        summary: `Yêu cầu hủy đặt chỗ #${target.id} (${svc?.name ?? "dịch vụ"}) — chờ duyệt, phí dự kiến ${(quote.fee ?? 0).toLocaleString("vi-VN")
+          } ${hotel.currency}.`,
+        payload: JSON.stringify({ bookingId: target.id, approvalId: approval.id, fee: quote.fee, taskId: task.id }),
         conversationId: conv.id,
         createdAt: nowIso(),
       });
 
       return {
-        cancelled: true,
+        cancelled: false,
+        pending_approval: true,
+        approval_id: approval.id,
         booking_id: target.id,
         service: svc?.name ?? "Service",
         date: target.date,
@@ -1755,18 +1749,15 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         booked_amount: quote.booked_amount,
         hours_before_start: quote.hours_before_start,
         band: quote.band,
-        cancellation_fee: quote.fee,
-        refund: quote.refund,
+        expected_cancellation_fee: quote.fee,
+        expected_refund: quote.refund,
         currency: hotel.currency,
         calculation: quote.calculation,
         policy: quote.policy,
-        reversal_charge_id: reversal,
-        fee_charge_id: feeChargeId,
-        balance_due_now: folioSummary(res.id).balance_due,
         dispatched_to: svc?.dept ?? "front_desk",
         task_id: task.id,
         instruction:
-          "Xác nhận đã hủy, nêu đúng phí hủy và số tiền hoàn trong kết quả này. KHÔNG tự tính lại và KHÔNG hứa mức hoàn khác.",
+          "Yêu cầu hủy đã được ghi nhận và chuyển lễ tân duyệt — nói với khách là ĐANG CHỜ XÁC NHẬN, nêu phí hủy dự kiến, TUYỆT ĐỐI KHÔNG nói là đã hủy thành công.",
       };
     }
 
@@ -1834,33 +1825,17 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
       if (!quote.quoted) return { approved: false, reason: quote.error };
 
       const fee = quote.fee ?? 0;
-      /* Persist the agreed arrival time. The old code wrote checkIn back onto
-       * itself, which recorded nothing at all. */
-      storage.updateReservation(res.id, { checkInTime: want });
 
-      let feeChargeId: number | null = null;
-      if (fee > 0) {
-        feeChargeId = postCharge({
-          reservationId: res.id,
-          description: `Phí nhận phòng sớm (${want})`,
-          amount: fee,
-          category: "fee",
-          taxable: false,
-          refType: "early_checkin",
-          refId: res.id,
-        }).id;
-      }
-
+      /* HITL gate: checkInTime is not written and no fee is posted until
+       * staff approve — same reasoning as request_late_checkout above. */
       const task = storage.createTask({
         hotelId: hotel.id,
         reservationId: res.id,
         roomId: res.roomId,
         conversationId: conv.id,
         dept: "housekeeping",
-        title: `Nhận phòng sớm ${want} — phòng ${room?.number ?? "chưa xếp"}`,
-        detail: `Ưu tiên dọn phòng ${room?.number ?? "chưa xếp"} để khách nhận lúc ${want}. Khách: ${guest.name
-          }${guest.vipTier !== "none" ? ` (hạng ${guest.vipTier})` : ""}. ${fee > 0 ? `Đã thu phí ${fee.toLocaleString("vi-VN")} ${hotel.currency}.` : "Miễn phí theo chính sách/hạng thẻ."
-          }`,
+        title: `CẦN DUYỆT — Nhận phòng sớm ${want} — phòng ${room?.number ?? "chưa xếp"}`,
+        detail: `${guest.name}${guest.vipTier !== "none" ? ` (hạng ${guest.vipTier})` : ""} muốn nhận phòng sớm lúc ${want}. ${fee > 0 ? `Phí dự kiến ${fee.toLocaleString("vi-VN")} ${hotel.currency}.` : "Miễn phí theo chính sách/hạng thẻ."} Đang chờ duyệt.`,
         priority: "high",
         status: "open",
         source: "ai",
@@ -1870,21 +1845,39 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         resolvedAt: null,
       });
 
+      const approval = storage.createApproval({
+        hotelId: hotel.id,
+        reservationId: res.id,
+        guestId: guest.id,
+        conversationId: conv.id,
+        taskId: task.id,
+        kind: "request_early_checkin",
+        summary: `Nhận phòng sớm ${want} — ${res.confirmationCode} — ${fee.toLocaleString("vi-VN")} ${hotel.currency}`,
+        payload: JSON.stringify({ reservationId: res.id, want, fee }),
+        amount: fee,
+        status: "pending",
+        createdAt: nowIso(),
+        resolvedAt: null,
+        resolvedBy: null,
+        rejectionReason: null,
+      });
+
       storage.logEvent({
-        type: "reservation.early_checkin",
+        type: "reservation.early_checkin_queued",
         actor: "ai",
-        summary: `Nhận phòng sớm ${want} cho ${res.confirmationCode}${fee ? ` (phí ${fee} ${hotel.currency})` : " (miễn phí)"
-          }.`,
-        payload: JSON.stringify({ taskId: task.id, fee, feeChargeId, checkInTime: want }),
+        summary: `Yêu cầu nhận phòng sớm cho ${res.confirmationCode} lúc ${want} — chờ duyệt${fee ? ` (phí ${fee} ${hotel.currency})` : " (miễn phí)"}.`,
+        payload: JSON.stringify({ approvalId: approval.id, taskId: task.id, fee }),
         conversationId: conv.id,
         createdAt: nowIso(),
       });
 
       return {
-        approved: true,
+        approved: false,
+        pending_approval: true,
+        approval_id: approval.id,
         requested_arrival_time: want,
         standard_checkin_time: hotel.checkInTime,
-        fee,
+        expected_fee: fee,
         currency: hotel.currency,
         calculation: quote.calculation,
         vip_tier: quote.vip_tier ?? guest.vipTier,
@@ -1892,11 +1885,9 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         complimentary_reason: quote.waiver ?? null,
         policy: quote.policy,
         room_ready_guaranteed: false,
-        fee_charge_id: feeChargeId,
-        pms_updated: true,
         task_id: task.id,
         instruction:
-          "Nêu đúng mức phí (hoặc lý do miễn phí) trong kết quả. Nói rõ buồng phòng sẽ ưu tiên dọn nhưng giờ vào phòng chính xác còn phụ thuộc tình trạng phòng — KHÔNG cam kết chắc chắn phòng sẵn sàng.",
+          "Yêu cầu đã được ghi nhận và chuyển lễ tân duyệt — nêu đúng mức phí dự kiến (hoặc lý do miễn phí), nói rõ ĐANG CHỜ XÁC NHẬN. TUYỆT ĐỐI KHÔNG nói là đã xác nhận/đã áp dụng.",
       };
     }
 
@@ -1954,7 +1945,8 @@ AUTOMATIC GUEST ENTITLEMENTS & BENEFITS (PEARL CLUB)
 ${entitlements.notes.length > 0 ? entitlements.notes.map((n) => '- ${n}').join("\n") : "No specific tier benefits."}
 PRICES: YOU DO NO ARITHMETIC
 The guest's tier gives ${entitlements.fnbDiscountPct}% off F&B, ${entitlements.spaDiscountPct}% off spa and ${entitlements.golfDiscountPct}% off golf, but you must NEVER apply those percentages yourself.
-- Quote ONLY figures a tool returned in this conversation: 'member_price' and 'price_calculation' from list_services, 'charged' from book_service, the totals from get_folio, the fee from a quote_* tool.
+- Quote ONLY figures a tool returned in this conversation: 'member_price' and 'price_calculation' from list_services, 'pending_amount' from book_service/order_room_service, the totals from get_folio, the fee from a quote_* tool.
+- book_service, cancel_service_booking and order_room_service NEVER complete immediately — they queue a request for staff approval (see each tool's 'instruction' field) and return 'pending_approval: true'. NEVER tell the guest something is booked, cancelled, ordered or confirmed based on these three tools alone — always say it is awaiting staff confirmation.
 - If you want to tell the guest their member price for something, call list_services (or the relevant quote tool) and read the number back verbatim.
 - If no tool has returned a figure, say you will check rather than inventing one. A price you worked out in your head is a wrong price, even when the percentage is right.
 - Never multiply a price by a party size, never subtract a discount, never add tax or service charge yourself - get_folio already includes them.

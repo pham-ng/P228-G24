@@ -15,6 +15,7 @@ import {
   ScrollText,
   Scale,
   Settings,
+  ShieldCheck,
   Sun,
   CalendarRange,
 } from "lucide-react";
@@ -23,11 +24,12 @@ import { AureaLogo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useSession } from "@/lib/session";
-import type { ConversationRow, Task } from "@/lib/types";
+import type { ConversationRow, ServiceApproval, Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/staff", label: "Inbox", icon: Inbox, badge: "inbox" as const },
+  { href: "/staff/approvals", label: "Approvals", icon: ShieldCheck, badge: "approvals" as const },
   { href: "/staff/tasks", label: "Tasks", icon: ClipboardList, badge: "tasks" as const },
   { href: "/staff/rooms", label: "Rooms", icon: BedDouble },
   { href: "/staff/reservations", label: "Reservations", icon: CalendarRange },
@@ -48,10 +50,15 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
     refetchInterval: 8000,
   });
   const { data: tasks } = useQuery<Task[]>({ queryKey: ["/api/tasks"], refetchInterval: 8000 });
+  const { data: approvals } = useQuery<ServiceApproval[]>({
+    queryKey: ["/api/approvals"],
+    refetchInterval: 8000,
+  });
 
   const counts = {
     inbox: convs?.filter((c) => c.unreadForStaff === 1).length ?? 0,
     tasks: tasks?.filter((t) => t.status === "open" || t.status === "in_progress").length ?? 0,
+    approvals: approvals?.filter((a) => a.status === "pending").length ?? 0,
   };
 
   return (

@@ -23,6 +23,7 @@ import {
   appSettings,
   roomPackages,
   guestRequests,
+  serviceApprovals,
   guestRegistrations,
   payments,
   invoiceRequests,
@@ -58,6 +59,7 @@ import type {
   InsertRoomPackage,
   ConversationRow,
   GuestRequest,
+  ServiceApproval,
   GuestRegistration,
   Payment,
   InvoiceRequest,
@@ -208,6 +210,14 @@ CREATE TABLE IF NOT EXISTS guest_requests (
 );
 CREATE INDEX IF NOT EXISTS idx_req_res ON guest_requests(reservation_id);
 CREATE INDEX IF NOT EXISTS idx_req_status ON guest_requests(status);
+CREATE TABLE IF NOT EXISTS service_approvals (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER,
+  guest_id INTEGER, conversation_id INTEGER, task_id INTEGER, kind TEXT NOT NULL,
+  summary TEXT NOT NULL, payload TEXT NOT NULL DEFAULT '{}', amount REAL,
+  status TEXT NOT NULL DEFAULT 'pending', created_at TEXT NOT NULL,
+  resolved_at TEXT, resolved_by TEXT, rejection_reason TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_approval_status ON service_approvals(status);
 CREATE TABLE IF NOT EXISTS guest_registrations (
   id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER NOT NULL,
   guest_id INTEGER, full_name TEXT NOT NULL, id_type TEXT NOT NULL, id_number TEXT NOT NULL,
@@ -297,6 +307,12 @@ CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
 
   /* services.images was declared in the schema but missing from the bootstrap DDL. */
   addColumnIfMissing("services", "images", "images TEXT NOT NULL DEFAULT '[]'");
+  /* room_types.images and dining_venues.images have the same gap — found
+   * rebuilding data.db from a clean state, which this codebase evidently
+   * had not done in a while (nothing else exercises the bootstrap DDL path
+   * once a dev DB already exists). */
+  addColumnIfMissing("room_types", "images", "images TEXT NOT NULL DEFAULT '[]'");
+  addColumnIfMissing("dining_venues", "images", "images TEXT NOT NULL DEFAULT '[]'");
   addColumnIfMissing("services", "linked_kb_titles", "linked_kb_titles TEXT NOT NULL DEFAULT '[]'");
   addColumnIfMissing("services", "service_group", "service_group TEXT");
 
@@ -552,6 +568,9 @@ export const storage = {
   /* --- tasks --- */
   listTasks(): Task[] {
     return db.select().from(tasks).orderBy(desc(tasks.id)).all();
+  },
+  getTask(id: number): Task | undefined {
+    return db.select().from(tasks).where(eq(tasks.id, id)).get();
   },
   createTask(v: Omit<Task, "id">): Task {
     return db.insert(tasks).values(v).returning().get();
@@ -822,6 +841,21 @@ export const storage = {
       .where(eq(guestRequests.reservationId, reservationId))
       .orderBy(desc(guestRequests.id))
       .all();
+  },
+
+  /* ---------------- HITL service approvals ---------------- */
+  createApproval(v: Omit<ServiceApproval, "id">): ServiceApproval {
+    return db.insert(serviceApprovals).values(v).returning().get();
+  },
+  getApproval(id: number): ServiceApproval | undefined {
+    return db.select().from(serviceApprovals).where(eq(serviceApprovals.id, id)).get();
+  },
+  updateApproval(id: number, patch: Partial<ServiceApproval>): ServiceApproval {
+    db.update(serviceApprovals).set(patch).where(eq(serviceApprovals.id, id)).run();
+    return db.select().from(serviceApprovals).where(eq(serviceApprovals.id, id)).get()!;
+  },
+  listApprovals(limit = 200): ServiceApproval[] {
+    return db.select().from(serviceApprovals).orderBy(desc(serviceApprovals.id)).limit(limit).all();
   },
 
   /* ---------------- lodging declaration ---------------- */

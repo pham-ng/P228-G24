@@ -9,6 +9,8 @@
     "build": "npx cross-env tsx script/build.ts",
     "start": "npx cross-env NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
+    "test": "node scripts/run-tests.mjs",
+    "test:coverage": "npx c8 node scripts/run-tests.mjs",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
@@ -94,6 +96,7 @@
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",
+    "c8": "^12.0.0",
     "drizzle-kit": "^0.31.8",
     "esbuild": "^0.25.0",
     "postcss": "^8.4.47",

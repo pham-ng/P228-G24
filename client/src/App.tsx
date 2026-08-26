@@ -10,6 +10,7 @@ import GuestPage from "@/pages/guest";
 import LoginPage from "@/pages/login";
 import InboxPage from "@/pages/inbox";
 import TasksPage from "@/pages/tasks";
+import ApprovalsPage from "@/pages/approvals";
 import RoomsPage from "@/pages/rooms";
 import ReservationsPage from "@/pages/reservations";
 import InsightsPage from "@/pages/insights";
@@ -45,6 +46,7 @@ function AppRouter() {
       <Route path="/" component={GuestPage} />
       <Route path="/staff" component={() => <Protected component={InboxPage} />} />
       <Route path="/staff/tasks" component={() => <Protected component={TasksPage} />} />
+      <Route path="/staff/approvals" component={() => <Protected component={ApprovalsPage} />} />
       <Route path="/staff/rooms" component={() => <Protected component={RoomsPage} />} />
       <Route
         path="/staff/reservations"

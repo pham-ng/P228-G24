@@ -765,13 +765,37 @@ export function seedIfEmpty() {
     {
       category: "wayfinding",
       title: "Getting to the resort from Cam Ranh Airport",
-      body: "Cam Ranh International Airport to Cau Da Port takes 45–60 minutes by car. From Cau Da / Vinpearl Harbour you cross to Hon Tre Island either by cable car or by speedboat. The cable car is 2,642.8 m long, takes roughly 8–12 minutes, carries 8 guests per cabin and runs from about 08:00 to 22:00; the last speedboat back to the mainland leaves around 23:15. A complimentary electric buggy runs between the pier, the cable-car station and the resort buildings — call reception. Vinpearl and VinWonders guests also have a free round-trip VinBus. Source: https://vinpearl.com/vi/lich-trinh-di-vinpearl-harbour-nha-trang",
+      /* Deliberately does NOT state an airport-transfer price. The
+       * canonical-facts entry for this exact topic (transport.cam_ranh_
+       * airport, VERIFIED, confidence 0.9) explicitly leaves the price out
+       * on purpose: "Resort transfer price/time is operational — use the
+       * booking tool or ask the front desk." An earlier version of this
+       * edit hardcoded the 750,000 VND figure from the services table here,
+       * which directly contradicted that deliberate editorial decision —
+       * the services-table price carries its own "system default, not yet
+       * confirmed by management" disclaimer (see server/ops.ts
+       * DEFAULTS_NOTE), so publishing it as a settled KB fact would have
+       * been asserting more certainty than the property itself claims. */
+      /* The cable car's hours/duration here used to disagree with the
+       * dedicated canonical fact for this exact topic (transport.
+       * vinpearl_cable_car, confidence 0.95, sourced directly from
+       * vinwonders.com's own cable-car page — this doc cited a more
+       * general "getting to Vinpearl Harbour" schedule page instead): this
+       * one said 08:00-22:00 / 8-12 minutes, the canonical fact says
+       * 08:30-23:00 / about 8 minutes. Same failure class as migrations
+       * 008/010/011 (spa/pool/Bach Giai hours conflicts) — reconciled to
+       * the more specific, higher-confidence, more recently verified
+       * source rather than left disagreeing for the model to pick between. */
+      body: "Cam Ranh International Airport to Cau Da Port takes 45–60 minutes by car. From Cau Da / Vinpearl Harbour you cross to Hon Tre Island either by cable car or by speedboat. The cable car is 2,642.8 m long, takes about 8 minutes, carries 8 guests per cabin and runs from about 08:30 to 23:00 (times can change — confirm with reception); the last speedboat back to the mainland leaves around 23:15. A complimentary (free of charge) electric buggy runs between the pier, the cable-car station and the resort buildings — call reception. Vinpearl and VinWonders guests also have a free round-trip VinBus. Source: https://vinpearl.com/vi/lich-trinh-di-vinpearl-harbour-nha-trang",
       tags: ["airport", "cam ranh", "cable car", "speedboat", "buggy", "transfer", "vinbus"],
     },
     {
       category: "neighborhood",
       title: "Cable car and Vinpearl Harbour ticket prices",
-      body: "The cable car runs from about 08:00 to 22:00 and takes 8–12 minutes each way. A standalone round-trip cable car ticket is 200,000 VND per person; Khanh Hoa residents pay 100,000. The Vinpearl Harbour combo is 200,000 VND, and the all-inclusive combo at 400,000 VND adds the water-music show, the Tata Show and 2 hours at Aquafield Nha Trang. Vinpearl Harbour is open 08:00–24:00, with the Cabaret Show at 16:00–17:00 and the Street Circus at 17:30–18:30. Source: https://vinpearl.com/vi/cap-nhat-gia-ve-cap-treo-vinpearl-nha-trang-moi-nhat",
+      /* Same reconciliation as the airport-transfer doc above — was
+       * 08:00-22:00 / 8-12 minutes, now matches the dedicated, higher-
+       * confidence canonical fact (08:30-23:00, about 8 minutes). */
+      body: "The cable car runs from about 08:30 to 23:00 (times can change — confirm with reception) and takes about 8 minutes each way. A standalone round-trip cable car ticket is 200,000 VND per person; Khanh Hoa residents pay 100,000. The Vinpearl Harbour combo is 200,000 VND, and the all-inclusive combo at 400,000 VND adds the water-music show, the Tata Show and 2 hours at Aquafield Nha Trang. Vinpearl Harbour is open 08:00–24:00, with the Cabaret Show at 16:00–17:00 and the Street Circus at 17:30–18:30. Source: https://vinpearl.com/vi/cap-nhat-gia-ve-cap-treo-vinpearl-nha-trang-moi-nhat",
       tags: ["cable car", "ticket", "price", "hours", "harbour", "combo", "aquafield"],
     },
     {
@@ -1065,8 +1089,24 @@ export function seedIfEmpty() {
       code: "CONDUCT",
       topic: "conduct",
       title: "House rules and fines",
+      /* Live bug: "chất nổ" (explosives) and two other live abstention
+       * instances all trace back here. The fact these guests asked about —
+       * durian, weapons, chemicals, explosives being banned in rooms — only
+       * ever existed in `rules.banned_in_rooms` below, never in this
+       * `summary`. retrieval.ts renders `rules` as raw flattened
+       * "key: value" lines with no sentence punctuation, so chunkText()
+       * (which only splits on ". "/"! "/"? ") has no boundary to split on
+       * and can cut it mid-word — the retrieved chunk for the live
+       * "explosives" question literally started "icals\nbanned in rooms:
+       * explosives..." (a torn "chemicals"). Worse, that ugly fragment
+       * competed against THIS summary for the top retrieval slot and this
+       * summary said nothing about the topic at all, so a small model
+       * reading a torn, punctuation-free fragment abstained even though
+       * the fact was technically present. Naming these bans as an ordinary
+       * sentence, in the field retrieval reads FIRST and prioritizes, fixes
+       * it at the source rather than patching the prompt around it. */
       summary:
-        "No pets. Smoking outside the signed areas costs 3,000,000 VND per stay. Outside food and drink must be declared and carries a 1,175,000 VND service fee. No visitors in the rooms after 20:00, the pool closes by 22:00, no sea swimming after 19:00, and quiet hours start at 22:00.",
+        "No pets. Durian, jackfruit, other strongly scented food, weapons, chemicals and explosives may not be brought into the rooms. Smoking outside the signed areas costs 3,000,000 VND per stay. Outside food and drink must be declared and carries a 1,175,000 VND service fee. No visitors in the rooms after 20:00, the pool closes by 22:00, no sea swimming after 19:00, and quiet hours start at 22:00.",
       rules: {
         pets: "not allowed anywhere on the property",
         smoking_fine: 3_000_000,
