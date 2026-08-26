@@ -3,7 +3,7 @@ const path = require('path');
 const Database = require('better-sqlite3');
 
 const db = new Database('data.db');
-const sourceBase = 'D:\\DATA\\Vin_Resort_NhaTrang\\Các loại phòng';
+const sourceBase = process.env.SOURCE_DATA_DIR || path.join(__dirname, 'client', 'public', 'rooms');
 const targetBase = path.join(__dirname, 'client', 'public', 'rooms');
 
 // Helper to create URL slug from folder name

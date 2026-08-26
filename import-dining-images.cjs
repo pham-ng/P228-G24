@@ -11,7 +11,7 @@ try {
   // Column probably exists
 }
 
-const sourceBase = 'D:\\DATA\\Vin_Resort_NhaTrang\\Ẩm thực\\Các nhà hàng';
+const sourceBase = process.env.SOURCE_DINING_DIR || path.join(__dirname, 'client', 'public', 'dining');
 const targetBase = path.join(__dirname, 'client', 'public', 'dining');
 
 // Folder to ID mapping based on the db query

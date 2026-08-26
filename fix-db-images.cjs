@@ -20,7 +20,7 @@ for (const row of rows) {
        // Wait, I need to read the images again for these folders
        const fs = require('fs');
        const path = require('path');
-       const sourceFolder = path.join('D:\\DATA\\Vin_Resort_NhaTrang\\Các loại phòng', folder);
+       const sourceFolder = process.env.SOURCE_ROOMS_DIR || path.join(__dirname, 'client', 'public', 'rooms', slug);
        if(fs.existsSync(sourceFolder)) {
          const files = fs.readdirSync(sourceFolder).filter(f => f.match(/\.(jpg|jpeg|png|webp|gif)$/i));
          const imageUrls = files.map(file => `/rooms/${slug}/${file}`);

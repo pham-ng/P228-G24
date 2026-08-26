@@ -3,7 +3,7 @@ import * as path from "path";
 import { storage } from "../server/storage.js";
 import { reindex } from "../server/retrieval.js";
 
-const DATA_DIR = "D:\\DATA\\Vin_Wonder";
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "client", "public");
 
 function stripHtml(html: string): string {
   // Very basic HTML stripping:
