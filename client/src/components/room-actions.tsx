@@ -46,7 +46,9 @@ function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void;
   const vi = lang === "vi";
   const [imgIndex, setImgIndex] = useState(0);
   const { data: types, isLoading, isError } = useQuery<RoomTypeDetail[]>({ queryKey: ["/api/room-types"] });
-  const r = types?.find((x) => x.code === code);
+  const r = types?.find(
+    (x) => x.code === code || x.nameVi === code || x.code.toLowerCase() === code.toLowerCase() || x.nameVi?.toLowerCase() === code.toLowerCase()
+  );
   /* Never hang forever on a blank "Loading...": once the request itself has
      resolved, either the room is there or it genuinely is not — found live,
      a published room type with no physical inventory left a guest staring
