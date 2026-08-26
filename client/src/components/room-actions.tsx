@@ -227,26 +227,63 @@ function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void;
 export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lang: string; onSend?: (text: string) => void }) {
   const vi = lang === "vi";
   const [openCode, setOpenCode] = useState<string | null>(null);
+  const { data: types } = useQuery<RoomTypeDetail[]>({ queryKey: ["/api/room-types"] });
+
   if (!rooms.length) return null;
 
   const hasDeluxe = rooms.some((r) => r.name.toLowerCase().includes("deluxe"));
 
   return (
-    <div className="mt-2.5 flex flex-col gap-2">
-      <div className="flex flex-wrap gap-1.5">
-        {rooms.map((r) => (
-          <button
-            key={r.code}
-            type="button"
-            onClick={() => setOpenCode(r.code)}
-            data-testid={`button-view-room-${r.code}`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-all hover:scale-[1.02] shadow-2xs"
-          >
-            <BedDouble className="h-3.5 w-3.5" />
-            {vi ? `Xem ảnh & chi tiết ${r.name}` : `View details for ${r.name}`}
-            <Info className="h-3 w-3 opacity-60" />
-          </button>
-        ))}
+    <div className="mt-3 flex flex-col gap-2.5">
+      {/* Rich Room Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {rooms.map((r) => {
+          const detail = types?.find(
+            (x) => x.code === r.code || x.nameVi === r.name || x.code.toLowerCase() === r.code.toLowerCase() || x.nameVi?.toLowerCase() === r.name.toLowerCase()
+          );
+          const coverImg = detail?.images?.[0];
+
+          return (
+            <div
+              key={r.code}
+              className="group flex flex-col overflow-hidden rounded-xl border border-primary/25 bg-card/90 shadow-xs hover:border-primary/60 transition-all hover:shadow-md"
+            >
+              {coverImg && (
+                <div className="relative h-28 w-full overflow-hidden bg-muted">
+                  <img
+                    src={coverImg}
+                    alt={r.name}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <span className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">
+                    📐 {detail.areaSqm}m² • {detail.oceanView ? (vi ? "Hướng biển" : "Ocean view") : (vi ? "Hướng vườn" : "Garden view")}
+                  </span>
+                </div>
+              )}
+              <div className="p-3 flex flex-col justify-between flex-1 gap-2">
+                <div>
+                  <h4 className="text-xs font-bold text-foreground leading-snug">{r.name}</h4>
+                  {detail?.rate && (
+                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">
+                      {vi ? "Giá niêm yết từ " : "Rates from "}{vnd(detail.rate)}/đêm
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpenCode(r.code)}
+                  data-testid={`button-view-room-${r.code}`}
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 text-xs font-semibold transition-all hover:scale-[1.01]"
+                >
+                  <BedDouble className="h-3.5 w-3.5" />
+                  {vi ? "Xem ảnh & chi tiết đầy đủ" : "View photos & details"}
+                  <Info className="h-3 w-3 opacity-60" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {onSend && (

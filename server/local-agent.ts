@@ -39,7 +39,9 @@
  * against this property's own traffic — see LOCAL_MIN_SCORE.
  */
 
-import { hybridSearch, tokenise, type Retrieved } from "./retrieval";
+import { hybridSearch, tokenise, fold, type Retrieved } from "./retrieval";
+import { storage } from "./storage";
+import type { DocChunk } from "@shared/schema";
 import { chat } from "./llm";
 import { scoreFamilies, type FamilyName } from "./toolrouter";
 
@@ -908,6 +910,64 @@ export type LocalTurn = {
  * in escalation costs no inference at all — which is what keeps the offline path
  * fast on hardware that has to share 4GB of VRAM.
  */
+export function enrichPassagesWithStructuredData(question: string, passages: Retrieved[]): Retrieved[] {
+  const result = [...passages];
+  const qFolded = fold(question);
+
+  // Enrich with Spa / Services items
+  const services = storage.listServices();
+  for (const s of services) {
+    const sNameFolded = fold(s.name);
+    if (
+      qFolded.includes(sNameFolded) ||
+      sNameFolded.includes(qFolded) ||
+      (qFolded.includes("spa") && s.category === "spa")
+    ) {
+      const priceText = s.price > 0 ? `${s.price.toLocaleString("vi-VN")} VNĐ` : "Miễn phí";
+      result.unshift({
+        title: s.name,
+        category: "service",
+        content: `Dịch vụ ${s.name} (danh mục: ${s.category}): Mức giá niêm yết chính thức là ${priceText}. Mô tả: ${s.description || "Dịch vụ đẳng cấp tại Aurea Resort"}.`,
+        relevance: 1.0,
+        source_url: null,
+        matched_by: "bm25",
+        coverage: 1.0,
+        quality: "curated",
+        verified: "verified",
+        content_class: "dynamic",
+      });
+    }
+  }
+
+  // Enrich with Room Types
+  const roomTypes = storage.listRoomTypes();
+  for (const r of roomTypes) {
+    const rNameFolded = fold(r.nameVi);
+    const rCodeFolded = fold(r.code);
+    if (
+      qFolded.includes(rNameFolded) ||
+      qFolded.includes(rCodeFolded) ||
+      (qFolded.includes("deluxe") && rNameFolded.includes("deluxe")) ||
+      (qFolded.includes("villa") && rNameFolded.includes("villa"))
+    ) {
+      result.unshift({
+        title: `${r.nameVi} — phòng`,
+        category: "room_type",
+        content: `Hạng phòng ${r.nameVi} (${r.code}): Diện tích ${r.areaSqm || 42}m², tối đa ${r.maxGuests || 2} khách. Hướng: ${r.oceanView ? "Hướng biển" : "Hướng vườn"}. Mô tả & bảng giá niêm yết: ${r.description || ""}.`,
+        relevance: 1.0,
+        source_url: null,
+        matched_by: "bm25",
+        coverage: 1.0,
+        quality: "curated",
+        verified: "verified",
+        content_class: "dynamic",
+      });
+    }
+  }
+
+  return result;
+}
+
 export async function runLocalTurn(input: {
   question: string;
   isEmergency: boolean;
@@ -956,9 +1016,10 @@ export async function runLocalTurn(input: {
       const found = await search(input.question, { k: LOCAL_PASSAGES });
       const gate = gateRetrieval(found.results, input.minScore ?? LOCAL_MIN_SCORE);
       if (gate.ok) {
+        const enrichedPassages = enrichPassagesWithStructuredData(input.question, gate.passages);
         const answer = await answerFromPassages(
           input.question,
-          gate.passages,
+          enrichedPassages,
           input.lang,
           input.callChat,
           input.basics,
@@ -1036,9 +1097,10 @@ export async function runLocalTurn(input: {
     };
   }
 
+  const enrichedPassages = enrichPassagesWithStructuredData(input.question, gate.passages);
   const answer = await answerFromPassages(
     input.question,
-    gate.passages,
+    enrichedPassages,
     input.lang,
     input.callChat,
     input.basics,

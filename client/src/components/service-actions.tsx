@@ -122,23 +122,54 @@ function ServiceGroupModal({ groupKey, onClose, lang }: { groupKey: string; onCl
 export function ServiceActions({ groups, lang }: { groups: ServiceGroupRef[]; lang: string }) {
   const vi = lang === "vi";
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const { data: serviceDetails } = useQuery<ServiceGroupDetail[]>({ queryKey: ["/api/service-groups"] });
+
   if (!groups.length) return null;
 
   return (
-    <div className="mt-2.5 flex flex-wrap gap-1.5">
-      {groups.map((g) => (
-        <button
-          key={g.key}
-          type="button"
-          onClick={() => setOpenKey(g.key)}
-          data-testid={`button-view-service-${g.key}`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-all hover:scale-[1.02] shadow-2xs"
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          {vi ? `Xem ${g.name}` : `View ${g.name}`}
-          <Info className="h-3 w-3 opacity-60" />
-        </button>
-      ))}
+    <div className="mt-3 flex flex-col gap-2.5">
+      {/* Rich Service Cards */}
+      <div className="grid grid-cols-1 gap-2.5">
+        {groups.map((g) => {
+          const detail = serviceDetails?.find((x) => x.key === g.key || x.name === g.name);
+          const topItems = detail?.items?.slice(0, 4) ?? [];
+
+          return (
+            <div
+              key={g.key}
+              className="flex flex-col overflow-hidden rounded-xl border border-primary/25 bg-card/90 shadow-xs hover:border-primary/60 transition-all p-3.5 gap-2.5"
+            >
+              <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                  <h4 className="text-xs font-bold text-foreground">{g.name}</h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpenKey(g.key)}
+                  data-testid={`button-view-service-${g.key}`}
+                  className="inline-flex items-center gap-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-[11px] font-semibold transition-all"
+                >
+                  {vi ? "Xem tất cả liệu trình & Đặt" : "View all & Book"} ➔
+                </button>
+              </div>
+
+              {/* Treatment Items Preview with Prices */}
+              {topItems.length > 0 && (
+                <div className="space-y-1.5 pt-0.5">
+                  {topItems.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center text-xs py-0.5 border-b border-dashed border-border/30 last:border-none">
+                      <span className="text-foreground/90 font-medium truncate max-w-[220px] sm:max-w-[320px]">{item.name}</span>
+                      <span className="font-bold text-amber-600 dark:text-amber-400 shrink-0">{vnd(item.price)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       {openKey && <ServiceGroupModal groupKey={openKey} lang={lang} onClose={() => setOpenKey(null)} />}
     </div>
   );
