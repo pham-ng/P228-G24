@@ -44,6 +44,7 @@ import { storage } from "./storage";
 import type { DocChunk } from "@shared/schema";
 import { chat } from "./llm";
 import { scoreFamilies, type FamilyName } from "./toolrouter";
+import { checkReply, repairReply } from "./numguard";
 
 /* ------------------------------------------------------------------ config */
 
@@ -791,8 +792,8 @@ export function buildAnswerPrompt(
    * the data does not have. */
   const directnessInstruction =
     lang === "vi"
-      ? " Trả lời thẳng vào trọng tâm ngay câu đầu tiên — đừng lặp lại câu hỏi thay cho câu trả lời. Nếu tài liệu nêu một quy định chung áp dụng đúng cho trường hợp khách hỏi, hãy dùng quy định đó để trả lời dù từ ngữ trong câu hỏi khác với tài liệu — chỉ từ chối khi tài liệu thực sự không nói gì liên quan. Nếu tài liệu liệt kê nhiều mốc giờ, hãy liệt kê đúng và đủ các mốc giờ đó, không gộp hay tự suy ra một mốc giờ khác. Nếu tài liệu cho mức giá niêm yết phòng (VD: số tiền VNĐ/đêm) hoặc phần trăm phí dịch vụ, hãy ghi chính xác số tiền VNĐ hoặc loại giá được nêu, không viết chung chung như 'giá 100%'."
-      : " Answer the actual question directly in your first sentence — never restate the question in place of an answer. If a passage states a general rule that plainly covers the guest's specific case, use it even if the guest's wording differs from the passage's — only decline when the passages truly say nothing relevant. If a passage lists several distinct times, report them exactly as listed — never merge them into a different single time. If passages mention room rates or fees, state the exact amount or fee conditions clearly without vague phrases.";
+      ? " Trả lời thẳng vào trọng tâm ngay câu đầu tiên — đừng lặp lại câu hỏi thay cho câu trả lời. Nếu câu hỏi có nhiều vế hoặc hỏi nhiều thông tin cùng lúc, hãy trả lời đầy đủ từng vế một, không bỏ sót vế nào. Nếu tài liệu nêu một quy định chung áp dụng đúng cho trường hợp khách hỏi, hãy dùng quy định đó để trả lời dù từ ngữ trong câu hỏi khác với tài liệu — chỉ từ chối khi tài liệu thực sự không nói gì liên quan. Nếu tài liệu liệt kê nhiều mốc giờ, hãy liệt kê đúng và đủ các mốc giờ đó, không gộp hay tự suy ra một mốc giờ khác. Nếu tài liệu cho mức giá niêm yết phòng (VD: số tiền VNĐ/đêm) hoặc phần trăm phí dịch vụ, hãy ghi chính xác số tiền VNĐ hoặc loại giá được nêu, không viết chung chung như 'giá 100%'."
+      : " Answer the actual question directly in your first sentence — never restate the question in place of an answer. If the question contains multiple parts or requests several details, answer every part completely without omitting any detail. If a passage states a general rule that plainly covers the guest's specific case, use it even if the guest's wording differs from the passage's — only decline when the passages truly say nothing relevant. If a passage lists several distinct times, report them exactly as listed — never merge them into a different single time. If passages mention room rates or fees, state the exact amount or fee conditions clearly without vague phrases.";
 
   const system =
     lang === "vi"
@@ -1167,6 +1168,24 @@ export async function runLocalTurn(input: {
       retrievalMs,
       timing: answer.timing,
     };
+  }
+
+  if (answer.reply) {
+    const numCheck = checkReply(answer.reply, { toolResults: [], passages: enrichedPassages, guestText: input.question });
+    if (!numCheck.ok) {
+      const repaired = repairReply(answer.reply, numCheck, input.lang === "vi" ? "vi" : "en");
+      return {
+        route,
+        reply: repaired.text,
+        escalate: repaired.escalate,
+        escalateReason: "Phát hiện con số chưa verified trong CSDL — đã tự động sửa & bảo vệ.",
+        passages: gate.passages,
+        topScore: gate.topScore,
+        llmCalls: 1,
+        retrievalMs,
+        timing: answer.timing,
+      };
+    }
   }
 
   return {
