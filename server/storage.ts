@@ -390,13 +390,15 @@ function autoSyncAllMediaImages() {
       for (const s of candidates) {
         const folder = join(process.cwd(), "client/public/rooms", s);
         if (existsSync(folder)) {
-          const files = readdirSync(folder)
-            .filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f) && !f.endsWith(".pdf"))
-            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
-          if (files.length > 0) {
-            images = files.map((f) => `/rooms/${s}/${f}`);
-            break;
-          }
+          try {
+            const files = readdirSync(folder)
+              .filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f) && !f.endsWith(".pdf"))
+              .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+            if (files.length > 0) {
+              images = files.map((f) => `/rooms/${s}/${f}`);
+              break;
+            }
+          } catch {}
         }
       }
 
