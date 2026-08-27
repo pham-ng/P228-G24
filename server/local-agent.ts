@@ -578,6 +578,35 @@ export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
   return "knowledge";
 }
 
+const BARE_AMBIGUOUS_PATTERNS = [
+  /^(bao nhiêu|giá bao nhiêu|mấy giờ|ở đâu|có tốt không|được không|cái đó giá bao nhiêu|cái đó bao nhiêu|and the other one)\??$/i,
+  /^(how much|what time|where is it|can i book|is it good)\??$/i,
+  /^(얼마인가요|몇 시인가요|어디인가요)\??$/i,
+  /^(多少钱|几点|在哪里)\??$/i,
+  /^(いくらですか|何時ですか|どこですか)\??$/i,
+];
+
+export function isBareAmbiguousQuery(question: string): boolean {
+  const q = question.trim().toLowerCase();
+  return BARE_AMBIGUOUS_PATTERNS.some((p) => p.test(q));
+}
+
+export function generateClarificationReply(lang: ReplyLang): string {
+  if (lang === "en") {
+    return "Could you please specify which room type, restaurant, or service you are inquiring about?";
+  }
+  if (lang === "ko") {
+    return "문의하시고자 하는 객실 유형, 레스토랑 또는 서비스 이름을 말씀해 주시겠습니까?";
+  }
+  if (lang === "zh") {
+    return "请问您想咨询哪种房型、餐厅或服务项目？";
+  }
+  if (lang === "ja") {
+    return "お調べするお部屋のタイプ、レストラン、またはサービス名をお教えいただけますか？";
+  }
+  return "Quý khách vui lòng cho biết rõ thông tin về loại phòng, nhà hàng hoặc dịch vụ nào quý khách muốn tìm hiểu ạ?";
+}
+
 /* ------------------------------------------------------------ retrieval gate */
 
 export type GateVerdict = {
@@ -992,6 +1021,17 @@ export async function runLocalTurn(input: {
 }): Promise<LocalTurn> {
   const search = input.search ?? hybridSearch;
   const route = classifyLocal(input.question, input.isEmergency);
+
+  if (isBareAmbiguousQuery(input.question) && !input.history) {
+    return {
+      route: "knowledge",
+      reply: generateClarificationReply(input.lang),
+      escalate: false,
+      passages: [],
+      topScore: 1.0,
+      llmCalls: 0,
+    };
+  }
 
   if (route === "emergency") {
     return {
