@@ -103,5 +103,8 @@ app.use((req, res, next) => {
        kiosk, but it is never silent again. */
     const { reportIndexHealth } = await import("./index-health");
     await reportIndexHealth();
+
+    const { startBackupScheduler } = await import("./backup");
+    startBackupScheduler(24);
   });
 })();

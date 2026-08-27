@@ -1,14 +1,48 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Bell,
   Bot,
   ChevronDown,
   Loader2,
   Send,
   Sparkles,
   UserRound,
+  Volume2,
+  VolumeX,
   Wrench,
 } from "lucide-react";
+
+function playEscalationChime() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(880, now);
+    gain1.gain.setValueAtTime(0.15, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.4);
+
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(1174.66, now + 0.15);
+    gain2.gain.setValueAtTime(0.2, now + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.15);
+    osc2.stop(now + 0.65);
+  } catch {
+    // Autoplay fallback
+  }
+}
+
 import { StaffShell } from "@/components/staff-shell";
 import { MarkdownBody } from "@/components/markdown-body";
 import { Button } from "@/components/ui/button";
@@ -232,14 +266,27 @@ export default function InboxPage() {
   const [showContext, setShowContext] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [prevEscalationCount, setPrevEscalationCount] = useState(0);
+
   const list = useQuery<ConversationRow[]>({
     queryKey: ["/api/conversations"],
-    refetchInterval: 6000,
+    refetchInterval: 4000,
   });
+
+  const humanNeedsCount = (list.data ?? []).filter((c) => c.mode === "human" || c.unreadForStaff === 1).length;
+
+  useEffect(() => {
+    if (humanNeedsCount > prevEscalationCount && soundEnabled) {
+      playEscalationChime();
+    }
+    setPrevEscalationCount(humanNeedsCount);
+  }, [humanNeedsCount, soundEnabled, prevEscalationCount]);
 
   const rows = (list.data ?? []).filter((c) =>
     filter === "all" ? true : filter === "needs_human" ? c.mode === "human" : c.mode === "ai",
   );
+
 
   useEffect(() => {
     if (activeId == null && rows.length) setActiveId(rows[0].id);
@@ -309,10 +356,22 @@ export default function InboxPage() {
   return (
     <StaffShell
       title="Inbox"
-      description="Every guest thread, with the AI's reasoning on the record"
+      description="Live Front Desk & Kiosk Guest Services Operations"
       padded={false}
       actions={
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSoundEnabled((s) => !s);
+              if (!soundEnabled) playEscalationChime();
+            }}
+            title={soundEnabled ? "Mute Escalation Audio Chime" : "Enable Escalation Audio Chime"}
+            className="h-8 px-2"
+          >
+            {soundEnabled ? <Volume2 className="h-3.5 w-3.5 text-primary" /> : <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />}
+          </Button>
           {(["all", "needs_human", "ai"] as const).map((f) => (
             <button
               key={f}
@@ -329,7 +388,32 @@ export default function InboxPage() {
         </div>
       }
     >
-      <div className="flex h-full min-h-0">
+      <div className="flex h-full min-h-0 flex-col">
+        {humanNeedsCount > 0 && (
+          <div className="flex shrink-0 items-center justify-between bg-destructive/15 px-4 py-2 text-xs text-destructive border-b border-destructive/20 animate-pulse">
+            <div className="flex items-center gap-2 font-medium">
+              <Bell className="h-4 w-4 shrink-0 animate-bounce" />
+              <span>
+                <strong>{humanNeedsCount} Kiosk Conversation(s)</strong> require human front desk assistance or takeover!
+              </span>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-7 text-[11px] px-2.5"
+              onClick={() => {
+                setFilter("needs_human");
+                const firstHuman = (list.data ?? []).find((c) => c.mode === "human");
+                if (firstHuman) setActiveId(firstHuman.id);
+              }}
+            >
+              Take Over Urgent Thread
+            </Button>
+          </div>
+        )}
+
+        <div className="flex flex-1 min-h-0">
+
         {/* conversation list */}
         <div className="w-full shrink-0 overflow-y-auto border-r border-border sm:w-72 lg:w-80">
           {list.isLoading && (
@@ -543,6 +627,7 @@ export default function InboxPage() {
             <ContextPanel detail={conv} />
           </aside>
         )}
+        </div>
       </div>
     </StaffShell>
   );

@@ -316,7 +316,7 @@ function isDerivable(target: number, base: Set<string>): boolean {
 /** Check a drafted reply against the evidence gathered during the same turn. */
 export function checkReply(
   reply: string,
-  evidence: { toolResults: unknown[]; guestText?: string },
+  evidence: { toolResults: unknown[]; guestText?: string; passages?: unknown[] },
 ): GuardVerdict {
   const g = buildGrounding(evidence);
   const claims = extractClaims(reply);

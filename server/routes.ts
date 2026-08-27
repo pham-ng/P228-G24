@@ -1529,6 +1529,35 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
     }),
   );
 
+  /* ---------------- Prometheus Monitoring & Backup Endpoints ---------------- */
+
+  const serveMetrics = (_req: any, res: any) => {
+    const { generatePrometheusMetrics } = require("./metrics");
+    res.setHeader("Content-Type", "text/plain; version=0.0.4");
+    res.send(generatePrometheusMetrics());
+  };
+
+  app.get("/metrics", serveMetrics);
+  app.get("/api/metrics", serveMetrics);
+
+  app.get(
+    "/api/admin/backups",
+    asyncH(async (_req, res) => {
+      const { listBackups } = require("./backup");
+      res.json(listBackups());
+    }),
+  );
+
+  app.post(
+    "/api/admin/backups/run",
+    asyncH(async (_req, res) => {
+      const { performDatabaseBackup } = require("./backup");
+      const metadata = await performDatabaseBackup();
+      res.json({ ok: true, backup: metadata });
+    }),
+  );
+
+
   /* ------------------------------------------------------------------ *
    * Payments
    *
