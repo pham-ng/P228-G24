@@ -12,10 +12,14 @@
  * margin, direction, and the fact that a calm fault report is not a complaint.
  */
 import "dotenv/config";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   classifyVector,
+  classifyLinear,
   SENTIMENT_PROTOTYPES,
   SENTIMENT_MARGIN,
+  SENTIMENT_BACKEND,
   type GuestSentiment,
 } from "../server/sentiment-net";
 
@@ -76,6 +80,48 @@ console.log("\n=== prototypes stay in one language on purpose ===");
    that property stops being tested and the list grows per language again. */
 const nonVi = SENTIMENT_PROTOTYPES.filter((p) => /[가-힣ぁ-ヿ一-鿿Ѐ-ӿ]/.test(p.text));
 ok(nonVi.length === 0, "no CJK/Cyrillic prototypes — cross-language coverage comes from the embedder");
+
+console.log("\n=== the trained linear head ===");
+/* The head is the shipped classifier (F1 91.8 held out, against F1 ~15 for the
+   prototypes). These assertions are about the CONTRACT, not the accuracy — the
+   accuracy is measured by `bench/sentiment-probe-eval.ts` against labelled data,
+   which is the only place it can honestly be measured. What must not drift is
+   that the weights match the encoder's width, that the operating point is a
+   real probability, and that a mismatched vector is refused rather than scored
+   against garbage. */
+ok(SENTIMENT_BACKEND === "linear", `the trained head is the default backend (got "${SENTIMENT_BACKEND}")`);
+
+const headPath = join(process.cwd(), "server", "data", "sentiment-head.json");
+ok(existsSync(headPath), "server/data/sentiment-head.json ships with the project");
+
+if (existsSync(headPath)) {
+  const h = JSON.parse(readFileSync(headPath, "utf8"));
+  ok(h.dim === 1024, `head width matches bge-m3 (${h.dim})`);
+  ok(h.weights.length === h.dim, "weight count matches the declared width");
+  ok(h.threshold > 0 && h.threshold < 1, `operating point is a probability (${h.threshold})`);
+  ok(h.trainedOn >= 400, `trained on a real labelled set (${h.trainedOn} messages)`);
+
+  /* A vector of the wrong width must return null, not a score. Retrieval's
+     embedder is configurable, and silently scoring a 768-d vector against
+     1024-d weights would produce confident nonsense on every guest turn. */
+  ok(classifyLinear([1, 2, 3], h, h.threshold) === null, "a wrong-width vector is refused, not scored");
+  ok(classifyLinear([], h, h.threshold) === null, "an empty vector is refused");
+
+  /* Direction: the weight vector itself is the most negative input possible, and
+     its negation the most neutral. If these ever swap, every complaint routes as
+     calm and the feature fails silently. */
+  const most = classifyLinear(h.weights, h, h.threshold);
+  const least = classifyLinear(h.weights.map((x: number) => -x), h, h.threshold);
+  ok(most?.label === "negative", "the weight direction reads as a complaint");
+  ok(least?.label === "neutral", "the opposite direction reads as calm");
+  ok(!!most && !!least && most.score > least.score, "and the scores are ordered the right way round");
+
+  /* Scale-invariance: the head normalises internally, so an unnormalised vector
+     from the embedder must score identically to a normalised one. */
+  const a = classifyLinear(h.weights, h, h.threshold)!;
+  const b = classifyLinear(h.weights.map((x: number) => x * 7.3), h, h.threshold)!;
+  ok(Math.abs(a.score - b.score) < 1e-9, "scoring is invariant to vector magnitude");
+}
 
 console.log(failures === 0 ? "\nALL SENTIMENT NET TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

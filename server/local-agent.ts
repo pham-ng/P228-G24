@@ -39,6 +39,7 @@
  * against this property's own traffic — see LOCAL_MIN_SCORE.
  */
 
+import { neutraliseUntrusted } from "./untrusted";
 import { hybridSearch, tokenise, fold, hasVietnameseDiacritics, type Retrieved } from "./retrieval";
 import { storage } from "./storage";
 import type { DocChunk } from "@shared/schema";
@@ -1128,7 +1129,17 @@ export function buildAnswerPrompt(
     rateBlock +
     noteBlock +
     passages
-      .map((p, i) => `[${i + 1}] ${p.title}\n${selectRelevantWindow(p.content.replace(/\s+/g, " "), PASSAGE_CHAR_CAP, question)}`)
+      .map((p, i) => {
+        /* Retrieved text is data, not instruction. The knowledge base is
+           editable from the staff UI and its content lands in the most
+           authoritative-looking slot in the prompt, so instruction-shaped
+           sentences are removed BEFORE the window is chosen — otherwise the
+           relevance window could select the injected sentence and nothing
+           else. See server/untrusted.ts for why this is deterministic rather
+           than a line in the prompt. */
+        const safe = neutraliseUntrusted(p.content.replace(/\s+/g, " "), `passage "${p.title}"`).text;
+        return `[${i + 1}] ${p.title}\n${selectRelevantWindow(safe, PASSAGE_CHAR_CAP, question)}`;
+      })
       .join("\n\n");
 
   /* The reply must be in the language the GUEST wrote, which is not always one

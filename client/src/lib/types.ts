@@ -9,7 +9,22 @@ export type Hotel = {
   brandVoice: string;
   slaMinutes: number;
   aiEnabled: number;
+  /** VietQR beneficiary; all three null until an operator fills them in. */
+  bankBin: string | null;
+  bankAccountNumber: string | null;
+  bankAccountName: string | null;
 };
+
+export type Capability =
+  | "guest_data"
+  | "all_conversations"
+  | "converse"
+  | "all_tasks"
+  | "approvals"
+  | "insights"
+  | "rooms"
+  | "edit_content"
+  | "configure";
 
 export type Staff = {
   id: number;
@@ -17,6 +32,9 @@ export type Staff = {
   role: string;
   dept: string;
   avatarInitials: string;
+  /** Sent by /api/staff/login. Used only to hide what the server would refuse
+   *  anyway — the enforcing check is server-side (server/rbac.ts). */
+  capabilities?: Capability[];
 };
 
 export type ToolTrace = { name: string; args: Record<string, unknown>; result: unknown; ms: number };
@@ -266,6 +284,8 @@ export type ServiceRow = {
 export type Insights = {
   kpis: {
     conversations: number;
+    /** Threads a guest actually wrote in — the denominator for deflection. */
+    conversationsEngaged: number;
     aiDeflectionRate: number;
     avgFirstResponseSeconds: number;
     aiFirstResponseSeconds: number;
@@ -280,9 +300,13 @@ export type Insights = {
     departuresToday: number;
     ancillaryRevenue: number;
     slaMinutes: number;
+    /** Grading line for created-to-resolved. `slaMinutes` is time-to-acknowledge;
+     *  nothing records acknowledgement, so that one is displayed, not graded. */
+    resolutionTargetMinutes: number;
   };
   series: {
     date: string;
+    /** Threads ACTIVE that day (had messages), not threads created that day. */
     conversations: number;
     tasks: number;
     aiHandled: number;
@@ -290,7 +314,34 @@ export type Insights = {
   }[];
   byDept: { dept: string; total: number; open: number; avgMinutes: number; slaBreaches: number }[];
   topics: { topic: string; count: number }[];
+  /** How many topic labels came from threads a guest actually wrote in. */
+  topicsRealTotal: number;
+  topicsTotal: number;
+  staffLoadAssigned: number;
+  staffLoadAssignedReal: number;
+  tasksUnassigned: number;
   sentiment: { sentiment: string; count: number }[];
+  /* Only conversations the model actually labelled — `sentiment` above still
+     counts the seeded fixtures, whose mood was assigned by rand() in seed.ts. */
+  sentimentClassified: { sentiment: string; count: number }[];
+  sentimentClassifiedTotal: number;
+  sentimentSeededTotal: number;
+  /* Named guests behind the negative slice, newest first. Seeded conversations
+     are excluded — they have no transcript to have been unhappy in. */
+  unhappyGuests: {
+    conversationId: number;
+    guestName: string;
+    lang: string | null;
+    vipTier: string | null;
+    room: string | null;
+    message: string;
+    at: string;
+    /** model_realtime | model_llm | thumbs_down | unknown */
+    source: string;
+    mode: string;
+    taskId: number | null;
+    taskStatus: string | null;
+  }[];
   staffLoad: { name: string; dept: string; open: number; done: number }[];
 };
 

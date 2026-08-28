@@ -1313,6 +1313,8 @@ export function seedIfEmpty() {
         mode: "ai",
         assignedStaffId: null,
         sentiment: "neutral",
+        sentimentSource: null,
+        sentimentAt: null,
         topic: null,
         unreadForStaff: 0,
         lastMessageAt: iso(600),
@@ -1402,6 +1404,10 @@ export function seedIfEmpty() {
           mode: "closed",
           assignedStaffId: handledByHuman ? 1 + Math.floor(rand() * 6) : null,
           sentiment: rand() > 0.88 ? "negative" : rand() > 0.5 ? "positive" : "neutral",
+          /* Marked as a fixture so the insights dashboard never counts these
+             as classifier output — they are dice rolls, not guest mood. */
+          sentimentSource: "seed",
+          sentimentAt: null,
           topic: ["cable car", "dining", "housekeeping", "billing", "vinwonders", "maintenance"][
             Math.floor(rand() * 6)
           ],

@@ -16,12 +16,18 @@ export default function SettingsPage() {
   const [brandVoice, setBrandVoice] = useState("");
   const [sla, setSla] = useState(10);
   const [aiEnabled, setAiEnabled] = useState(true);
+  const [bankBin, setBankBin] = useState("");
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankAccountName, setBankAccountName] = useState("");
 
   useEffect(() => {
     if (hotel) {
       setBrandVoice(hotel.brandVoice);
       setSla(hotel.slaMinutes);
       setAiEnabled(hotel.aiEnabled === 1);
+      setBankBin(hotel.bankBin ?? "");
+      setBankAccountNumber(hotel.bankAccountNumber ?? "");
+      setBankAccountName(hotel.bankAccountName ?? "");
     }
   }, [hotel]);
 
@@ -31,6 +37,9 @@ export default function SettingsPage() {
         brandVoice,
         slaMinutes: sla,
         aiEnabled: aiEnabled ? 1 : 0,
+        bankBin: bankBin.trim(),
+        bankAccountNumber: bankAccountNumber.trim(),
+        bankAccountName: bankAccountName.trim(),
       });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/hotel"] }),
@@ -85,6 +94,53 @@ export default function SettingsPage() {
               />
             </div>
           </div>
+          {/* VietQR beneficiary. All three are required together — the server
+              only builds a QR when every one is present, because a code made
+              from a half-filled account scans perfectly and sends the guest's
+              money nowhere. */}
+          <div className="space-y-3 rounded-md border border-border p-3">
+            <div>
+              <div className="text-sm font-medium">Tài khoản nhận chuyển khoản (VietQR)</div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">
+                Điền đủ cả ba thì trang thanh toán mới hiện mã QR. Bỏ trống để tắt.
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label>Mã BIN ngân hàng</Label>
+                <Input
+                  value={bankBin}
+                  onChange={(e) => setBankBin(e.target.value)}
+                  placeholder="970436"
+                  data-testid="input-bank-bin"
+                />
+                <p className="text-[11px] text-muted-foreground">6 chữ số, không phải mã SWIFT.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Số tài khoản</Label>
+                <Input
+                  value={bankAccountNumber}
+                  onChange={(e) => setBankAccountNumber(e.target.value)}
+                  placeholder="1021234567"
+                  data-testid="input-bank-account"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Tên chủ tài khoản</Label>
+                <Input
+                  value={bankAccountName}
+                  onChange={(e) => setBankAccountName(e.target.value)}
+                  placeholder="CONG TY CP VINPEARL"
+                  data-testid="input-bank-name"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Quét thử bằng một ứng dụng ngân hàng thật trước khi dùng với khách — mã sai sẽ không
+              quét được và không báo lỗi gì.
+            </p>
+          </div>
+
           <Button onClick={() => save.mutate()} disabled={save.isPending} data-testid="button-save-settings">
             {save.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save

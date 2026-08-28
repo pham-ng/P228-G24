@@ -13,10 +13,16 @@
  * Patterns cover the six languages the property actually serves.
  */
 
+import { guardEnabled } from "./guard-config";
+
 export type GuardFlag =
   | "medical_emergency"
   | "safety_threat"
   | "prohibited_substance"
+  /** A request for a person to be sent to a room. Refused, not escalated. */
+  | "adult_service_request"
+  /** A firearm or explosive. Refused AND escalated — security has to know. */
+  | "weapon_request"
   | "prompt_injection"
   | "authority_claim"
   | "third_party_disclosure"
@@ -35,8 +41,64 @@ export type GuardResult = {
   emergencyKind: "medical" | "safety" | null;
 };
 
+/**
+ * Illegal drugs, in every language the kiosk serves.
+ *
+ * This was one Vietnamese-and-English line, and the concierge takes orders for
+ * things to be brought to a room — so measured on `bench/prohibited-probe.ts`
+ * it caught 2 of 21 illegal requests. A Korean, Japanese, Chinese or Russian
+ * guest asking for cannabis reached the model with no screening at all.
+ */
 const PROHIBITED = [
-  /ma t(ú|u)y|ch(ấ|a)t c(ấ|a)m|thu(ố|o)c phi(ệ|e)n|c(ầ|a)n sa|b(ó|o)ng c(ườ|uo)i|heroin|cocaine|meth|ecstasy|illegal drugs|narcotics/i,
+  /ma t(ú|u)y|ch(ấ|a)t c(ấ|a)m|thu(ố|o)c phi(ệ|e)n|c(ầ|a)n sa|b(ó|o)ng c(ườ|uo)i|heroin|cocaine|meth|ecstasy|illegal drugs|narcotics|weed\b|marijuana|cannabis/i,
+  /마약|대마초?|코카인|필로폰|헤로인|엑스터시/i,
+  /麻薬|大麻|コカイン|覚醒剤|ヘロイン|違法薬物/i,
+  /毒品|大麻|可卡因|冰毒|海洛因|摇头丸/i,
+  /наркотик|марихуан|канабис|кокаин|героин|экстази/i,
+];
+
+/**
+ * Asking for a person to be sent to a room.
+ *
+ * A concierge that takes this order is a criminal liability for the hotel, not
+ * merely an embarrassment. Kept separate from drugs because the right reply is
+ * different: a flat, unembarrassed refusal, with no moralising and no
+ * escalation — the guest asked and was told no, which is the end of it.
+ *
+ * THE HARD PART IS NOT CATCHING IT, IT IS NOT CATCHING THE HOTEL'S OWN
+ * BUSINESS. The resort sells massage, and "gái" appears in "con gái tôi" (my
+ * daughter). So plain `massage` and bare `gái` are deliberately absent: the
+ * patterns need the euphemism itself, or a person paired with being sent to a
+ * room.
+ */
+const ADULT_SERVICES = [
+  /g(á|a)i g(ọ|o)i|g(ọ|o)i g(á|a)i|(em|b(é|e)) (g(á|a)i|(ú|u)t) (l(ê|e)n|v(ề|e)|t(ớ|to)i) ph(ò|o)ng|m(á|a)t ?xa k(í|i)ch d(ụ|u)c|massage k(í|i)ch d(ụ|u)c|tay v(ị|i)n|c(à|a) ?ph(ê|e) (ô|o)m|(gá|ga)i m(ạ|a)i d(â|a)m|m(ạ|a)i d(â|a)m/i,
+  /escort|call ?girl|prostitut|sex worker|happy ending|erotic massage|sensual massage|company for the night/i,
+  /콜걸|성매매|출장 ?안마|여자.{0,6}(보내|불러)/i,
+  /デリヘル|風俗|援助交際|女.{0,4}(呼んで|派遣)/i,
+  /小姐.{0,4}(到|来)|叫鸡|特殊服务|上门服务|性服务/i,
+  /эскорт|проститут|девушк\w*.{0,12}(номер|в номер)|интим услуг/i,
+];
+
+/**
+ * Weapons.
+ *
+ * Unlike the two above, this ESCALATES. A guest asking to bring a firearm into
+ * a room is a security matter a person has to know about — refusing politely
+ * and moving on would leave the duty manager unaware. In Vietnam civilian
+ * firearms are effectively banned, so there is no legitimate reading a chatbot
+ * should be resolving on its own.
+ *
+ * Generic `knife` is absent on purpose: every restaurant has them and "an extra
+ * steak knife" is a normal request. Only a weapon named as a weapon matches.
+ */
+const WEAPONS = [
+  /s(ú|u)ng(?! n(ư|u)(ớ|o)c)|v(ũ|u) kh(í|i)|dao g(ă|a)m|l(ự|u)u đ(ạ|a)n|ch(ấ|a)t n(ổ|o)|thu(ố|o)c n(ổ|o)|đ(ạ|a)n d(ư|u)(ợ|o)c/i,
+  /\b(gun|handgun|pistol|firearm|rifle|shotgun|weapon|ammunition|explosive|grenade)s?\b/i,
+  /총기?|무기|폭발물|권총|실탄/i,
+  /銃|拳銃|武器|爆発物|弾薬/i,
+  /枪支?|武器|爆炸物|手枪|弹药/i,
+  /оружи|пистолет|огнестрел|взрывчат|боеприпас/i,
 ];
 
 const BILLING_DISPUTE = [
@@ -100,8 +162,45 @@ const INJECTION = [
   /developer mode|jailbreak|dan mode/i,
   /bỏ qua (mọi|các|những)? ?(hướng dẫn|chỉ dẫn|quy tắc|lệnh) (trước|trên)/i,
   /(cho|nói) tôi (xem )?(system prompt|prompt hệ thống|chỉ dẫn hệ thống)/i,
+  /* The unaccented spellings, because folding the TEXT is not enough when the
+     PATTERN still carries diacritics — the folded view produced
+     "bo qua moi huong dan truoc" and this list had nothing to match it with.
+     Around a quarter of Vietnamese guests type without diacritics, and an
+     attacker gets there by simply not pressing the accent key. */
+  /bo qua (moi|cac|nhung)? ?(huong dan|chi dan|quy tac|lenh) (truoc|tren)/i,
+  /(cho|noi) toi (xem )?(system prompt|prompt he thong|chi dan he thong)/i,
   /(apply|give) (a )?(100%|full|admin) (discount|refund)/i,
   /admin (discount|code|password|access)/i,
+];
+
+/**
+ * Instruction-shaped text found inside a DOCUMENT, not typed by a guest.
+ *
+ * Deliberately narrower than `INJECTION` above, and the reason is false
+ * positives with real consequences. A hotel's own policy documents are full of
+ * legitimate imperatives — "nhân viên phải thông báo cho khách", "do not quote
+ * group rates" — which are instructions to STAFF, and neutralising those would
+ * delete information the agent needs to answer correctly. Losing a true fact is
+ * this product's worst failure mode, so the bar here is higher than for a chat
+ * message: only text that tries to redirect THE MODEL is matched.
+ *
+ * What that leaves out on purpose: bare "always say", "do not mention", and
+ * anything phrased about staff rather than about the assistant.
+ */
+export const INSTRUCTION_SHAPED = [
+  /ignore (all |any |the )?(previous|prior|above) (instructions|prompts|rules)/i,
+  /disregard (all |any |the |your )?(previous |prior |above )?(instructions|rules|system prompt)/i,
+  /(system|developer) (prompt|instructions?)\b.{0,30}\b(is|are|:)/i,
+  /(you are|you're) (now|actually) (an? )?\w+/i,
+  /from now on,? you (are|will|must)/i,
+  /(as|when) (an? )?(ai|assistant|chatbot|model),? you (must|should|will|are to)\b/i,
+  /(tell|inform|answer) the (guest|customer|user) that .{0,60}(free|no charge|0 ?(vnd|đ)|miễn phí)/i,
+  /reveal (your|the) (system )?(prompt|instructions|rules)/i,
+  /developer mode|jailbreak|dan mode/i,
+  /bỏ qua (mọi|các|những)? ?(hướng dẫn|chỉ dẫn|quy tắc) (trước|trên)/i,
+  /bo qua (moi|cac|nhung)? ?(huong dan|chi dan|quy tac) (truoc|tren)/i,
+  /(bạn|mày) (bây giờ|từ giờ) (là|sẽ là)/i,
+  /(nói|trả lời) (với )?khách (là|rằng) .{0,60}(miễn phí|không mất phí|free)/i,
 ];
 
 const AUTHORITY = [
@@ -160,6 +259,7 @@ function luhn(digits: string): boolean {
 
 /** Replace anything that Luhn-validates as a card number. */
 export function redactCards(text: string): { text: string; found: boolean } {
+  if (!guardEnabled("card_redaction")) return { text, found: false };
   let found = false;
   const out = text.replace(/\b(?:\d[ -]?){12,18}\d\b/g, (m) => {
     const digits = m.replace(/\D/g, "");
@@ -170,29 +270,130 @@ export function redactCards(text: string): { text: string; found: boolean } {
   return { text: out, found };
 }
 
-const any = (list: RegExp[], s: string) => list.some((re) => re.test(s));
+/**
+ * Invisible and format characters, removed before anything is matched OR shown.
+ *
+ * Zero-width spaces, joiners, bidi overrides and the soft hyphen render as
+ * nothing, so `ig<ZWSP>nore all previous instructions` looks identical to a
+ * human and matches no pattern at all. Measured on the shipped guard
+ * (`bench/injection-bypass-probe.ts`): seven of ten injection attempts walked
+ * past, including every zero-width and fullwidth variant.
+ *
+ * These are stripped from the text that reaches the MODEL too, not only from
+ * the matching views — invisible characters in a prompt are a smuggling channel
+ * whether or not this guard is the thing that would have caught them.
+ */
+const INVISIBLE = /[­​-‏‪-‮⁠-⁤⁪-⁯﻿]/g;
+
+/** Separators inserted BETWEEN letters to break a word up: `i.g.n.o.r.e`. */
+const INTERLETTER = /(?<=\p{L})[.\-_*·•~]+(?=\p{L})/gu;
+
+/**
+ * Diacritic folding, deliberately duplicated rather than imported.
+ *
+ * `fold` exists in `retrieval.ts` and in `catalogue.ts`, but importing either
+ * would give this file a dependency on the search index or on storage — and
+ * this is the layer that has to screen an emergency message even when those are
+ * broken or still warming up. Twelve lines of string handling is a cheaper
+ * price than a security check that can fail because a database is not ready.
+ *
+ * The `normalize("NFC")` at the end is not decoration: NFD decomposes Hangul
+ * into jamo, which the combining-mark strip does not remove, so without it
+ * every Korean pattern silently stops matching against folded text.
+ */
+function fold(s: string): string {
+  return (s || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .normalize("NFC")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+}
+
+/**
+ * Strip what a human cannot see, then fold compatibility codepoints.
+ *
+ * NFKC is the important half: it maps fullwidth `ｉｇｎｏｒｅ`, mathematical
+ * alphanumerics and halfwidth katakana onto their ordinary forms, so an
+ * attacker cannot dodge an ASCII pattern by picking a different codepoint that
+ * renders the same. It is applied only to the MATCHING views — see
+ * `screenGuestMessage` — because it also rewrites characters a guest may have
+ * typed deliberately, and the transcript should keep what they wrote.
+ */
+export function canonicalizeForSecurity(text: string): string {
+  return (text ?? "").replace(INVISIBLE, "").normalize("NFKC");
+}
+
+/** Remove invisibles without touching anything a guest can actually see. */
+export function stripInvisible(text: string): string {
+  return (text ?? "").replace(INVISIBLE, "");
+}
+
+/**
+ * Every spelling of the message a pattern should be tested against.
+ *
+ * One view is not enough because the evasions are independent: NFKC beats
+ * fullwidth, diacritic folding beats `bo qua moi huong dan` (a quarter of
+ * Vietnamese guests type that way), and collapsing inter-letter punctuation
+ * beats `i.g.n.o.r.e`. Matching is OR across the views, which can only ever
+ * make the guard fire more — so the false-positive cases in the probe and in
+ * `test/guard-canonicalisation.test.ts` are what bound it.
+ */
+function securityViews(text: string): string[] {
+  const canon = canonicalizeForSecurity(text);
+  const views = new Set<string>([canon, canon.replace(INTERLETTER, "")]);
+  for (const v of [...views]) views.add(fold(v));
+  return [...views];
+}
+
+const any = (list: RegExp[], s: string | string[]) => {
+  const views = Array.isArray(s) ? s : [s];
+  return list.some((re) => views.some((v) => re.test(v)));
+};
 
 export function screenGuestMessage(raw: string): GuardResult {
-  const { text, found } = redactCards(raw ?? "");
+  /* Invisibles go before the card check too: a card number with zero-width
+     characters between the digits would otherwise survive Luhn and land in the
+     transcript. */
+  const { text, found } = redactCards(stripInvisible(raw ?? ""));
+  const views = securityViews(text);
   const flags: GuardFlag[] = [];
   const notes: string[] = [];
 
-  const medical = any(MEDICAL, text);
-  const safety = any(SAFETY, text);
-  const prohibited = any(PROHIBITED, text);
+  const medical = any(MEDICAL, views);
+  const safety = any(SAFETY, views);
+  const prohibited = any(PROHIBITED, views);
+  const adultService = any(ADULT_SERVICES, views);
+  const weapon = any(WEAPONS, views);
   if (medical) flags.push("medical_emergency");
   if (safety) flags.push("safety_threat");
   if (prohibited) flags.push("prohibited_substance");
-  if (any(INJECTION, text)) flags.push("prompt_injection");
-  if (any(AUTHORITY, text)) flags.push("authority_claim");
-  if (any(THIRD_PARTY, text)) flags.push("third_party_disclosure");
+  if (adultService) flags.push("adult_service_request");
+  if (weapon) flags.push("weapon_request");
+  /* Switchable layers. The emergency checks above are NOT — see guard-config.ts. */
+  if (guardEnabled("injection") && any(INJECTION, views)) flags.push("prompt_injection");
+  if (any(AUTHORITY, views)) flags.push("authority_claim");
+  if (guardEnabled("third_party_pii") && any(THIRD_PARTY, views)) flags.push("third_party_disclosure");
   if (found) flags.push("card_number");
-  if (any(HUMAN, text)) flags.push("human_requested");
-  if (any(BILLING_DISPUTE, text)) flags.push("billing_dispute");
+  if (any(HUMAN, views)) flags.push("human_requested");
+  if (any(BILLING_DISPUTE, views)) flags.push("billing_dispute");
 
   if (prohibited)
     notes.push(
       "SCREENING: the guest is asking about illegal drugs or prohibited items. State clearly and politely that the resort strictly prohibits illegal substances under resort policy and applicable laws.",
+    );
+  /* Flat and unembarrassed. A moralising reply is its own kind of failure — the
+     guest asked, the answer is no, and the hotel still wants their business
+     tomorrow. Nothing is escalated: there is no incident, only a refusal. */
+  if (adultService)
+    notes.push(
+      "SCREENING: the guest is asking for sexual services or for a person to be sent to their room. Refuse in ONE short, matter-of-fact sentence: the resort does not provide or arrange this. Do NOT lecture, moralise, express shock, or repeat what they asked for. Do not offer the spa as an alternative — that reads as a euphemism. Then offer help with something else in the same message.",
+    );
+  /* Escalates, unlike the two above. A firearm in a guest room is something the
+     duty manager has to hear about from the system, not from the guest. */
+  if (weapon)
+    notes.push(
+      "SCREENING: the guest has mentioned a firearm, explosive or other weapon. State that the resort does not permit weapons on the property under any circumstances, and that a duty manager will contact them. Do not ask what kind, do not discuss storage arrangements, and do not speculate about permits. This has already been escalated to a human.",
     );
   if (medical)
     notes.push(
@@ -245,7 +446,15 @@ export function screenGuestMessage(raw: string): GuardResult {
      * priority rather than urgent — see the emergencyKind split in agent.ts.
      */
     forceEscalation:
-      medical || safety || flags.includes("billing_dispute") || flags.includes("third_party_disclosure"),
+      medical ||
+      safety ||
+      /* A weapon on the property is a security matter, so a person is told even
+         though the guest is also being refused. Drugs and sexual services are
+         NOT here: those are refusals, and opening a task for every one of them
+         would fill the board with incidents nobody can act on. */
+      weapon ||
+      flags.includes("billing_dispute") ||
+      flags.includes("third_party_disclosure"),
     emergencyKind: medical ? "medical" : safety ? "safety" : null,
   };
 }

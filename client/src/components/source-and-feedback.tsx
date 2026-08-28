@@ -66,11 +66,16 @@ export function SourceAndFeedback({
   conversationId,
   toolTrace,
   lang,
+  code,
 }: {
   messageId: number;
   conversationId: number;
   toolTrace: string | null;
   lang: string;
+  /** The guest's confirmation code. Sent with the feedback so the server can
+   *  verify this guest owns this conversation — without it the request is
+   *  refused as unauthenticated, which is what silently broke this button. */
+  code?: string | null;
 }) {
   const vi = lang === "vi";
   const queryClient = useQueryClient();
@@ -84,6 +89,7 @@ export function SourceAndFeedback({
   const submitFeedback = useMutation({
     mutationFn: async ({ rating, escalate, comment }: { rating: number; escalate?: boolean; comment?: string }) => {
       return apiRequest("POST", `/api/conversations/${conversationId}/feedback`, {
+        code,
         messageId,
         rating,
         escalate,

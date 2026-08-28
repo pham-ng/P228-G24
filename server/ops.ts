@@ -622,6 +622,16 @@ export function finalizeApproval(
     if (approval.kind === "book_service") {
       storage.updateBooking(Number(payload.bookingId), { status: "cancelled", cancelledAt: nowIso() });
     }
+    /* A refused booking must RELEASE the room. The reservation row was created
+       up front so the dates were held while a person decided — `overlaps()` in
+       booking.ts does not filter by status — so leaving it behind would block
+       the room against every future guest for a stay nobody is taking. */
+    if (approval.kind === "create_reservation") {
+      storage.updateReservation(Number(payload.reservationId), {
+        status: "cancelled",
+        cancelledAt: nowIso(),
+      });
+    }
     // cancel_service_booking / order_room_service rejections simply never execute — nothing to undo.
     const updated = storage.updateApproval(approvalId, {
       status: "rejected",
@@ -642,7 +652,23 @@ export function finalizeApproval(
   }
 
   // action === "approve" — perform the deferred write for this approval's kind.
-  if (approval.kind === "book_service") {
+  if (approval.kind === "create_reservation") {
+    /* The room was held at `pending_approval`; this is where it becomes a real
+       booking and where the money first appears. The charge is posted HERE and
+       not at creation time, so an unapproved hold never sits on a folio. */
+    const target = storage.getReservation(Number(payload.reservationId));
+    if (!target) return { ok: false, error: `Reservation #${payload.reservationId} no longer exists.` };
+    storage.updateReservation(target.id, { status: "confirmed" });
+    postCharge({
+      reservationId: target.id,
+      description: String(payload.description),
+      amount: Number(payload.total),
+      category: "room",
+      taxable: true,
+      refType: "reservation",
+      refId: target.id,
+    });
+  } else if (approval.kind === "book_service") {
     const booking = storage.getBooking(Number(payload.bookingId));
     if (!booking) return { ok: false, error: `Booking #${payload.bookingId} no longer exists.` };
     const charge = postCharge({
@@ -806,7 +832,11 @@ export function createPaymentIntent(
     status: "pending",
     provider,
     token,
-    link: input.method === "payment_link" ? `${base || ""}/pay/${token}` : null,
+    /* `#/pay/...`, not `/pay/...`. The client routes on the hash
+       (`useHashLocation` in App.tsx), so a path-only URL loads the SPA, finds an
+       empty hash and renders the guest concierge instead of the payment page —
+       the link would open something, which is harder to notice than a 404. */
+    link: input.method === "payment_link" ? `${base || ""}/#/pay/${token}` : null,
     reference: null,
     chargeId: null,
     taskId: null,

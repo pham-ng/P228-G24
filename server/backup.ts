@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { sqlite } from "./storage";
-import { log } from "./index";
+import { log } from "./log";
 
 const BACKUP_DIR = path.resolve(process.cwd(), "backups");
 const RETENTION_DAYS = 14;

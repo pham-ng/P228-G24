@@ -16,6 +16,7 @@ import {
   Scale,
   Settings,
   ShieldCheck,
+  ShieldAlert,
   Sun,
   CalendarRange,
 } from "lucide-react";
@@ -27,32 +28,53 @@ import { useSession } from "@/lib/session";
 import type { ConversationRow, ServiceApproval, Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+/**
+ * `needs` is the capability the page's data requires. Hiding a link is a
+ * courtesy, not a control — the server refuses the request either way
+ * (server/rbac.ts). It is here so a housekeeping attendant is not handed a menu
+ * of six things that answer 403, which reads as a broken product rather than as
+ * a permission boundary.
+ *
+ * Tasks and Rooms carry no `needs`: everybody works from those, and the task
+ * list is FILTERED to the person's department rather than refused.
+ */
 const NAV = [
-  { href: "/staff", label: "Inbox", icon: Inbox, badge: "inbox" as const },
-  { href: "/staff/approvals", label: "Approvals", icon: ShieldCheck, badge: "approvals" as const },
+  { href: "/staff", label: "Inbox", icon: Inbox, badge: "inbox" as const, needs: "all_conversations" as const },
+  { href: "/staff/approvals", label: "Approvals", icon: ShieldCheck, badge: "approvals" as const, needs: "approvals" as const },
   { href: "/staff/tasks", label: "Tasks", icon: ClipboardList, badge: "tasks" as const },
-  { href: "/staff/rooms", label: "Rooms", icon: BedDouble },
-  { href: "/staff/reservations", label: "Reservations", icon: CalendarRange },
-  { href: "/staff/insights", label: "Insights", icon: BarChart3 },
-  { href: "/staff/knowledge", label: "Knowledge", icon: BookOpen },
-  { href: "/staff/policies", label: "Policies", icon: Scale },
-  { href: "/staff/campaigns", label: "Campaigns", icon: Megaphone },
-  { href: "/staff/benchmark", label: "Benchmark", icon: FlaskConical },
-  { href: "/staff/traces", label: "Traces", icon: Radar },
-  { href: "/staff/audit", label: "Activity", icon: ScrollText },
-  { href: "/staff/settings", label: "Settings", icon: Settings },
+  { href: "/staff/rooms", label: "Rooms", icon: BedDouble, needs: "rooms" as const },
+  { href: "/staff/reservations", label: "Reservations", icon: CalendarRange, needs: "guest_data" as const },
+  { href: "/staff/insights", label: "Insights", icon: BarChart3, needs: "insights" as const },
+  { href: "/staff/knowledge", label: "Knowledge", icon: BookOpen, needs: "edit_content" as const },
+  { href: "/staff/policies", label: "Policies", icon: Scale, needs: "edit_content" as const },
+  { href: "/staff/campaigns", label: "Campaigns", icon: Megaphone, needs: "configure" as const },
+  { href: "/staff/benchmark", label: "Benchmark", icon: FlaskConical, needs: "configure" as const },
+  { href: "/staff/guardrails", label: "Guardrails", icon: ShieldAlert, needs: "configure" as const },
+  { href: "/staff/traces", label: "Traces", icon: Radar, needs: "configure" as const },
+  { href: "/staff/audit", label: "Activity", icon: ScrollText, needs: "configure" as const },
+  { href: "/staff/settings", label: "Settings", icon: Settings, needs: "configure" as const },
 ];
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const [location] = useLocation();
+  const { staff } = useSession();
+  const held = staff?.capabilities;
+  /* No capability list means an older session or none at all; showing
+     everything then keeps the shell working while the server still refuses. */
+  const allowed = (need?: string) => !need || !held || held.includes(need as never);
+
   const { data: convs } = useQuery<ConversationRow[]>({
     queryKey: ["/api/conversations"],
     refetchInterval: 8000,
+    enabled: allowed("all_conversations"),
   });
   const { data: tasks } = useQuery<Task[]>({ queryKey: ["/api/tasks"], refetchInterval: 8000 });
   const { data: approvals } = useQuery<ServiceApproval[]>({
     queryKey: ["/api/approvals"],
     refetchInterval: 8000,
+    /* Without this the badge query 403s every eight seconds for every
+       department agent, filling the console with errors that look like a bug. */
+    enabled: allowed("approvals"),
   });
 
   const counts = {
@@ -63,7 +85,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <nav className="flex flex-col gap-0.5 px-2">
-      {NAV.map((item) => {
+      {NAV.filter((item) => allowed(item.needs)).map((item) => {
         const active =
           item.href === "/staff" ? location === "/staff" : location.startsWith(item.href);
         const count = item.badge ? counts[item.badge] : 0;
@@ -94,6 +116,14 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
+const DEPT_LABEL: Record<string, string> = {
+  front_desk: "Lễ tân",
+  housekeeping: "Buồng phòng",
+  fnb: "Ẩm thực",
+  engineering: "Kỹ thuật",
+  spa: "Spa",
+};
+
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const { staff, signOut, theme, toggleTheme } = useSession();
   return (
@@ -112,7 +142,11 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
             </div>
             <div className="min-w-0 flex-1 leading-tight">
               <div className="truncate text-sm font-medium">{staff.name}</div>
-              <div className="truncate text-xs text-muted-foreground">{staff.role}</div>
+              {/* Department, not just role: on this board the department is what
+                  decides what you can see, so it is the thing to show. */}
+              <div className="truncate text-xs text-muted-foreground">
+                {staff.role} · {DEPT_LABEL[staff.dept] ?? staff.dept}
+              </div>
             </div>
           </div>
         )}

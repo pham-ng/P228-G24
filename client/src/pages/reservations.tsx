@@ -12,6 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { money, titleCase } from "@/lib/format";
+import { RecordPayment } from "@/components/record-payment";
+import { useSession } from "@/lib/session";
 import type { ReservationRow, ServiceRow } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +29,8 @@ export default function ReservationsPage() {
     queryKey: ["/api/reservations"],
   });
   const { data: services } = useQuery<ServiceRow[]>({ queryKey: ["/api/services"] });
+  const { staff } = useSession();
+  const can = (c: string) => !staff?.capabilities || staff.capabilities.includes(c as never);
 
   return (
     <StaffShell
@@ -89,13 +93,24 @@ export default function ReservationsPage() {
                       {money(r.folioTotal)}
                     </TableCell>
                     <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Only front desk and managers see this — the endpoint
+                            requires the `approvals` capability either way. */}
+                        {can("approvals") && (
+                          <RecordPayment
+                            reservationId={r.id}
+                            confirmationCode={r.confirmationCode}
+                            balanceDue={r.folioTotal}
+                          />
+                        )}
                       <Link
-                        href={`/?code=${r.confirmationCode}`}
+                        href={`/?code=`}
                         className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
                         data-testid={`link-guest-${r.confirmationCode}`}
                       >
                         Open <ExternalLink className="h-3 w-3" />
                       </Link>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

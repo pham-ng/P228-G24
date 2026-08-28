@@ -445,6 +445,7 @@ export default function GuestPage() {
                 <SourceAndFeedback
                   messageId={m.id}
                   conversationId={detail.conversation.id}
+                  code={code}
                   toolTrace={m.toolTrace}
                   lang={detail.guest.lang}
                 />

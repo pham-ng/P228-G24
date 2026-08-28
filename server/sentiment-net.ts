@@ -12,16 +12,37 @@
  * ever received a model-assigned topic, while thirty-three were left null.
  * A signal that silently stops arriving is worse than no signal.
  *
- * WHY NOT A DEDICATED CLASSIFIER (YET)
+ * WHY A TRAINED HEAD RATHER THAN AN ONNX MODEL
  *
- * A fine-tuned MiniLM/DistilBERT-class sentiment head is the industry-standard
- * answer and would be more accurate: ~10-30ms on CPU, no VRAM. It also brings
- * an ONNX runtime dependency, a model file to ship and version, and a load
- * path to maintain. That is the upgrade route, and everything downstream of
- * `readGuestSentiment` stays identical when it is taken — only this file
- * changes.
+ * A fine-tuned MiniLM/XLM-R sentiment head is the industry-standard answer.
+ * But SetFit — the usual recipe at this data size — is two steps: contrastive
+ * fine-tuning of a sentence transformer, then a LINEAR CLASSIFIER on the
+ * resulting embeddings. This service already runs bge-m3, a strong 1024-d
+ * multilingual encoder, and has already embedded the guest's message for
+ * retrieval before this code runs. So the second step is available for free,
+ * and the `linear` backend below is exactly that: logistic regression over
+ * bge-m3, trained on the project's own 600 labelled messages.
  *
- * WHAT THIS DOES INSTEAD
+ * Measured on a held-out third of that set (`bench/sentiment-probe-eval.ts`):
+ *
+ *   hand-written prototypes   accuracy 54.0%   recall  8.3%   F1 ~15
+ *   k-NN over the labels      accuracy 77.9%   recall 74.2%   F1 77.1
+ *   linear head               accuracy 92.1%   recall 89.2%   F1 91.8
+ *
+ * against a 90.8 cross-validation F1 on train, so the tuning did not overfit
+ * the split. It costs one dot product over a vector that already exists — no
+ * ONNX runtime, no model file to ship beyond 20KB of weights, no VRAM, and no
+ * second forward pass. An ONNX MiniLM would be strictly SLOWER here, because
+ * it would have to encode the text again.
+ *
+ * What it does NOT do is fine-tune the encoder, which is where SetFit's last
+ * few points live. The remaining errors say that is not the bottleneck: the
+ * largest single failure is one unseen complaint ("the pool water is filthy,
+ * my child got a rash") missed in all six languages at once — a gap in the
+ * ~100 independent items the training set contains, which a better encoder
+ * would not fill. More labelled items beat a bigger model here.
+ *
+ * WHAT THE CENTROID FLOOR DOES INSTEAD
  *
  * Retrieval has already embedded the guest's message for this turn. Comparing
  * that existing vector against a handful of prototype complaints costs one
@@ -36,6 +57,8 @@
  * ten-minute SLA, an apology — but it only fires when the guest chooses to
  * press a button. This reads the complaint out of the message itself.
  */
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { cachedQueryVector } from "./retrieval";
 import { embed } from "./llm";
 
@@ -94,48 +117,74 @@ export const SENTIMENT_PROTOTYPES: { label: GuestSentiment; text: string }[] = [
  */
 export const SENTIMENT_MARGIN = Number(process.env.LOCAL_SENTIMENT_MARGIN ?? 0.15);
 
-/** Off by default until measured on a deployment's own traffic. */
+/**
+ * On by default — but see SENTIMENT_ACT: on means "classify and record", not
+ * "open tasks". Reading the mood costs one dot product over a vector retrieval
+ * has already computed, so leaving it off buys nothing and loses the shadow log
+ * that a deployment needs in order to justify turning SENTIMENT_ACT on.
+ *
+ * Set LOCAL_SENTIMENT_NET=0 to silence it entirely.
+ */
 export const SENTIMENT_NET_ENABLED =
-  process.env.LOCAL_SENTIMENT_NET === "1" || process.env.LOCAL_SENTIMENT_NET === "true";
+  process.env.LOCAL_SENTIMENT_NET !== "0" && process.env.LOCAL_SENTIMENT_NET !== "false";
 
 /**
  * Shadow mode: decide, record, but do not act.
  *
- * This is the DEFAULT, and it should stay the default until a deployment has
- * measured the classifier on its own traffic. The reason is in the numbers:
- * on hand-written complaints the centroid scored 8/8, and on twelve harder
- * phrasings — negation, mixed sentiment, sarcasm, implied complaints — it
- * scored 5/12, including a FALSE POSITIVE on "phòng không tệ lắm" (the room
- * isn't bad). Wiring that straight to an urgent ten-minute-SLA task would
- * teach the front desk to ignore the queue, which costs more than the feature
- * is worth.
+ * This is the DEFAULT, and it stays the default even now that the classifier
+ * is good, because BENCHMARK ACCURACY IS NOT THE DECIDING NUMBER — the base
+ * rate is.
  *
- * In shadow mode the verdict is logged with the message that produced it. That
- * log is the dataset: after a few hundred turns it can be read back, scored by
- * hand against what the guest actually meant, and used to decide whether the
- * centroid is good enough or a fine-tuned model is needed.
+ * The labelled set is balanced 50/50. Real guest traffic is not: complaints
+ * are maybe one message in twenty. Carry the held-out rates through that base
+ * rate and the picture changes completely. Per 1,000 real messages, at the
+ * shipped 0.60 operating point (recall 89.2%, false-positive rate 5.0%):
  *
- * Set LOCAL_SENTIMENT_ACT=1 only after that measurement.
+ *   50 complaints  -> 45 caught          950 ordinary -> 48 false alarms
+ *
+ * Slightly WORSE than a coin flip on any given alert, which is exactly the
+ * flood that teaches a front desk to ignore the queue. At 0.80 the same
+ * held-out set gave 100% precision at 71.7% recall (0 false positives in 240),
+ * which is the direction to move before acting, at the cost of missing roughly
+ * one complaint in four.
+ *
+ * So: LOCAL_SENTIMENT_ACT=1 wants LOCAL_SENTIMENT_THRESHOLD=0.8 alongside it,
+ * and neither should go on before the shadow log has been read. In shadow mode
+ * every verdict is logged with the message that produced it — including the
+ * near-misses, because a missed complaint is the failure this feature exists to
+ * prevent and it is invisible unless the misses are written down too. That log
+ * is the next training set: score a few hundred real turns by hand, append them
+ * to the labelled file, and re-run
+ *
+ *   npx tsx bench/sentiment-probe-eval.ts <set>.jsonl --augment --emit
+ *
+ * to retrain the head on this deployment's own guests.
  */
 export const SENTIMENT_ACT = process.env.LOCAL_SENTIMENT_ACT === "1" || process.env.LOCAL_SENTIMENT_ACT === "true";
 
 /**
  * Which implementation reads the guest's mood.
  *
- * "centroid" — the cosine-against-prototypes floor implemented here. Free
- *   (reuses retrieval's vector), no dependency, no VRAM, and measurably weak
- *   on anything but blunt complaints.
- * "onnx" — the upgrade slot: a fine-tuned multilingual sentiment head
- *   (MiniLM/XLM-R class, ~10-30ms on CPU) served through onnxruntime-node or
- *   transformers.js. NOT IMPLEMENTED YET; selecting it logs once and falls
- *   back to the centroid rather than failing a guest's turn.
+ * "linear" — DEFAULT. Logistic regression over bge-m3, trained on the project's
+ *   own labelled messages (`server/data/sentiment-head.json`, regenerate with
+ *   `npx tsx bench/sentiment-probe-eval.ts <set>.jsonl --augment --emit`).
+ *   F1 91.8 held out. Falls back to the centroid if the weights are missing or
+ *   were trained for a different embedding width.
+ * "centroid" — the cosine-against-prototypes floor implemented here. Needs no
+ *   training data at all, which is why it stays: it is what a fresh deployment
+ *   with no labels of its own runs on. Measurably weak (F1 ~15) on anything
+ *   but blunt complaints.
+ * "onnx" — a separately-encoded MiniLM/XLM-R head. NOT IMPLEMENTED, and on
+ *   this architecture it would be slower than `linear` rather than faster,
+ *   since bge-m3 has already encoded the text. Selecting it logs once and
+ *   falls back rather than failing a guest's turn.
  *
  * The split exists so the swap is a one-file change: everything downstream —
  * the escalation, the task contract, the shadow log — reads `readGuestSentiment`
  * and does not care which backend answered.
  */
-export type SentimentBackend = "centroid" | "onnx";
-export const SENTIMENT_BACKEND = (process.env.LOCAL_SENTIMENT_BACKEND as SentimentBackend) || "centroid";
+export type SentimentBackend = "linear" | "centroid" | "onnx";
+export const SENTIMENT_BACKEND = (process.env.LOCAL_SENTIMENT_BACKEND as SentimentBackend) || "linear";
 
 let protoVectors: number[][] | null = null;
 let warming: Promise<void> | null = null;
@@ -155,6 +204,10 @@ function cosine(a: number[], b: number[]): number {
  *  rather than blocking the kiosk from serving guests. */
 export async function warmSentimentNet(): Promise<void> {
   if (!SENTIMENT_NET_ENABLED || protoVectors) return;
+  /* The linear head needs no warm-up — it is 20KB of weights read from disk.
+     Only fall through to embedding the prototypes when the head is missing,
+     which also keeps startup independent of Ollama in the normal case. */
+  if (SENTIMENT_BACKEND === "linear" && linearHead()) return;
   if (warming) return warming;
   warming = (async () => {
     try {
@@ -167,6 +220,81 @@ export async function warmSentimentNet(): Promise<void> {
 }
 
 export type SentimentVerdict = { label: GuestSentiment; score: number; margin: number };
+
+/* ---------------------------------------------------------------- linear head */
+
+type LinearHead = { dim: number; bias: number; threshold: number; weights: number[]; trainedOn: number; embedModel?: string };
+let head: LinearHead | null | undefined;
+
+/** Load once. `null` means "tried and cannot" — the caller falls back to the
+ *  centroid, so a missing or stale weights file degrades the feature instead of
+ *  breaking the kiosk. */
+function linearHead(): LinearHead | null {
+  if (head !== undefined) return head;
+  head = null;
+  try {
+    const path = join(process.cwd(), "server", "data", "sentiment-head.json");
+    if (!existsSync(path)) {
+      console.warn("[sentiment] no sentiment-head.json — falling back to the centroid floor.");
+      return head;
+    }
+    const parsed = JSON.parse(readFileSync(path, "utf8")) as LinearHead;
+    if (!Array.isArray(parsed.weights) || parsed.weights.length !== parsed.dim) {
+      console.warn("[sentiment] sentiment-head.json is malformed — falling back to the centroid floor.");
+      return head;
+    }
+    head = parsed;
+    /* Report the EFFECTIVE operating point, not the head's own. An env override
+       is exactly the thing an operator is checking for when they read this
+       line, and printing the baked-in value while a different one is in force
+       is how a misconfiguration survives a look at the logs. */
+    const eff = SENTIMENT_THRESHOLD ?? parsed.threshold;
+    console.info(
+      `[sentiment] linear head loaded: dim=${parsed.dim} trained on ${parsed.trainedOn} labelled messages ` +
+        `(${parsed.embedModel ?? "unknown encoder"}) · nguong=${eff}` +
+        (SENTIMENT_THRESHOLD !== null ? ` (LOCAL_SENTIMENT_THRESHOLD ghi de ${parsed.threshold})` : "") +
+        ` · ${SENTIMENT_ACT ? "MO TASK THAT cho Le tan" : "shadow mode, chi ghi log"}`,
+    );
+  } catch (err) {
+    console.warn(`[sentiment] could not load sentiment-head.json (${String(err)}) — using the centroid floor.`);
+  }
+  return head;
+}
+
+/**
+ * Operating point. The head ships the threshold that cross-validation chose,
+ * but the right one depends on traffic, not on the benchmark.
+ *
+ * The benchmark is balanced 50/50; real guest traffic is not — complaints are
+ * maybe one message in twenty. At that base rate the held-out numbers (recall
+ * 89.2%, false-positive rate 5.0%) work out to roughly one true alert for
+ * every one false one, which is exactly the flood that teaches a front desk to
+ * ignore the queue. On the same held-out set a threshold of 0.80 gave 100%
+ * precision at 71.7% recall. Raise this before setting LOCAL_SENTIMENT_ACT=1,
+ * and lower it again once real labels exist to re-tune on.
+ */
+export const SENTIMENT_THRESHOLD = process.env.LOCAL_SENTIMENT_THRESHOLD
+  ? Number(process.env.LOCAL_SENTIMENT_THRESHOLD)
+  : null;
+
+/** Pure, so the operating point can be tested without a model or an index. */
+export function classifyLinear(vector: number[], h: LinearHead, threshold: number): SentimentVerdict | null {
+  if (!vector?.length || vector.length !== h.dim) return null;
+  /* The head was trained on L2-normalised vectors, so normalise here too —
+     bge-m3 does not guarantee unit length and an unnormalised vector silently
+     shifts every score. */
+  let n = 0;
+  for (const x of vector) n += x * x;
+  n = Math.sqrt(n) || 1;
+  let z = h.bias;
+  for (let i = 0; i < h.dim; i++) z += h.weights[i] * (vector[i] / n);
+  const p = 1 / (1 + Math.exp(-z));
+  /* `margin` is distance past the operating point, so the shadow log reads the
+     same way for both backends: bigger means more confident. */
+  return p >= threshold
+    ? { label: "negative", score: p, margin: p - threshold }
+    : { label: "neutral", score: p, margin: threshold - p };
+}
 
 /** Pure, so thresholds can be tested without a model or an index. */
 export function classifyVector(
@@ -194,22 +322,44 @@ export function classifyVector(
  * opinion", never "the guest is fine".
  */
 export function readGuestSentiment(query: string): SentimentVerdict | null {
-  if (!SENTIMENT_NET_ENABLED || !protoVectors) return null;
+  if (!SENTIMENT_NET_ENABLED) return null;
   if (SENTIMENT_BACKEND === "onnx") warnOnnxNotReady();
   const v = cachedQueryVector(query);
   if (!v) return null;
-  const verdict = classifyVector(v, SENTIMENT_PROTOTYPES, protoVectors);
-  if (!verdict) return null;
-  const fires = verdict.label === "negative" && verdict.margin >= SENTIMENT_MARGIN;
 
-  /* Shadow mode. The verdict is recorded either way — including the ones that
-     did NOT fire, because a missed complaint is the failure this feature
-     exists to prevent and it is invisible unless the near-misses are written
-     down too. `hit` says whether it crossed the threshold; `acting` says
-     whether anything was allowed to happen because of it. */
-  if (!SENTIMENT_ACT || fires) {
+  /* The linear head is preferred but not required. When its weights are absent
+     — a fresh deployment that has not labelled anything yet — this drops to the
+     prototype floor rather than going silent, because a weak signal on an angry
+     guest still beats none. */
+  const h = SENTIMENT_BACKEND === "linear" ? linearHead() : null;
+  let verdict: SentimentVerdict | null;
+  let backend: SentimentBackend;
+  if (h) {
+    backend = "linear";
+    verdict = classifyLinear(v, h, SENTIMENT_THRESHOLD ?? h.threshold);
+  } else {
+    backend = "centroid";
+    if (!protoVectors) return null;
+    verdict = classifyVector(v, SENTIMENT_PROTOTYPES, protoVectors);
+  }
+  if (!verdict) return null;
+
+  /* The linear head's threshold IS its operating point — the margin is already
+     measured from it, so a second margin gate would double-count. The centroid
+     has no calibrated threshold, which is what SENTIMENT_MARGIN is for. */
+  const fires =
+    verdict.label === "negative" && (backend === "linear" || verdict.margin >= SENTIMENT_MARGIN);
+
+  /* Every verdict is recorded, hit or miss, in BOTH modes. Logging only the
+     hits would hide the failure this feature exists to prevent — a complaint
+     that scored 0.49 and went nowhere is invisible unless the miss is written
+     down, and it is also the most useful line to relabel and retrain on.
+
+     `HIT`/`miss` says whether it crossed the threshold; `acting` says whether
+     anything was allowed to happen because of it. */
+  {
     console.info(
-      `[sentiment] ${fires ? "HIT " : "miss"} label=${verdict.label} margin=${verdict.margin.toFixed(3)} ` +
+      `[sentiment] ${fires ? "HIT " : "miss"} label=${verdict.label} score=${verdict.score.toFixed(3)} margin=${verdict.margin.toFixed(3)} ` +
         `acting=${SENTIMENT_ACT} backend=${SENTIMENT_BACKEND} :: ${query.replace(/\s+/g, " ").slice(0, 160)}`,
     );
   }

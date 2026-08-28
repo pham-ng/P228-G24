@@ -260,7 +260,18 @@ function ContextPanel({ detail }: { detail: ConversationDetail }) {
 export default function InboxPage() {
   const qc = useQueryClient();
   const { staff } = useSession();
-  const [activeId, setActiveId] = useState<number | null>(null);
+  /* `?c=<id>` opens straight onto one thread, so the insights dashboard can
+     link a named unhappy guest to their actual conversation instead of dropping
+     staff on whatever happens to be at the top of the list. Read once, on mount:
+     later clicks in the list must not be overridden by a stale query string. */
+  const [activeId, setActiveId] = useState<number | null>(() => {
+    /* The query lives inside the hash ("#/staff?c=5"), not in location.search —
+       this app routes on useHashLocation. */
+    const q = window.location.hash.indexOf("?");
+    if (q < 0) return null;
+    const c = Number(new URLSearchParams(window.location.hash.slice(q + 1)).get("c"));
+    return Number.isInteger(c) && c > 0 ? c : null;
+  });
   const [filter, setFilter] = useState<"all" | "needs_human" | "ai">("all");
   const [draft, setDraft] = useState("");
   const [showContext, setShowContext] = useState(false);

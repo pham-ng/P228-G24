@@ -123,6 +123,11 @@ CREATE TABLE IF NOT EXISTS conversations (
   id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, guest_id INTEGER NOT NULL,
   reservation_id INTEGER, channel TEXT NOT NULL, mode TEXT NOT NULL DEFAULT 'ai',
   assigned_staff_id INTEGER, sentiment TEXT NOT NULL DEFAULT 'neutral', topic TEXT,
+  -- Provenance of the sentiment column: seed, model_realtime, model_llm or
+  -- thumbs_down. NULL means nobody has judged this conversation, which is not
+  -- the same as the guest being fine. Without it the insights dashboard cannot
+  -- tell a real verdict from a seed fixture, and for a long time it did not.
+  sentiment_source TEXT, sentiment_at TEXT,
   unread_for_staff INTEGER NOT NULL DEFAULT 0, last_message_at TEXT NOT NULL,
   created_at TEXT NOT NULL, first_response_seconds INTEGER
 );
@@ -318,6 +323,19 @@ CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
   addColumnIfMissing("services", "linked_kb_titles", "linked_kb_titles TEXT NOT NULL DEFAULT '[]'");
   addColumnIfMissing("services", "service_group", "service_group TEXT");
 
+  /* hotels: where a VietQR transfer lands. Null until an operator fills them
+     in — the QR is not offered until all three are present. */
+  addColumnIfMissing("hotels", "bank_bin", "bank_bin TEXT");
+  addColumnIfMissing("hotels", "bank_account_number", "bank_account_number TEXT");
+  addColumnIfMissing("hotels", "bank_account_name", "bank_account_name TEXT");
+
+  /* conversations: WHERE the sentiment label came from. Added because the
+     insights dashboard was captioned "classified per conversation by the model"
+     while counting seed fixtures whose mood is a rand() call — with one column
+     for provenance there is no way to tell them apart, and nobody could. */
+  addColumnIfMissing("conversations", "sentiment_source", "sentiment_source TEXT");
+  addColumnIfMissing("conversations", "sentiment_at", "sentiment_at TEXT");
+
   /* guests: identity fields for the statutory lodging declaration + loyalty ledger */
   addColumnIfMissing("guests", "id_type", "id_type TEXT");
   addColumnIfMissing("guests", "id_number", "id_number TEXT");
@@ -490,6 +508,40 @@ export const nowIso = () => new Date().toISOString();
 /* ------------------------------------------------------------------ *
  * Storage interface
  * ------------------------------------------------------------------ */
+
+/**
+ * Give a new task an owner.
+ *
+ * Every task the AI raises was created with `assignedStaffId: null` — the
+ * escalation paths, the sentiment handoff, the ops flows, all of them. The
+ * board therefore filled with unowned work: measured before this existed, 34
+ * open tasks had no assignee, including URGENT ones on a ten-minute SLA, and
+ * the "Team load" panel showed nothing but seed fixtures because no real task
+ * had ever reached a person.
+ *
+ * Routing is least-loaded-first within the task's own department, so the queue
+ * levels out instead of always landing on whoever sorts first. A task that
+ * already names an owner is left alone, and so is one for a department with
+ * nobody active — an unowned task is bad, but inventing an owner who cannot do
+ * the work is worse, and the tasks board still shows it as unassigned.
+ *
+ * Set LOCAL_TASK_AUTOROUTE=0 to go back to leaving everything unassigned.
+ */
+function autoRoute<T extends { dept: string; assignedStaffId: number | null; status: string }>(v: T): T {
+  if (process.env.LOCAL_TASK_AUTOROUTE === "0") return v;
+  if (v.assignedStaffId != null || !v.dept) return v;
+  const candidates = db.select().from(staff).where(eq(staff.dept, v.dept)).all().filter((s) => s.active === 1);
+  if (!candidates.length) return v;
+  const openCounts = new Map<number, number>();
+  for (const t of db.select().from(tasks).all()) {
+    if (t.assignedStaffId == null || t.status === "done" || t.status === "cancelled") continue;
+    openCounts.set(t.assignedStaffId, (openCounts.get(t.assignedStaffId) ?? 0) + 1);
+  }
+  const owner = candidates.reduce((best, s) =>
+    (openCounts.get(s.id) ?? 0) < (openCounts.get(best.id) ?? 0) ? s : best,
+  );
+  return { ...v, assignedStaffId: owner.id };
+}
 
 export const storage = {
   /* --- property --- */
@@ -698,7 +750,7 @@ export const storage = {
     return db.select().from(tasks).where(eq(tasks.id, id)).get();
   },
   createTask(v: Omit<Task, "id">): Task {
-    return db.insert(tasks).values(v).returning().get();
+    return db.insert(tasks).values(autoRoute(v)).returning().get();
   },
   updateTask(id: number, patch: Partial<Task>): Task {
     db.update(tasks).set(patch).where(eq(tasks.id, id)).run();

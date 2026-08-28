@@ -1,3 +1,6 @@
+import { departmentFor } from "./department";
+import { detectTransactionRequest, createLocalApproval, pendingApprovalLine, type ApprovalOutcome } from "./local-hitl";
+import { refusalFor } from "./refusal";
 import { storage, nowIso, hotelToday, hotelClock, db } from "./storage";
 import { serviceBookings } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -1036,6 +1039,7 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         guestName: args.guest_name,
         guestPhone: args.guest_phone,
         guestLang: guest.lang,
+        conversationId: conv.id,
       });
       if (!out.ok)
         return {
@@ -1509,12 +1513,20 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
 
     case "escalate_to_human": {
       storage.updateConversation(conv.id, { mode: "human", unreadForStaff: 1 });
+      /* Route on what the GUEST wrote, not on the agent's reply — the reply is
+         service language and carries none of the words that identify the work.
+         Hardcoding front_desk here sent every task to one department: 46 of 46
+         on the demo dataset, including broken air-conditioning that engineering
+         never saw. Falls back to front_desk when nothing matches. */
+      const lastGuestSaid = [...storage.listMessages(conv.id)]
+        .reverse()
+        .find((m) => m.role === "guest")?.body;
       const task = storage.createTask({
         hotelId: hotel.id,
         reservationId: res?.id ?? null,
         roomId: res?.roomId ?? null,
         conversationId: conv.id,
-        dept: "front_desk",
+        dept: departmentFor(lastGuestSaid),
         title: `Human handoff — ${guest.name}`,
         detail: String(args.reason ?? "Guest requested a colleague."),
         priority: String(args.priority ?? "high"),
@@ -2162,6 +2174,68 @@ async function runOfflineTurn(ctx: {
   const lang = offlineReplyLang(conv, guest.lang);
   const span = tr.startSpan("local.rag_first", "wizard", { question_chars: question.length });
 
+  /**
+   * Drugs, sexual services and weapons are answered here, before the model runs.
+   *
+   * `guard.notes` carries the instruction for these, and it is read in exactly
+   * one place — `buildSystemPrompt`, on the HOSTED path. This function never
+   * received it, so the screening fired, the note was written, and the model saw
+   * none of it: asked to send a woman to a room, the offline concierge replied
+   * asking which room type the guest would like.
+   *
+   * Passing the notes through would fix the symptom. Refusing here fixes the
+   * shape: there is one correct answer, it does not depend on phrasing, and it
+   * must not be negotiable on the next turn — which a fixed string guarantees
+   * and a 4B model does not. It is also instant instead of ten seconds.
+   *
+   * A weapon still escalates: `guard.forceEscalation` is true for it, and the
+   * handoff below runs on the way out.
+   */
+  const refusal = refusalFor(guard.flags, lang);
+  if (refusal) {
+    span.addSignal("forced_escalation", `refused: ${guard.flags.join(",")}`);
+    trace.push({
+      name: "screen_refusal",
+      args: { flags: guard.flags },
+      result: { refused: true, model_called: false },
+      ms: 0,
+    });
+
+    /* Returns before `runLocalTurn`, so no model call happens at all: measured
+       at ~5ms against 7-9s for a generated reply. Retrieval on "send a woman to
+       my room" is wasted work whose only possible outcome is a worse version of
+       a sentence already decided. */
+    let refusalEscalated = false;
+    if (guard.forceEscalation) {
+      const t0 = Date.now();
+      const result = await runTool(
+        "escalate_to_human",
+        {
+          reason: guard.flags.includes("weapon_request")
+            ? "Khách nhắc tới vũ khí — chuyển quản lý trực."
+            : "Yêu cầu bị từ chối theo chính sách.",
+          priority: "high",
+        },
+        { conversation: conv },
+      );
+      trace.push({ name: "escalate_to_human", args: { route: "refusal" }, result, ms: Date.now() - t0 });
+      refusalEscalated = true;
+    }
+    span.end();
+    const refusalLatency = Date.now() - started;
+    return {
+      reply: refusal,
+      trace,
+      escalated: refusalEscalated,
+      latencyMs: refusalLatency,
+      model: MODEL_AGENT,
+      servedBy: "local",
+      failedOver: false,
+      numericGuard: undefined,
+      traceId: tr.flush({ path: "screen_refusal", flags: guard.flags.join(","), latency_ms: refusalLatency, escalated: refusalEscalated }),
+    };
+  }
+
   const hotel = storage.getHotel();
   const turn = await runLocalTurn({
     question,
@@ -2192,7 +2266,10 @@ async function runOfflineTurn(ctx: {
     passages: turn.passages.length,
   });
 
-  let reply = turn.reply ?? "";
+  /* The refusal wins outright. Whatever the model produced for a request the
+     hotel will never fulfil is not an answer worth keeping, and leaving it in
+     would let a hedge or a follow-up question survive alongside the refusal. */
+  let reply = refusal ?? turn.reply ?? "";
   let escalated = false;
   let numericGuard: GuardVerdict | undefined;
 
@@ -2237,7 +2314,55 @@ async function runOfflineTurn(ctx: {
     turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
   }
 
-  if (turn.escalate || !reply.trim()) {
+  /**
+   * Before escalating generically, see whether this is a transaction we can put
+   * in front of a human as a COMPLETE request rather than as "the guest asked
+   * for something, please read the thread".
+   *
+   * This is the only path by which `service_approvals` can ever get a row when
+   * `LLM_MODE=local` — the approval tools live in the hosted tool loop, which
+   * the offline turn does not run. Slots are derived deterministically or not at
+   * all: `detectTransactionRequest` returns null when it cannot parse a time,
+   * and the turn then falls through to the ordinary handoff below, which is the
+   * correct outcome. An approval carrying a guessed checkout time would have a
+   * human approving something the guest never asked for.
+   *
+   * Emergencies are excluded: a person in danger is not a queue item.
+   */
+  let queuedApproval: ApprovalOutcome | null = null;
+  if (turn.escalate && !guard.emergencyKind) {
+    /* This scope carries only the conversation and the reply language, so the
+       reservation and room are looked up rather than threaded through — the
+       session already binds a conversation to exactly one reservation. */
+    const fullGuest = storage.getGuest(conv.guestId);
+    const res = storage.getReservation(conv.reservationId);
+    const room = res?.roomId ? storage.getRoom(res.roomId) : undefined;
+    const plan = res && fullGuest ? detectTransactionRequest(question) : null;
+    if (plan && res && fullGuest) {
+      const t0 = Date.now();
+      const outcome = createLocalApproval(plan, {
+        hotel, conv, guest: fullGuest, res, room, guestText: question,
+      });
+      if ("approvalId" in outcome) {
+        queuedApproval = outcome;
+        span.addSignal("forced_escalation", `HITL ${plan.kind} -> approval #${outcome.approvalId}`);
+        trace.push({
+          name: "queue_approval",
+          args: { kind: plan.kind, want: plan.want ?? null },
+          result: { approval_id: outcome.approvalId, task_id: outcome.taskId, fee: outcome.fee, pending: true },
+          ms: Date.now() - t0,
+        });
+        /* Replace the reply outright. Whatever the model wrote, it did not know
+           an approval was about to exist, and the one sentence that must not be
+           got wrong here is "this is not confirmed yet". */
+        reply = pendingApprovalLine(lang, outcome.fee, hotel.currency);
+        storage.updateConversation(conv.id, { mode: "human", unreadForStaff: 1 });
+        escalated = true;
+      }
+    }
+  }
+
+  if (!queuedApproval && (turn.escalate || !reply.trim())) {
     span.addSignal("forced_escalation", turn.escalateReason ?? "offline path could not answer");
     const t0 = Date.now();
     const result = await runTool(
@@ -2713,7 +2838,27 @@ export async function analyseConversation(conversationId: number) {
   const sentiment = ["positive", "neutral", "negative"].includes(out.sentiment)
     ? out.sentiment
     : "neutral";
-  storage.updateConversation(conversationId, { sentiment, topic: out.topic ?? "other" });
+  /* Stamped as `model_llm` so the dashboard can separate this from the realtime
+     head and from seed fixtures.
+
+     It must NOT overwrite a label that already caused something to happen. A
+     thumbs-down is the guest's own words, and a realtime-head hit has already
+     opened an urgent front-desk task — this call lands about two seconds later,
+     and left unguarded it relabelled that verdict as its own, so the dashboard
+     credited the LLM for an escalation the head made. Topic is still updated:
+     it is orthogonal, and this pass reads the whole transcript to derive it. */
+  const current = storage.getConversation(conversationId);
+  const ACTED = ["thumbs_down", "model_realtime"];
+  if (current?.sentimentSource && ACTED.includes(current.sentimentSource)) {
+    storage.updateConversation(conversationId, { topic: out.topic ?? "other" });
+    return;
+  }
+  storage.updateConversation(conversationId, {
+    sentiment,
+    sentimentSource: "model_llm",
+    sentimentAt: new Date().toISOString(),
+    topic: out.topic ?? "other",
+  });
 }
 
 /** Rewrites a campaign body per guest, in that guest's language. */

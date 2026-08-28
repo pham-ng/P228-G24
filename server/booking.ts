@@ -970,7 +970,13 @@ export type CreateResult =
       total_room_charge: number;
       currency: string;
       deposit_due_at_check_in: number;
+      /** Always `pending_approval` now — a person confirms the booking. */
       status: string;
+      pending_approval: boolean;
+      approval_id: number;
+      task_id: number;
+      /** Read by the model; keeps it from announcing a booking nobody approved. */
+      instruction: string;
       warnings: Problem[];
     };
 
@@ -979,8 +985,12 @@ export type CreateResult =
  * identity, and when the category is not actually free for the window.
  */
 export function createReservation(
-  req: StayRequest & { guestName?: string; guestPhone?: string; guestLang?: string },
+  /* `conversationId` is threaded through so the approval and its task link back
+     to the thread the booking was made in — a person deciding on a held room
+     needs to be able to read what the guest actually asked for. */
+  req: StayRequest & { guestName?: string; guestPhone?: string; guestLang?: string; conversationId?: number },
 ): CreateResult {
+  const convId = req.conversationId;
   const v = validateStayRequest(req);
   const missing: Problem[] = [...v.missing];
   if (!req.guestName || req.guestName.trim().length < 2)
@@ -1099,22 +1109,80 @@ export function createReservation(
     adults: n.adults,
     children: n.childAges.length,
     ratePerNight: row.rate_per_night,
-    status: "confirmed",
+    /* Held, not confirmed — a person decides. See the note below. */
+    status: "pending_approval",
     source: "ai_agent",
   });
-  storage.addCharge({
+  /**
+   * The room charge is NOT posted here, and the reservation is not confirmed.
+   *
+   * This used to write `status: "confirmed"` and post the full room total the
+   * moment the model called the tool — so a booking worth millions of đồng was
+   * decided by the AI alone, while a 520.000₫ dinner went to a human for
+   * approval. The product gated cancelling a reservation and not creating one.
+   *
+   * `pending_approval` still HOLDS the room: `overlaps()` in this file does not
+   * filter by status, so the dates are blocked against anyone else while a
+   * person decides. That is what a hotel actually does with a provisional
+   * booking, and it is why the row is created now rather than reconstructed
+   * from the approval payload later.
+   *
+   * `finalizeApproval` in ops.ts confirms it and posts the charge, or cancels
+   * it and releases the room.
+   */
+  const task = storage.createTask({
+    hotelId: hotel.id,
     reservationId: res.id,
-    description: `Room ${room.number} (${room.type}) — ${n.nights} night(s) @ ${row.rate_per_night.toLocaleString("vi-VN")}`,
-    amount: total,
-    category: "room",
+    roomId: room.id,
+    conversationId: convId ?? null,
+    dept: "front_desk",
+    title: `CẦN DUYỆT — Đặt phòng mới ${cc} — phòng ${room.number}`,
+    detail:
+      `${guest.name} (${guest.phone}) đặt ${room.type} phòng ${room.number}, ` +
+      `${n.checkIn} → ${n.checkOut} (${n.nights} đêm), ${n.adults} người lớn` +
+      `${n.childAges.length ? `, ${n.childAges.length} trẻ em` : ""}. ` +
+      `Tổng tiền phòng ${total.toLocaleString("vi-VN")} ${hotel.currency}. ` +
+      `ĐANG GIỮ CHỖ — chưa xác nhận, chưa ghi hoá đơn.`,
+    priority: "high",
+    status: "open",
+    source: "ai",
+    assignedStaffId: null,
+    dueAt: new Date(Date.now() + hotel.slaMinutes * 60_000).toISOString(),
     createdAt: nowIso(),
+    resolvedAt: null,
   });
+
+  const approval = storage.createApproval({
+    hotelId: hotel.id,
+    reservationId: res.id,
+    guestId: guest.id,
+    conversationId: convId ?? null,
+    taskId: task.id,
+    kind: "create_reservation",
+    summary: `Đặt phòng ${cc} — ${room.type} phòng ${room.number} — ${n.checkIn} → ${n.checkOut} — ${total.toLocaleString("vi-VN")} ${hotel.currency}`,
+    payload: JSON.stringify({
+      reservationId: res.id,
+      code: cc,
+      roomNumber: room.number,
+      roomType: room.type,
+      nights: n.nights,
+      total,
+      description: `Room ${room.number} (${room.type}) — ${n.nights} night(s) @ ${row.rate_per_night.toLocaleString("vi-VN")}`,
+    }),
+    amount: total,
+    status: "pending",
+    createdAt: nowIso(),
+    resolvedAt: null,
+    resolvedBy: null,
+    rejectionReason: null,
+  });
+
   storage.logEvent({
-    type: "reservation.created",
+    type: "reservation.queued",
     actor: "ai",
-    summary: `Reservation ${cc} created for ${guest.name}: ${n.checkIn} → ${n.checkOut}, ${room.type} room ${room.number}.`,
-    payload: JSON.stringify({ code: cc, nights: n.nights, total }),
-    conversationId: null,
+    summary: `Đặt phòng ${cc} cho ${guest.name} (${n.checkIn} → ${n.checkOut}, ${room.type} phòng ${room.number}) — GIỮ CHỖ, chờ duyệt.`,
+    payload: JSON.stringify({ code: cc, nights: n.nights, total, approvalId: approval.id, taskId: task.id }),
+    conversationId: convId ?? null,
     createdAt: nowIso(),
   });
 
@@ -1133,7 +1201,16 @@ export function createReservation(
     total_room_charge: total,
     currency: hotel.currency,
     deposit_due_at_check_in: deposit,
-    status: "confirmed",
+    /* The model reads this field and repeats it to the guest, so it must not
+       say "confirmed" while a person has not yet decided. The instruction below
+       is phrased the same way the other HITL tools phrase theirs, because a
+       model told only the status will still sometimes announce a booking. */
+    status: "pending_approval",
+    pending_approval: true,
+    approval_id: approval.id,
+    task_id: task.id,
+    instruction:
+      "Phòng ĐANG ĐƯỢC GIỮ và yêu cầu đã chuyển lễ tân duyệt. Nói rõ với khách là ĐANG CHỜ XÁC NHẬN, nêu mã đặt phòng và tổng tiền dự kiến. TUYỆT ĐỐI KHÔNG nói là đã đặt xong, đã xác nhận, hay đã giữ chỗ thành công.",
     warnings: v.warnings,
   };
 }
