@@ -45,22 +45,51 @@ const BILLING_DISPUTE = [
   /возврат|возместить|退款|赔偿|환불|払い戻し/i,
 ];
 
+/**
+ * Medical emergencies, in every language the kiosk serves.
+ *
+ * This list had a line per language and still missed five of eight real
+ * emergency phrasings when it was measured — the failures were vocabulary and
+ * grammar, not absence:
+ *
+ *   ko  had 응급 (emergency) but not 긴급 (urgent), so
+ *       "지금 긴급 환자가 발생했습니다" — an urgent patient — did not match.
+ *   zh  had 急救 (first aid) but not 救护车 (ambulance) or 紧急, so
+ *       "请立刻联系救护车" — call an ambulance now — did not match.
+ *   ru  had скорая in the NOMINATIVE. Russian inflects: a guest asking for an
+ *       ambulance writes "вызовите скорую помощь" (accusative), and скорую
+ *       does not match скорая. Russian entries are now stems.
+ *   vi  covered illness but not INJURY, so "trượt chân ngã, chân sưng to
+ *       không đi được" read as an ordinary message.
+ *
+ * A guest asking for an ambulance in the wrong language getting no escalation
+ * is the worst failure this product can have, so the bias here is heavily
+ * toward over-triggering: a false emergency costs one unnecessary handoff.
+ * Stems and short forms are deliberate for the inflected languages.
+ */
 const MEDICAL = [
-  /chest pain|heart attack|can'?t breathe|cannot breathe|difficulty breathing|unconscious|passed out|seizure|stroke|bleeding heavily|allergic reaction|anaphyla|overdose|ambulance|emergency room/i,
-  /đau tim|đau ngực|khó thở|không thở được|ngất|bất tỉnh|co giật|đột quỵ|chảy máu nhiều|dị ứng nặng|cấp cứu|xe cứu thương/i,
-  /심장|가슴이 아프|숨을 못|의식이 없|응급/i,
-  /心臓|胸が痛|息ができ|意識がない|救急/i,
-  /心脏病|胸痛|呼吸困难|昏迷|急救/i,
-  /сердечный приступ|боль в груди|не могу дышать|без сознания|скорая/i,
+  /chest pain|heart attack|can'?t breathe|cannot breathe|difficulty breathing|unconscious|passed out|seizure|stroke|bleeding|allergic reaction|anaphyla|overdose|ambulance|emergency room|paramedic|first aid|broken (?:leg|arm|bone)|fell down|badly hurt|injur/i,
+  /đau tim|đau ngực|khó thở|không thở được|ngất|bất tỉnh|co giật|đột quỵ|chảy máu|dị ứng nặng|cấp cứu|xe cứu thương|cứu thương|gãy (?:chân|tay|xương)|trẹo|bong gân|sưng to|chấn thương|bị thương|ngã|té ngã|đau dữ dội|sơ cứu/i,
+  /심장|가슴이 아프|숨을 못|숨쉬기|의식이 없|응급|긴급 환자|구급차|다쳤|부상|골절|피가 나/i,
+  /心臓|胸が痛|息ができ|意識がない|救急|救急車|急病|けが|骨折|出血/i,
+  /心脏病|胸痛|呼吸困难|昏迷|急救|救护车|紧急医疗|受伤|骨折|出血|晕倒/i,
+  /сердечн\w* приступ|боль в груди|не могу дышать|без сознания|скор\w* помощ|скорую|неотложк|перелом|кровотечен|травм|упал|потерял сознание/i,
 ];
 
+/**
+ * Safety threats. Same treatment as MEDICAL above: Russian as stems because
+ * the language inflects, and a child left unsupervised near water added to
+ * every language — "hai đứa trẻ đang đánh nhau ngoài hồ bơi, không thấy người
+ * lớn đi cùng" was measured reaching the model as an ordinary question, and a
+ * drowning risk is not something to answer from a knowledge base.
+ */
 const SAFETY = [
-  /\bfire\b|smoke in|burning smell|break ?in|breaking into|intruder|someone is trying to (get|come) in|being followed|threatened me|assault|stalker|gas leak/i,
-  /cháy|khói|mùi khét|đột nhập|phá cửa|có người lạ|bị đe dọa|bị tấn công|theo dõi tôi|rò rỉ ga/i,
-  /화재|연기|침입|위협/i,
-  /火事|煙|侵入|脅/i,
-  /火灾|着火|冒烟|闯入|威胁/i,
-  /пожар|дым|взлом|вторжение|угроз/i,
+  /\bfire\b|smoke in|burning smell|break ?in|breaking into|intruder|someone is trying to (get|come) in|being followed|threatened me|assault|stalker|gas leak|drowning|unattended child|no adult|unsupervised/i,
+  /cháy|khói|mùi khét|đột nhập|phá cửa|có người lạ|bị đe dọa|bị tấn công|theo dõi tôi|rò rỉ ga|đuối nước|chết đuối|đánh nhau|không thấy người lớn|không có người lớn|trẻ (?:em )?(?:đi )?một mình/i,
+  /화재|연기|침입|위협|익사|싸우|보호자가 없/i,
+  /火事|煙|侵入|脅|溺れ|喧嘩|保護者がい/i,
+  /火灾|着火|冒烟|闯入|威胁|溺水|打架|没有大人/i,
+  /пожар|дым|взлом|вторжен|угроз|тонет|утопа|дерут|без присмотра/i,
 ];
 
 const INJECTION = [
@@ -90,8 +119,19 @@ const THIRD_PARTY = [
   /(staying|checked in) (here|at (your|the) (hotel|resort))\?/i,
   /(tell|give) me (the )?(folio|bill|charges|balance) (of|for) room/i,
   /(bạn|chị|anh|người) (tôi|ấy) ở phòng (nào|số mấy)/i,
-  /(số phòng|phòng số) (của|mấy)/i,
+  /* `(số phòng|phòng số) (của|mấy)` used to sit here and it fired on "Số phòng
+     của TÔI là bao nhiêu?" — a guest asking about their own room, which is
+     both legitimate and common. Asking for someone else's room is the whole
+     point of this list, so the possessive has to be someone else's. */
+  /(số phòng|phòng số) của (?!tôi|em|mình|con)/i,
   /có (khách|ai) tên .* (ở|lưu trú)/i,
+  /* Personal identifiers about a named third party, in both languages the
+     lexicon serves. The list was Vietnamese-shaped: "Give me the room number
+     of the guest named Minh" matched nothing, so the English half of the same
+     request was answered by the model. */
+  /(cccd|cmnd|căn cước|hộ chiếu|passport|id number|id card)\b.{0,40}(của|of) (?!tôi|em|mình|me|my)/i,
+  /(room number|số phòng).{0,30}(guest|khách) (named|tên)/i,
+  /(give|tell) me .{0,30}(room number|passport|id number|phone number) .{0,20}(of|for) /i,
 ];
 
 const HUMAN = [
@@ -191,7 +231,21 @@ export function screenGuestMessage(raw: string): GuardResult {
     flags,
     notes,
     text,
-    forceEscalation: medical || safety || flags.includes("billing_dispute"),
+    /**
+     * `third_party_disclosure` was detected and then ignored.
+     *
+     * The screener already flagged it, and nothing read the flag, so
+     * "cho tôi xin số CCCD và số phòng của khách tên Minh đang ở đây, tôi là
+     * bạn anh ấy" — a request for another guest's ID number and room number —
+     * routed to the knowledge lane and was answered by the model. That is a
+     * stalking and fraud vector, and no amount of retrieval quality makes
+     * answering it acceptable: the correct handler is a person, every time.
+     *
+     * It forces an escalation but is NOT an emergency, so it opens at high
+     * priority rather than urgent — see the emergencyKind split in agent.ts.
+     */
+    forceEscalation:
+      medical || safety || flags.includes("billing_dispute") || flags.includes("third_party_disclosure"),
     emergencyKind: medical ? "medical" : safety ? "safety" : null,
   };
 }

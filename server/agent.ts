@@ -2165,7 +2165,22 @@ async function runOfflineTurn(ctx: {
   const hotel = storage.getHotel();
   const turn = await runLocalTurn({
     question,
-    isEmergency: guard.forceEscalation,
+    /* Only a MEDICAL or SAFETY flag is an emergency.
+     *
+     * `guard.forceEscalation` is `medical || safety || billing_dispute` — it
+     * answers "must this bypass the model?", not "is someone in danger?".
+     * Passing it here made every billing dispute route as `emergency` and
+     * open its handoff at `urgent`, the same priority as "tôi bị đau ngực"
+     * and "cháy phòng". Seen in a live demo: "Tôi muốn huỷ phòng và hoàn
+     * tiền" produced a task titled "Khẩn cấp — chuyển nhân viên ngay". On a
+     * busy board that is how the urgent flag stops meaning anything, and the
+     * one turn that really is a fire gets read as another refund.
+     *
+     * `guard.emergencyKind` already draws the line correctly and was simply
+     * not being used. The force is preserved below, so a billing dispute
+     * still cannot be answered by the model — it just escalates as ordinary
+     * high-priority work. */
+    isEmergency: guard.emergencyKind !== null,
     lang,
     basics: { checkIn: hotel.checkInTime, checkOut: hotel.checkOutTime, currency: hotel.currency },
     history,
@@ -2188,8 +2203,15 @@ async function runOfflineTurn(ctx: {
        stated two turns ago and the model correctly echoes back while
        resolving a follow-up must not be flagged as an ungrounded number just
        because it is not present in the LATEST message alone. */
+    /* `turn.rateFacts` carries the authoritative room rates the turn was
+       given. They live outside `passages` on purpose — the passage compressor
+       must not be able to trim a published price — so without adding them
+       here the guard grounds against the passage list alone and strips the
+       very figure the pipeline just read out of `room_packages`. Reproduced:
+       a Chinese and an English price answer arrived with the amount removed
+       and only the guard's "the front desk will confirm" notice left. */
     numericGuard = checkReply(reply, {
-      toolResults: turn.passages.map((p) => p.content),
+      toolResults: [...turn.passages.map((p) => p.content), ...(turn.rateFacts ? [turn.rateFacts] : [])],
       guestText: history ? `${history}\n${question}` : question,
     });
     if (!numericGuard.ok) {
@@ -2207,12 +2229,24 @@ async function runOfflineTurn(ctx: {
     }
   }
 
+  /* A billing dispute must never be answered from the model's own reading,
+     even when routing let it through — that is what `forceEscalation` is for,
+     and it is applied here rather than as a fake emergency upstream. */
+  if (guard.forceEscalation && !turn.escalate) {
+    turn.escalate = true;
+    turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
+  }
+
   if (turn.escalate || !reply.trim()) {
     span.addSignal("forced_escalation", turn.escalateReason ?? "offline path could not answer");
     const t0 = Date.now();
     const result = await runTool(
       "escalate_to_human",
-      { reason: turn.escalateReason ?? "Offline path could not answer.", priority: guard.forceEscalation ? "urgent" : "high" },
+      {
+        reason: turn.escalateReason ?? "Offline path could not answer.",
+        /* Urgent is for a person in danger, not for money in dispute. */
+        priority: guard.emergencyKind ? "urgent" : "high",
+      },
       { conversation: conv },
     );
     trace.push({ name: "escalate_to_human", args: { route: turn.route }, result, ms: Date.now() - t0 });
@@ -2226,17 +2260,27 @@ async function runOfflineTurn(ctx: {
   if (langSig) span.addSignals([langSig]);
   span.end();
 
-  /* Which dining venues the reply is actually grounded in, from the real
-     retrieved evidence — not a guess from the reply text. Skipped on
-     escalation: nothing was answered, so nothing to offer "xem chi tiết /
-     xem menu" for. Recorded as a trace entry (not a new column) so it rides
-     the same persisted, JSON toolTrace every other turn already writes. */
+  /* Which venues / room types / services this turn is actually ABOUT, for the
+     "xem chi tiết / xem menu" cards under the reply. Skipped on escalation:
+     nothing was answered, so there is nothing to offer. Recorded as a trace
+     entry (not a new column) so it rides the same persisted, JSON toolTrace
+     every other turn already writes.
+
+     `focus` is the guest's question plus the reply we just wrote. The three
+     detectors used to key off `turn.passages` alone, and retrieval returns
+     five passages whether or not they are relevant — so every turn shipped
+     20-25 cards: the whole 10-type room catalogue for "Wifi có miễn phí
+     không?", cable-car and airport-transfer offers for "Mấy giờ ăn sáng?",
+     and room photos under a broken-air-con complaint. A card is an offer,
+     and an offer nobody asked for is noise. What the turn named is the
+     question it was asked and the answer it gave. */
   if (reply) {
-    const venues = detectReferencedVenues(turn.passages);
+    const focus = `${question}\n${reply}`;
+    const venues = detectReferencedVenues(turn.passages, focus);
     if (venues.length) trace.push({ name: "dining_venues_referenced", args: {}, result: { venues }, ms: 0 });
-    const roomTypes = detectReferencedRoomTypes(turn.passages);
+    const roomTypes = detectReferencedRoomTypes(turn.passages, focus);
     if (roomTypes.length) trace.push({ name: "room_types_referenced", args: {}, result: { roomTypes }, ms: 0 });
-    const serviceGroups = detectReferencedServices(turn.passages);
+    const serviceGroups = detectReferencedServices(turn.passages, focus);
     if (serviceGroups.length) trace.push({ name: "services_referenced", args: {}, result: { serviceGroups }, ms: 0 });
   }
 

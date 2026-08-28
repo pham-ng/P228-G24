@@ -236,6 +236,40 @@ export const MODEL_EMBED = embedModel(EMBED_PROVIDER);
  * timeout is how long a guest stares at a spinner before the local model takes
  * over, so waiting 60s to discover the wifi is down is the wrong trade.
  */
+/**
+ * The local model's context window, and a guard against configuring it in the
+ * wrong variable.
+ *
+ * This deployment's `.env` carries `LOCAL_CTX=8192` while the code has always
+ * read `LOCAL_NUM_CTX` — so the line looked like a decision, was never applied,
+ * and Ollama ran at the 4096 default. Confirmed against `/api/ps`, which
+ * reported `context_length: 4096` on the loaded model. Nothing errored and
+ * nothing warned; the config was simply inert.
+ *
+ * `LOCAL_NUM_CTX` stays authoritative because raising the window is not free —
+ * on hardware where the model is already only partly resident in VRAM, a
+ * larger context costs memory and can make generation slower, so it is a
+ * measured change rather than something to inherit from a stale variable
+ * name. But an unused `LOCAL_CTX` is now said out loud at startup instead of
+ * being ignored in silence.
+ */
+let warnedAboutLocalCtx = false;
+export function resolveNumCtx(): number {
+  const explicit = process.env.LOCAL_NUM_CTX;
+  if (explicit) return Number(explicit);
+  /* Once per process: this runs on every single chat call, and a warning
+     repeated on every turn is noise the operator learns to scroll past. */
+  if (process.env.LOCAL_CTX && !warnedAboutLocalCtx) {
+    warnedAboutLocalCtx = true;
+    console.warn(
+      `[llm] LOCAL_CTX=${process.env.LOCAL_CTX} is set but ignored — the context window is read from ` +
+        `LOCAL_NUM_CTX (currently unset, so the default 4096 applies). Rename it if you meant to change ` +
+        `the window, and re-measure latency afterwards: a larger context costs VRAM on this hardware.`,
+    );
+  }
+  return 4096;
+}
+
 function chatTimeout(provider: Provider): number {
   if (provider === "local") return Number(process.env.LLM_LOCAL_TIMEOUT_MS || 600_000);
   const withFallback = FALLBACK === "local";
@@ -515,7 +549,32 @@ async function chatOllamaNative(opts: ChatOptions, model: string): Promise<ChatR
        * single-turn case; the risk is history-bearing multi-turn prompts,
        * which can grow past it unnoticed. Set explicitly so the ceiling is a
        * documented decision, not an accident. */
-      num_ctx: Number(process.env.LOCAL_NUM_CTX || 4096),
+      /* Read via resolveNumCtx so a `LOCAL_CTX` in .env cannot sit there
+         looking configured while doing nothing — see below. */
+      num_ctx: resolveNumCtx(),
+      /**
+       * How many transformer layers to place on the GPU.
+       *
+       * Ollama picks this itself, and on this 4GB kiosk card its choice is far
+       * too conservative: it loaded qwen3.5:4b at 48% GPU — 1.80 of 3.73GB —
+       * while leaving 1,413 MiB of VRAM unused, and generated at 5.4 tok/s
+       * with the other 52% of the weights streaming from system RAM every
+       * token. Sweeping the value directly showed the whole model does fit
+       * once the embedder is off the card (see LOCAL_EMBED_NUM_GPU in embed()):
+       *
+       *     auto (48% GPU)   ->   5.4 tok/s
+       *     num_gpu 24 (59%) ->  13.8 tok/s
+       *     num_gpu 30 (71%) ->  24.8 tok/s
+       *     num_gpu 36 (100%)->  40.6 tok/s   <- 7.5x, 3,799 of 4,096 MiB
+       *
+       * Left unset by default, because the right number is a property of the
+       * specific card and the model's layer count, and overshooting a smaller
+       * card means an out-of-memory failure rather than a graceful fallback.
+       * Set LOCAL_NUM_GPU once per deployment, after measuring. On this card
+       * the safe ceiling is tight — ~297 MiB spare — so if the desktop or a
+       * second process also claims VRAM, step it down a layer or two.
+       */
+      ...(process.env.LOCAL_NUM_GPU ? { num_gpu: Number(process.env.LOCAL_NUM_GPU) } : {}),
       ...(opts.maxTokens ? { num_predict: opts.maxTokens } : {}),
     },
   };
@@ -654,6 +713,31 @@ function routeOrder(opts: ChatOptions): Provider[] {
  * it as such — narrower tool set, template-first rendering, stricter numeric
  * checks. Hiding which provider ran would make that impossible.
  */
+/**
+ * Did the local inference server fall over mid-request?
+ *
+ * Ollama answers `500 {"error":"model runner has unexpectedly stopped, this
+ * may be due to resource limitations..."}` when the runner process dies. On a
+ * 4 GB card serving a 3.13 GB model there is ~137 MiB of headroom, so this
+ * happens: seen live during a manual test, the guest asked a room rate and the
+ * turn escalated to the front desk with "Model nội bộ không phản hồi". Asked
+ * again immediately afterwards, the same question answered correctly three
+ * times out of three — the model had simply been reloaded by then.
+ *
+ * This is a transient resource fault, not a bad request, and it is the one
+ * failure worth spending a second attempt on. Everything else keeps the
+ * existing behaviour: a malformed request still surfaces, a real outage still
+ * escalates, and no retry happens on the path where nothing went wrong.
+ */
+function isRunnerCrash(err: unknown): boolean {
+  if (!(err instanceof LlmError)) return false;
+  const s = err.upstreamStatus ?? err.status;
+  if (s !== 500 && s !== 503) return false;
+  return /runner has unexpectedly stopped|resource limitations|failed to load model|out of memory/i.test(
+    err.message ?? "",
+  );
+}
+
 export async function chat(opts: ChatOptions): Promise<ChatResponse> {
   const order = routeOrder(opts);
   let lastError: unknown;
@@ -661,7 +745,17 @@ export async function chat(opts: ChatOptions): Promise<ChatResponse> {
   for (let i = 0; i < order.length; i++) {
     const provider = order[i];
     try {
-      const out = await chatOnce(provider, opts);
+      let out: ChatResponse;
+      try {
+        out = await chatOnce(provider, opts);
+      } catch (e) {
+        /* Exactly one retry, and only for a crashed runner. Ollama reloads the
+           model on the next request, so the second attempt is against a fresh
+           process rather than the one that just died. */
+        if (!isRunnerCrash(e)) throw e;
+        console.warn(`[llm] ${provider} runner crashed, retrying once: ${(e as Error).message?.slice(0, 120)}`);
+        out = await chatOnce(provider, opts);
+      }
       noteSuccess(provider);
       if (i > 0) out.failedOver = true;
       return out;
@@ -725,6 +819,44 @@ export async function embed(
   } else {
     await ensureProxy();
     base = OPENAI_BASE;
+  }
+
+  /**
+   * Pin the embedder to CPU when asked, via Ollama's NATIVE endpoint.
+   *
+   * The OpenAI-compatible `/v1/embeddings` route accepts no runtime options,
+   * so there is no way to ask it for a GPU layer count; `/api/embed` does.
+   *
+   * Why this exists: on the 4GB kiosk GPU the 3.73GB chat model already only
+   * fits 48% in VRAM, and bge-m3 sits beside it holding another 0.66GB. Every
+   * turn needs both, ~651 MiB of headroom is left, and Ollama responds by
+   * re-splitting layers between the two models between calls. The cost is not
+   * subtle: turns that made ZERO model calls — retrieval only — measured a p50
+   * of 25.9s, for an embedding that should take milliseconds, and the identical
+   * config produced p50 6.6s, 12.6s and 29.4s on three separate runs of the
+   * same day. Latency stopped being a number and became a coin flip.
+   *
+   * Moving a 566M embedder to CPU costs a few hundred milliseconds per query
+   * and buys back its VRAM plus, more importantly, the contention. Off by
+   * default so nothing changes for a deployment with room to spare; set
+   * LOCAL_EMBED_NUM_GPU=0 on hardware where the two models do not fit.
+   */
+  const embedNumGpu = process.env.LOCAL_EMBED_NUM_GPU;
+  if (provider === "local" && embedNumGpu !== undefined && embedNumGpu !== "") {
+    const res = await postJson(
+      `${base}/api/embed`,
+      authHeaders(provider),
+      { model, input: inputs, options: { num_gpu: Number(embedNumGpu) } },
+      EMBED_TIMEOUT_MS,
+    );
+    const text = await res.text();
+    if (!res.ok) describeFailure("Embeddings", res.status, text);
+    const parsed = JSON.parse(text) as { embeddings?: number[][] };
+    if (!parsed?.embeddings?.length) throw new LlmError("The embedding endpoint returned no vectors.");
+    if (parsed.embeddings.length !== inputs.length) {
+      throw new LlmError(`The embedding endpoint returned ${parsed.embeddings.length} vectors for ${inputs.length} inputs.`);
+    }
+    return parsed.embeddings;
   }
 
   const res = await postJson(

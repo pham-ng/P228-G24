@@ -1,0 +1,27 @@
+{
+ "summary": {
+  "label": "smoke",
+  "model": "qwen3.5:4b",
+  "passages": 5,
+  "charCap": 400,
+  "n": 12,
+  "strictCorrectPct": 41.666666666666664,
+  "lenientUsefulPct": 50,
+  "partial": 1,
+  "criticalPct": 0,
+  "knowledgeStatePct": 83.33333333333333,
+  "languagePurityPct": 100,
+  "escalationPct": 100,
+  "p50": 7534,
+  "p95": 12988
+ },
+ "failures": [
+  "F-022 PARTIAL: 1/2 facts",
+  "F-029 MODEL: 0/2 facts",
+  "P-001 MODEL: 0/2 facts",
+  "P-009 GATE: escalate câu trả lời được",
+  "P-018 MODEL: 0/3 facts",
+  "P-019 MODEL: 0/3 facts",
+  "M-003 GATE: escalate câu trả lời được"
+ ]
+}

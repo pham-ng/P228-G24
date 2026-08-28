@@ -18,6 +18,8 @@ export type RoomTypeDetail = {
   images: string[];
   description: string | null;
   rate: number;
+  /** Cheapest bookable package; see the note in /api/room-types. */
+  packageFrom?: number;
 };
 
 export function readRoomReference(toolTrace: string | null): RoomTypeRef[] {
@@ -70,10 +72,15 @@ function RoomModal({ code, onClose, lang }: { code: string; onClose: () => void;
         <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5 bg-card/50">
           <div className="min-w-0 pr-2">
             <div className="truncate text-base font-bold text-foreground">{r?.nameVi ?? code}</div>
-            {r?.rate ? (
+            {/* Prefer the cheapest PACKAGE — that is the figure the concierge
+                quotes and the one the guest can actually book. Falling back to
+                the room-only inventory rate keeps a price on the card for a
+                category with no packages published. */}
+            {(r?.packageFrom || r?.rate) ? (
               <div className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary">
                 <Tag className="h-3 w-3" />
-                <span>{vnd(r.rate)}</span>
+                <span className="text-[10px] font-normal text-muted-foreground">{r?.packageFrom ? (vi ? "gói từ" : "packages from") : (vi ? "phòng từ" : "room only from")}</span>
+                <span>{vnd(r.packageFrom || r.rate)}</span>
                 <span className="text-[10px] font-normal text-muted-foreground">/{vi ? "đêm" : "night"}</span>
               </div>
             ) : null}
@@ -264,11 +271,19 @@ export function RoomActions({ rooms, lang, onSend }: { rooms: RoomTypeRef[]; lan
               <div className="p-3 flex flex-col justify-between flex-1 gap-2">
                 <div>
                   <h4 className="text-xs font-bold text-foreground leading-snug">{r.name}</h4>
-                  {detail?.rate && (
+                  {/* Ternary, not `&&`: with `detail?.rate && (...)` a rate of
+                      0 makes the expression evaluate to the number 0, which
+                      React renders as a literal "0" where the price should be.
+                      Seen live on the Grand Deluxe Hướng Biển Giường Đôi card.
+                      Line 73 above already used a ternary; this one did not. */}
+                  {(detail?.packageFrom || detail?.rate) ? (
                     <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">
-                      {vi ? "Giá niêm yết từ " : "Rates from "}{vnd(detail.rate)}/đêm
+                      {detail?.packageFrom
+                        ? (vi ? "Gói từ " : "Packages from ")
+                        : (vi ? "Giá phòng từ " : "Room only from ")}
+                      {vnd(detail.packageFrom || detail.rate)}/{vi ? "đêm" : "night"}
                     </p>
-                  )}
+                  ) : null}
                 </div>
                 <button
                   type="button"

@@ -27,6 +27,7 @@
  */
 
 import type { ToolSpec } from "./llm";
+import { hasVietnameseDiacritics } from "./retrieval";
 
 /* ------------------------------------------------------------------ budget */
 
@@ -342,8 +343,36 @@ const CUES: Record<Exclude<FamilyName, "core">, string[]> = {
 /* ------------------------------------------------------------------ scoring */
 
 /** Lowercase and collapse whitespace. Accents are kept: "hoá đơn" must not become "hoa don". */
-function normalise(s: string): string {
-  return String(s || "").toLowerCase().replace(/\s+/g, " ");
+/**
+ * Lower-case, collapse whitespace, and STRIP DIACRITICS.
+ *
+ * The cue lexicon below is written with Vietnamese diacritics; guests very
+ * often type without them. Until diacritics were folded here, none of those
+ * cues fired on unaccented input, so "toi muon huy phong" scored no family at
+ * all and the offline router sent a cancellation to the knowledge lane to be
+ * answered by the model. Every routing test in the suite was written with
+ * correct diacritics, so the gap was invisible.
+ *
+ * Folded on both sides — see `cueIndex`, which folds the cue too. Word
+ * boundaries still do the work they did before: the reason "xe" (vehicle) does
+ * not match inside "xem" (to view) is the lookahead, not the accent.
+ */
+function normalise(s: string, stripAccents = true): string {
+  const base = String(s || "");
+  if (!stripAccents) return base.normalize("NFC").toLowerCase().replace(/\s+/g, " ");
+  return base
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    /* Re-compose. NFD decomposes Hangul syllables into jamo (U+1100–U+11FF),
+       which the combining-mark strip above does not touch — so without this
+       the text stays decomposed and a composed cue like "레이트" can never
+       match it. Caught by the Korean late-checkout routing test, which went
+       from transaction to knowledge the moment folding was added here. */
+    .normalize("NFC")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 }
 
 /** Does this cue contain Han, Hangul, Hiragana or Katakana? */
@@ -375,15 +404,19 @@ const BOUNDARY_CACHE = new Map<string, RegExp>();
  * strict boundary because that is exactly where the damage was — "xe" must not
  * open as a prefix of "xem".
  */
-function cueIndex(haystack: string, cue: string): number {
+function cueIndex(haystack: string, cue: string, stripAccents = true): number {
   if (isCjk(cue)) return haystack.indexOf(cue);
-  let re = BOUNDARY_CACHE.get(cue);
+  const key = stripAccents ? cue : `=${cue}`;
+  let re = BOUNDARY_CACHE.get(key);
   if (!re) {
-    const esc = cue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    /* The cue is normalised the SAME way the haystack was — folded against a
+       folded haystack, accented against an accented one. Mixing the two means
+       the cue can never occur in the text at all. */
+    const esc = normalise(cue, stripAccents).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const letters = cue.replace(/[^\p{L}]/gu, "").length;
     const tail = letters < 4 ? "(?![\\p{L}\\p{N}])" : "";
     re = new RegExp(`(?<![\\p{L}\\p{N}])${esc}${tail}`, "u");
-    BOUNDARY_CACHE.set(cue, re);
+    BOUNDARY_CACHE.set(key, re);
   }
   const m = re.exec(haystack);
   return m ? m.index : -1;
@@ -405,14 +438,19 @@ function cueIndex(haystack: string, cue: string): number {
 export function scoreFamilies(
   text: string,
 ): Array<{ family: FamilyName; score: number; first: number; hits: string[] }> {
-  const t = normalise(text);
+  /* Fold diacritics only when the guest wrote without them. Folding always
+     collapses "đôi" (a pair) onto "đổi" (to change), and "đổi" is a
+     stay_changes cue — which routed every "giường đôi" question to the
+     transaction lane. See hasVietnameseDiacritics in retrieval.ts. */
+  const stripAccents = !hasVietnameseDiacritics(text);
+  const t = normalise(text, stripAccents);
   const out: Array<{ family: FamilyName; score: number; first: number; hits: string[] }> = [];
   for (const [family, cues] of Object.entries(CUES) as Array<[FamilyName, string[]]>) {
     let score = 0;
     let first = Number.MAX_SAFE_INTEGER;
     const hits: string[] = [];
     for (const cue of cues) {
-      const at = cueIndex(t, cue);
+      const at = cueIndex(t, cue, stripAccents);
       if (at === -1) continue;
       hits.push(cue);
       /* A space means a phrase; CJK is dense, so 2+ characters already is one. */

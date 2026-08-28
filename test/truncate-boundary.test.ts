@@ -82,5 +82,49 @@ ok(ozoneWindow.includes("10:30") && ozoneWindow.includes("17:00"), "keeps the op
 const noMatch = selectRelevantWindow(SAMPLE, 60, "hoàn toàn không liên quan xyz123");
 ok(noMatch === truncateAtBoundary(SAMPLE, 60), "falls back to head-truncation when nothing in the passage matches the question");
 
+/* A PRICE is the sentence a price question needs and the sentence this
+ * function was most likely to throw away.
+ *
+ * Reported live by the operator: "Giá phòng Deluxe giường đôi được công bố là
+ * 100%." Retrieval was correct — three of five passages were the right rate
+ * chunks — and then every one of the thirteen passages reached the model with
+ * its price deleted here, so the model answered a price question with the
+ * nearest percentage it could see.
+ *
+ * The cause is that selection scored sentences by MARGINAL new coverage of
+ * the question's tokens and stopped as soon as nothing added a new one. A
+ * price sentence adds no new token — a figure is not a word the guest typed —
+ * so it scored 0 and was dropped, with more than half the character budget
+ * still unspent. Redundant in vocabulary is not the same as worthless. */
+const ROOM_CHUNK =
+  "Hạng phòng Deluxe Giường Đôi (Deluxe Queen Bed): Diện tích 32m², tối đa 4 khách. " +
+  "Mô tả & bảng giá niêm yết: Với diện tích 32 m², Deluxe Giường Đôi là phòng khách sạn thiết kế hiện đại " +
+  "với giường đôi sang trọng, tích hợp đầy đủ tiện nghi cho kỳ lưu trú của bạn. " +
+  "Tầm nhìn thoáng đãng, vị trí đắc địa ngay cạnh bãi biển, đây sẽ là lựa chọn lý tưởng dành cho các cặp đôi, " +
+  "gia đình nhỏ hay du khách đi công tác. " +
+  "Tối đa 4 người trong một phòng (3 người lớn 1 trẻ em hoặc 2 người lớn 2 trẻ em). " +
+  "Giá công bố~ 4.600.000VNĐ/đêm Giá chỉ từ~ 4.370.000VNĐ /đêm";
+
+const priceWindow = selectRelevantWindow(ROOM_CHUNK, 400, "Giá phòng Deluxe giường đôi bao nhiêu?");
+ok(priceWindow.length <= 400, "respects the cap");
+ok(priceWindow.includes("4.600.000"), "keeps the published rate a price question is asking for");
+/* The budget must actually be spent. The reported failure used 179 of 400
+   characters and dropped the price for want of room it already had. */
+ok(priceWindow.length > 250, `uses the budget rather than stopping early (${priceWindow.length}/400 chars)`);
+
+/* And the KIND of figure matters: ranking by "contains a digit" alone let the
+   occupancy line win on document order, which pushed the price past the cap
+   by a single character. */
+ok(
+  priceWindow.indexOf("4.600.000") < priceWindow.length,
+  "the price survives even though an occupancy figure competes for the same budget",
+);
+
+/* A question that is NOT about money must not be reshaped by this: the
+   capacity/hours case above still passes, and a non-money question keeps
+   taking its answer from coverage. */
+const areaWindow = selectRelevantWindow(ROOM_CHUNK, 400, "Phòng Deluxe giường đôi rộng bao nhiêu m2?");
+ok(areaWindow.includes("32"), "a size question still gets the size");
+
 console.log(failures === 0 ? "\nALL TRUNCATION TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

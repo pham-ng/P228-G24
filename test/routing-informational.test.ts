@@ -35,11 +35,15 @@ ok(classifyLocal("Tổng hoá đơn của tôi bao nhiêu tiền?", false) !== "
 ok(classifyLocal("What is my current bill total?", false) !== "knowledge", "5b. Personal folio total (en) -> escalates");
 
 console.log("\n=== late checkout fee — informational band description ===");
-// "Phí late checkout là bao nhiêu?" hits the stay_changes family (a real, still
-// intentional escalation for anything checkout/date-shaped) — documented as a
-// known residual conservatism in 09-ROUTING-AND-HALLUCINATION-REMEDIATION.md
-// §remaining-limitations, not silently claimed fixed here.
-ok(classifyLocal("Trả phòng muộn tính phí thế nào?", false) === "transaction", "4. Late checkout fee question -> still escalates (documented limitation, see report)");
+// This assertion used to read "transaction", documented as a residual
+// conservatism in 09-ROUTING-AND-HALLUCINATION-REMEDIATION.md
+// §remaining-limitations. Commit 1b58a44 deliberately lifted that limitation
+// (isPolicyInfoOnly) but did not update this line, so the suite went red and
+// stayed red — which is how the two genuine routing regressions in the same
+// commit went unnoticed. The published late-checkout bands are a static KB
+// fact with no guest-specific number in them, so "knowledge" is the intended
+// behaviour and this now asserts it.
+ok(classifyLocal("Trả phòng muộn tính phí thế nào?", false) === "knowledge", "4. Late checkout policy question -> knowledge (published band, no guest-specific figure)");
 
 console.log("\n=== case-shape regression: original ANSWER-lane 63-case set must never be blocked ===");
 ok(classifyLocal("Mã BB trong bảng giá nghĩa là gì?", false) === "knowledge", "package-codes (was wrongly blocked pre-fix) -> knowledge");
@@ -75,6 +79,44 @@ ok(classifyLocal("Wifi phòng tôi không hoạt động", false) === "transacti
 ok(classifyLocal("Wifi yếu quá, sửa giúp tôi", false) === "transaction", "wifi complaint still escalates");
 // Bare amenity nouns with no KB fact behind them are unaffected by this fix.
 ok(classifyLocal("Khăn tắm bẩn quá", false) === "transaction", "unrelated housekeeping noun (towel) still escalates — fix is wifi-specific");
+
+console.log("\n=== fault reports phrased as a question — isPolicyInfoOnly over-reach (found live) ===");
+// isPolicyInfoOnly was added unscoped and applied to EVERY transaction family.
+// It fires on the bare words "thế nào" / "bao nhiêu" / "mấy giờ", which is how
+// a guest phrases a FAULT REPORT at least as often as a policy lookup — so
+// every sentence below was released to the knowledge lane. Reproduced end to
+// end in the running kiosk: the guest is answered "vui lòng liên hệ lễ tân",
+// NO task is written to the ops board, and nobody is dispatched to the room.
+// It also silently overrode the isWifiInfoOnly carve-out directly above —
+// every cue in WIFI_FAULT_CUES had become unreachable, including the literal
+// "không vào được" in the second case here. Now scoped to stay_changes only.
+ok(classifyLocal("Điều hoà phòng tôi bị hỏng, xử lý thế nào?", false) === "transaction", "broken air-con phrased as a question still dispatches");
+ok(classifyLocal("Wifi phòng tôi không vào được, phải làm thế nào?", false) === "transaction", "wifi fault phrased as a question still dispatches (WIFI_FAULT_CUES reachable again)");
+ok(classifyLocal("Bồn cầu phòng tôi bị tắc, xử lý thế nào?", false) === "transaction", "blocked toilet phrased as a question still dispatches");
+ok(classifyLocal("Phòng tôi hết khăn tắm, bao giờ có thêm?", false) === "transaction", "amenity request phrased as a question still dispatches");
+
+console.log("\n=== extending the stay is arithmetic, not a rate lookup (found live) ===");
+// "Ở thêm 2 ngày mất bao nhiêu tiền?" reached the model, which answered with
+// the LATE CHECKOUT bands (50% / 100%) — a different policy entirely — plus a
+// nightly rate taken from an unrelated package passage. The numeric guard
+// passed it because those figures do appear in some retrieved passage.
+// Answering needs nightly rate × the guest's own number, which this path
+// never improvises, so it goes to a person with zero model calls.
+ok(classifyLocal("Ở thêm 2 ngày mất bao nhiêu tiền?", false) === "complex", "extra-nights cost -> complex");
+ok(classifyLocal("Ở thêm 1 đêm giá bao nhiêu?", false) === "complex", "extra-nights cost, singular -> complex");
+ok(classifyLocal("Tôi ở thêm 3 đêm nữa thì hết bao nhiêu?", false) === "complex", "extra-nights with no money word ('hết bao nhiêu') -> complex");
+// toolrouter's stay_changes lexicon is Vietnamese-only, so these scored ZERO
+// families and fell straight through to knowledge — the Vietnamese sentence
+// had a safety net and the English one never did. Decided before family
+// scoring now, so it holds in every language the kiosk serves.
+ok(classifyLocal("How much for one more night?", false) === "complex", "en extra-night cost -> complex (no family cue exists for it)");
+ok(classifyLocal("I want to stay one more night, how much?", false) === "complex", "en extra-night cost, verbose -> complex");
+ok(classifyLocal("연장해서 1박 더 하면 요금이 얼마인가요?", false) === "complex", "ko extra-night cost -> complex");
+// Must NOT catch an ordinary per-night rate lookup — the cue requires an
+// explicit extra/more word next to the unit.
+ok(classifyLocal("Phòng này bao nhiêu tiền một đêm?", false) === "knowledge", "per-night rate lookup is untouched");
+ok(classifyLocal("How much does a room cost per night?", false) === "knowledge", "per-night rate lookup is untouched (en)");
+ok(classifyLocal("Danh sách khách phải gửi trước bao nhiêu ngày?", false) === "knowledge", "a counting question about days is untouched");
 
 console.log(failures === 0 ? "\nALL ROUTING TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

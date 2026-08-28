@@ -3,6 +3,7 @@ import type { Server } from "node:http";
 import { storage, nowIso, db, hotelToday } from "./storage";
 import { seedIfEmpty } from "./seed";
 import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
+import { readGuestSentiment } from "./sentiment-net";
 import { chat, LlmError } from "./openai";
 import { reindex, indexStats, hybridSearch } from "./retrieval";
 import { getPolicyByTopic } from "./policy";
@@ -88,8 +89,81 @@ async function respondWithAi(conversationId: number) {
       firstResponseSeconds: Math.max(1, Math.round(result.latencyMs / 1000)),
     });
   }
-  analyseConversation(conversationId).catch(() => undefined);
+  /* An unhappy guest usually says nothing and leaves. The thumbs-down path
+     below handles the ones who press the button; this reads the complaint out
+     of the message itself, off the vector retrieval already computed for this
+     turn — a cosine, not a second model call. */
+  const lastGuest = [...storage.listMessages(conversationId)].reverse().find((m) => m.role === "guest");
+  if (lastGuest) {
+    const mood = readGuestSentiment(lastGuest.body);
+    if (mood) escalateUnhappyGuest(conversationId, lastGuest.body, mood.score);
+  }
+
+  /* Errors are logged, not swallowed. This used to end in
+     `.catch(() => undefined)`, and because the classifier's failure value is
+     also "neutral" a broken call and a genuinely neutral guest were
+     indistinguishable — measured on this database, 33 of the conversations
+     that went through the AI path never received a topic at all and nothing
+     anywhere recorded why. */
+  analyseConversation(conversationId).catch((e) =>
+    console.warn(`[insights] sentiment classify failed for conversation #${conversationId}:`, e?.message ?? e),
+  );
   return result;
+}
+
+/**
+ * Hand an unhappy guest to the front desk, on the same terms the thumbs-down
+ * button already uses: the conversation goes to a human, an URGENT task opens
+ * with the standard ten-minute SLA, and the guest is told a person is coming.
+ *
+ * Deliberately reuses that contract rather than inventing a second, quieter
+ * one — staff already know what this task means and how fast to answer it.
+ * Guarded against re-firing: a guest who is unhappy for three messages in a
+ * row needs one person, not three tasks.
+ */
+const UNHAPPY_TASK_TITLE = "⚠️ Khách có dấu hiệu không hài lòng";
+
+function escalateUnhappyGuest(conversationId: number, guestText: string, score: number) {
+  const conv = storage.getConversation(conversationId);
+  if (!conv) return;
+  const alreadyOpen = storage
+    .listTasks()
+    /* Matched on the title, not on a new `source` value: the tasks board
+       renders source as "AI" or "Staff", so inventing a third value would
+       have labelled these tasks as Staff-created. */
+    .some((t) => t.conversationId === conversationId && t.status !== "done" && t.title === UNHAPPY_TASK_TITLE);
+  if (alreadyOpen) return;
+
+  storage.updateConversation(conversationId, {
+    mode: "human",
+    unreadForStaff: 1,
+    sentiment: "negative",
+    lastMessageAt: nowIso(),
+  });
+  const task = storage.createTask({
+    hotelId: conv.hotelId,
+    reservationId: conv.reservationId ?? null,
+    roomId: null,
+    conversationId,
+    dept: "front_desk",
+    title: UNHAPPY_TASK_TITLE,
+    detail: `Phát hiện từ tin nhắn của khách (độ tương đồng ${score.toFixed(3)}): "${guestText.replace(/\s+/g, " ").slice(0, 200)}". Khách chưa bấm phản hồi — hãy chủ động liên hệ.`,
+    priority: "urgent",
+    status: "open",
+    source: "ai",
+    assignedStaffId: null,
+    dueAt: new Date(Date.now() + 10 * 60_000).toISOString(),
+    createdAt: nowIso(),
+    resolvedAt: null,
+  });
+  storage.logEvent({
+    type: "conversation.sentiment_escalated",
+    actor: "system",
+    summary: `Hội thoại #${conversationId} chuyển Lễ tân — phát hiện khách không hài lòng.`,
+    payload: JSON.stringify({ taskId: task.id, score }),
+    conversationId,
+    createdAt: nowIso(),
+  });
 }
 
 /**
@@ -675,6 +749,22 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
             description: row?.description ?? null,
             sourceUrl: row?.sourceUrl ?? null,
             rate: inType[0]?.baseRate ?? 0,
+            /**
+             * The cheapest bookable package for this room, or 0.
+             *
+             * `rate` above is `rooms.base_rate` — the room-only inventory rate,
+             * always BELOW the cheapest package because a package bundles
+             * breakfast and more (2.200.000 vs 3.580.000 for the Deluxe Queen).
+             * Both figures are correct and deliberate (see the three pricing
+             * layers), but the concierge quotes the cheapest PACKAGE, so a card
+             * showing the base rate underneath that answer reads as the system
+             * contradicting itself. Seen live: reply "3.580.000đ/đêm", card
+             * "Giá niêm yết từ 2.200.000₫/đêm", no label on either.
+             *
+             * Shipped as a separate field rather than overwriting `rate`, so
+             * anything already relying on the inventory rate keeps working.
+             */
+            packageFrom: Math.min(...storage.packagesForRoom(code).map((p) => p.publicPrice), Infinity) || 0,
             rooms: inType.length,
             published: !!row,
           };
@@ -1297,6 +1387,24 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       .sort((a, b) => b.count - a.count)
       .slice(0, 7);
 
+    /**
+     * Sentiment, split by where the label came from.
+     *
+     * The chart used to count every conversation together, which made it read
+     * as a measurement of guest mood. It was not: of 458 conversations only
+     * about 39 had ever been through the AI path at all, and of the 14
+     * negative and 45 positive on the chart, all but one of each came from
+     * SEED data. Staff looking at that pie were reading fixtures.
+     *
+     * `classified` counts only conversations the model actually assigned a
+     * topic to — that column is null until `analyseConversation` completes, so
+     * it is the honest marker of "this label was produced, not seeded".
+     */
+    const classifiedConvs = allConvs.filter((c) => c.topic != null);
+    const sentimentClassified = ["positive", "neutral", "negative"].map((s) => ({
+      sentiment: s,
+      count: classifiedConvs.filter((c) => c.sentiment === s).length,
+    }));
     const sentiment = ["positive", "neutral", "negative"].map((s) => ({
       sentiment: s,
       count: allConvs.filter((c) => c.sentiment === s).length,
@@ -1338,6 +1446,9 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       byDept,
       topics,
       sentiment,
+      /* Only the labels the model actually produced — see the note above. */
+      sentimentClassified,
+      sentimentClassifiedTotal: classifiedConvs.length,
       staffLoad: staffList.map((s) => ({
         name: s.name,
         dept: s.dept,

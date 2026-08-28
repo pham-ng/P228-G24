@@ -67,9 +67,40 @@ export function fold(s: string) {
   return s
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    /* Re-compose. NFD decomposes Hangul into jamo (U+1100-U+11FF), which the
+       combining-mark strip above does not remove, so a Korean syllable came out
+       as two code points and every Korean pattern matched against folded text
+       silently stopped matching. Found when diacritic folding was extended to
+       the routing rules: the Korean extra-night case went complex -> knowledge.
+       Latin diacritics are still stripped; CJK now survives unchanged. */
+    .normalize("NFC")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
     .toLowerCase();
+}
+
+/**
+ * Did the writer of this text use Vietnamese diacritics at all?
+ *
+ * Folding diacritics away is what lets an unaccented "toi muon huy phong"
+ * reach the same safety rules as "tôi muốn huỷ phòng". It is also lossy, and
+ * the loss is not theoretical: "đôi" (a pair — as in "giường đôi", a double
+ * bed) and "đổi" (to change) both fold to "doi", and "đổi" is a write verb.
+ * Folding unconditionally therefore routed EVERY double-bed question —
+ * "Giá Deluxe giường đôi bao nhiêu?" — to the transaction lane as if the
+ * guest had asked to change something.
+ *
+ * A guest who types accents has already disambiguated for us. So fold only
+ * when there is nothing to lose: if the message carries no Vietnamese
+ * diacritic, match folded and accept the over-matching (which errs toward
+ * escalation, the cheap failure); if it does, match exactly and keep the
+ * precision the accents were carrying.
+ */
+const VIETNAMESE_DIACRITICS =
+  /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
+
+export function hasVietnameseDiacritics(s: string): boolean {
+  return VIETNAMESE_DIACRITICS.test(s);
 }
 
 /**
@@ -645,6 +676,22 @@ function cosine(a: number[], b: number[]) {
 
 const queryCache = new Map<string, number[]>();
 
+/**
+ * The embedding already computed for a query this turn, if any.
+ *
+ * Retrieval embeds every query it serves. The intent net needs exactly the
+ * same vector — `asQuery()` is a no-op for bge-m3, so there is nothing to
+ * recompute — and reading it back here is what makes that safety layer cost
+ * a cosine (0.04ms) instead of a second embedding call (116ms).
+ *
+ * Returns undefined when the query was never embedded (an escalating route
+ * that returned before retrieval, or a HyDE run keyed differently); the
+ * caller must treat that as "no opinion", never as "no risk".
+ */
+export function cachedQueryVector(query: string): number[] | undefined {
+  return queryCache.get(query);
+}
+
 async function vectorRank(
   query: string,
   chunks: DocChunk[],
@@ -855,14 +902,47 @@ export async function hybridSearch(
   const perDoc = new Map<string, number>();
   const perCategory = new Map<string, number>();
   const picked: typeof ranked = [];
+  /**
+   * Near-duplicate suppression.
+   *
+   * The per-document cap above stops one document flooding the list, but the
+   * rate-package chunks are one document PER ROOM, so they pass it while
+   * carrying almost the same text. Measured on "what's the golf discount for
+   * pearl club members": the correct passage ("Pearl Club member benefits",
+   * *33% off golf*) ranked FIRST, and three package chunks ranked 2, 3 and 5,
+   * each repeating the package perk line *golf 20%*. The model answered 20%.
+   * It went with frequency, not with rank — three votes against one.
+   *
+   * Two of those three said the same thing at a Jaccard of 0.96. Dropping a
+   * passage that is nearly a copy of one already picked costs no information,
+   * frees a slot for something genuinely different, and shortens the prompt.
+   *
+   * The threshold is deliberately high. Measured on the same corpus, two
+   * package chunks for DIFFERENT rooms sit at 0.75-0.77 — those are not
+   * duplicates, and a guest comparing two rooms needs both. 0.90 separates
+   * "the same passage twice" from "two similar passages about different
+   * things", with margin on each side.
+   */
+  const DUP_JACCARD = Number(process.env.LOCAL_DUP_JACCARD ?? 0.9);
+  const pickedTokens: Set<string>[] = [];
+  const jaccard = (a: Set<string>, b: Set<string>) => {
+    if (!a.size || !b.size) return 0;
+    let inter = 0;
+    for (const t of a) if (b.has(t)) inter++;
+    return inter / (a.size + b.size - inter);
+  };
+
   for (const r of ranked) {
     const key = `${r.chunk.kind}:${r.chunk.refId}`;
     const n = perDoc.get(key) ?? 0;
     if (n >= 2) continue;
     const catN = perCategory.get(r.chunk.category) ?? 0;
     if (catN >= categoryCap) continue;
+    const toks = new Set(tokenise(r.chunk.body));
+    if (pickedTokens.some((p) => jaccard(toks, p) >= DUP_JACCARD)) continue;
     perDoc.set(key, n + 1);
     perCategory.set(r.chunk.category, catN + 1);
+    pickedTokens.push(toks);
     picked.push(r);
     if (picked.length >= k) break;
   }

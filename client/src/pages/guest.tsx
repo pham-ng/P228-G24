@@ -222,19 +222,31 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
   );
 }
 
+/**
+ * What the kiosk is actually doing while the guest waits.
+ *
+ * Every line here has to be TRUE of the turn in progress. The previous set
+ * claimed "Tính toán ưu đãi thành viên…" / "Applying member entitlements…" on
+ * every single turn — it showed while answering "mấy giờ ăn sáng?", where no
+ * entitlement is read and no member price exists. A progress line that
+ * describes work the system is not doing is a small lie the guest can catch,
+ * and it is the kind that makes them distrust the parts that are true.
+ *
+ * The three that remain map to real stages of the offline pipeline: routing
+ * (classifyLocal), retrieval (hybridSearch), generation (one model call).
+ *
+ * All six production languages, because a Korean or Russian guest waiting
+ * eight seconds at an English spinner is the same gap as the answer itself
+ * coming back in the wrong language — the kiosk stops feeling like it is
+ * speaking to them.
+ */
 const REASONING_STEPS: Record<string, string[]> = {
-  vi: [
-    "Đang phân tích yêu cầu...",
-    "Truy xuất dữ liệu hệ thống...",
-    "Tính toán ưu đãi thành viên...",
-    "Đang hoàn thiện câu trả lời...",
-  ],
-  en: [
-    "Analyzing request...",
-    "Querying hotel systems...",
-    "Applying member entitlements...",
-    "Formulating response...",
-  ],
+  vi: ["Đang phân tích yêu cầu...", "Đang tìm trong kho tri thức...", "Đang soạn câu trả lời..."],
+  en: ["Analysing your request...", "Searching the knowledge base...", "Writing your answer..."],
+  ko: ["요청을 분석하고 있습니다...", "자료를 검색하고 있습니다...", "답변을 작성하고 있습니다..."],
+  ja: ["ご質問を確認しています...", "資料を検索しています...", "回答を作成しています..."],
+  zh: ["正在分析您的问题...", "正在检索资料...", "正在撰写回复..."],
+  ru: ["Анализируем ваш запрос...", "Ищем в базе знаний...", "Готовим ответ..."],
 };
 
 function ReasoningIndicator({ lang }: { lang: string }) {
@@ -303,17 +315,38 @@ export default function GuestPage() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [detail?.messages.length, send.isPending]);
 
+  /* Whether the GUEST has shown interest in rooms — their own words only.
+   *
+   * This used to read the last message in the thread, which is the AI's reply,
+   * with a boundary-less alternation that included bare "phong", "gia" and
+   * "giá". Almost every answer this concierge writes contains one of them:
+   * "Wi-Fi miễn phí trong toàn bộ phòng, biệt thự…" matched "phòng" and
+   * unfolded five room-shopping chips under a wifi answer. "gia" also matched
+   * inside "Bách Giai", "gia đình" and "giai đoạn", so a restaurant question
+   * did it too.
+   *
+   * Rooms are the thing the guest asks about, not the thing our own sentence
+   * happens to mention — so this reads the draft they are typing and their
+   * own last message, and matches on words that only appear when someone is
+   * shopping for a room. */
   const roomRelated = useMemo(() => {
-    const d = draft.toLowerCase();
-    const lastMessageText = (detail?.messages[detail.messages.length - 1]?.body ?? "").toLowerCase();
-    return /delu|phong|phồng|phòng|room|gia|giá|bed|giường|villa|hạng|loại/.test(d + lastMessageText);
+    const lastGuestText =
+      [...(detail?.messages ?? [])].reverse().find((m) => m.role === "guest")?.body ?? "";
+    const text = `${draft} ${lastGuestText}`.toLowerCase();
+    return /(?:^|[^\p{L}])(?:deluxe|delu|villa|suite|hạng phòng|hang phong|loại phòng|loai phong|đặt phòng|dat phong|room type|room rate|book a room)(?:[^\p{L}]|$)/u.test(
+      text,
+    );
   }, [draft, detail?.messages]);
 
   const prompts = useMemo(() => {
     const lang = detail?.guest.lang ?? "en";
     const base = PROMPTS[lang] ?? PROMPTS.en;
-    if (roomRelated) {
-      const roomChips = ROOM_QUICK_CHIPS[lang] ?? ROOM_QUICK_CHIPS.en;
+    /* No English fallback here. ROOM_QUICK_CHIPS only covers vi and en, and
+       falling back handed a Russian guest "🛏️ Deluxe Double Bed" sitting next
+       to "🛏️ Номера и цены" in the same row. A chip the guest cannot read is
+       worse than no chip — `base` already offers rooms in their language. */
+    const roomChips = ROOM_QUICK_CHIPS[lang];
+    if (roomRelated && roomChips) {
       return Array.from(new Set([...roomChips, ...base]));
     }
     return base;

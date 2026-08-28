@@ -133,13 +133,32 @@ route("Danh sách khách phải gửi trước bao nhiêu ngày?", "knowledge", 
    sum signal, is now informational — the counting unit was never the reason
    these escalated (the money word alone forced it before); now that a money
    word alone no longer auto-escalates, these read the way they always should
-   have: a general room-rate / deposit-amount lookup. "Ở thêm 2 ngày..."
-   (extending the stay) still escalates via the stay_changes family — an
-   extend request is a real stay-change action, independent of this rule. */
+   have: a general room-rate / deposit-amount lookup. */
 route("Phòng này bao nhiêu tiền một đêm?", "knowledge", "Phase 9: general room-rate lookup, no personal/sum signal");
 route("How much does a room cost per night?", "knowledge", "Phase 9: same, en");
-route("Ở thêm 2 ngày mất bao nhiêu tiền?", "transaction", "extend-stay is a real action (stay_changes family), unaffected by this rule");
 route("Đặt cọc bao nhiêu tiền một phòng?", "knowledge", "Phase 9: general deposit-amount lookup, no personal/sum signal");
+
+/* "Ở thêm 2 ngày mất bao nhiêu tiền?" — this assertion previously read
+   "transaction", on the reasoning that extending a stay is a stay_changes
+   ACTION. It is now "complex", and the change is deliberate.
+
+   The assertion was left failing in the committed suite for a while, and
+   during that window the behaviour drifted the other way entirely: the
+   question was reaching the KNOWLEDGE lane and being answered by the model,
+   which replied with the late-checkout fee bands (50% / 18:00, 100% after) —
+   a different policy from extending a stay — plus a nightly rate lifted from
+   an unrelated package passage. The numeric guard passed it, because every
+   figure it quoted really is present in some retrieved passage.
+   Reproduced end to end against the running kiosk, not argued from the code.
+
+   "complex" rather than "transaction" because what the guest is asking for is
+   arithmetic on a number THEY supplied — nightly rate × 2 — which rule 3 of
+   local-agent.ts's header says this path never improvises. "transaction"
+   still escalates, but it escalates through the Hybrid Info-First branch,
+   which spends a model call drafting an answer first — the exact branch that
+   produced the wrong figures above. "complex" hands the turn to a person with
+   zero model calls. */
+route("Ở thêm 2 ngày mất bao nhiêu tiền?", "complex", "extend-stay cost is arithmetic on the guest's own number");
 
 console.log("=== ROUTING: emergency outranks everything ===");
 ok(classifyLocal("Mấy giờ ăn sáng?", true) === "emergency", "the emergency flag wins over content");

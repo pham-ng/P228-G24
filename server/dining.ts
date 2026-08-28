@@ -79,17 +79,62 @@ export function dishesOf(v: Venue): Array<MenuItem & { group: string | null }> {
  * builds one per venue, titled exactly `${nameVi} — ẩm thực` — so it stays
  * correct for a venue added tomorrow with no frontend change at all.
  */
-export function detectReferencedVenues(passages: { title: string; category: string }[]): { slug: string; name: string }[] {
+/**
+ * Generic words that carry no identifying signal — "nhà hàng", "bar", the
+ * property's own brand. Hoisted out of findVenue so the card filter below
+ * uses the same list: both are answering "did this turn name THIS venue",
+ * and they must not disagree about what counts as naming one.
+ */
+const VENUE_STOP = new Set([
+  "nha", "hang", "quan", "bar", "restaurant", "lounge", "vinpearl", "resort",
+  "nha trang", "cua", "the", "o", "tai", "vi", "va",
+]);
+
+/**
+ * True when `focus` names this venue. Distinctive tokens, all of them, in any
+ * order — not a contiguous substring.
+ *
+ * Substring matching looked right and was wrong in both directions of the
+ * same sentence: the venue is stored as "Lotus Restaurant", a Vietnamese
+ * guest writes "Nhà hàng Lotus", and neither string contains the other, so
+ * asking Lotus what it serves produced no Lotus card at all. Word order and
+ * the language of the generic half both vary; the distinctive half ("lotus")
+ * does not.
+ */
+function focusNamesVenue(focus: string, v: Venue): boolean {
+  const tokens = `${fold(v.row.nameVi)} ${fold(v.row.code)}`
+    .split(/\s+/)
+    .filter((w) => w.length > 1 && !VENUE_STOP.has(w));
+  const distinctive = [...new Set(tokens)];
+  if (!distinctive.length) return false;
+  return distinctive.some((w) => focus.includes(w));
+}
+
+/*
+ * `focusText` (the guest's question plus the reply just written) is a FILTER
+ * on top of that resolution, not a replacement for it. The venue is still
+ * resolved from the "dining_venue" chunk exactly as described above, so a
+ * venue added tomorrow still needs no frontend change and there is still no
+ * per-name `if`. What the filter removes is retrieval noise: asked what Lotus
+ * serves, the five retrieved passages also included Bách Giai and Halal
+ * VietFlavors, and both were being offered as cards next to an answer that
+ * never mentioned them. A venue the turn never named is not a reference.
+ */
+export function detectReferencedVenues(
+  passages: { title: string; category: string }[],
+  focusText = "",
+): { slug: string; name: string }[] {
   const venues = listVenues();
+  const focus = fold(focusText);
   const seen = new Set<string>();
   const out: { slug: string; name: string }[] = [];
   for (const p of passages) {
     if (p.category !== "dining_venue") continue;
     const v = venues.find((x) => p.title.startsWith(x.row.nameVi));
-    if (v && !seen.has(v.row.slug)) {
-      seen.add(v.row.slug);
-      out.push({ slug: v.row.slug, name: v.row.nameVi });
-    }
+    if (!v || seen.has(v.row.slug)) continue;
+    if (focus && !focusNamesVenue(focus, v)) continue;
+    seen.add(v.row.slug);
+    out.push({ slug: v.row.slug, name: v.row.nameVi });
   }
   return out;
 }
@@ -109,12 +154,7 @@ export function findVenue(query: string): Venue | null {
   const exact = venues.find((v) => fold(v.row.code) === q || fold(v.row.nameVi) === q);
   if (exact) return exact;
 
-  // Generic words carry no identifying signal and are dropped before scoring.
-  const STOP = new Set([
-    "nha", "hang", "quan", "bar", "restaurant", "lounge", "vinpearl", "resort",
-    "nha trang", "cua", "the", "o", "tai", "vi", "va",
-  ]);
-  const words = q.split(" ").filter((w) => w.length > 1 && !STOP.has(w));
+  const words = q.split(" ").filter((w) => w.length > 1 && !VENUE_STOP.has(w));
   if (!words.length) return null;
 
   let best: { v: Venue; score: number } | null = null;

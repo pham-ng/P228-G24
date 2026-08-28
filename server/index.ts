@@ -104,6 +104,13 @@ app.use((req, res, next) => {
     const { reportIndexHealth } = await import("./index-health");
     await reportIndexHealth();
 
+    /* Embed the intent prototypes once, off the request path. Optional layer:
+       a failure here must never keep the kiosk from booting. */
+    const { warmIntentNet } = await import("./intent-net");
+    void warmIntentNet();
+    const { warmSentimentNet } = await import("./sentiment-net");
+    void warmSentimentNet();
+
     const { startBackupScheduler } = await import("./backup");
     startBackupScheduler(24);
   });

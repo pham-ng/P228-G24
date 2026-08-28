@@ -1,0 +1,400 @@
+{"text":"phong ban qua, toi rat that vong voi dich vu 5 sao","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Room is filthy and smells like damp mold, totally disgusted","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"방이 너무 더럽고 곰팡이 냄새가 나요, 정말 실망입니다","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"房间太脏了，很多灰尘和霉味，非常失望","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"部屋がカビ臭くとても汚いです、本当に失望しました","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Номер грязный, пахнет плесенью, ужасный сервис","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"Nhân viên thái độ tệ hại, trả lời cộc lốc với khách","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Front desk staff was extremely rude and unhelpful","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"직원 태도가 너무 불친절하고 응대가 엉망이에요","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"前台服务人员态度极其恶劣，问话也不理","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"フロントの接客態度が非常に悪く不快でした","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Персонал на ресепшн грубый и абсолютно не помогает","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"Mùi nhà vệ sinh hôi rình không chịu nổi, cho đổi phòng ngay","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Beautiful sea view room but the AC sounds like a tractor","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"방은 넓고 좋은데 에어컨 소음이 너무 심해요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"海景很漂亮，但是空调响得像发动机一样","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"景観は素晴らしいですが、エアコンの音がうるさすぎます","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Вид на море красивый, но кондиционер шумит как трактор","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"do an buffet qua te, nguong khong nuot noi","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Food tasted decent but took over an hour to be served","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"음식은 맛있는데 주문하고 40분이나 기다렸네요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"菜味道还行，但是等了一个小时才上第一个菜","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"料理は美味しいですが、注文してから40分も待たされました","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Еда вкусная, но ждали заказ больше 40 минут","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"phong dep nhung nhan vien le tan cham chap qua","label":"negative","phenomenon":"mixed","lang":"vi"}
+{"text":"Great 5 star service, waiting 40 mins for a single towel","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"5성급 리조트라더니 서비스가 대단하네요, 타월 하나 받는데 한시간 걸림","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"真不愧是五星级，要个毛巾等了大半天，太棒了","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"さすが5つ星ホテルですね、タオル1本頼んで40分待ちです","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Замечательный 5-звездочный сервис, жду полотенце уже час","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"Đồ ăn ngon nhưng đợi 1 tiếng mới ra đĩa đầu tiên","label":"negative","phenomenon":"mixed","lang":"vi"}
+{"text":"Loved paying 300$ a night to sleep with a broken aircon","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"에어컨 없이 찜질방 체험하게 해주셔서 정말 감사합니다","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"谢谢你们让我体验不开空调的桑拿房","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"エアコン無しのサウナ体験をありがとうございます","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Спасибо за бесплатную сауну в номере без кондиционера","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"5 sao ma dieu hoa khong chay, hay that day","label":"negative","phenomenon":"sarcasm","lang":"vi"}
+{"text":"I have been waiting for the buggy for 35 minutes now","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"버기카 부른 지 30분이 지났는데 아직도 안 오네요","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"我已经叫接驳电瓶车等了30分钟了","label":"negative","phenomenon":"implied","lang":"zh"}
+{"text":"カートを呼んでからもう30分以上待っています","label":"negative","phenomenon":"implied","lang":"ja"}
+{"text":"Я жду багги уже 35 минут, мы опаздываем","label":"negative","phenomenon":"implied","lang":"ru"}
+{"text":"Resort đẳng cấp mà phục vụ như thời bao cấp vậy","label":"negative","phenomenon":"sarcasm","lang":"vi"}
+{"text":"It is 4pm and our room has still not been cleaned yet","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"체크아웃 정산서에 안 마신 음료가 청구되어 있습니다","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"退房账单上多算了我没喝的水和饮料","label":"negative","phenomenon":"implied","lang":"zh"}
+{"text":"チェックアウトの請求書に飲んでいないドリンクが含まれています","label":"negative","phenomenon":"implied","lang":"ja"}
+{"text":"В счет при выезде включили напитки, которые мы не брали","label":"negative","phenomenon":"implied","lang":"ru"}
+{"text":"toi doi 45 phut roi chua thay ai dem khan tam len","label":"negative","phenomenon":"implied","lang":"vi"}
+{"text":"Way overpriced for a tiny outdated room","label":"negative","phenomenon":"value_complaint","lang":"en"}
+{"text":"이 가격에 이런 좁고 오래된 방이라니 돈 아깝습니다","label":"negative","phenomenon":"value_complaint","lang":"ko"}
+{"text":"价格太贵了，房间又小又旧，根本不值这个价","label":"negative","phenomenon":"value_complaint","lang":"zh"}
+{"text":"このクオリティでこの価格は高すぎます、見合っていません","label":"negative","phenomenon":"value_complaint","lang":"ja"}
+{"text":"Слишком дорого для такого маленького и старого номера","label":"negative","phenomenon":"value_complaint","lang":"ru"}
+{"text":"Đây là lần thứ ba tôi nhắn tin gọi xe điện rồi nhé","label":"negative","phenomenon":"implied","lang":"vi"}
+{"text":"Not worth $400 a night at all, 3 star quality at best","label":"negative","phenomenon":"value_complaint","lang":"en"}
+{"text":"뷔페 가격이 음식 퀄리티에 비해 너무 비쌉니다","label":"negative","phenomenon":"value_complaint","lang":"ko"}
+{"text":"自助餐价格贵得离谱，食物都是冻品","label":"negative","phenomenon":"value_complaint","lang":"zh"}
+{"text":"ブッフェの値段の割に料理の種類が少なすぎます","label":"negative","phenomenon":"value_complaint","lang":"ja"}
+{"text":"Шведский стол не стоит таких денег, выбор очень слабый","label":"negative","phenomenon":"value_complaint","lang":"ru"}
+{"text":"gia nay qua dat so voi chat luong phong giat quat","label":"negative","phenomenon":"value_complaint","lang":"vi"}
+{"text":"Room wasn't bad at all, quite comfortable actually","label":"not_negative","phenomenon":"negation","lang":"en"}
+{"text":"방 상태가 나쁘지 않네요, 편하게 잘 쉬었습니다","label":"not_negative","phenomenon":"negation","lang":"ko"}
+{"text":"房间其实还不算差，整体挺舒适的","label":"not_negative","phenomenon":"negation","lang":"zh"}
+{"text":"部屋はそれほど悪くないです、快適に過ごせました","label":"not_negative","phenomenon":"negation","lang":"ja"}
+{"text":"Номер не так уж плох, вполне неплохо","label":"not_negative","phenomenon":"negation","lang":"ru"}
+{"text":"Bỏ 5 triệu/đêm mà phòng bé tẹo, dịch vụ thua khách sạn 3 sao","label":"negative","phenomenon":"value_complaint","lang":"vi"}
+{"text":"Staff weren't rude, they were actually quite helpful","label":"not_negative","phenomenon":"negation","lang":"en"}
+{"text":"직원들이 전혀 불친절하지 않고 친절했어요","label":"not_negative","phenomenon":"negation","lang":"ko"}
+{"text":"服务员一点也不冷淡，态度蛮热情的","label":"not_negative","phenomenon":"negation","lang":"zh"}
+{"text":"スタッフの対応も冷たくなく、丁寧でした","label":"not_negative","phenomenon":"negation","lang":"ja"}
+{"text":"Персонал вовсе не грубый, очень вежливые","label":"not_negative","phenomenon":"negation","lang":"ru"}
+{"text":"phong khong te lam, toi thay hop ly trong tam gia","label":"not_negative","phenomenon":"negation","lang":"vi"}
+{"text":"It was okay, decent enough stay","label":"not_negative","phenomenon":"understatement","lang":"en"}
+{"text":"그럭저럭 무난하고 지낼만 했습니다","label":"not_negative","phenomenon":"understatement","lang":"ko"}
+{"text":"还可以吧，中规中矩，能住","label":"not_negative","phenomenon":"understatement","lang":"zh"}
+{"text":"まあ普通ですね、特に問題はないです","label":"not_negative","phenomenon":"understatement","lang":"ja"}
+{"text":"Нормально, сойдет для пары дней","label":"not_negative","phenomenon":"understatement","lang":"ru"}
+{"text":"Đồ ăn không đến nỗi dở, ăn cũng ổn","label":"not_negative","phenomenon":"negation","lang":"vi"}
+{"text":"Breakfast was alright, standard hotel food","label":"not_negative","phenomenon":"understatement","lang":"en"}
+{"text":"조식은 그냥 평범한 호텔 음식 수준입니다","label":"not_negative","phenomenon":"understatement","lang":"ko"}
+{"text":"早餐一般般，就是普通酒店标准","label":"not_negative","phenomenon":"understatement","lang":"zh"}
+{"text":"朝食はまあ普通のホテルレベルです","label":"not_negative","phenomenon":"understatement","lang":"ja"}
+{"text":"Завтрак обычный, стандартный отельный уровень","label":"not_negative","phenomenon":"understatement","lang":"ru"}
+{"text":"cung tam, noi chung la o duoc","label":"not_negative","phenomenon":"understatement","lang":"vi"}
+{"text":"The AC in room 402 is not cooling, please send a technician","label":"not_negative","phenomenon":"fault_report_calm","lang":"en"}
+{"text":"201호 에어컨이 작동하지 않는데 기사님 확인 부탁드립니다","label":"not_negative","phenomenon":"fault_report_calm","lang":"ko"}
+{"text":"302房间空调制冷有问题，麻烦安排维修人员看一下","label":"not_negative","phenomenon":"fault_report_calm","lang":"zh"}
+{"text":"205号室のエアコンが効かないので確認をお願いします","label":"not_negative","phenomenon":"fault_report_calm","lang":"ja"}
+{"text":"В номер 104 не работает кондиционер, проверьте пожалуйста","label":"not_negative","phenomenon":"fault_report_calm","lang":"ru"}
+{"text":"Phòng ốc cũng bình thường, tạm ổn","label":"not_negative","phenomenon":"understatement","lang":"vi"}
+{"text":"Bathroom sink is clogged, could someone fix it please","label":"not_negative","phenomenon":"fault_report_calm","lang":"en"}
+{"text":"화장실 세면대가 막혔어요, 직원 보내주세요","label":"not_negative","phenomenon":"fault_report_calm","lang":"ko"}
+{"text":"洗手池堵住了，请派人清理一下","label":"not_negative","phenomenon":"fault_report_calm","lang":"zh"}
+{"text":"洗面台の水が流れません、修理をお願いできますか","label":"not_negative","phenomenon":"fault_report_calm","lang":"ja"}
+{"text":"Засорилась раковина в ванной, пришлите сантехника","label":"not_negative","phenomenon":"fault_report_calm","lang":"ru"}
+{"text":"dieu hoa phong 202 khong chay, nho ky thuat kiem tra giup","label":"not_negative","phenomenon":"fault_report_calm","lang":"vi"}
+{"text":"Amazing staff, super welcoming and helpful","label":"not_negative","phenomenon":"positive","lang":"en"}
+{"text":"직원분들이 너무 친절하고 오션뷰가 최고였습니다","label":"not_negative","phenomenon":"positive","lang":"ko"}
+{"text":"环境非常优美，前台办理入住很快，服务赞","label":"not_negative","phenomenon":"positive","lang":"zh"}
+{"text":"スタッフの方々がとても親切で、オーシャンビューも最高でした","label":"not_negative","phenomenon":"positive","lang":"ja"}
+{"text":"Прекрасный отель, отличный персонал и великолепный вид на море","label":"not_negative","phenomenon":"positive","lang":"ru"}
+{"text":"Bồn rửa mặt bị nghẹt nước, nhờ nhân viên qua xử lý giúp mình","label":"not_negative","phenomenon":"fault_report_calm","lang":"vi"}
+{"text":"Seafood buffet was fresh and delicious, 10/10 experience","label":"not_negative","phenomenon":"positive","lang":"en"}
+{"text":"해산물 뷔페 음식 종류도 많고 정말 맛있네요","label":"not_negative","phenomenon":"positive","lang":"ko"}
+{"text":"海鲜自助餐新鲜美味，海景房景色绝佳","label":"not_negative","phenomenon":"positive","lang":"zh"}
+{"text":"スパのマッサージが素晴らしく、大変リラックスできました","label":"not_negative","phenomenon":"positive","lang":"ja"}
+{"text":"Замечательный спа-салон, массаж просто супер","label":"not_negative","phenomenon":"positive","lang":"ru"}
+{"text":"nhan vien rat thien dep, ho tro gia dinh toi chu dao","label":"not_negative","phenomenon":"positive","lang":"vi"}
+{"text":"What time does Lotus restaurant open for breakfast","label":"not_negative","phenomenon":"neutral_lookup","lang":"en"}
+{"text":"조식 뷔페 몇 시부터 이용 가능한가요","label":"not_negative","phenomenon":"neutral_lookup","lang":"ko"}
+{"text":"请问莲花餐厅早餐几点开始营业","label":"not_negative","phenomenon":"neutral_lookup","lang":"zh"}
+{"text":"ジャスミンレストランの夕食の営業時間を教えてください","label":"not_negative","phenomenon":"neutral_lookup","lang":"ja"}
+{"text":"Во сколько начинается завтрак в ресторане Lotus","label":"not_negative","phenomenon":"neutral_lookup","lang":"ru"}
+{"text":"Phòng đẹp xuất sắc, view biển ngắm hoàng hôn đỉnh lắm","label":"not_negative","phenomenon":"positive","lang":"vi"}
+{"text":"What is the cable car operating schedule today","label":"not_negative","phenomenon":"neutral_lookup","lang":"en"}
+{"text":"케이블카 운행 시간표 좀 알려주세요","label":"not_negative","phenomenon":"neutral_lookup","lang":"ko"}
+{"text":"跨海缆车最后一班是几点","label":"not_negative","phenomenon":"neutral_lookup","lang":"zh"}
+{"text":"ロープウェイの運行スケジュールを確認したいです","label":"not_negative","phenomenon":"neutral_lookup","lang":"ja"}
+{"text":"Подскажите расписание работы канатной дороги","label":"not_negative","phenomenon":"neutral_lookup","lang":"ru"}
+{"text":"nha hang lotus may gio mo cua sang vay em","label":"not_negative","phenomenon":"neutral_lookup","lang":"vi"}
+{"text":"Room is filthy and smells like damp mold, totally disgusted","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"방이 너무 더럽고 곰팡이 냄새가 나요, 정말 실망입니다","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"房间太脏了，很多灰尘和霉味，非常失望","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"部屋がカビ臭くとても汚いです、本当に失望しました","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Номер грязный, пахнет плесенью, ужасный сервис","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"Giờ chạy cáp treo chuyến cuối cùng là mấy giờ","label":"not_negative","phenomenon":"neutral_lookup","lang":"vi"}
+{"text":"Front desk staff was extremely rude and unhelpful","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"직원 태도가 너무 불친절하고 응대가 엉망이에요","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"前台服务人员态度极其恶劣，问话也不理","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"フロントの接客態度が非常に悪く不快でした","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Персонал на ресепшн грубый и абсолютно не помогает","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"phong ban qua, toi rat that vong voi dich vu 5 sao","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Beautiful sea view room but the AC sounds like a tractor","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"방은 넓고 좋은데 에어컨 소음이 너무 심해요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"海景很漂亮，但是空调响得像发动机一样","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"景観は素晴らしいですが、エアコンの音がうるさすぎます","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Вид на море красивый, но кондиционер шумит как трактор","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"Nhân viên thái độ tệ hại, trả lời cộc lốc với khách","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Food tasted decent but took over an hour to be served","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"음식은 맛있는데 주문하고 40분이나 기다렸네요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"菜味道还行，但是等了一个小时才上第一个菜","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"料理は美味しいですが、注文してから40分も待たされました","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Еда вкусная, но ждали заказ больше 40 минут","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"Mùi nhà vệ sinh hôi rình không chịu nổi, cho đổi phòng ngay","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Great 5 star service, waiting 40 mins for a single towel","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"5성급 리조트라더니 서비스가 대단하네요, 타월 하나 받는데 한시간 걸림","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"真不愧是五星级，要个毛巾等了大半天，太棒了","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"さすが5つ星ホテルですね、タオル1本頼んで40分待ちです","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Замечательный 5-звездочный сервис, жду полотенце уже час","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"do an buffet qua te, nguong khong nuot noi","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Loved paying 300$ a night to sleep with a broken aircon","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"에어컨 없이 찜질방 체험하게 해주셔서 정말 감사합니다","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"谢谢你们让我体验不开空调的桑拿房","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"エアコン無しのサウナ体験をありがとうございます","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Спасибо за бесплатную сауну в номере без кондиционера","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"phong dep nhung nhan vien le tan cham chap qua","label":"negative","phenomenon":"mixed","lang":"vi"}
+{"text":"I have been waiting for the buggy for 35 minutes now","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"버기카 부른 지 30분이 지났는데 아직도 안 오네요","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"我已经叫接驳电瓶车等了30分钟了","label":"negative","phenomenon":"implied","lang":"zh"}
+{"text":"カートを呼んでからもう30分以上待っています","label":"negative","phenomenon":"implied","lang":"ja"}
+{"text":"Я жду багги уже 35 минут, мы опаздываем","label":"negative","phenomenon":"implied","lang":"ru"}
+{"text":"Đồ ăn ngon nhưng đợi 1 tiếng mới ra đĩa đầu tiên","label":"negative","phenomenon":"mixed","lang":"vi"}
+{"text":"It is 4pm and our room has still not been cleaned yet","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"체크아웃 정산서에 안 마신 음료가 청구되어 있습니다","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"退房账单上多算了我没喝的水和饮料","label":"negative","phenomenon":"implied","lang":"zh"}
+{"text":"チェックアウトの請求書に飲んでいないドリンクが含まれています","label":"negative","phenomenon":"implied","lang":"ja"}
+{"text":"В счет при выезде включили напитки, которые мы не брали","label":"negative","phenomenon":"implied","lang":"ru"}
+{"text":"5 sao ma dieu hoa khong chay, hay that day","label":"negative","phenomenon":"sarcasm","lang":"vi"}
+{"text":"Way overpriced for a tiny outdated room","label":"negative","phenomenon":"value_complaint","lang":"en"}
+{"text":"이 가격에 이런 좁고 오래된 방이라니 돈 아깝습니다","label":"negative","phenomenon":"value_complaint","lang":"ko"}
+{"text":"价格太贵了，房间又小又旧，根本不值这个价","label":"negative","phenomenon":"value_complaint","lang":"zh"}
+{"text":"このクオリティでこの価格は高すぎます、見合っていません","label":"negative","phenomenon":"value_complaint","lang":"ja"}
+{"text":"Слишком дорого для такого маленького и старого номера","label":"negative","phenomenon":"value_complaint","lang":"ru"}
+{"text":"Resort đẳng cấp mà phục vụ như thời bao cấp vậy","label":"negative","phenomenon":"sarcasm","lang":"vi"}
+{"text":"Not worth $400 a night at all, 3 star quality at best","label":"negative","phenomenon":"value_complaint","lang":"en"}
+{"text":"뷔페 가격이 음식 퀄리티에 비해 너무 비쌉니다","label":"negative","phenomenon":"value_complaint","lang":"ko"}
+{"text":"自助餐价格贵得离谱，食物都是冻品","label":"negative","phenomenon":"value_complaint","lang":"zh"}
+{"text":"ブッフェの値段の割に料理の種類が少なすぎます","label":"negative","phenomenon":"value_complaint","lang":"ja"}
+{"text":"Шведский стол не стоит таких денег, выбор очень слабый","label":"negative","phenomenon":"value_complaint","lang":"ru"}
+{"text":"toi doi 45 phut roi chua thay ai dem khan tam len","label":"negative","phenomenon":"implied","lang":"vi"}
+{"text":"Room wasn't bad at all, quite comfortable actually","label":"not_negative","phenomenon":"negation","lang":"en"}
+{"text":"방 상태가 나쁘지 않네요, 편하게 잘 쉬었습니다","label":"not_negative","phenomenon":"negation","lang":"ko"}
+{"text":"房间其实还不算差，整体挺舒适的","label":"not_negative","phenomenon":"negation","lang":"zh"}
+{"text":"部屋はそれほど悪くないです、快適に過ごせました","label":"not_negative","phenomenon":"negation","lang":"ja"}
+{"text":"Номер не так уж плох, вполне неплохо","label":"not_negative","phenomenon":"negation","lang":"ru"}
+{"text":"Đây là lần thứ ba tôi nhắn tin gọi xe điện rồi nhé","label":"negative","phenomenon":"implied","lang":"vi"}
+{"text":"Staff weren't rude, they were actually quite helpful","label":"not_negative","phenomenon":"negation","lang":"en"}
+{"text":"직원들이 전혀 불친절하지 않고 친절했어요","label":"not_negative","phenomenon":"negation","lang":"ko"}
+{"text":"服务员一点也不冷淡，态度蛮热情的","label":"not_negative","phenomenon":"negation","lang":"zh"}
+{"text":"スタッフの対応も冷たくなく、丁寧でした","label":"not_negative","phenomenon":"negation","lang":"ja"}
+{"text":"Персонал вовсе не грубый, очень вежливые","label":"not_negative","phenomenon":"negation","lang":"ru"}
+{"text":"gia nay qua dat so voi chat luong phong giat quat","label":"negative","phenomenon":"value_complaint","lang":"vi"}
+{"text":"It was okay, decent enough stay","label":"not_negative","phenomenon":"understatement","lang":"en"}
+{"text":"그럭저럭 무난하고 지낼만 했습니다","label":"not_negative","phenomenon":"understatement","lang":"ko"}
+{"text":"还可以吧，中规中矩，能住","label":"not_negative","phenomenon":"understatement","lang":"zh"}
+{"text":"まあ普通ですね、特に問題はないです","label":"not_negative","phenomenon":"understatement","lang":"ja"}
+{"text":"Нормально, сойдет для пары дней","label":"not_negative","phenomenon":"understatement","lang":"ru"}
+{"text":"Bỏ 5 triệu/đêm mà phòng bé tẹo, dịch vụ thua khách sạn 3 sao","label":"negative","phenomenon":"value_complaint","lang":"vi"}
+{"text":"Breakfast was alright, standard hotel food","label":"not_negative","phenomenon":"understatement","lang":"en"}
+{"text":"조식은 그냥 평범한 호텔 음식 수준입니다","label":"not_negative","phenomenon":"understatement","lang":"ko"}
+{"text":"早餐一般般，就是普通酒店标准","label":"not_negative","phenomenon":"understatement","lang":"zh"}
+{"text":"朝食はまあ普通のホテルレベルです","label":"not_negative","phenomenon":"understatement","lang":"ja"}
+{"text":"Завтрак обычный, стандартный отельный уровень","label":"not_negative","phenomenon":"understatement","lang":"ru"}
+{"text":"phong khong te lam, toi thay hop ly trong tam gia","label":"not_negative","phenomenon":"negation","lang":"vi"}
+{"text":"The AC in room 402 is not cooling, please send a technician","label":"not_negative","phenomenon":"fault_report_calm","lang":"en"}
+{"text":"201호 에어컨이 작동하지 않는데 기사님 확인 부탁드립니다","label":"not_negative","phenomenon":"fault_report_calm","lang":"ko"}
+{"text":"302房间空调制冷有问题，麻烦安排维修人员看一下","label":"not_negative","phenomenon":"fault_report_calm","lang":"zh"}
+{"text":"205号室のエアコンが効かないので確認をお願いします","label":"not_negative","phenomenon":"fault_report_calm","lang":"ja"}
+{"text":"В номер 104 не работает кондиционер, проверьте пожалуйста","label":"not_negative","phenomenon":"fault_report_calm","lang":"ru"}
+{"text":"Đồ ăn không đến nỗi dở, ăn cũng ổn","label":"not_negative","phenomenon":"negation","lang":"vi"}
+{"text":"Bathroom sink is clogged, could someone fix it please","label":"not_negative","phenomenon":"fault_report_calm","lang":"en"}
+{"text":"화장실 세면대가 막혔어요, 직원 보내주세요","label":"not_negative","phenomenon":"fault_report_calm","lang":"ko"}
+{"text":"洗手池堵住了，请派人清理一下","label":"not_negative","phenomenon":"fault_report_calm","lang":"zh"}
+{"text":"洗面台の水が流れません、修理をお願いできますか","label":"not_negative","phenomenon":"fault_report_calm","lang":"ja"}
+{"text":"Засорилась раковина в ванной, пришлите сантехника","label":"not_negative","phenomenon":"fault_report_calm","lang":"ru"}
+{"text":"cung tam, noi chung la o duoc","label":"not_negative","phenomenon":"understatement","lang":"vi"}
+{"text":"Amazing staff, super welcoming and helpful","label":"not_negative","phenomenon":"positive","lang":"en"}
+{"text":"직원분들이 너무 친절하고 오션뷰가 최고였습니다","label":"not_negative","phenomenon":"positive","lang":"ko"}
+{"text":"环境非常优美，前台办理入住很快，服务赞","label":"not_negative","phenomenon":"positive","lang":"zh"}
+{"text":"スタッフの方々がとても親切で、オーシャンビューも最高でした","label":"not_negative","phenomenon":"positive","lang":"ja"}
+{"text":"Прекрасный отель, отличный персонал и великолепный вид на море","label":"not_negative","phenomenon":"positive","lang":"ru"}
+{"text":"Phòng ốc cũng bình thường, tạm ổn","label":"not_negative","phenomenon":"understatement","lang":"vi"}
+{"text":"Seafood buffet was fresh and delicious, 10/10 experience","label":"not_negative","phenomenon":"positive","lang":"en"}
+{"text":"해산물 뷔페 음식 종류도 많고 정말 맛있네요","label":"not_negative","phenomenon":"positive","lang":"ko"}
+{"text":"海鲜自助餐新鲜美味，海景房景色绝佳","label":"not_negative","phenomenon":"positive","lang":"zh"}
+{"text":"スパのマッサージが素晴らしく、大変リラックスできました","label":"not_negative","phenomenon":"positive","lang":"ja"}
+{"text":"Замечательный спа-салон, массаж просто супер","label":"not_negative","phenomenon":"positive","lang":"ru"}
+{"text":"dieu hoa phong 202 khong chay, nho ky thuat kiem tra giup","label":"not_negative","phenomenon":"fault_report_calm","lang":"vi"}
+{"text":"What time does Lotus restaurant open for breakfast","label":"not_negative","phenomenon":"neutral_lookup","lang":"en"}
+{"text":"조식 뷔페 몇 시부터 이용 가능한가요","label":"not_negative","phenomenon":"neutral_lookup","lang":"ko"}
+{"text":"请问莲花餐厅早餐几点开始营业","label":"not_negative","phenomenon":"neutral_lookup","lang":"zh"}
+{"text":"ジャスミンレストランの夕食の営業時間を教えてください","label":"not_negative","phenomenon":"neutral_lookup","lang":"ja"}
+{"text":"Во сколько начинается завтрак в ресторане Lotus","label":"not_negative","phenomenon":"neutral_lookup","lang":"ru"}
+{"text":"Bồn rửa mặt bị nghẹt nước, nhờ nhân viên qua xử lý giúp mình","label":"not_negative","phenomenon":"fault_report_calm","lang":"vi"}
+{"text":"What is the cable car operating schedule today","label":"not_negative","phenomenon":"neutral_lookup","lang":"en"}
+{"text":"케이블카 운행 시간표 좀 알려주세요","label":"not_negative","phenomenon":"neutral_lookup","lang":"ko"}
+{"text":"跨海缆车最后一班是几点","label":"not_negative","phenomenon":"neutral_lookup","lang":"zh"}
+{"text":"ロープウェイの運行スケジュールを確認したいです","label":"not_negative","phenomenon":"neutral_lookup","lang":"ja"}
+{"text":"Подскажите расписание работы канатной дороги","label":"not_negative","phenomenon":"neutral_lookup","lang":"ru"}
+{"text":"nhan vien rat thien dep, ho tro gia dinh toi chu dao","label":"not_negative","phenomenon":"positive","lang":"vi"}
+{"text":"Room is filthy and smells like damp mold, totally disgusted","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"방이 너무 더럽고 곰팡이 냄새가 나요, 정말 실망입니다","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"房间太脏了，很多灰尘和霉味，非常失望","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"部屋がカビ臭くとても汚いです、本当に失望しました","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Номер грязный, пахнет плесенью, ужасный сервис","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"Phòng đẹp xuất sắc, view biển ngắm hoàng hôn đỉnh lắm","label":"not_negative","phenomenon":"positive","lang":"vi"}
+{"text":"Front desk staff was extremely rude and unhelpful","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"직원 태도가 너무 불친절하고 응대가 엉망이에요","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"前台服务人员态度极其恶劣，问话也不理","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"フロントの接客態度が非常に悪く不快でした","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Персонал на ресепшн грубый и абсолютно не помогает","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"nha hang lotus may gio mo cua sang vay em","label":"not_negative","phenomenon":"neutral_lookup","lang":"vi"}
+{"text":"Beautiful sea view room but the AC sounds like a tractor","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"방은 넓고 좋은데 에어컨 소음이 너무 심해요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"海景很漂亮，但是空调响得像发动机一样","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"景観は素晴らしいですが、エアコンの音がうるさすぎます","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Вид на море красивый, но кондиционер шумит как трактор","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"Giờ chạy cáp treo chuyến cuối cùng là mấy giờ","label":"not_negative","phenomenon":"neutral_lookup","lang":"vi"}
+{"text":"Food tasted decent but took over an hour to be served","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"음식은 맛있는데 주문하고 40분이나 기다렸네요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"菜味道还行，但是等了一个小时才上第一个菜","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"料理は美味しいですが、注文してから40分も待たされました","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Еда вкусная, но ждали заказ больше 40 минут","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"phong ban qua, toi rat that vong voi dich vu 5 sao","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Great 5 star service, waiting 40 mins for a single towel","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"5성급 리조트라더니 서비스가 대단하네요, 타월 하나 받는데 한시간 걸림","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"真不愧是五星级，要个毛巾等了大半天，太棒了","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"さすが5つ星ホテルですね、タオル1本頼んで40分待ちです","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Замечательный 5-звездочный сервис, жду полотенце уже час","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"Nhân viên thái độ tệ hại, trả lời cộc lốc với khách","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"Loved paying 300$ a night to sleep with a broken aircon","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"에어컨 없이 찜질방 체험하게 해주셔서 정말 감사합니다","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"谢谢你们让我体验不开空调的桑拿房","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"エアコン無しのサウナ体験をありがとうございます","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Спасибо за бесплатную сауну в номере без кондиционера","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"Mùi nhà vệ sinh hôi rình không chịu nổi, cho đổi phòng ngay","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"I have been waiting for the buggy for 35 minutes now","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"버기카 부른 지 30분이 지났는데 아직도 안 오네요","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"我已经叫接驳电瓶车等了30分钟了","label":"negative","phenomenon":"implied","lang":"zh"}
+{"text":"カートを呼んでからもう30分以上待っています","label":"negative","phenomenon":"implied","lang":"ja"}
+{"text":"Я жду багги уже 35 минут, мы опаздываем","label":"negative","phenomenon":"implied","lang":"ru"}
+{"text":"do an buffet qua te, nguong khong nuot noi","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"It is 4pm and our room has still not been cleaned yet","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"체크아웃 정산서에 안 마신 음료가 청구되어 있습니다","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"退房账单上多算了我没喝的水和饮料","label":"negative","phenomenon":"implied","lang":"zh"}
+{"text":"チェックアウトの請求書に飲んでいないドリンクが含まれています","label":"negative","phenomenon":"implied","lang":"ja"}
+{"text":"В счет при выезде включили напитки, которые мы не брали","label":"negative","phenomenon":"implied","lang":"ru"}
+{"text":"phong dep nhung nhan vien le tan cham chap qua","label":"negative","phenomenon":"mixed","lang":"vi"}
+{"text":"Way overpriced for a tiny outdated room","label":"negative","phenomenon":"value_complaint","lang":"en"}
+{"text":"이 가격에 이런 좁고 오래된 방이라니 돈 아깝습니다","label":"negative","phenomenon":"value_complaint","lang":"ko"}
+{"text":"价格太贵了，房间又小又旧，根本不值这个价","label":"negative","phenomenon":"value_complaint","lang":"zh"}
+{"text":"このクオリティでこの価格は高すぎます、見合っていません","label":"negative","phenomenon":"value_complaint","lang":"ja"}
+{"text":"Слишком дорого для такого маленького и старого номера","label":"negative","phenomenon":"value_complaint","lang":"ru"}
+{"text":"Đồ ăn ngon nhưng đợi 1 tiếng mới ra đĩa đầu tiên","label":"negative","phenomenon":"mixed","lang":"vi"}
+{"text":"Not worth $400 a night at all, 3 star quality at best","label":"negative","phenomenon":"value_complaint","lang":"en"}
+{"text":"뷔페 가격이 음식 퀄리티에 비해 너무 비쌉니다","label":"negative","phenomenon":"value_complaint","lang":"ko"}
+{"text":"自助餐价格贵得离谱，食物都是冻品","label":"negative","phenomenon":"value_complaint","lang":"zh"}
+{"text":"ブッフェの値段の割に料理の種類が少なすぎます","label":"negative","phenomenon":"value_complaint","lang":"ja"}
+{"text":"Шведский стол не стоит таких денег, выбор очень слабый","label":"negative","phenomenon":"value_complaint","lang":"ru"}
+{"text":"5 sao ma dieu hoa khong chay, hay that day","label":"negative","phenomenon":"sarcasm","lang":"vi"}
+{"text":"Room wasn't bad at all, quite comfortable actually","label":"not_negative","phenomenon":"negation","lang":"en"}
+{"text":"방 상태가 나쁘지 않네요, 편하게 잘 쉬었습니다","label":"not_negative","phenomenon":"negation","lang":"ko"}
+{"text":"房间其实还不算差，整体挺舒适的","label":"not_negative","phenomenon":"negation","lang":"zh"}
+{"text":"部屋はそれほど悪くないです、快適に過ごせました","label":"not_negative","phenomenon":"negation","lang":"ja"}
+{"text":"Номер не так уж плох, вполне неплохо","label":"not_negative","phenomenon":"negation","lang":"ru"}
+{"text":"Resort đẳng cấp mà phục vụ như thời bao cấp vậy","label":"negative","phenomenon":"sarcasm","lang":"vi"}
+{"text":"Staff weren't rude, they were actually quite helpful","label":"not_negative","phenomenon":"negation","lang":"en"}
+{"text":"직원들이 전혀 불친절하지 않고 친절했어요","label":"not_negative","phenomenon":"negation","lang":"ko"}
+{"text":"服务员一点也不冷淡，态度蛮热情的","label":"not_negative","phenomenon":"negation","lang":"zh"}
+{"text":"スタッフの対応も冷たくなく、丁寧でした","label":"not_negative","phenomenon":"negation","lang":"ja"}
+{"text":"Персонал вовсе не грубый, очень вежливые","label":"not_negative","phenomenon":"negation","lang":"ru"}
+{"text":"toi doi 45 phut roi chua thay ai dem khan tam len","label":"negative","phenomenon":"implied","lang":"vi"}
+{"text":"It was okay, decent enough stay","label":"not_negative","phenomenon":"understatement","lang":"en"}
+{"text":"그럭저럭 무난하고 지낼만 했습니다","label":"not_negative","phenomenon":"understatement","lang":"ko"}
+{"text":"还可以吧，中规中矩，能住","label":"not_negative","phenomenon":"understatement","lang":"zh"}
+{"text":"まあ普通ですね、特に問題はないです","label":"not_negative","phenomenon":"understatement","lang":"ja"}
+{"text":"Нормально, сойдет для пары дней","label":"not_negative","phenomenon":"understatement","lang":"ru"}
+{"text":"Đây là lần thứ ba tôi nhắn tin gọi xe điện rồi nhé","label":"negative","phenomenon":"implied","lang":"vi"}
+{"text":"Breakfast was alright, standard hotel food","label":"not_negative","phenomenon":"understatement","lang":"en"}
+{"text":"조식은 그냥 평범한 호텔 음식 수준입니다","label":"not_negative","phenomenon":"understatement","lang":"ko"}
+{"text":"早餐一般般，就是普通酒店标准","label":"not_negative","phenomenon":"understatement","lang":"zh"}
+{"text":"朝食はまあ普通のホテルレベルです","label":"not_negative","phenomenon":"understatement","lang":"ja"}
+{"text":"Завтрак обычный, стандартный отельный уровень","label":"not_negative","phenomenon":"understatement","lang":"ru"}
+{"text":"gia nay qua dat so voi chat luong phong giat quat","label":"negative","phenomenon":"value_complaint","lang":"vi"}
+{"text":"The AC in room 402 is not cooling, please send a technician","label":"not_negative","phenomenon":"fault_report_calm","lang":"en"}
+{"text":"201호 에어컨이 작동하지 않는데 기사님 확인 부탁드립니다","label":"not_negative","phenomenon":"fault_report_calm","lang":"ko"}
+{"text":"302房间空调制冷有问题，麻烦安排维修人员看一下","label":"not_negative","phenomenon":"fault_report_calm","lang":"zh"}
+{"text":"205号室のエアコンが効かないので確認をお願いします","label":"not_negative","phenomenon":"fault_report_calm","lang":"ja"}
+{"text":"В номер 104 не работает кондиционер, проверьте пожалуйста","label":"not_negative","phenomenon":"fault_report_calm","lang":"ru"}
+{"text":"Bỏ 5 triệu/đêm mà phòng bé tẹo, dịch vụ thua khách sạn 3 sao","label":"negative","phenomenon":"value_complaint","lang":"vi"}
+{"text":"Bathroom sink is clogged, could someone fix it please","label":"not_negative","phenomenon":"fault_report_calm","lang":"en"}
+{"text":"화장실 세면대가 막혔어요, 직원 보내주세요","label":"not_negative","phenomenon":"fault_report_calm","lang":"ko"}
+{"text":"洗手池堵住了，请派人清理一下","label":"not_negative","phenomenon":"fault_report_calm","lang":"zh"}
+{"text":"洗面台の水が流れません、修理をお願いできますか","label":"not_negative","phenomenon":"fault_report_calm","lang":"ja"}
+{"text":"Засорилась раковина в ванной, пришлите сантехника","label":"not_negative","phenomenon":"fault_report_calm","lang":"ru"}
+{"text":"phong khong te lam, toi thay hop ly trong tam gia","label":"not_negative","phenomenon":"negation","lang":"vi"}
+{"text":"Amazing staff, super welcoming and helpful","label":"not_negative","phenomenon":"positive","lang":"en"}
+{"text":"직원분들이 너무 친절하고 오션뷰가 최고였습니다","label":"not_negative","phenomenon":"positive","lang":"ko"}
+{"text":"环境非常优美，前台办理入住很快，服务赞","label":"not_negative","phenomenon":"positive","lang":"zh"}
+{"text":"スタッフの方々がとても親切で、オーシャンビューも最高でした","label":"not_negative","phenomenon":"positive","lang":"ja"}
+{"text":"Прекрасный отель, отличный персонал и великолепный вид на море","label":"not_negative","phenomenon":"positive","lang":"ru"}
+{"text":"Đồ ăn không đến nỗi dở, ăn cũng ổn","label":"not_negative","phenomenon":"negation","lang":"vi"}
+{"text":"Seafood buffet was fresh and delicious, 10/10 experience","label":"not_negative","phenomenon":"positive","lang":"en"}
+{"text":"해산물 뷔페 음식 종류도 많고 정말 맛있네요","label":"not_negative","phenomenon":"positive","lang":"ko"}
+{"text":"海鲜自助餐新鲜美味，海景房景色绝佳","label":"not_negative","phenomenon":"positive","lang":"zh"}
+{"text":"スパのマッサージが素晴らしく、大変リラックスできました","label":"not_negative","phenomenon":"positive","lang":"ja"}
+{"text":"Замечательный спа-салон, массаж просто супер","label":"not_negative","phenomenon":"positive","lang":"ru"}
+{"text":"cung tam, noi chung la o duoc","label":"not_negative","phenomenon":"understatement","lang":"vi"}
+{"text":"What time does Lotus restaurant open for breakfast","label":"not_negative","phenomenon":"neutral_lookup","lang":"en"}
+{"text":"조식 뷔페 몇 시부터 이용 가능한가요","label":"not_negative","phenomenon":"neutral_lookup","lang":"ko"}
+{"text":"请问莲花餐厅早餐几点开始营业","label":"not_negative","phenomenon":"neutral_lookup","lang":"zh"}
+{"text":"ジャスミンレストランの夕食の営業時間を教えてください","label":"not_negative","phenomenon":"neutral_lookup","lang":"ja"}
+{"text":"Во сколько начинается завтрак в ресторане Lotus","label":"not_negative","phenomenon":"neutral_lookup","lang":"ru"}
+{"text":"Phòng ốc cũng bình thường, tạm ổn","label":"not_negative","phenomenon":"understatement","lang":"vi"}
+{"text":"What is the cable car operating schedule today","label":"not_negative","phenomenon":"neutral_lookup","lang":"en"}
+{"text":"케이블카 운행 시간표 좀 알려주세요","label":"not_negative","phenomenon":"neutral_lookup","lang":"ko"}
+{"text":"跨海缆车最后一班是几点","label":"not_negative","phenomenon":"neutral_lookup","lang":"zh"}
+{"text":"ロープウェイの運行スケジュールを確認したいです","label":"not_negative","phenomenon":"neutral_lookup","lang":"ja"}
+{"text":"Подскажите расписание работы канатной дороги","label":"not_negative","phenomenon":"neutral_lookup","lang":"ru"}
+{"text":"dieu hoa phong 202 khong chay, nho ky thuat kiem tra giup","label":"not_negative","phenomenon":"fault_report_calm","lang":"vi"}
+{"text":"Room is filthy and smells like damp mold, totally disgusted","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"방이 너무 더럽고 곰팡이 냄새가 나요, 정말 실망입니다","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"房间太脏了，很多灰尘和霉味，非常失望","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"部屋がカビ臭くとても汚いです、本当に失望しました","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Номер грязный, пахнет плесенью, ужасный сервис","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"Bồn rửa mặt bị nghẹt nước, nhờ nhân viên qua xử lý giúp mình","label":"not_negative","phenomenon":"fault_report_calm","lang":"vi"}
+{"text":"Front desk staff was extremely rude and unhelpful","label":"negative","phenomenon":"direct_complaint","lang":"en"}
+{"text":"직원 태도가 너무 불친절하고 응대가 엉망이에요","label":"negative","phenomenon":"direct_complaint","lang":"ko"}
+{"text":"前台服务人员态度极其恶劣，问话也不理","label":"negative","phenomenon":"direct_complaint","lang":"zh"}
+{"text":"フロントの接客態度が非常に悪く不快でした","label":"negative","phenomenon":"direct_complaint","lang":"ja"}
+{"text":"Персонал на ресепшн грубый и абсолютно не помогает","label":"negative","phenomenon":"direct_complaint","lang":"ru"}
+{"text":"nhan vien rat thien dep, ho tro gia dinh toi chu dao","label":"not_negative","phenomenon":"positive","lang":"vi"}
+{"text":"Beautiful sea view room but the AC sounds like a tractor","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"방은 넓고 좋은데 에어컨 소음이 너무 심해요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"海景很漂亮，但是空调响得像发动机一样","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"景観は素晴らしいですが、エアコンの音がうるさすぎます","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Вид на море красивый, но кондиционер шумит как трактор","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"Phòng đẹp xuất sắc, view biển ngắm hoàng hôn đỉnh lắm","label":"not_negative","phenomenon":"positive","lang":"vi"}
+{"text":"Food tasted decent but took over an hour to be served","label":"negative","phenomenon":"mixed","lang":"en"}
+{"text":"음식은 맛있는데 주문하고 40분이나 기다렸네요","label":"negative","phenomenon":"mixed","lang":"ko"}
+{"text":"菜味道还行，但是等了一个小时才上第一个菜","label":"negative","phenomenon":"mixed","lang":"zh"}
+{"text":"料理は美味しいですが、注文してから40分も待たされました","label":"negative","phenomenon":"mixed","lang":"ja"}
+{"text":"Еда вкусная, но ждали заказ больше 40 минут","label":"negative","phenomenon":"mixed","lang":"ru"}
+{"text":"nha hang lotus may gio mo cua sang vay em","label":"not_negative","phenomenon":"neutral_lookup","lang":"vi"}
+{"text":"Great 5 star service, waiting 40 mins for a single towel","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"5성급 리조트라더니 서비스가 대단하네요, 타월 하나 받는데 한시간 걸림","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"真不愧是五星级，要个毛巾等了大半天，太棒了","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"さすが5つ星ホテルですね、タオル1本頼んで40分待ちです","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Замечательный 5-звездочный сервис, жду полотенце уже час","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"Giờ chạy cáp treo chuyến cuối cùng là mấy giờ","label":"not_negative","phenomenon":"neutral_lookup","lang":"vi"}
+{"text":"Loved paying 300$ a night to sleep with a broken aircon","label":"negative","phenomenon":"sarcasm","lang":"en"}
+{"text":"에어컨 없이 찜질방 체험하게 해주셔서 정말 감사합니다","label":"negative","phenomenon":"sarcasm","lang":"ko"}
+{"text":"谢谢你们让我体验不开空调的桑拿房","label":"negative","phenomenon":"sarcasm","lang":"zh"}
+{"text":"エアコン無しのサウナ体験をありがとうございます","label":"negative","phenomenon":"sarcasm","lang":"ja"}
+{"text":"Спасибо за бесплатную сауну в номере без кондиционера","label":"negative","phenomenon":"sarcasm","lang":"ru"}
+{"text":"phong ban qua, toi rat that vong voi dich vu 5 sao","label":"negative","phenomenon":"direct_complaint","lang":"vi"}
+{"text":"I have been waiting for the buggy for 35 minutes now","label":"negative","phenomenon":"implied","lang":"en"}
+{"text":"버기카 부른 지 30분이 지났는데 아직도 안 오네요","label":"negative","phenomenon":"implied","lang":"ko"}
+{"text":"我已经叫接驳电瓶车等了30分钟了","label":"negative","phenomenon":"implied","lang":"zh"}
