@@ -1,0 +1,14 @@
+# Grafana tự nối vào Prometheus khi khởi động — không phải bấm tay lúc demo.
+#
+# `uid` đặt cứng là có chủ đích: bảng biểu trong ops/dashboards/ trỏ vào đúng
+# chuỗi này. Để Grafana tự sinh uid thì mỗi lần dựng lại nó ra một giá trị khác,
+# và bảng biểu mở lên với mọi panel báo "Datasource not found" — đúng vào lúc
+# đang demo.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true

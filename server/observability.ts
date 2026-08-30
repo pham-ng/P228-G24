@@ -22,6 +22,7 @@
  * single indexed read (`kind = 'turn'`) rather than a scan of every child.
  */
 
+import { setLogTrace } from "./log";
 import { storage, nowIso } from "./storage";
 import { exportTrace } from "./langfuse";
 import type { InsertTraceSpan } from "@shared/schema";
@@ -344,6 +345,10 @@ export class Trace {
     this.model = meta?.model;
     this.root = new Span(this, "agent.turn", "turn", null);
     this.spans.push(this.root);
+    /* Gắn mã trace vào mọi dòng log sinh ra trong lượt này. Không có nó thì cơ
+       sở dữ liệu có trace đầy đủ còn log thì không mang mã nào, và khi có sự cố
+       người trực ca có hai nguồn về cùng một lượt mà không ghép được. */
+    setLogTrace(this.id);
   }
 
   /** Open a child span under the root (or under `parent`). */
@@ -410,6 +415,9 @@ export class Trace {
     } catch (e: any) {
       console.error("[observability] langfuse export threw", this.id, e?.message ?? e);
     }
+    /* Tháo mã ra khi lượt kết thúc: để nguyên thì mọi dòng log của tác vụ nền
+       chạy sau đó sẽ mang mã của một lượt đã xong. */
+    setLogTrace(null);
     return this.id;
   }
 }

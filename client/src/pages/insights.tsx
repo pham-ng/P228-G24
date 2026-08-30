@@ -17,6 +17,7 @@ import {
   YAxis,
 } from "recharts";
 import { StaffShell } from "@/components/staff-shell";
+import { UpsellPanel } from "@/components/upsell-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { money, seconds, titleCase } from "@/lib/format";
 import { DEPT_LABELS, type Insights } from "@/lib/types";
@@ -164,6 +165,13 @@ export default function InsightsPage() {
           value={String(k.tasksOpen)}
           sub={`across ${data.byDept.filter((d) => d.open > 0).length} departments`}
         />
+      </div>
+
+      {/* Full width and directly under the KPIs: this is the only panel on the
+          page computed entirely from live behaviour rather than seeded history,
+          and it is the one a hotel is buying. */}
+      <div className="mt-4">
+        <UpsellPanel />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">

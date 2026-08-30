@@ -39,6 +39,7 @@
  * against this property's own traffic — see LOCAL_MIN_SCORE.
  */
 
+import { recordRetrieval } from "./metrics-extra";
 import { neutraliseUntrusted } from "./untrusted";
 import { hybridSearch, tokenise, fold, hasVietnameseDiacritics, type Retrieved } from "./retrieval";
 import { storage } from "./storage";
@@ -48,6 +49,7 @@ import { scoreFamilies, type FamilyName } from "./toolrouter";
 import { checkReply, repairReply } from "./numguard";
 import { namedEntities } from "./name-alias";
 import { shouldEscalateByIntent } from "./intent-net";
+import { needsClarification, type ClarifyLang } from "./clarify";
 
 /* ------------------------------------------------------------------ config */
 
@@ -387,6 +389,76 @@ export function selectRelevantWindow(text: string, cap: number, question: string
     }
   }
 
+  /**
+   * Một câu dài hơn cả ngân sách vẫn phải có cơ hội trả lời được.
+   *
+   * Hai vòng ở trên chỉ CHẤP NHẬN được câu vừa khít, nên một câu dài hơn `cap`
+   * bị loại âm thầm dù nó liên quan tới đâu — và thực đơn nhà hàng đúng là hình
+   * dạng đó. Đo trên "Vịt quay Bắc Kinh ở Bách Giai bao nhiêu tiền?": chunk Bách
+   * Giai để cả bảng giá thành MỘT mạch 600 ký tự ("… Xôi gà lá sen 200.000đ,
+   * Vịt quay Bắc Kinh 750.000đ, Gà quay kiểu Ma Cao 450.000đ …") vì mọi dấu chấm
+   * đều nằm trong con số nên không kết thúc câu nào. Nó không lọt nổi 400 ký tự,
+   * bị vứt nguyên khối, ngân sách rơi vào đoạn văn tả không gian — và model,
+   * ĐÚNG ĐẮN, báo là không tìm thấy giá. Từ chối đó trông như lỗi model nhưng là
+   * lỗi ngữ cảnh.
+   *
+   * Nên khi ngân sách còn dư mà không mẩu nào giữ lại mang ĐÚNG LOẠI con số câu
+   * hỏi cần, hãy cắt một cửa sổ từ câu quá dài tốt nhất, canh vào chỗ chính chữ
+   * của khách xuất hiện. Giới hạn trong phần còn thừa, cắt ở ranh giới từ, và chỉ
+   * làm khi loại số được hỏi vắng mặt — đây là thêm một mẩu, không phải mở lại cả
+   * đoạn văn.
+   */
+  const wantsFigure = anyWord(question, HARD_MONEY_WORDS) || /bao nhiêu|how much|giá|mấy giờ/i.test(question);
+  const FIGURE_SHAPE = /\d[\d.,]{2,}\s*(đ|₫|vn[dđ]|triệu|nghìn)|\d{1,2}:\d{2}/iu;
+  const keptText = picked.map((i) => sentences[i]).join(" ");
+  if (wantsFigure && len < cap && !FIGURE_SHAPE.test(keptText)) {
+    const room = cap - len - (picked.length ? 1 : 0);
+    /* Cần đủ chỗ để mang được con số kèm nhãn của nó, không thì mẩu cắt ra chỉ là
+       nhiễu: tốn ngân sách mà không dạy model điều gì. */
+    if (room >= 80) {
+      const qTok = [...qTokens].filter((t) => t.length > 2).map((t) => fold(t));
+      let bestI = -1;
+      let bestAt = -1;
+      let bestHits = 0;
+      for (let i = 0; i < sentences.length; i++) {
+        if (picked.includes(i)) continue;
+        const sent = sentences[i];
+        if (sent.length <= room || !FIGURE_SHAPE.test(sent)) continue;
+        /**
+         * Trượt một cửa sổ và giữ chỗ TẬP TRUNG nhiều từ khoá nhất.
+         *
+         * Bản đầu neo vào vị trí CUỐI CÙNG có từ khoá và trượt sai hẳn: tên nhà
+         * hàng ("Bách Giai") lặp lại suốt bảng giá, nên "lần cuối" trỏ vào mục
+         * Mì ở cuối thực đơn thay vì "Vịt quay Bắc Kinh" mà khách hỏi. Đếm số
+         * từ khoá RIÊNG BIỆT rơi vào cửa sổ sẽ tự đề cao chỗ có cả tên món lẫn
+         * giá của nó, và tự hạ chỗ chỉ lặp lại tên nhà hàng.
+         */
+        const folded = fold(sent);
+        const step = Math.max(16, Math.floor(room / 8));
+        for (let from = 0; from < folded.length; from += step) {
+          const win = folded.slice(from, from + room);
+          if (!FIGURE_SHAPE.test(sent.slice(from, from + room))) continue;
+          let hits = 0;
+          for (const t of qTok) if (win.includes(t)) hits++;
+          if (hits > bestHits) {
+            bestHits = hits;
+            bestI = i;
+            bestAt = from;
+          }
+        }
+      }
+      if (bestI >= 0) {
+        const sent = sentences[bestI];
+        /* Lùi lại một chút trước chữ khớp để không cắt cụt cái nhãn. */
+        const from = Math.max(0, bestAt);
+        let slice = sent.slice(from, from + room);
+        const sp = slice.lastIndexOf(" ");
+        if (sp > room * 0.6) slice = slice.slice(0, sp);
+        picked.push(bestI);
+        sentences[bestI] = (from > 0 ? "…" : "") + slice.trim() + "…";
+      }
+    }
+  }
   if (!picked.length) return truncateAtBoundary(text, cap);
 
   return picked
@@ -663,8 +735,14 @@ export function needsConversationContext(question: string): boolean {
  */
 /* Written already-folded, and tested against fold(text) at every call site —
    see anyWord. "Ở thêm 2 ngày" and "O them 2 ngay" are the same request. */
+/* "còn 4 ngày nữa mới đến" is a COUNTDOWN to arrival, not four extra nights of
+   stay, and the bare "N ngày nữa" alternative could not tell them apart — so
+   "Còn 4 ngày nữa mới đến mà tôi muốn huỷ phòng thì mất bao nhiêu?" escalated
+   with no lookup while the answer (50% of the first night, 3-7 days out) sat in
+   the cancellation policy. "còn" immediately before the number is what
+   separates them: an extension is "ở thêm 4 đêm nữa", never "còn 4 đêm nữa". */
 const EXTRA_NIGHTS_SUPPLIED =
-  /(?:them|gia han|extra|another|additional|more)\s*\d*\s*(?:ngay|dem|night|nights|day|days)|\d+\s*(?:ngay|dem|night|nights|day|days)\s*(?:nua|them|more|extra)|\d+\s*(?:박|泊|晚)\s*(?:더|多|更)|(?:더|もう|再)\s*\d+\s*(?:박|泊|晚)/iu;
+  /(?:them|gia han|extra|another|additional|more)\s*\d*\s*(?:ngay|dem|night|nights|day|days)|(?<!\bcon\s)\d+\s*(?:ngay|dem|night|nights|day|days)\s*(?:nua|them|more|extra)|\d+\s*(?:박|泊|晚)\s*(?:더|多|更)|(?:더|もう|再)\s*\d+\s*(?:박|泊|晚)/iu;
 
 export function isPriceInfoOnly(text: string): boolean {
   const t = fold(text);
@@ -730,6 +808,39 @@ export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
      model calls, which is what a request to multiply the guest's own number
      by a nightly rate deserves. */
   if (EXTRA_NIGHTS_SUPPLIED.test(folded) && (hardMoney || quantityCue)) return "complex";
+
+  /**
+   * A clock time is a KEY, not an OPERAND — so it routes to `transaction`.
+   *
+   * The two are not the same kind of number. "Tôi có 5 triệu" and "ở thêm 3
+   * đêm" are operands: answering means multiplying the guest's figure by a
+   * rate, and those keep escalating with no model call. A clock time is a key
+   * into a published band table — the corpus already holds "12:00-18:00 -> 50%,
+   * sau 18:00 -> 100%", and answering is a lookup, not arithmetic.
+   *
+   * Treating them alike cost real answers. Measured on the Vietnamese golden
+   * set: four of eight banded-policy questions — late checkout at 15:00, early
+   * arrival at 10:00 — were escalated with retrieval never running (passages 0,
+   * llmCalls 0), so a guest asking the most common fee question got "please
+   * wait for reception" while the answer sat in a document nobody asked the
+   * retriever for. The same question WITHOUT a time ("What is the cancellation
+   * fee?") already routed to `transaction` and answered, which made the split
+   * arbitrary from the guest's side.
+   *
+   * `transaction` rather than `knowledge` because it is Info-First: it quotes
+   * the published band AND still hands the turn to the front desk. The incident
+   * this rule was written for — "I land at 8am. How much to check in early?",
+   * where the model invented a time — is untouched, because that sentence names
+   * no money word and still reaches `complex` through the quantity-cue branch
+   * below. Where the new branch does fire, three protections that did not exist
+   * then now do: the retrieval gate, numguard over the reply, and the handoff.
+   */
+  const personalOrSum =
+    anyWord(text, PERSONAL_ACCOUNT_WORDS) ||
+    anyWord(text, SUM_WORDS) ||
+    EXTRA_NIGHTS_SUPPLIED.test(folded);
+  if (hardMoney && personalOrSum) return "complex";
+  if (hardMoney && CLOCK_TIME_SUPPLIED.test(folded)) return "transaction";
   if (hardMoney && needsPersonalOrSum) return "complex";
   /* A bare quantity cue next to a counting unit is a lookup, not arithmetic —
      but only when nothing in the sentence names money. Bare hardMoney with no
@@ -810,9 +921,25 @@ const BARE_AMBIGUOUS_PATTERNS = [
   /^(いくらですか|何時ですか|どこですか)\??$/i,
 ];
 
+/**
+ * Widened 2026-08-29 after the Vietnamese golden set scored clarification 0/6.
+ *
+ * The patterns above are anchored end to end, so they only ever matched a bare
+ * fragment typed on its own. Real guests do not write "giá bao nhiêu" — they
+ * write "Giá bao nhiêu ạ?", and that trailing particle alone was enough to miss
+ * it. Every ambiguous question in the set was therefore answered with a guess,
+ * including "Cho tôi đặt lúc 7 giờ nhé", which came back quoting a 50%
+ * early-check-in fee for a transaction the guest had never mentioned.
+ *
+ * `needsClarification` replaces the fragment list with a rule that survives
+ * ordinary phrasing: an attribute named, no subject named, message short. The
+ * old patterns stay as a fast path, so nothing previously caught stops being
+ * caught.
+ */
 export function isBareAmbiguousQuery(question: string): boolean {
   const q = question.trim().toLowerCase();
-  return BARE_AMBIGUOUS_PATTERNS.some((p) => p.test(q));
+  if (BARE_AMBIGUOUS_PATTERNS.some((p) => p.test(q))) return true;
+  return needsClarification(question) !== null;
 }
 
 export function generateClarificationReply(lang: ReplyLang): string {
@@ -1623,9 +1750,13 @@ export async function runLocalTurn(input: {
   const route = classifyLocal(input.question, input.isEmergency);
 
   if (isBareAmbiguousQuery(input.question) && !input.history) {
+    /* Naming what is missing beats a generic "please be more specific": the
+       guest asked about opening hours, so the reply lists the places that HAVE
+       opening hours instead of asking them to start over. */
+    const specific = needsClarification(input.question, input.lang as ClarifyLang);
     return {
       route: "knowledge",
-      reply: generateClarificationReply(input.lang),
+      reply: specific?.reply ?? generateClarificationReply(input.lang),
       escalate: false,
       passages: [],
       topScore: 1.0,
@@ -1728,6 +1859,15 @@ export async function runLocalTurn(input: {
   const retrievalStart = Date.now();
   const found = await search(retrievalQuery, { k: LOCAL_PASSAGES });
   const retrievalMs = Date.now() - retrievalStart;
+  /**
+   * Đếm lượt truy xuất, và đếm riêng lượt KHÔNG lấy được đoạn nào.
+   *
+   * Đây là cảnh báo sớm quan trọng nhất của một hệ RAG: chỉ mục hỏng thì tỉ lệ
+   * này vọt lên trong khi mọi thứ khác vẫn xanh — HTTP vẫn 200, model vẫn trả
+   * lời, chỉ là trả lời mà không có tài liệu nào trong tay. Không có chỉ số này
+   * thì triệu chứng duy nhất là khách phàn nàn.
+   */
+  recordRetrieval(found.results.length);
 
   /* The semantic net, placed here on purpose.
    *

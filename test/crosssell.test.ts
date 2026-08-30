@@ -189,5 +189,80 @@ ok(
 );
 ok(targets.every((t) => t.angle.length > 0), "every target has a reason to be contacted");
 
+console.log("=== STORED PREFERENCES ===");
+/* The preferences form was collected, stored, and then never read by the
+   ranking — the field was on the input type and referenced nowhere else, so a
+   guest who wrote down what they liked was scored exactly like one who had not.
+   These pin it down in both directions. */
+const sauna = suggestInStay({
+  ...base,
+  clock: "09:00",
+  guest: { ...GUEST, preferences: JSON.stringify(["Aquafield sauna", "Late dinner", "High floor"]) },
+});
+ok(
+  !!sauna.suggestions[0]?.name.includes("Aquafield"),
+  "a written preference lifts the matching service to the top",
+);
+ok(
+  /ghi chú|noted/i.test(sauna.suggestions[0]?.why ?? ""),
+  "and the reason says it came from the guest's own note",
+);
+ok(
+  !suggestInStay({ ...base, clock: "09:00" }).suggestions[0]?.name.includes("Aquafield"),
+  "without the preference the same morning ranks something else first",
+);
+ok(
+  suggestInStay({ ...base, clock: "09:00", guest: { ...GUEST, preferences: "{not json" } }).suggestions.length > 0,
+  "a malformed preferences value does not take the ranking down",
+);
+ok(
+  suggestInStay({
+    ...base,
+    clock: "09:00",
+    guest: { ...GUEST, preferences: JSON.stringify(["spa (2h)"]) },
+  }).suggestions.length > 0,
+  "regex metacharacters in a preference are escaped, not thrown",
+);
+ok(
+  !!suggestInStay({
+    ...base,
+    clock: "09:00",
+    interest: "massage",
+    guest: { ...GUEST, preferences: JSON.stringify(["Aquafield sauna"]) },
+  }).suggestions[0]?.name.includes("Akoya"),
+  "what the guest asks for now outranks what they wrote on a form",
+);
+
+
+console.log("=== A NAME IS NOT A SCHEDULE ===");
+/* "Private beachfront dinner" matched the outdoor rule, took the morning bonus,
+   and was offered live at 09:00 with the reason "mornings are the best time for
+   this" — for a dinner served from 18:00. The published slots decide. */
+const DINNER_ON_SAND = svc({
+  id: 20,
+  name: "Private beachfront dinner",
+  category: "dining",
+  price: 3900000,
+  slots: JSON.stringify(["18:00", "19:00", "20:00"]),
+});
+const morningSand = suggestInStay({ ...base, services: [DINNER_ON_SAND], clock: "09:00" });
+ok(
+  !/buổi sáng/.test(morningSand.suggestions[0]?.why ?? ""),
+  "an evening-only service is never sold as a morning outing",
+);
+const eveningSand = suggestInStay({ ...base, services: [DINNER_ON_SAND], clock: "19:00" });
+ok(
+  (eveningSand.suggestions[0]?.score ?? 0) > (morningSand.suggestions[0]?.score ?? 0),
+  "and it scores higher in the evening, when it is actually served",
+);
+const allDay = svc({ id: 21, name: "Beach & water sports desk", category: "experience", price: 0, slots: "[]" });
+ok(
+  /buổi sáng|mornings/.test(
+    suggestInStay({ ...base, services: [allDay], clock: "09:00" }).suggestions[0]?.why ?? "",
+  ),
+  "a service with no published slots still gets the morning tilt",
+);
+
+
 console.log(failures === 0 ? "\nALL CROSS-SELL TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

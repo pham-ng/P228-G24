@@ -422,6 +422,220 @@ function queued(
 }
 
 /* ------------------------------------------------------------------ *
+ * Lodging declaration — what the law asks for, in one place
+ * ------------------------------------------------------------------ */
+
+/**
+ * The fields a declaration needs, the deadline, and where it gets filed.
+ *
+ * Exported so the front desk's form and the `declare_lodging` tool cannot drift
+ * apart. A declaration missing a field is not a smaller problem than a late
+ * one — both are the same fine — so "what is required" has to be a single
+ * definition rather than a list retyped into a React component.
+ */
+export function lodgingRequirements(isForeigner: boolean) {
+  const { rules: dr, cite } = rules("LODGING_DECLARATION", DEFAULT_LODGING_DECLARATION);
+  const d = dr as any;
+  return {
+    required: (isForeigner ? d.required_fields_foreigner : d.required_fields_vietnamese) as string[],
+    deadlineHours: Number(d.deadline_hours_after_arrival) || 12,
+    deadlineNote: String(d.deadline_note ?? ""),
+    channels: (d.channels ?? []) as Array<{ key: string; label: string; url: string }>,
+    penaltyNote: String(d.penalty_note ?? ""),
+    policy: cite,
+  };
+}
+
+/** Which required fields are still blank on this record. */
+export function missingLodgingFields(reg: {
+  fullName?: string | null;
+  idNumber?: string | null;
+  nationality?: string | null;
+  dob?: string | null;
+  permanentAddress?: string | null;
+  visaNumber?: string | null;
+  entryDate?: string | null;
+  entryPort?: string | null;
+  arrivalAt?: string | null;
+  isForeigner?: number;
+}): string[] {
+  const present: Record<string, unknown> = {
+    full_name: reg.fullName,
+    id_number: reg.idNumber,
+    nationality: reg.nationality,
+    dob: reg.dob,
+    permanent_address: reg.permanentAddress,
+    visa_number: reg.visaNumber,
+    entry_date: reg.entryDate,
+    entry_port: reg.entryPort,
+    arrival_at: reg.arrivalAt,
+  };
+  return lodgingRequirements(!!reg.isForeigner).required.filter((f) => !present[f]);
+}
+
+/* ------------------------------------------------------------------ *
+ * Shared in-room dining core — used by order_room_service and the kiosk
+ * ------------------------------------------------------------------ */
+
+export type RoomServiceLine = { serviceId: number; quantity: number };
+
+/**
+ * Place one in-room dining order.
+ *
+ * Extracted from the `order_room_service` tool so the kiosk can reach it
+ * without a model, for the same reason `bookCatalogueService` exists: an order
+ * must behave identically however it arrives. Pulling it out also fixed four
+ * things the tool had been doing wrong since it was written, each of which
+ * would have been copied into the offline path verbatim.
+ *
+ * 1. **The kitchen's hours were never checked.** `roomServiceWindow()` was
+ *    written, exported, and called by nothing here — so an order at 03:00 for a
+ *    kitchen that closes at 23:00 opened an F&B task anyway. `min_order` was
+ *    likewise never enforced.
+ * 2. **The ETA was hard-coded to 35 minutes.** Policy already computes 35
+ *    normal / 50 at peak, so a guest ordering at 19:00 — inside a peak window —
+ *    was promised 35 minutes for something the hotel's own rules say takes 50.
+ *    `dueAt` carried the same fiction onto the kitchen's board.
+ * 3. **The payload kept only display strings** (`[{line: "2 × Phở bò"}]`), so
+ *    once approved nothing could say which dishes were sold, at what price, or
+ *    reverse a single line. Structured items are stored now; `line` is kept
+ *    alongside them because `finalizeApproval` builds the folio description
+ *    from it and a charge description must not change shape.
+ * 4. **No allergy warning.** `bookCatalogueService` attaches `allergyNotes` for
+ *    dining AND roomservice, but the tool that actually sends food to a room
+ *    did not. That is the wrong way round.
+ *
+ * Nothing is charged here. The order is queued for approval and
+ * `finalizeApproval` posts the folio line — the guest is never told it is
+ * ordered, only that it is awaiting confirmation.
+ */
+export function orderRoomService(
+  ctx: OpsCtx,
+  input: { items: RoomServiceLine[]; note?: string },
+): BookResult {
+  ensureOpsPolicies();
+  const { hotel, guest, res, room, conv } = ctx;
+  if (!res) return { error: "No reservation linked — cannot order." };
+
+  const menu = () =>
+    storage
+      .listServices()
+      .filter((x) => x.category === "roomservice" && x.active)
+      .map((x) => ({ service_id: x.id, name: x.name, price: x.price }));
+
+  const items = Array.isArray(input.items) ? input.items : [];
+  if (!items.length) return { error: "No items supplied.", menu: menu() };
+
+  const win = roomServiceWindow();
+  if (!win.open)
+    return {
+      error: `Bếp phục vụ tại phòng chỉ nhận đơn trong khung ${win.hours}.`,
+      suggestion: "Đề nghị khách đặt lại trong giờ phục vụ, hoặc chuyển lễ tân nếu là trường hợp đặc biệt.",
+      hours: win.hours,
+      policy: win.policy,
+    };
+
+  const lines: string[] = [];
+  const detailed: Array<{ serviceId: number; name: string; quantity: number; unitPrice: number; line: string }> = [];
+  let total = 0;
+
+  for (const it of items) {
+    const svc = storage.getService(Number(it.serviceId));
+    if (!svc || svc.category !== "roomservice" || !svc.active)
+      return {
+        error: `Service ${it.serviceId} is not on the in-room dining menu. Call list_services with category "roomservice" and use a service_id from the result.`,
+        menu: menu(),
+      };
+    const qty = Math.max(1, Number(it.quantity ?? 1));
+    const line = `${qty} × ${svc.name}`;
+    total += svc.price * qty;
+    lines.push(line);
+    detailed.push({ serviceId: svc.id, name: svc.name, quantity: qty, unitPrice: svc.price, line });
+  }
+
+  if (win.min_order > 0 && total < win.min_order)
+    return {
+      error: `Đơn tối thiểu cho phục vụ tại phòng là ${vnd(win.min_order)}. Đơn hiện tại ${vnd(total)}.`,
+      min_order: win.min_order,
+      subtotal: total,
+    };
+
+  /* The kitchen has to see this before it plates anything. Warning, not a
+     block: the kitchen decides what it can cook, but the ticket must carry it. */
+  const allergies = allergyNotes(guest);
+
+  const task = storage.createTask({
+    hotelId: hotel.id,
+    reservationId: res.id,
+    roomId: res.roomId,
+    conversationId: conv.id,
+    dept: "fnb",
+    title: `CẦN DUYỆT — In-room dining — room ${room?.number ?? "—"}`,
+    detail:
+      `${lines.join(", ")}.${input.note ? ` Note: ${input.note}` : ""} Guest: ${guest.name}.` +
+      `${allergies.length ? ` ⚠ Ghi nhận từ hồ sơ khách: ${allergies.join("; ")}.` : ""}` +
+      ` Đang chờ duyệt — sẽ ghi nợ ${vnd(total)} vào folio nếu được duyệt.`,
+    priority: "high",
+    status: "open",
+    source: "ai",
+    assignedStaffId: null,
+    /* From the policy, not from a constant: at peak this is 50 minutes and the
+       board should say so. */
+    dueAt: new Date(Date.now() + win.eta_minutes * 60_000).toISOString(),
+    createdAt: nowIso(),
+    resolvedAt: null,
+  });
+
+  const approval = storage.createApproval({
+    hotelId: hotel.id,
+    reservationId: res.id,
+    guestId: guest.id,
+    conversationId: conv.id,
+    taskId: task.id,
+    kind: "order_room_service",
+    summary: `In-room dining — ${lines.join(", ")} — ${vnd(total)}`,
+    payload: JSON.stringify({
+      reservationId: res.id,
+      /* `line` stays for finalizeApproval's folio description; the rest is what
+         makes the order reconcilable afterwards. */
+      items: detailed,
+      total,
+    }),
+    amount: total,
+    status: "pending",
+    createdAt: nowIso(),
+    resolvedAt: null,
+    resolvedBy: null,
+    rejectionReason: null,
+  });
+
+  storage.logEvent({
+    type: "order.queued_for_approval",
+    actor: "ai",
+    summary: `In-room dining order queued for ${guest.name}: ${lines.join(", ")}.`,
+    payload: JSON.stringify({ taskId: task.id, approvalId: approval.id, total }),
+    conversationId: conv.id,
+    createdAt: nowIso(),
+  });
+
+  return {
+    ordered: false,
+    pending_approval: true,
+    approval_id: approval.id,
+    task_id: task.id,
+    items: lines,
+    pending_amount: total,
+    currency: hotel.currency,
+    eta_minutes: win.eta_minutes,
+    peak: win.peak,
+    dispatched_to: "fnb",
+    allergy_notes: allergies,
+    instruction:
+      "Yêu cầu đã được ghi nhận và chuyển bếp/FnB duyệt — nói với khách là ĐANG CHỜ XÁC NHẬN, TUYỆT ĐỐI KHÔNG nói là đã đặt món/đang chuẩn bị.",
+  };
+}
+
+/* ------------------------------------------------------------------ *
  * Shared booking core — used by book_service, tours, meeting rooms, sitters
  * ------------------------------------------------------------------ */
 

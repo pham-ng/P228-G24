@@ -42,3 +42,11 @@ _smoke.ts
 
 # Coverage reports — regenerate with `npm run test:coverage`
 coverage/
+
+# Speech model weights (886 MB). Fetched on first use into models/hf by
+# server/stt.ts; seed an air-gapped box by copying the directory, not by
+# committing it.
+models/
+
+# Token cho Prometheus doc /api/metrics — khong bao gio commit
+ops/scrape-token

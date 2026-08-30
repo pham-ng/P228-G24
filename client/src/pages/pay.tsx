@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { AureaLogo } from "@/components/logo";
+import { VinAureaLogo } from "@/components/logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { money } from "@/lib/format";
 
@@ -50,7 +50,7 @@ export default function PayPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center">
-          <AureaLogo subtitle={data?.hotelName ?? "Thanh toán"} />
+          <VinAureaLogo subtitle={data?.hotelName ?? "Thanh toán"} />
         </div>
 
         <div className="rounded-lg border border-card-border bg-card p-5">

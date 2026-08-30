@@ -1,0 +1,93 @@
+# Cảnh báo — những thứ đáng đánh thức người lúc ba giờ sáng, và những thứ không.
+#
+# Mỗi quy tắc dưới đây nhắm vào một chỉ số ĐÃ ĐƯỢC XÁC MINH là thật. Ba chỉ số
+# từng nằm trong endpoint này (`chat_requests_total`, `escalations_total`,
+# `response_latency_avg_ms`) vĩnh viễn bằng 0 vì hàm ghi chúng chưa từng được
+# gọi, và `gpu_status` thì gán đúng giá trị của `ollama_status` trong khi khai
+# là đo GPU. Cảnh báo dựng trên một chỉ số chết là thứ tệ nhất trong vận hành:
+# nó im lặng đúng lúc cần kêu.
+#
+# `severity: page` = đánh thức người. `severity: ticket` = xem trong giờ hành chính.
+
+groups:
+  - name: vinaurea-suc-khoe
+    rules:
+      # ----- đánh thức người -----
+
+      - alert: AureaDown
+        expr: up{job="aurea"} == 0
+        for: 2m
+        labels: { severity: page }
+        annotations:
+          summary: "VinAurea không phản hồi"
+          description: "Prometheus không thu thập được /api/metrics trong 2 phút. Kiosk có thể đang chết."
+
+      - alert: ModelDown
+        expr: aurea_ollama_status == 0
+        for: 3m
+        labels: { severity: page }
+        annotations:
+          summary: "Model cục bộ không sẵn sàng"
+          description: >-
+            Ollama không trả lời. Trợ lý sẽ chuyển mọi câu sang lễ tân — sản phẩm
+            vẫn chạy nhưng không còn tự trả lời được câu nào.
+
+      - alert: ModelDangHong
+        # Bộ ngắt mạch bật ở 3 lần lỗi liên tiếp; cảnh báo ở 3 để trùng đúng
+        # ngưỡng mà code đã dùng, thay vì đặt một con số khác cho cùng sự việc.
+        expr: aurea_local_consecutive_failures >= 3
+        for: 1m
+        labels: { severity: page }
+        annotations:
+          summary: "Model lỗi liên tiếp {{ $value }} lần"
+          description: "Đã chạm ngưỡng ngắt mạch. Kiểm tra VRAM và tiến trình Ollama."
+
+      - alert: LoiMayChu
+        expr: rate(aurea_http_responses_total{class="5xx"}[5m]) > 0.1
+        for: 5m
+        labels: { severity: page }
+        annotations:
+          summary: "Tỉ lệ lỗi 5xx tăng"
+          description: "Hơn 0,1 lỗi máy chủ mỗi giây trong 5 phút."
+
+      # ----- xem trong giờ hành chính -----
+
+      - alert: TruyXuatTrongRong
+        # Cảnh báo sớm quan trọng nhất của một hệ RAG: chỉ mục hỏng thì con số
+        # này vọt lên trong khi MỌI thứ khác vẫn xanh — HTTP vẫn 200, model vẫn
+        # trả lời, chỉ là trả lời mà không có tài liệu nào trong tay.
+        expr: >-
+          rate(aurea_retrieval_empty_total[15m])
+          / clamp_min(rate(aurea_retrieval_total[15m]), 0.001) > 0.2
+        for: 10m
+        labels: { severity: ticket }
+        annotations:
+          summary: "Hơn 20% lượt truy xuất không lấy được đoạn nào"
+          description: "Nghi chỉ mục hỏng hoặc model nhúng đã đổi. Chạy npx tsx bench/reindex-probe.ts."
+
+      - alert: ChamHonBinhThuong
+        # p95 đo được trên phần cứng này là ~12,5s. Ngưỡng 20s là "chậm hơn hẳn
+        # mức đã biết", không phải "chậm" — đặt ở 12s thì nó kêu suốt.
+        expr: >-
+          histogram_quantile(0.95, rate(aurea_chat_latency_ms_bucket[15m])) > 20000
+        for: 15m
+        labels: { severity: ticket }
+        annotations:
+          summary: "p95 vượt 20 giây (hiện {{ $value | humanize }}ms)"
+          description: "Card 4GB có thể đang phải nạp lại model mỗi lượt. Kiểm tra keep-alive của Ollama."
+
+      - alert: ModelHetGioNhieu
+        expr: rate(aurea_llm_timeouts_total[15m]) > 0.05
+        for: 10m
+        labels: { severity: ticket }
+        annotations:
+          summary: "Model hết giờ thường xuyên"
+          description: "Model còn sống nhưng quá tải. Khác với ModelDown — cân nhắc giảm tải hoặc nới timeout."
+
+      - alert: KhongCoBanSaoLuu
+        expr: time() - aurea_last_backup_timestamp_seconds > 172800
+        for: 1h
+        labels: { severity: ticket }
+        annotations:
+          summary: "Chưa sao lưu cơ sở dữ liệu trong 48 giờ"
+          description: "Bộ lập lịch chạy mỗi 24 giờ. Quá 48 giờ nghĩa là nó đã ngừng."

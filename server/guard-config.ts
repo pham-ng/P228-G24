@@ -18,7 +18,13 @@
  */
 import { storage } from "./storage";
 
-export type GuardLayer = "injection" | "untrusted_content" | "card_redaction" | "third_party_pii";
+export type GuardLayer =
+  | "injection"
+  | "untrusted_content"
+  | "card_redaction"
+  | "third_party_pii"
+  /** Weapons and requests for sexual services. OFF by default — see DEFAULT_OFF. */
+  | "restricted_requests";
 
 export type GuardLayerInfo = {
   key: GuardLayer;
@@ -29,7 +35,7 @@ export type GuardLayerInfo = {
 
 const SETTING_PREFIX = "guardrail.";
 
-/** Defaults are ON. A layer is only off because somebody turned it off. */
+/** Defaults are ON unless listed in DEFAULT_OFF below. */
 const LAYERS: { key: GuardLayer; label: string; description: string }[] = [
   {
     key: "injection",
@@ -53,7 +59,24 @@ const LAYERS: { key: GuardLayer; label: string; description: string }[] = [
     label: "Chặn hỏi thông tin khách khác",
     description: "Phát hiện yêu cầu lấy số phòng, hoá đơn, giấy tờ của người khác và chuyển sang người thật.",
   },
+  {
+    key: "restricted_requests",
+    label: "Từ chối vũ khí và dịch vụ người lớn",
+    description:
+      "MẶC ĐỊNH TẮT. Khách gần như không bao giờ hỏi những thứ này, và mỗi luật cứng thêm vào là một khả năng chặn nhầm câu bình thường — đo trên 403 ca thật, hai mẫu đầu tiên đã chặn nhầm 4 câu, trong đó có một khách bị thương. Tắt thì các yêu cầu này đi thẳng tới mô hình. Ma tuý KHÔNG nằm trong công tắc này: nó vốn đã được chặn từ trước.",
+  },
 ];
+
+/**
+ * Layers that start OFF.
+ *
+ * Everything else defaults on, because a guard is only off when somebody turned
+ * it off. This one is the exception: it was added on my initiative, the owner
+ * judged the risk of blocking ordinary guests higher than the risk it prevents,
+ * and that is a product call rather than an engineering one. The code and its
+ * tests stay so the decision is one click, not a rewrite.
+ */
+const DEFAULT_OFF = new Set<GuardLayer>(["restricted_requests"]);
 
 /**
  * Never switchable, listed here so the UI can show them as permanently on
@@ -80,7 +103,7 @@ function load(): Map<GuardLayer, boolean> {
       /* A settings table that cannot be read must not disable a guard. */
       v = null;
     }
-    m.set(l.key, v === null ? true : v !== "0" && v !== "false");
+    m.set(l.key, v === null ? !DEFAULT_OFF.has(l.key) : v !== "0" && v !== "false");
   }
   cache = m;
   return m;
@@ -88,12 +111,12 @@ function load(): Map<GuardLayer, boolean> {
 
 /** Is this layer active? Unknown keys are treated as ON — failing closed. */
 export function guardEnabled(layer: GuardLayer): boolean {
-  return load().get(layer) ?? true;
+  return load().get(layer) ?? !DEFAULT_OFF.has(layer);
 }
 
 export function listGuardLayers(): GuardLayerInfo[] {
   const m = load();
-  return LAYERS.map((l) => ({ ...l, enabled: m.get(l.key) ?? true }));
+  return LAYERS.map((l) => ({ ...l, enabled: m.get(l.key) ?? !DEFAULT_OFF.has(l.key) }));
 }
 
 export function setGuardLayer(layer: GuardLayer, enabled: boolean): GuardLayerInfo[] {

@@ -1,3 +1,4 @@
+import { SpeakButton } from "@/components/speak-button";
 import { useState } from "react";
 import { BookOpen, ThumbsUp, ThumbsDown, Check, AlertTriangle, X, ShieldCheck } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -67,13 +68,19 @@ export function SourceAndFeedback({
   toolTrace,
   lang,
   code,
+  body,
+  isLast,
 }: {
   messageId: number;
   conversationId: number;
   toolTrace: string | null;
   lang: string;
+  /** The reply itself, so it can be read aloud. */
+  body: string;
+  /** Câu trả lời mới nhất — chỉ ở đó mới mời đánh giá. */
+  isLast?: boolean;
   /** The guest's confirmation code. Sent with the feedback so the server can
-   *  verify this guest owns this conversation � without it the request is
+   *  verify this guest owns this conversation � without it the request is
    *  refused as unauthenticated, which is what silently broke this button. */
   code?: string | null;
 }) {
@@ -126,6 +133,9 @@ export function SourceAndFeedback({
 
   return (
     <div className="ml-9 mt-1 flex flex-wrap items-center gap-2 text-xs">
+      {/* Renders nothing when the device has no voice for this language —
+          absent beats reading Japanese through an English voice. */}
+      <SpeakButton text={body} lang={lang} />
       {/* View Sources Button */}
       {sources.length > 0 && (
         <button
@@ -151,6 +161,19 @@ export function SourceAndFeedback({
         >
           {liked ? <Check className="h-3.5 w-3.5" /> : <ThumbsUp className="h-3.5 w-3.5" />}
         </button>
+        {/**
+         * NHÓM 3.3 — một nhãn chữ, chỉ ở câu trả lời mới nhất.
+         *
+         * Bảng `feedback` có 0 dòng: nút vẫn ở đó suốt, chỉ là không ai biết
+         * hai hình ngón tay 14 pixel để làm gì. Một chữ đặt cạnh nó nói rõ
+         * mục đích, và chỉ hiện ở lượt cuối cùng nên nó không lặp lại mười
+         * lần dọc hội thoại — nhắc một lần là mời, nhắc mười lần là làm phiền.
+         */}
+        {isLast && !liked && !disliked && (
+          <span className="ml-0.5 mr-1 text-[11px] text-muted-foreground/80">
+            {vi ? "Câu trả lời có giúp được không?" : "Was this helpful?"}
+          </span>
+        )}
         <button
           type="button"
           onClick={handleDislike}

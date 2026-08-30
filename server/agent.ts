@@ -28,7 +28,7 @@ import {
   BOOKING_HORIZON_DAYS,
   extractBudget,
 } from "./booking";
-import { screenGuestMessage, redactCards } from "./guard";
+import { screenGuestMessage, redactCards, type GuardFlag } from "./guard";
 import {
   folioSummary,
   getEntitlements,
@@ -48,6 +48,7 @@ import {
   hotelIso,
   runOpsTool,
 } from "./ops";
+import { orderRoomService } from "./ops";
 import type { OpsCtx } from "./ops";
 import { DEPT_KEYS } from "@shared/schema";
 import { agentModel, chat, classify, FALLBACK, LlmError, MODEL_AGENT, PRIMARY } from "./openai";
@@ -68,7 +69,16 @@ import {
 } from "./observability";
 import { recommend, compareRooms, type RoomContext } from "./upsell";
 import { runLocalTurn, type ReplyLang } from "./local-agent";
-import { suggestInStay, type Weather } from "./crosssell";
+import {
+  suggestInStay,
+  isWet,
+  upsellAllowed,
+  phaseOf,
+  dayPartOf,
+  UPSELL_COOLDOWN_TURNS,
+  type Weather,
+} from "./crosssell";
+import { log } from "./log";
 import { detectPendingTransaction, processFormWizardTurn } from "./wizard";
 import type { ChatMessage, ToolSpec } from "./openai";
 import type { Conversation, ToolCallTrace, Message } from "@shared/schema";
@@ -700,7 +710,21 @@ export function toolsForProvider(provider: "local" | "openai"): ToolSpec[] {
  * Tool implementations — every one of these touches the database
  * ------------------------------------------------------------------ */
 
-type Ctx = { conversation: Conversation };
+type Ctx = {
+  conversation: Conversation;
+  /**
+   * What the guard found on the guest's message this turn, and whether this
+   * turn has already handed off to a person.
+   *
+   * Both are optional because most callers of `runTool` are benches, the wizard
+   * and the ops paths, which have no guard result to pass. Only the upsell gate
+   * reads them, and it treats "not supplied" as "no flags" — the permissive
+   * direction, which is correct here: a bench calling the tool directly is not
+   * a guest being sold to at a bad moment.
+   */
+  guardFlags?: GuardFlag[];
+  escalated?: boolean;
+};
 
 /**
  * Which language to render tool-facing labels in.
@@ -808,35 +832,70 @@ export function detectMessageLang(text: string): string | null {
  * The script detector covers ko/ja/zh/ru; Latin scripts other than Vietnamese
  * fall back to English, which is the same limit the detector itself documents.
  */
-export function handoffLine(lang: string | null | undefined, kind: "confirm" | "failed"): string {
+/**
+ * Câu khách nhìn thấy khi lượt này phải chuyển người.
+ *
+ * `price` là biến thể thêm vào 2026-08-29, và lý do nó tồn tại là một con số:
+ * PRICING là hạng mục yếu nhất của hệ thống (50% hành vi đúng, 33% số liệu
+ * đúng trên bộ vàng 101 ca), nên câu hỏi giá là câu hay phải chuyển người
+ * NHẤT — và cũng là câu mà một lời hẹn chung chung gây khó chịu nhất, vì khách
+ * hỏi một con số cụ thể và nhận lại một câu không nhắc gì tới tiền.
+ *
+ * Câu `price` nói rõ THỨ đang được xác nhận là mức giá. Nó không hứa nhanh hơn
+ * và không giả vờ biết — chỉ nói đúng cái đang thiếu. Thất bại có giải thích
+ * thì khách chấp nhận được; thất bại chung chung thì không.
+ *
+ * Cố ý KHÔNG đổi câu `confirm` cũ: nó vẫn đúng cho mọi câu hỏi khác, và sửa
+ * một câu đang dùng tốt để thêm một trường hợp là cách làm hỏng cả hai.
+ */
+export function handoffLine(lang: string | null | undefined, kind: "confirm" | "failed" | "price"): string {
   const L = (lang ?? "vi").slice(0, 2).toLowerCase();
-  const lines: Record<string, { confirm: string; failed: string }> = {
+  const lines: Record<string, { confirm: string; failed: string; price: string }> = {
     vi: {
       confirm: "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
       failed: "Dạ, em xin lỗi — em chưa lấy được thông tin chính xác cho câu hỏi này. Em đã chuyển cho lễ tân để hỗ trợ anh/chị ngay ạ.",
+      price: "Dạ, mức giá của mục này em cần lễ tân xác nhận lại để báo đúng con số, em không muốn nói một con số chưa chắc chắn. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
     },
     ko: {
       confirm: "정확한 답변을 위해 프런트 데스크의 확인이 필요합니다. 담당 직원에게 전달해 드렸습니다.",
       failed: "죄송합니다 — 정확한 정보를 확인하지 못했습니다. 프런트 데스크로 전달해 드렸으니 곧 도와드리겠습니다.",
+      price: "정확한 금액은 프런트 데스크의 확인이 필요합니다. 확실하지 않은 금액을 말씀드릴 수는 없어 담당 직원에게 전달해 드렸습니다.",
     },
     ja: {
       confirm: "正確にお答えするため、フロントに確認いたします。担当者にお繋ぎいたしました。",
       failed: "申し訳ございません — 正確な情報を確認できませんでした。フロントにお繋ぎいたしましたので、すぐに対応いたします。",
+      price: "正確な料金はフロントでの確認が必要です。不確かな金額をお伝えするわけにはまいりませんので、担当者にお繋ぎいたしました。",
     },
     zh: {
       confirm: "为了给您准确的答复，需要前台确认。我已经转交同事为您处理了。",
       failed: "很抱歉 — 我未能查到准确的信息。已经转交前台，同事会马上为您处理。",
+      price: "这一项的价格需要前台确认后才能准确告知，我不想告诉您不确定的数字。已经转交同事为您处理了。",
     },
     ru: {
       confirm: "Чтобы ответить точно, нужно подтверждение стойки регистрации. Я передал(а) ваш вопрос коллеге.",
       failed: "Извините — мне не удалось получить точную информацию. Я передал(а) вопрос на стойку регистрации, коллега поможет вам сейчас же.",
+      price: "Точную стоимость нужно уточнить на стойке регистрации — я не стану называть непроверенную сумму. Я передал(а) ваш вопрос коллеге.",
     },
     en: {
       confirm: "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
       failed: "I'm sorry — I couldn't retrieve a reliable answer for that. I've passed it to the front desk so a colleague can help you right away.",
+      price: "I'd rather have the front desk confirm the exact figure than quote you one I'm not certain of. I've passed it to a colleague for you.",
     },
   };
   return (lines[L] ?? lines.en)[kind];
+}
+
+/**
+ * How many times has the guest spoken since they were last shown a suggestion?
+ *
+ * Null means they never have been, which the gate reads as "no cooldown". The
+ * guest's current message is already in the history by the time a tool runs, so
+ * an offer made on the previous turn counts as one turn ago, not zero.
+ */
+function guestTurnsSinceLastUpsell(conversationId: number): number | null {
+  const at = storage.lastUpsellAt(conversationId);
+  if (!at) return null;
+  return storage.listMessages(conversationId).filter((m) => m.role === "guest" && m.createdAt > at).length;
 }
 
 export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record<string, unknown> | string> {
@@ -910,6 +969,43 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
 
     case "suggest_experiences": {
       if (!res) return { error: "No reservation is linked to this conversation, so there is no stay to suggest around." };
+
+      /**
+       * Is this a moment to be selling at all?
+       *
+       * Checked BEFORE the ranking and before `fetchWeather`, so a suppressed
+       * turn costs no network call — and, more importantly, so nothing is
+       * recorded as having been shown to the guest.
+       *
+       * The model chooses when to call this tool, and it had no way to know
+       * that the guest's previous message tripped a guard flag or that the
+       * conversation is already marked unhappy. This is that check.
+       */
+      const gate = upsellAllowed({
+        /* Either this turn escalated, or a person has already taken the
+           conversation over — `mode` is "ai" | "human" | "closed". */
+        escalated: ctx.escalated === true || conv.mode !== "ai",
+        flagged: (ctx.guardFlags ?? []).length > 0,
+        sentiment: conv.sentiment,
+        turnsSinceLast: guestTurnsSinceLastUpsell(conv.id),
+        stayPhase: phaseOf(res, today()),
+        dayPart: dayPartOf(clock()),
+      });
+      if (!gate.ok) {
+        return {
+          suggestions: [],
+          offers: [],
+          suppressed: true,
+          reason: gate.reason,
+          /* The model is told plainly, because a bare empty array reads as "the
+             ranking found nothing" and invites it to improvise a suggestion of
+             its own from the service list it has already seen. */
+          instruction:
+            "KHÔNG gợi ý, KHÔNG chào bán, KHÔNG nhắc tới bất kỳ dịch vụ nào trong lượt này. " +
+            `Lý do: ${gate.reason}. Chỉ trả lời đúng điều khách vừa hỏi.`,
+        };
+      }
+
       /* Weather is a signal, not a requirement: when the forecast is unavailable
          the ranking simply loses the indoor/outdoor tilt rather than failing. */
       let weather: Weather | undefined;
@@ -938,6 +1034,33 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
         interest: typeof args.interest === "string" ? args.interest : undefined,
         lang: replyLang(conv, guest.lang),
       });
+      /* Log what was offered before anything is said about it. Conversion is
+         read back later by matching bookings against these rows, so a
+         suggestion that is never recorded can never be credited with a sale —
+         and the recording must not be able to break the reply. */
+      try {
+        const now = new Date().toISOString();
+        storage.recordUpsellImpressions(
+          out.suggestions.map((s, i) => ({
+            hotelId: hotel.id,
+            reservationId: res.id,
+            conversationId: conv.id,
+            serviceId: s.service_id,
+            serviceName: s.name,
+            position: i + 1,
+            score: s.score,
+            why: s.why,
+            dayPart: out.day_part,
+            stayPhase: out.phase,
+            wet: isWet(weather) ? 1 : 0,
+            price: s.price,
+            createdAt: now,
+          })),
+        );
+      } catch (e) {
+        log("upsell impression log failed: " + (e as Error).message);
+      }
+
       return {
         ...out,
         currency: hotel.currency,
@@ -1275,80 +1398,18 @@ export async function runTool(name: string, args: any, ctx: Ctx): Promise<Record
     }
 
     case "order_room_service": {
-      if (!res) return { error: "No reservation linked — cannot order." };
-      const items = Array.isArray(args.items) ? args.items : [];
-      if (!items.length) return { error: "No items supplied." };
-      const lines: string[] = [];
-      let total = 0;
-      for (const it of items) {
-        const svc = storage.getService(Number(it.service_id));
-        if (!svc || svc.category !== "roomservice")
-          return {
-            error: `Service ${it.service_id} is not on the in-room dining menu. Call list_services with category "roomservice" and use a service_id from the result.`,
-            menu: storage
-              .listServices()
-              .filter((x) => x.category === "roomservice")
-              .map((x) => ({ service_id: x.id, name: x.name, price: x.price })),
-          };
-        const qty = Math.max(1, Number(it.quantity ?? 1));
-        total += svc.price * qty;
-        lines.push(`${qty} × ${svc.name}`);
-      }
-      /* HITL gate: no charge posted yet — only queued. Staff approval (see
-       * finalizeApproval in ops.ts) is what actually posts it and starts
-       * the kitchen clock. */
-      const task = storage.createTask({
-        hotelId: hotel.id,
-        reservationId: res.id,
-        roomId: res.roomId,
-        conversationId: conv.id,
-        dept: "fnb",
-        title: `CẦN DUYỆT — In-room dining — room ${room?.number ?? "—"}`,
-        detail: `${lines.join(", ")}.${args.note ? ` Note: ${args.note}` : ""} Guest: ${guest.name}. Đang chờ duyệt.`,
-        priority: "high",
-        status: "open",
-        source: "ai",
-        assignedStaffId: null,
-        dueAt: new Date(Date.now() + 35 * 60_000).toISOString(),
-        createdAt: nowIso(),
-        resolvedAt: null,
+      /* The whole body moved to `orderRoomService` in ops.ts so the kiosk can
+         place an identical order without a model. Extracting it also fixed four
+         defects this tool had — unchecked kitchen hours, a hard-coded 35-minute
+         ETA, a payload that kept only display strings, and no allergy warning
+         on the one path that actually sends food to a room. See the core. */
+      return orderRoomService(opsCtx(), {
+        items: (Array.isArray(args.items) ? args.items : []).map((it: any) => ({
+          serviceId: Number(it.service_id ?? it.serviceId),
+          quantity: Number(it.quantity ?? 1),
+        })),
+        note: typeof args.note === "string" ? args.note : undefined,
       });
-      const approval = storage.createApproval({
-        hotelId: hotel.id,
-        reservationId: res.id,
-        guestId: guest.id,
-        conversationId: conv.id,
-        taskId: task.id,
-        kind: "order_room_service",
-        summary: `In-room dining — ${lines.join(", ")} — ${total.toLocaleString("vi-VN")} ${hotel.currency}`,
-        payload: JSON.stringify({ reservationId: res.id, items: items.map((it: any, i: number) => ({ line: lines[i] })), total }),
-        amount: total,
-        status: "pending",
-        createdAt: nowIso(),
-        resolvedAt: null,
-        resolvedBy: null,
-        rejectionReason: null,
-      });
-      storage.logEvent({
-        type: "order.queued_for_approval",
-        actor: "ai",
-        summary: `In-room dining order queued for ${guest.name}: ${lines.join(", ")}.`,
-        payload: JSON.stringify({ taskId: task.id, approvalId: approval.id, total }),
-        conversationId: conv.id,
-        createdAt: nowIso(),
-      });
-      return {
-        ordered: false,
-        pending_approval: true,
-        approval_id: approval.id,
-        items: lines,
-        pending_amount: total,
-        currency: hotel.currency,
-        eta_minutes: 35,
-        dispatched_to: "fnb",
-        instruction:
-          "Yêu cầu đã được ghi nhận và chuyển bếp/FnB duyệt — nói với khách là ĐANG CHỜ XÁC NHẬN, TUYỆT ĐỐI KHÔNG nói là đã đặt món/đang chuẩn bị.",
-      };
     }
 
     case "request_late_checkout": {
@@ -2377,7 +2438,23 @@ async function runOfflineTurn(ctx: {
     trace.push({ name: "escalate_to_human", args: { route: turn.route }, result, ms: Date.now() - t0 });
     escalated = true;
     if (!reply.trim()) {
-      reply = handoffLine(lang, "confirm");
+      /**
+       * Câu hỏi về TIỀN được trả lời bằng một câu nói rõ là đang thiếu con số.
+       *
+       * PRICING là hạng mục yếu nhất trên bộ vàng 101 ca (50% hành vi, 33% số
+       * liệu), nên đây là loại câu hay rơi vào nhánh này nhất — và cũng là loại
+       * mà câu hẹn chung chung gây khó chịu nhất: khách hỏi một con số và nhận
+       * lại một câu không hề nhắc tới tiền.
+       *
+       * Chỉ ĐỔI CHỮ, không đổi hành vi: vẫn chuyển người, vẫn cùng độ ưu tiên,
+       * vẫn cùng task. Nếu mẫu dưới đây không khớp thì rơi về đúng câu cũ, nên
+       * trường hợp xấu nhất của thay đổi này là không có gì thay đổi.
+       */
+      const asksPrice =
+        /gi[áa]\b|bao nhi[êe]u|ph[íi]\b|ti[ềe]n\b|how much|price|cost|fee\b|얼마|가격|料金|いくら|价格|多少钱|цена|стоимость|сколько/iu.test(
+          question,
+        );
+      reply = handoffLine(lang, asksPrice ? "price" : "confirm");
     }
   }
 
@@ -2672,7 +2749,11 @@ export async function runAgent(conversationId: number): Promise<AgentResult> {
         const toolSpan = tr.startSpan(`tool.${call.function.name}`, "tool", { args });
 
         try {
-          result = await runTool(call.function.name, args, { conversation: conv });
+          result = await runTool(call.function.name, args, {
+            conversation: conv,
+            guardFlags: guard.flags,
+            escalated,
+          });
         } catch (e: any) {
           result = { error: e?.message ?? String(e) };
         }

@@ -1,0 +1,15 @@
+{
+  "VI-C-06": { "handling": "sai",      "source": "sai_tl"  },
+  "VI-C-09": { "handling": "sai",      "source": "sai_tl"  },
+  "VI-M-08": { "handling": "im_lang",  "source": "sai_tl"  },
+  "VI-T-11": { "handling": "dung_du",  "source": "dung_tl" },
+  "VI-P-17": { "handling": "im_lang",  "source": "sai_tl"  },
+  "VI-M-03": { "handling": "im_lang",  "source": "sai_tl"  },
+  "VI-P-06": { "handling": "hop_ly",   "source": "dung_tl" },
+  "VI-P-08": { "handling": "im_lang",  "source": "sai_tl"  },
+  "VI-P-02": { "handling": "im_lang",  "source": "sai_tl"  },
+  "VI-C-13": { "handling": "hop_ly",   "source": "dung_tl" },
+  "VI-C-05": { "handling": "dung_du",  "source": "dung_tl" },
+  "VI-P-11": { "handling": "im_lang",  "source": "sai_tl"  },
+  "VI-P-12": { "handling": "im_lang",  "source": "sai_tl"  }
+}

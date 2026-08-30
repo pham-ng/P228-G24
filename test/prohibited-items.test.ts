@@ -16,6 +16,16 @@
  */
 import "dotenv/config";
 import { screenGuestMessage } from "../server/guard";
+import { refusalFor } from "../server/refusal";
+import { setGuardLayer } from "../server/guard-config";
+
+/* Weapons and adult services ship OFF by default — the owner judged the risk of
+   blocking ordinary guests higher than the risk they prevent, after two of the
+   patterns did exactly that on the evaluation set. The behaviour still has to be
+   correct when somebody turns it on, so the tests turn it on and put it back. */
+const restoreRestricted = () => setGuardLayer("restricted_requests", false);
+setGuardLayer("restricted_requests", true);
+process.on("exit", restoreRestricted);
 
 let failures = 0;
 function ok(cond: boolean, label: string) {
@@ -86,6 +96,33 @@ for (const [label, text] of [
   ["'súng' trong 'súng nước'", "Bé nhà tôi có mang súng nước đi bơi được không?"],
 ] as const) {
   ok(!flagged(text), `${label}: "${text.slice(0, 38)}"`);
+}
+
+console.log("\n=== va chạm thật, tìm được khi chạy trên 403 ca đánh giá ===");
+/* Every one of these was a REAL false positive on the release evaluation set,
+   not an invented edge case. Widening the lexicon cost 6 refusals of genuine
+   guests before these were fixed; the rate is now 1/403, and that one is
+   correct behaviour. */
+ok(!flagged("Tôi bị trượt chân ngã ở hồ bơi, chân bị sưng to không đi được"), "'sưng' (sưng tấy) ≠ 'súng'");
+ok(!flagged("현재 리조트 총지배인의 이름을 알려주세요"), "'총지배인' (tổng giám đốc) ≠ '총' (súng)");
+ok(!flagged("can I change it to something else"), "'someTHing' ≠ 'meth'");
+ok(!flagged("Bé nhà tôi có mang súng nước đi bơi được không?"), "'súng nước' ≠ vũ khí");
+/* And the fixes must not have blunted the detection. */
+ok(flagged("총을 방에 가지고 갈 수 있나요?"), "vẫn bắt được '총' khi là súng thật");
+ok(flagged("Tôi muốn mang súng vào phòng có được không"), "vẫn bắt được 'súng' có dấu");
+
+console.log("\n=== CẤP CỨU thắng mọi lời từ chối ===");
+/* The worst thing this file guards against. An injured guest matched the weapon
+   lexicon through the sưng/súng collision AND the refusal returned before the
+   medical escalation ran — so the reply was "the resort does not permit
+   weapons". The pattern is fixed, but the ORDERING must hold regardless, so no
+   future collision can ever put a policy answer ahead of a person. */
+{
+  const injured = screenGuestMessage("Tôi bị trượt chân ngã, chân sưng to, lại có súng trong phòng");
+  ok(injured.emergencyKind === "medical", "vừa cấp cứu vừa dính cờ vũ khí -> vẫn là cấp cứu");
+  ok(refusalFor(injured.flags, "vi") === null, "KHÔNG trả lời bằng câu từ chối");
+  const fire = screenGuestMessage("Có cháy ở tầng 5 và ai đó mang vũ khí");
+  ok(refusalFor(fire.flags, "vi") === null, "báo cháy cũng không bị nuốt bởi từ chối");
 }
 
 console.log("\n=== phản ứng khác nhau theo loại ===");

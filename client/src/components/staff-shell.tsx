@@ -19,9 +19,12 @@ import {
   ShieldAlert,
   Sun,
   CalendarRange,
+  FileText,
+  ConciergeBell,
+  ScanLine,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { AureaLogo } from "./logo";
+import { VinAureaLogo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useSession } from "@/lib/session";
@@ -42,8 +45,11 @@ const NAV = [
   { href: "/staff", label: "Inbox", icon: Inbox, badge: "inbox" as const, needs: "all_conversations" as const },
   { href: "/staff/approvals", label: "Approvals", icon: ShieldCheck, badge: "approvals" as const, needs: "approvals" as const },
   { href: "/staff/tasks", label: "Tasks", icon: ClipboardList, badge: "tasks" as const },
+  { href: "/staff/requests", label: "Yêu cầu", icon: ConciergeBell },
   { href: "/staff/rooms", label: "Rooms", icon: BedDouble, needs: "rooms" as const },
   { href: "/staff/reservations", label: "Reservations", icon: CalendarRange, needs: "guest_data" as const },
+  { href: "/staff/checkin", label: "Nhận phòng", icon: ScanLine, needs: "guest_data" as const },
+  { href: "/staff/registrations", label: "Lưu trú", icon: FileText, needs: "guest_data" as const },
   { href: "/staff/insights", label: "Insights", icon: BarChart3, needs: "insights" as const },
   { href: "/staff/knowledge", label: "Knowledge", icon: BookOpen, needs: "edit_content" as const },
   { href: "/staff/policies", label: "Policies", icon: Scale, needs: "edit_content" as const },
@@ -129,7 +135,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col bg-sidebar">
       <div className="px-4 py-4">
-        <AureaLogo subtitle="Operations" />
+        <VinAureaLogo subtitle="Operations" />
       </div>
       <div className="flex-1 overflow-y-auto pb-4">
         <NavList onNavigate={onNavigate} />

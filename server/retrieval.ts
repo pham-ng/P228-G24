@@ -248,13 +248,44 @@ function sourceFromBody(body: string): string | null {
  * Rebuild the chunk table from kb_articles + policies, then embed every chunk.
  * Returns counts so the caller (and the staff UI) can see what happened.
  */
+/**
+ * Một chunk mà lượt dựng này MUỐN có trong chỉ mục.
+ *
+ * Cùng hình dạng với đối số của `storage.createChunk`, nên nó vừa dùng để chèn
+ * mới vừa dùng để ghi đè cái đang có — không có bước chuyển đổi nào ở giữa để
+ * mà lệch.
+ */
+type DesiredChunk = Parameters<typeof storage.createChunk>[0];
+
 export async function reindex(): Promise<{
   chunks: number;
+  /** Số chunk NHÚNG LẠI lượt này — không phải tổng số vector trong chỉ mục. */
   embedded: number;
   model: string;
   embedError: string | null;
+  added: number;
+  changed: number;
+  /** Dùng lại nguyên vector cũ. Con số này càng lớn thì lượt dựng càng rẻ. */
+  kept: number;
+  removed: number;
+  /** Tổng số chunk đang mang vector của model hiện tại. */
+  vectorCount: number;
 }> {
-  storage.clearChunks();
+  /**
+   * Đối chiếu, KHÔNG xoá-rồi-dựng.
+   *
+   * Bản trước mở đầu bằng `clearChunks()`. Đo được hậu quả: rebuild mất **65
+   * giây**, và trong quãng đó chỉ mục có 136 chunk nhưng **0 vector** suốt ~15
+   * giây đầu, rồi đầy dần theo lô 32. Tìm kiếm từ khoá vẫn chạy nên không ai
+   * thấy hỏng — nhưng tìm kiếm ngữ nghĩa tắt gần một phút sau MỖI lần sửa một
+   * bài viết, kể cả khi 134 trong 136 chunk không đổi một ký tự.
+   *
+   * Giờ: dựng danh sách mong muốn trong bộ nhớ, so với cái đang có, rồi chỉ
+   * đụng vào phần khác. Chunk không đổi giữ nguyên cả vector, nên chỉ mục
+   * không bao giờ có khoảng trống — không cần bảng đệm hay bước hoán đổi.
+   */
+  const desired: DesiredChunk[] = [];
+  const add = (c: DesiredChunk) => desired.push(c);
   const ts = nowIso();
 
   for (const a of storage.listKb()) {
@@ -271,7 +302,7 @@ export async function reindex(): Promise<{
     // matches how guests actually ask. Aliases are for search only; no fact lives here.
     const aliases = kbAliasesFor(a.title, a.category);
     pieces.forEach((body, ordinal) => {
-      storage.createChunk({
+      add({
         kind: "kb",
         refId: a.id,
         ordinal,
@@ -308,7 +339,7 @@ export async function reindex(): Promise<{
        carries its own alias line. */
     const vi = VI_ALIASES[p.topic] ? `\nAlso asked as: ${VI_ALIASES[p.topic]}` : "";
     chunkText(`${p.summary}\n${flat}`).forEach((body, ordinal) => {
-      storage.createChunk({
+      add({
         kind: "policy",
         refId: p.id,
         ordinal,
@@ -346,7 +377,7 @@ export async function reindex(): Promise<{
       .filter(Boolean)
       .join(" ");
     chunkText(facts).forEach((body, ordinal) => {
-      storage.createChunk({
+      add({
         kind: "room",
         refId: r.id,
         ordinal,
@@ -399,7 +430,7 @@ export async function reindex(): Promise<{
       .filter(Boolean)
       .join(" ");
     chunkText(facts).forEach((body, ordinal) => {
-      storage.createChunk({
+      add({
         kind: "dining",
         refId: v.row.id,
         ordinal,
@@ -414,6 +445,64 @@ export async function reindex(): Promise<{
       });
     });
   }
+
+  /* --- đối chiếu: giữ cái không đổi, sửa cái đổi, xoá cái thừa --- */
+
+  /**
+   * Khoá định danh một chunk qua các lần dựng lại.
+   *
+   * `(kind, refId, ordinal)` là thứ duy nhất bền: id tự tăng thì đổi mỗi lần
+   * chèn, còn tiêu đề thì người ta sửa. Sai khoá ở đây nghĩa là mọi chunk đều
+   * trông như mới, và cả kho bị nhúng lại — đúng cái đang muốn tránh.
+   */
+  const keyOf = (c: { kind: string; refId: number; ordinal: number }) => `${c.kind}:${c.refId}:${c.ordinal}`;
+
+  const existing = storage.listChunks();
+  const byKey = new Map(existing.map((c) => [keyOf(c), c]));
+  const seen = new Set<string>();
+  let added = 0,
+    changed = 0,
+    kept = 0;
+
+  for (const d of desired) {
+    const k = keyOf(d);
+    seen.add(k);
+    const old = byKey.get(k);
+    if (!old) {
+      storage.createChunk(d);
+      added++;
+      continue;
+    }
+    /**
+     * Giữ lại chỉ khi MỌI thứ đọc được đều khớp VÀ vector còn dùng được.
+     *
+     * `embedModel !== MODEL_EMBED` buộc nhúng lại toàn bộ khi đổi model — vector
+     * của hai model khác nhau không so sánh được với nhau, và một chỉ mục trộn
+     * hai loại vector sẽ xếp hạng sai mà không báo lỗi gì.
+     */
+    const dungDuoc =
+      old.body === d.body &&
+      old.title === d.title &&
+      old.category === d.category &&
+      (old.sourceUrl ?? null) === (d.sourceUrl ?? null) &&
+      old.quality === (d.quality ?? old.quality) &&
+      old.verified === (d.verified ?? old.verified) &&
+      old.contentClass === (d.contentClass ?? old.contentClass) &&
+      old.embedding !== null &&
+      old.embedModel === MODEL_EMBED;
+    if (dungDuoc) {
+      kept++;
+      continue;
+    }
+    storage.replaceChunk(old.id, d);
+    changed++;
+  }
+
+  /* Bài viết bị xoá, hoặc bài dài bị rút ngắn còn ít đoạn hơn. Không dọn thì
+     đoạn cũ nằm lại trong chỉ mục và vẫn được tìm thấy — một chính sách đã bỏ
+     vẫn trả lời khách. */
+  const thua = existing.filter((c) => !seen.has(keyOf(c))).map((c) => c.id);
+  storage.deleteChunks(thua);
 
   const pending = storage.chunksWithoutEmbedding();
   let embedded = 0;
@@ -439,10 +528,23 @@ export async function reindex(): Promise<{
      embedded cleanly: a half-finished index must not carry a certificate saying
      it is whole, and an errored run leaves the previous stamp in place so the
      mismatch is still reported. */
-  const chunkCount = storage.listChunks().length;
-  if (!embedError && embedded > 0 && embedded === chunkCount) {
+  /**
+   * `embedded` giờ là số chunk MỚI nhúng lượt này, không phải tổng số.
+   *
+   * Điều kiện cũ `embedded === chunkCount` đúng khi mỗi lượt đều nhúng lại cả
+   * kho. Với dựng tăng dần thì nó sai hẳn: sửa một bài, nhúng 2 chunk, so 2 với
+   * 136 rồi kết luận chỉ mục chưa toàn vẹn — và không lần nào đóng dấu nữa.
+   *
+   * Bất biến đúng là: MỌI chunk đang có đều mang vector của model HIỆN TẠI.
+   * Đếm trực tiếp thay vì suy từ số lượt nhúng.
+   */
+  const tatCa = storage.listChunks();
+  const chunkCount = tatCa.length;
+  const vectorCount = tatCa.filter((c) => c.embedding != null && c.embedModel === MODEL_EMBED).length;
+  const toanVen = !embedError && chunkCount > 0 && vectorCount === chunkCount;
+  if (toanVen) {
     const dim = (() => {
-      const c = storage.listChunks().find((x) => x.embedding != null);
+      const c = tatCa.find((x) => x.embedding != null);
       try {
         return c ? (JSON.parse(c.embedding!) as number[]).length : 0;
       } catch {
@@ -456,12 +558,12 @@ export async function reindex(): Promise<{
         dimension: dim,
         embeddingVersion: EMBEDDING_VERSION,
         chunkCount,
-        vectorCount: embedded,
+        vectorCount,
       });
     }
   }
 
-  return { chunks: chunkCount, embedded, model: MODEL_EMBED, embedError };
+  return { chunks: chunkCount, embedded, model: MODEL_EMBED, embedError, added, changed, kept, removed: thua.length, vectorCount };
 }
 
 /** Turn a nested rules object into readable "key: value" lines for the index. */

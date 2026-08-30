@@ -1,0 +1,64 @@
+# Prometheus + Grafana chạy tại chỗ — bộ thu thập mà endpoint /api/metrics
+# vẫn đang thiếu.
+#
+#   1. echo -n "<STAFF_API_TOKEN trong .env>" > ops/scrape-token
+#   2. docker compose -f ops/docker-compose.obs.yml up -d
+#   3. http://localhost:9090/targets   → `aurea` phải UP
+#      http://localhost:3001           → Grafana, admin/admin, đổi ngay khi vào
+#
+# Vì sao chạy tại chỗ chứ không Grafana Cloud: sản phẩm này chạy hoàn toàn trong
+# khách sạn, model không gửi gì ra ngoài. Đẩy chỉ số vận hành lên đám mây là mở
+# một đường ra mà cả kiến trúc còn lại đã cố tránh. Cloud vẫn dùng được —
+# `remote_write` trong prometheus.yml — nhưng đó phải là quyết định có ý thức
+# của khách sạn, không phải mặc định.
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aurea-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      # Token đọc /api/metrics. KHÔNG commit tệp này.
+      - ./scrape-token:/etc/prometheus/scrape-token:ro
+      - prom-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      # 30 ngày: đủ để so tuần này với tuần trước khi có ai hỏi "dạo này chậm
+      # hơn phải không", mà không ăn hết đĩa của một máy khách sạn.
+      - "--storage.tsdb.retention.time=30d"
+    extra_hosts:
+      # Server chạy trên máy chủ, không trong container. Trên Linux dòng này là
+      # bắt buộc; trên Docker Desktop nó đã có sẵn nhưng để lại thì chạy cả hai.
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aurea-grafana
+    restart: unless-stopped
+    # 3001 chứ không 3000: cổng 3000 hay bị chính máy phát triển chiếm.
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      # Hai dòng dưới đây trước bị thiếu, và đó là toàn bộ lý do "Grafana chưa
+      # có bảng biểu nào": `grafana-dashboards.yml` khai báo một provider đọc
+      # thư mục `/etc/grafana/provisioning/dashboards/json`, nhưng KHÔNG có gì
+      # được mount vào đó — thư mục rỗng, nên Grafana khởi động sạch sẽ, không
+      # báo lỗi, và không có bảng nào. Một cấu hình provisioning không được gắn
+      # vào container thì im lặng y như không tồn tại.
+      - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/vinaurea.yml:ro
+      - ./dashboards:/etc/grafana/provisioning/dashboards/json:ro
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    depends_on:
+      - prometheus
+
+volumes:
+  prom-data:
+  grafana-data:

@@ -10,6 +10,7 @@ import {
   tasks,
   services,
   serviceBookings,
+  upsellImpressions,
   kbArticles,
   policies,
   restrictions,
@@ -42,6 +43,7 @@ import type {
   Task,
   Service,
   ServiceBooking,
+  UpsellImpression,
   KbArticle,
   Policy,
   Restriction,
@@ -148,6 +150,14 @@ CREATE TABLE IF NOT EXISTS services (
   dept TEXT NOT NULL, slots TEXT NOT NULL DEFAULT '[]', capacity_per_slot INTEGER NOT NULL DEFAULT 4,
   active INTEGER NOT NULL DEFAULT 1
 );
+CREATE TABLE IF NOT EXISTS upsell_impressions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER NOT NULL,
+  conversation_id INTEGER, service_id INTEGER NOT NULL, service_name TEXT NOT NULL,
+  position INTEGER NOT NULL, score REAL NOT NULL, why TEXT NOT NULL DEFAULT '',
+  day_part TEXT NOT NULL, stay_phase TEXT NOT NULL, wet INTEGER NOT NULL DEFAULT 0,
+  price REAL NOT NULL DEFAULT 0, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_upsell_res ON upsell_impressions(reservation_id, service_id);
 CREATE TABLE IF NOT EXISTS service_bookings (
   id INTEGER PRIMARY KEY AUTOINCREMENT, service_id INTEGER NOT NULL, reservation_id INTEGER NOT NULL,
   date TEXT NOT NULL, slot TEXT NOT NULL, party_size INTEGER NOT NULL DEFAULT 1,
@@ -255,7 +265,7 @@ CREATE TABLE IF NOT EXISTS feedback (
   id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, reservation_id INTEGER,
   guest_id INTEGER, conversation_id INTEGER, rating INTEGER,
   category TEXT NOT NULL DEFAULT 'general', comment TEXT NOT NULL,
-  sentiment TEXT NOT NULL DEFAULT 'neutral', task_id INTEGER,
+  sentiment TEXT NOT NULL DEFAULT 'neutral', task_id INTEGER, message_id INTEGER,
   status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS trace_spans (
@@ -333,6 +343,8 @@ CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
      insights dashboard was captioned "classified per conversation by the model"
      while counting seed fixtures whose mood is a rand() call — with one column
      for provenance there is no way to tell them apart, and nobody could. */
+  /* Cơ sở dữ liệu đang chạy đã có bảng feedback không có cột này. */
+  addColumnIfMissing("feedback", "message_id", "message_id INTEGER");
   addColumnIfMissing("conversations", "sentiment_source", "sentiment_source TEXT");
   addColumnIfMissing("conversations", "sentiment_at", "sentiment_at TEXT");
 
@@ -784,6 +796,29 @@ export const storage = {
       )
       .all();
   },
+  recordUpsellImpressions(rows: Omit<UpsellImpression, 'id'>[]): void {
+    if (!rows.length) return;
+    db.insert(upsellImpressions).values(rows).run();
+  },
+  listUpsellImpressions(): UpsellImpression[] {
+    return db.select().from(upsellImpressions).orderBy(desc(upsellImpressions.id)).all();
+  },
+  /**
+   * When this conversation was last shown a suggestion, or null if never.
+   * Feeds the cooldown in `upsellAllowed` — asking again on the next turn is
+   * the fastest way for a concierge to start reading as a salesman.
+   */
+  lastUpsellAt(conversationId: number): string | null {
+    const row = db
+      .select()
+      .from(upsellImpressions)
+      .where(eq(upsellImpressions.conversationId, conversationId))
+      .orderBy(desc(upsellImpressions.id))
+      .limit(1)
+      .get();
+    return row?.createdAt ?? null;
+  },
+
   createBooking(v: Omit<ServiceBooking, "id">): ServiceBooking {
     return db.insert(serviceBookings).values(v).returning().get();
   },
@@ -932,6 +967,23 @@ export const storage = {
       })
       .returning()
       .get();
+  },
+  /**
+   * Ghi đè nội dung một chunk ĐANG CÓ và **xoá vector của nó**.
+   *
+   * Xoá vector là bắt buộc, không phải tuỳ chọn: một chunk có nội dung mới mà
+   * giữ vector cũ sẽ được tìm thấy bằng nghĩa của văn bản đã bị thay thế. Đó là
+   * kiểu sai tệ nhất — không lỗi, không cảnh báo, chỉ là câu trả lời sai.
+   */
+  replaceChunk(id: number, v: Partial<DocChunk>) {
+    db.update(docChunks)
+      .set({ ...v, embedding: null, embedModel: null })
+      .where(eq(docChunks.id, id))
+      .run();
+  },
+  deleteChunks(ids: number[]) {
+    if (!ids.length) return;
+    db.delete(docChunks).where(inArray(docChunks.id, ids)).run();
   },
   setChunkEmbedding(id: number, embedding: string, model: string) {
     db.update(docChunks).set({ embedding, embedModel: model }).where(eq(docChunks.id, id)).run();

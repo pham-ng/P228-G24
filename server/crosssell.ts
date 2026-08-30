@@ -112,6 +112,11 @@ export type CrossSellInput = {
   limit?: number;
 };
 
+/* A preference is guest-typed text, so it becomes part of a RegExp only after
+   escaping — an entry like "spa (2h)" would otherwise throw and take the whole
+   ranking down. */
+const escapeRe = (s: string) => s.replace(/[\.*+?^${}()|\[\]\\]/g, "\\$&");
+
 const say = (lang: "vi" | "en", vi: string, en: string) => (lang === "vi" ? vi : en);
 
 /**
@@ -129,8 +134,23 @@ export function suggestInStay(input: CrossSellInput): CrossSellResult {
   const wet = isWet(input.weather);
   const booked = new Set(input.alreadyBooked ?? []);
   const interest = (input.interest ?? "").toLowerCase();
+  /* Stored as a JSON array of short phrases; a malformed value must not take
+     the whole ranking down with it. */
+  const prefs: string[] = (() => {
+    const raw = input.guest.preferences as unknown;
+    if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string");
+    if (typeof raw === "string") {
+      try {
+        const p = JSON.parse(raw);
+        return Array.isArray(p) ? p.filter((x): x is string => typeof x === "string") : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  })();
 
-  const scored: Suggestion[] = [];
+  const scored: Array<Suggestion & { explicit: boolean }> = [];
 
   for (const s of input.services) {
     if (!s.active || booked.has(s.id)) continue;
@@ -139,8 +159,26 @@ export function suggestInStay(input: CrossSellInput): CrossSellResult {
        relevant (departure) rather than sold. */
     if (s.category === "roomservice") continue;
 
+    const slotsAll: string[] = safeSlots(s.slots);
+    /**
+     * When is this service actually available?
+     *
+     * The rules below read the service NAME to guess a good time, and a name is
+     * not a schedule. "Private beachfront dinner" matched the outdoor rule, drew
+     * the morning bonus, and was offered to a guest at nine in the morning with
+     * the reason "mornings are the best time for this" — for a dinner whose only
+     * slots are 18:00 and later. The published slots settle it; a service with
+     * none is treated as available all day, which is what a beach desk is.
+     */
+    const slotParts = new Set<DayPart>(slotsAll.map(dayPartOf));
+    const timely = (part: DayPart) => slotParts.size === 0 || slotParts.has(part);
+
     let score = 0;
     const reasons: string[] = [];
+    /* Did the guest themselves point at this service — by asking now, or by
+       writing it on the preferences form? Contextual signals are inferences;
+       these two are statements, and they are treated differently below. */
+    let explicit = false;
     const text = `${s.name} ${s.description ?? ""}`;
 
     /* --- what the guest actually asked about outranks everything else --- */
@@ -148,6 +186,7 @@ export function suggestInStay(input: CrossSellInput): CrossSellResult {
       const words = interest.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2);
       if (words.some((w) => text.toLowerCase().includes(w))) {
         score += 6;
+        explicit = true;
         reasons.push(say(lang, "đúng điều anh/chị đang hỏi", "matches what you asked about"));
       }
     }
@@ -166,15 +205,42 @@ export function suggestInStay(input: CrossSellInput): CrossSellResult {
         score -= 4; // lunch buffet in the evening is simply wrong
       }
     }
-    if (/spa|massage|therapy|facial/i.test(text) && (dayPart === "afternoon" || dayPart === "evening")) {
+    if (/spa|massage|therapy|facial/i.test(text) && (dayPart === "afternoon" || dayPart === "evening") && timely(dayPart)) {
       score += 2;
       reasons.push(say(lang, "khung giờ chiều/tối thường dễ đặt", "afternoon and evening slots are easiest to get"));
     }
-    if (OUTDOOR.test(text) && dayPart === "morning") {
+    if (OUTDOOR.test(text) && dayPart === "morning" && timely("morning")) {
       score += 3;
       reasons.push(say(lang, "buổi sáng là lúc đẹp nhất để đi", "mornings are the best time for this"));
     }
-    if (OUTDOOR.test(text) && (dayPart === "evening" || dayPart === "night")) score -= 4;
+    /* Only penalise the evening for things that cannot BE an evening: a sunset
+       dinner on the sand is outdoors and is exactly right at 19:00. */
+    if (OUTDOOR.test(text) && (dayPart === "evening" || dayPart === "night") && !timely(dayPart)) score -= 4;
+
+    /**
+     * What the guest told us they like, at check-in or on a previous stay.
+     *
+     * `preferences` was declared on `CrossSellInput` and never read — 21 of 23
+     * guests in this database have entries and the ranking could not see any of
+     * them. Kim Ji-woo has written down "Aquafield sauna" and was being offered
+     * whatever the weather suggested instead.
+     *
+     * Scored just under an explicit in-conversation request (+6) and above every
+     * contextual signal: a stated preference is weaker evidence than "I want
+     * this now", and stronger than an inference from the clock. Matched on
+     * whole words so "spa" does not match inside "space".
+     */
+    for (const pref of prefs) {
+      const words = pref.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2);
+      if (!words.length) continue;
+      if (!words.some((w) => new RegExp(`\\b${escapeRe(w)}\\b`, "iu").test(text))) continue;
+      score += 5;
+      explicit = true;
+      reasons.push(
+        say(lang, `anh/chị có ghi chú thích "${pref}"`, `you told us you like "${pref}"`),
+      );
+      break; // one preference reason is enough; two reads like a dossier
+    }
 
     /* --- weather --- */
     if (wet && INDOOR.test(text)) {
@@ -217,23 +283,38 @@ export function suggestInStay(input: CrossSellInput): CrossSellResult {
 
     if (score <= 0) continue;
 
-    const slots: string[] = safeSlots(s.slots);
     /* Only slots still ahead of us today are worth naming. */
-    const upcoming = slots.filter((t) => t > input.clock);
+    const upcoming = slotsAll.filter((t) => t > input.clock);
 
     scored.push({
+      explicit,
       service_id: s.id,
       name: s.name,
       category: s.category,
       price: s.price,
       unit: s.unit,
       why: reasons.slice(0, 2).join("; "),
-      slots: upcoming.length ? upcoming : slots,
+      slots: upcoming.length ? upcoming : slotsAll,
       score,
     });
   }
 
-  scored.sort((a, b) => b.score - a.score || a.price - b.price);
+  /**
+   * Explicit first, then score.
+   *
+   * Score alone was not enough once preferences were wired in. Kim Ji-woo has
+   * "Aquafield sauna" on file; on a clear morning the VinWonders pass collects
+   * +3 for the hour and +1 for the weather and +2 for the length of the stay,
+   * out-scoring the +5 the sauna gets for being the thing she actually asked
+   * for — and because both are category "experience", the one-per-category rule
+   * below then dropped the sauna from the list entirely rather than ranking it
+   * second. Stacked inferences were quietly outvoting a statement.
+   *
+   * Sorting explicit matches first fixes it at the source: the guest's own
+   * words take the category slot, and the inferred option is the one that
+   * yields.
+   */
+  scored.sort((a, b) => Number(b.explicit) - Number(a.explicit) || b.score - a.score || a.price - b.price);
 
   /* One suggestion per category: three spa treatments is a menu, not advice. */
   const perCategory = new Set<string>();
@@ -241,7 +322,8 @@ export function suggestInStay(input: CrossSellInput): CrossSellResult {
   for (const s of scored) {
     if (perCategory.has(s.category)) continue;
     perCategory.add(s.category);
-    suggestions.push(s);
+    const { explicit: _explicit, ...rest } = s;
+    suggestions.push(rest);
     if (suggestions.length >= limit) break;
   }
 
@@ -361,4 +443,81 @@ export function preArrivalTargets(
     });
   }
   return out.sort((a, b) => a.daysUntilArrival - b.daysUntilArrival || b.nights - a.nights);
+}
+
+/* ------------------------------------------------------------ when to stay quiet */
+
+/**
+ * Should the concierge offer anything at all on this turn?
+ *
+ * The ranking above answers "what is worth suggesting". This answers the
+ * question that comes first and was enforced NOWHERE until now: whether this is
+ * a moment to be selling. `suggest_experiences` is a tool, so the model decided
+ * entirely on its own when to call it — which means a guest who had just
+ * complained, or whose message tripped a guard flag, could be answered with a
+ * spa offer. Nothing in the codebase prevented it.
+ *
+ * Kept pure and separate from the tool body so it can be tested without a
+ * database, a model, or a conversation.
+ *
+ * NOT ported from the earlier offline design: a language check. That design
+ * templated the offer sentence, so a language with no template had to mean no
+ * offer. Here the hosted model writes the sentence in whatever language the
+ * guest is using, and the `why` strings are hints for it to rewrite rather than
+ * text shown to anyone. Gating on language would refuse to sell to a Korean
+ * guest for a reason that no longer exists.
+ */
+export type UpsellGate = {
+  /** This turn handed off to a person, or a person has already taken over. */
+  escalated: boolean;
+  /** Any guard flag at all was raised on the guest's message. */
+  flagged: boolean;
+  /** The conversation's sentiment label, or null if nobody has judged it. */
+  sentiment: string | null;
+  /** Guest turns since the last suggestion was shown; null if never shown. */
+  turnsSinceLast: number | null;
+  stayPhase: StayPhase;
+  dayPart: DayPart;
+};
+
+/**
+ * Turns a guest must speak after being offered something before being offered
+ * again. Asking twice in a row is the single most common way an assistant
+ * reads as a salesman rather than a concierge.
+ */
+export const UPSELL_COOLDOWN_TURNS = 4;
+
+export function upsellAllowed(g: UpsellGate): { ok: boolean; reason: string } {
+  /* Order matters only for which reason gets reported; all are disqualifying.
+     The people-first ones come first so the logged reason names the real cause
+     rather than a coincidental second condition. */
+
+  /* A turn that went to a human is a turn where the guest needed something the
+     assistant could not give. Selling on top of that is the worst possible
+     read of the room. */
+  if (g.escalated) return { ok: false, reason: "escalated" };
+
+  /* Any flag — medical, safety, prohibited, injection, billing dispute, or a
+     plain request for a human. Deliberately ANY rather than a chosen subset:
+     the cost of staying quiet is one missed suggestion, and the cost of a
+     wrong call here is a guest being sold a massage mid-emergency. If a
+     specific flag ever needs to be exempted, exempt it explicitly. */
+  if (g.flagged) return { ok: false, reason: "guard_flag" };
+
+  /* Honoured whatever its source, including `seed`. A seeded label is dice
+     rather than a verdict, but silence is the cheap failure here and a
+     mistaken offer to an angry guest is the expensive one. */
+  if (g.sentiment === "negative") return { ok: false, reason: "guest_unhappy" };
+
+  /* Someone packing to leave does not want to hear about a two-hour spa. */
+  if (g.stayPhase === "departure_day") return { ok: false, reason: "departure_day" };
+
+  /* Nothing on this list can actually be delivered at 02:00, and the message
+     arrives on a phone that may be on a bedside table. */
+  if (g.dayPart === "night") return { ok: false, reason: "night" };
+
+  if (g.turnsSinceLast !== null && g.turnsSinceLast < UPSELL_COOLDOWN_TURNS)
+    return { ok: false, reason: "cooldown" };
+
+  return { ok: true, reason: "ok" };
 }

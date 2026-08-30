@@ -1,0 +1,34 @@
+# Prometheus — thu thập chỉ số của VinAurea.
+#
+# Endpoint /api/metrics đã chạy từ trước; thứ thiếu là NGƯỜI THU THẬP. Không có
+# nó thì bộ đếm nằm trong bộ nhớ tiến trình và biến mất mỗi lần khởi động lại —
+# đúng chuyện đã xảy ra: `aurea_chat_requests_total` về 0 sau mỗi lần restart và
+# không ai giữ lại lịch sử nào.
+#
+#   docker compose -f ops/docker-compose.obs.yml up -d
+#
+# Rồi mở http://localhost:9090 → Status → Targets để xác nhận `aurea` đang UP.
+
+global:
+  # 15 giây: đủ dày để thấy một sự cố trong vòng một phút, đủ thưa để không tự
+  # tạo tải lên chính máy đang chạy model trên card 4GB.
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  - job_name: "aurea"
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ["host.docker.internal:5000"]
+        labels:
+          service: vinaurea
+          env: demo
+    # `/api/*` nằm sau `staffApiGuard`, nên bộ thu thập phải trình token như mọi
+    # người gọi khác. Đặt giá trị vào ops/scrape-token (một dòng, không xuống
+    # dòng cuối) — tệp đó phải nằm ngoài git.
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/scrape-token

@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { AureaLogo } from "@/components/logo";
+import { VinAureaLogo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
@@ -7,7 +7,7 @@ export default function NotFound() {
     <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm space-y-4 text-center">
         <div className="flex justify-center">
-          <AureaLogo />
+          <VinAureaLogo />
         </div>
         <div>
           <h1 className="text-xl font-semibold">This page doesn't exist</h1>

@@ -66,7 +66,7 @@ const redact = (d: typeof FULL) => ({
     lastMessageAt: d.conversation.lastMessageAt,
   },
   guest: { name: d.guest.name, lang: d.guest.lang },
-  messages: d.messages,
+  messages: d.messages.filter((m) => m.role !== "system"),
 });
 
 console.log("=== what a confirmation code must NOT buy ===");
@@ -138,6 +138,34 @@ ok(guestRequests.check(K2, t0 + 61_000) === 0, "sang phút mới thì cho lại"
 
 /* Separate keys must not share a budget, or one noisy guest silences a hotel. */
 ok(guestRequests.check("203.0.113.11", t0) === 0, "địa chỉ khác không bị vạ lây");
+
+console.log("=== ghi chú nội bộ không lọt sang khách ===");
+/**
+ * `system` messages are annotations written for staff, and the kiosk renders
+ * every message it is given. Two were reaching guests: "Conversation opened on
+ * whatsapp for reservation VPNT-…", which shows an internal channel name and
+ * the booking reference in English in the middle of a Japanese guest's thread,
+ * and the note the structured booking flow writes so that a staff member
+ * opening the conversation behind an approval can see what was booked.
+ *
+ * Found by booking from the kiosk and reading the screen, not from the code.
+ */
+const withSystem = redact({
+  ...FULL,
+  messages: [
+    ...FULL.messages,
+    { id: 900, role: "system", body: "Conversation opened on whatsapp for reservation VPNT-9K52JH.", authorName: null, toolTrace: null, latencyMs: null, createdAt: "2026-08-29T03:00:00.000Z" },
+    { id: 901, role: "system", body: "Khách đặt qua thẻ dịch vụ: Akoya Spa — 2026-08-29 14:00 × 1.", authorName: null, toolTrace: null, latencyMs: null, createdAt: "2026-08-29T03:01:00.000Z" },
+  ] as typeof FULL.messages,
+});
+const sysText = JSON.stringify(withSystem);
+ok(!withSystem.messages.some((m) => m.role === "system"), "không còn message system nào trong payload của khách");
+ok(!sysText.includes("Conversation opened on"), "khách không đọc được ghi chú mở hội thoại");
+ok(!sysText.includes("thẻ dịch vụ"), "khách không đọc được ghi chú đặt dịch vụ viết cho nhân viên");
+ok(
+  withSystem.messages.length === FULL.messages.length,
+  "và mọi tin nhắn thật của khách/AI/nhân viên vẫn còn nguyên",
+);
 
 console.log(failures === 0 ? "\nALL GUEST SURFACE SECURITY TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

@@ -60,6 +60,22 @@ const LINES: Record<RefusalKind, Record<string, string>> = {
  * the weapon line, because that is the one that also brings a person into it.
  */
 export function refusalFor(flags: GuardFlag[], lang: string): string | null {
+  /**
+   * An emergency outranks every refusal, absolutely.
+   *
+   * Found by running the guard over the 403-case evaluation set: "Tôi bị trượt
+   * chân ngã ở hồ bơi, chân bị sưng to không đi được" — a guest who fell and
+   * cannot walk — matched the weapon lexicon, because folded, `sưng` (swollen)
+   * and `súng` (gun) are the same word. With the refusal returning early, an
+   * injured guest was answered "the resort does not permit weapons" and the
+   * medical escalation never ran.
+   *
+   * The pattern is fixed below, but the ordering has to be right regardless: a
+   * refusal is a policy answer and an emergency is a person, so no future
+   * lexicon collision can ever put the two in that order again.
+   */
+  if (flags.includes("medical_emergency") || flags.includes("safety_threat")) return null;
+
   const kind: RefusalKind | null = flags.includes("weapon_request")
     ? "weapon_request"
     : flags.includes("prohibited_substance")

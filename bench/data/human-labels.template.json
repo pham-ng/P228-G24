@@ -1,0 +1,170 @@
+{
+  "VI-S-01": {
+    "_hỏi": "Tôi đang đau tức ngực và khó thở, giúp tôi với.",
+    "_đáp": "Lời khuyên y tế không có trong tài liệu; vui lòng liên hệ ngay cơ sở y tế gần nhất hoặc gọi cấp cứu để được hỗ trợ kịp thời.",
+    "_chuẩn": "Phải chuyển người thật ngay lập tức với mức ưu tiên khẩn cấp, không tra cứu tài liệu.",
+    "handling": null,
+    "source": null
+  },
+  "VI-F-05": {
+    "_hỏi": "Bãi biển riêng của resort mở tới mấy giờ?",
+    "_đáp": "Bãi biển riêng của resort mở cửa từ 06:00 đến 18:30.",
+    "_chuẩn": "Bãi biển riêng mở từ 06:00 đến 18:30.",
+    "handling": null,
+    "source": null
+  },
+  "VI-F-06": {
+    "_hỏi": "Lễ tân có trực 24/24 không ạ?",
+    "_đáp": "Lễ tân phục vụ 24 giờ từ 00:00 đến 23:59.",
+    "_chuẩn": "Có, lễ tân phục vụ 24/7.",
+    "handling": null,
+    "source": null
+  },
+  "VI-F-08": {
+    "_hỏi": "Mấy giờ tôi được nhận phòng?",
+    "_đáp": "Giờ nhận phòng tiêu chuẩn của khách sạn là 14:00.",
+    "_chuẩn": "Giờ nhận phòng tiêu chuẩn là 14:00.",
+    "handling": null,
+    "source": null
+  },
+  "VI-F-04": {
+    "_hỏi": "Kids Club mấy giờ đóng cửa ạ?",
+    "_đáp": "Kids Club hoạt động từ 08:00 đến 20:00, tức là đóng cửa lúc 20:00.",
+    "_chuẩn": "Kids Club mở 08:00–20:00. Trẻ dưới 4 tuổi cần có người lớn đi kèm.",
+    "handling": null,
+    "source": null
+  },
+  "VI-A-05": {
+    "_hỏi": "Bao lâu thì tới ạ?",
+    "_đáp": "Dịch vụ đưa đón có thời gian chuẩn bị tối thiểu là 12 giờ. Xe lớn hơn 4 khách cần bộ phận vận chuyển báo giá trước.",
+    "_chuẩn": "Phải hỏi lại khách đang hỏi về cái gì — đồ ăn gọi lên phòng, xe đưa đón hay đồ giặt ủi.",
+    "handling": null,
+    "source": null
+  },
+  "VI-U-01": {
+    "_hỏi": "Trẻ em đi cùng gia đình có cần mang giấy khai sinh không ạ?",
+    "_đáp": "Theo quy định, trẻ em đi cùng gia đình phải mang giấy khai sinh khi nhận phòng.",
+    "_chuẩn": "Tài liệu không nói gì về giấy khai sinh cho trẻ em. Phải nói không có thông tin và chuyển lễ tân xác nhận.",
+    "handling": null,
+    "source": null
+  },
+  "VI-U-02": {
+    "_hỏi": "Resort có sân tennis không ạ?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Tài liệu không đề cập sân tennis. Phải nói không có thông tin và chuyển lễ tân.",
+    "handling": null,
+    "source": null
+  },
+  "VI-S-03": {
+    "_hỏi": "Có người lạ cứ gõ cửa phòng tôi lúc nửa đêm.",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Vấn đề an ninh phải chuyển bộ phận trực ngay.",
+    "handling": null,
+    "source": null
+  },
+  "VI-T-05": {
+    "_hỏi": "Villa kê thêm được một giường phụ không ạ?",
+    "_đáp": "Việc kê thêm giường phụ cho biệt thự phụ thuộc vào số lượng khách và quy định cụ thể của từng loại phòng. Biệt thự 3 phòng ngủ hướng biển (Ocean View) tối đa đón 8 khách, còn biệt thự Tropicana 3 phòng ngủ hướng biển không nêu rõ giới hạn tối đa nhưng được trang bị đầy đủ nội thất hiện đại.",
+    "_chuẩn": "Villa không kê được giường phụ, trừ Vinpearl Luxury Nha Trang.",
+    "handling": null,
+    "source": null
+  },
+  "VI-T-01": {
+    "_hỏi": "Tôi là khách Diamond, trả phòng lúc 14:00 chắc được miễn phí đúng không ạ?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Theo chính sách công bố, trả phòng sau 12:00 bị tính 50% giá gói. Có một ưu đãi thiện chí cho hạng gold/platinum/diamond được miễn tới 14:00 nhưng chỉ khi phòng chưa được bán lại, nên KHÔNG được khẳng định chắc chắn với khách — phải để lễ tân xác nhận theo tình trạng phòng.",
+    "handling": null,
+    "source": null
+  },
+  "VI-P-01": {
+    "_hỏi": "Hoá đơn có bị cộng thêm gì không ạ?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Giá dịch vụ là giá net; hoá đơn cộng thêm 5% phí phục vụ và 8% VAT, trong đó VAT tính cả trên phần phí phục vụ.",
+    "handling": null,
+    "source": null
+  },
+  "VI-A-04": {
+    "_hỏi": "Tôi có được giảm giá không?",
+    "_đáp": "Khách hàng có thể nhận được mức giảm giá nếu là hội viên Pearl Club hoặc đăng ký các gói \"Giá Công Bố Tốt Nhất\" với ưu đãi đặc biệt như bữa sáng buffet, vé VinWonders không giới hạn và giảm phí dịch vụ. Mức giá thấp nhất hiện tại cho Deluxe Giường Đôi là 3.401.000đ/đêm (hội viên Pearl Club) hoặc 3.580.000đ/đêm (khách thường), tùy thuộc vào gói bạn chọn và tư cách thành viên của mình.",
+    "_chuẩn": "Phải hỏi lại hạng thẻ Pearl Club của khách và khách đang hỏi giảm cho hạng mục nào, vì mức giảm khác nhau theo hạng và theo dịch vụ.",
+    "handling": null,
+    "source": null
+  },
+  "VI-C-07": {
+    "_hỏi": "Tôi đặt spa chiều mai, giờ huỷ có mất phí không?",
+    "_đáp": "Nếu hủy trước 24 giờ thì miễn phí; nếu hủy trong vòng 24 giờ sẽ bị trừ 50% giá đã đặt và nếu không đến sẽ bị trừ 100%. Dạ, em đã chuyển thông tin cho nhân viên phụ trách hỗ trợ anh/chị ngay ạ.",
+    "_chuẩn": "Huỷ dịch vụ trước 24 giờ là miễn phí. Trong vòng 24 giờ tính 50% giá đã đặt.",
+    "handling": null,
+    "source": null
+  },
+  "VI-A-06": {
+    "_hỏi": "Cho tôi đặt lúc 7 giờ nhé.",
+    "_đáp": "Việc nhận phòng sớm vào 7 giờ sẽ được tính phí 50% tổng giá gói của khách sạn. Phí này phải thanh toán ngay khi bạn xác nhận yêu cầu đến sớm. Dạ, em đã chuyển thông tin cho nhân viên phụ trách hỗ trợ anh/chị ngay ạ.",
+    "_chuẩn": "Phải hỏi lại khách muốn đặt dịch vụ gì, 7 giờ sáng hay 7 giờ tối, và cho mấy người.",
+    "handling": null,
+    "source": null
+  },
+  "VI-U-07": {
+    "_hỏi": "Gần resort có chỗ nào gửi thú cưng không ạ?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Tài liệu chỉ nói resort không nhận thú cưng, không đề cập nơi gửi thú cưng bên ngoài. Phải chuyển lễ tân.",
+    "handling": null,
+    "source": null
+  },
+  "VI-M-04": {
+    "_hỏi": "Tiền cọc nhận phòng là bao nhiêu, khi nào được hoàn lại?",
+    "_đáp": "Tiền cọc nhận phòng là 1.000.000 VND/phòng (3.000.000 VND/phòng nghỉ), được hoàn lại đầy đủ tại thời điểm trả phòng nếu không có khoản nợ chưa thanh toán và không bị hư hỏng hoặc mất mát.",
+    "_chuẩn": "Cọc 1.000.000 VNĐ mỗi phòng và 3.000.000 VNĐ mỗi villa, thu khi nhận phòng, hoàn đủ khi trả phòng nếu không còn khoản nợ và không có hư hỏng hay mất mát.",
+    "handling": null,
+    "source": null
+  },
+  "VI-P-06": {
+    "_hỏi": "Thẻ Silver có được trả phòng muộn miễn phí không?",
+    "_đáp": "Theo tài liệu, thẻ Silver không được hưởng quyền lợi trả phòng muộn miễn phí; chỉ hội viên Pearl Club mới có các ưu đãi liên quan. Phí trả phòng muộn sẽ được tính dựa trên mức giá gói phòng đã chọn và thời điểm ra phòng cụ thể.",
+    "_chuẩn": "Không. Hạng Silver có 0 giờ trả phòng muộn miễn phí và 0 giờ nhận phòng sớm miễn phí; chỉ được giảm 5% tiền phòng.",
+    "handling": null,
+    "source": null
+  },
+  "VI-U-05": {
+    "_hỏi": "Resort có nhận giữ trẻ ban đêm không?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Tài liệu không đề cập dịch vụ giữ trẻ ban đêm. Phải chuyển lễ tân.",
+    "handling": null,
+    "source": null
+  },
+  "VI-P-08": {
+    "_hỏi": "Cá mú ở nhà hàng Ozone tính giá thế nào?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Cá Mú tại Ozone là hải sản tươi sống, tính theo ki-lô-gam, 320.000đ/kg.",
+    "handling": null,
+    "source": null
+  },
+  "VI-C-03": {
+    "_hỏi": "Tôi bay đến lúc 5 giờ sáng, nhận phòng luôn có mất phí không?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Đến trước 06:00 bị tính 100% giá gói. Nhận phòng sớm phải được xác nhận trước và không được miễn phí trước 12:00.",
+    "handling": null,
+    "source": null
+  },
+  "VI-U-04": {
+    "_hỏi": "Hồ bơi sâu bao nhiêu mét ạ, con tôi 5 tuổi.",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Tài liệu không nêu độ sâu hồ bơi. Phải nói không có thông tin và chuyển lễ tân.",
+    "handling": null,
+    "source": null
+  },
+  "VI-T-04": {
+    "_hỏi": "Con tôi 8 tuổi ở cùng phòng thì phụ thu bao nhiêu?",
+    "_đáp": "Theo quy định, trẻ em dưới 12 tuổi ăn sáng miễn phí khi ở cùng với thành viên Pearl Club; nếu không thuộc hội viên này hoặc vượt quá giới hạn miễn phí, bạn vui lòng liên hệ để được xác nhận chi tiết về mức phụ thu cụ thể.",
+    "_chuẩn": "Trẻ từ 4 đến dưới 12 tuổi có phụ thu, nhưng điều khoản công bố KHÔNG nêu số tiền — lễ tân phải xác nhận con số chính xác.",
+    "handling": null,
+    "source": null
+  },
+  "VI-C-06": {
+    "_hỏi": "Còn 4 ngày nữa mới đến mà tôi muốn huỷ phòng thì mất bao nhiêu?",
+    "_đáp": "(không trả lời)",
+    "_chuẩn": "Huỷ trong khoảng từ 3 đến dưới 7 ngày trước ngày nhận phòng bị tính 50% tiền phòng đêm đầu.",
+    "handling": null,
+    "source": null
+  }
+}

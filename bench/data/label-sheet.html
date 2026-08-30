@@ -1,0 +1,311 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Chấm tay — 13 ca</title>
+<style>
+ :root{--bg:#fff;--fg:#111;--mut:#666;--line:#e3e3e3;--acc:#0a7;--warn:#c33}
+ @media(prefers-color-scheme:dark){:root{--bg:#111;--fg:#eee;--mut:#999;--line:#333}}
+ *{box-sizing:border-box}
+ body{background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,Segoe UI,sans-serif;max-width:780px;margin:0 auto;padding:24px 16px 130px}
+ h1{font-size:20px;margin:0 0 4px}
+ .lead{color:var(--mut);font-size:13px;margin:0 0 20px}
+ .card{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:0 0 16px}
+ .card.done{opacity:.45}
+ header{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+ .id{font-weight:700;color:var(--fg)}
+ .q p,.gt p,.a p{margin:2px 0 12px}
+ .gt{color:var(--mut)}
+ .a p{padding:8px 10px;background:rgba(128,128,128,.10);border-radius:6px;white-space:pre-wrap}
+ b{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+ .row{margin-top:10px}
+ .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+ button{font:inherit;font-size:13px;padding:5px 11px;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:5px;cursor:pointer}
+ button:hover{border-color:var(--acc)}
+ button.sel{background:var(--acc);border-color:var(--acc);color:#fff}
+ button i{font-style:normal;opacity:.5;margin-right:6px;font-size:11px}
+ button.sel i{opacity:.8}
+ .after{margin-top:9px;font-size:12px;color:var(--mut);min-height:1em}
+ .after.diff{color:var(--warn);font-weight:600}
+ footer{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:11px 16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+ #out{width:100%;height:180px;font:12px/1.4 ui-monospace,monospace;margin-top:14px;display:none}
+</style>
+<h1>Chấm tay 13 ca</h1>
+<p class="lead">Chấm theo cảm nhận của một nhân viên lễ tân: hệ thống có làm đúng việc cần làm không.
+<b>Chuyển đúng người khi thiếu căn cứ, hoặc hỏi lại khi câu mơ hồ, đều là “Hợp lý”</b> — không phải thất bại.
+Điểm của giám khảo máy <b>không hiện ở đây</b>: nhìn được nó thì tới ca thứ ba mươi bạn đã chấm theo máy, và phép đo mất ý nghĩa.
+Di chuột lên nút để xem giải thích. Bấm phím số để chấm nhanh mục đang mở. Xong thì bấm “Xuất JSON” và lưu vào <code>bench/data/human-labels.json</code>.</p>
+
+<article class="card" data-id="VI-C-06">
+  <header><span class="n">1/13</span><span class="id">VI-C-06</span><span class="cat">POLICY_CONDITIONAL</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Còn 4 ngày nữa mới đến mà tôi muốn huỷ phòng thì mất bao nhiêu?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Huỷ trong khoảng từ 3 đến dưới 7 ngày trước ngày nhận phòng bị tính 50% tiền phòng đêm đầu.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>Theo quy định của khách sạn, việc hủy phòng trước 24 giờ so với ngày nhận phòng sẽ được miễn phí hoàn toàn. Dạ, em đã chuyển yêu cầu cho Lễ tân để kiểm tra và xác nhận lại với anh/chị ạ.</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-C-09">
+  <header><span class="n">2/13</span><span class="id">VI-C-09</span><span class="cat">POLICY_CONDITIONAL</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Tôi trả phòng sớm hơn dự kiến thì có được hoàn tiền không?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Không. Giá trọn gói của toàn bộ thời gian đã đăng ký vẫn phải thanh toán kể cả khi khách rời sớm.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>Theo quy định, việc trả phòng sớm hơn giờ tiêu chuẩn (12:00) sẽ bị tính phí 50% giá gói đã đặt nếu thực hiện trong khung giờ từ 06:00 đến 12:00. Nếu khách không đến phòng thì phải thanh toán 100% giá gói đã đặt. Dạ, em đã chuyển thông tin cho nhân viên phụ trách hỗ trợ anh/chị ngay ạ.</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-M-08">
+  <header><span class="n">3/13</span><span class="id">VI-M-08</span><span class="cat">FACT_MULTI</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Ba quầy bar trong resort mở cửa lúc mấy giờ?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Beach Comber Bar 09:00–23:00, Pool Bar 09:00–23:00, Seaview Bar 07:00–23:00.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-T-11">
+  <header><span class="n">4/13</span><span class="id">VI-T-11</span><span class="cat">TRAP_NO_INVENT</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Giá spa Akoya bao nhiêu một liệu trình?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Tài liệu về Akoya Spa không công bố giá — cần xem danh sách dịch vụ spa hoặc hỏi lễ tân.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>Giá các liệu trình tại Akoya Spa được niêm yết cụ thể như sau: Thalgo Collagen Radiance facial 60' là 2.200.000 VNĐ; Spa Sampler 90' là 2.000.000 VNĐ; Foot Therapy 50' là 1.200.000 VNĐ; Vietnamese Traditional Massage 60' là 1.500.000 VNĐ (hoặc 2.300.000 VNĐ cho 90 phút); Balinese Massage 90' là 2.300.000 VNĐ (hoặc 1.600.000 VNĐ cho 60 phút); Hot Stone Therapy 90' là 2.500.000 VNĐ; Warm Bamboo Massage 85' là 2.700.000 VNĐ.</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-P-17">
+  <header><span class="n">5/13</span><span class="id">VI-P-17</span><span class="cat">PRICING</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Vé combo trọn gói ở Vinpearl Harbour gồm những gì và giá bao nhiêu?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Combo trọn gói 400.000đ, thêm show nhạc nước, Tata Show và 2 giờ tại Aquafield Nha Trang. Combo Vinpearl Harbour thường là 200.000đ.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-M-03">
+  <header><span class="n">6/13</span><span class="id">VI-M-03</span><span class="cat">FACT_MULTI</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Giặt thường và giặt nhanh khác nhau thế nào, mấy giờ thì hết nhận trong ngày?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Giặt thường trả trong 24 giờ. Giặt hoả tốc trả trong 4 giờ và tính hệ số 1,5 lần. Hạn nhận đồ để trả trong ngày là 10:00.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-P-06">
+  <header><span class="n">7/13</span><span class="id">VI-P-06</span><span class="cat">PRICING</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Thẻ Silver có được trả phòng muộn miễn phí không?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Không. Hạng Silver có 0 giờ trả phòng muộn miễn phí và 0 giờ nhận phòng sớm miễn phí; chỉ được giảm 5% tiền phòng.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>Theo tài liệu, thẻ Silver không được hưởng quyền lợi trả phòng muộn miễn phí; chỉ hội viên Pearl Club mới có các ưu đãi liên quan. Phí trả phòng muộn sẽ được tính dựa trên mức giá gói phòng đã chọn và thời điểm ra phòng cụ thể.</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-P-08">
+  <header><span class="n">8/13</span><span class="id">VI-P-08</span><span class="cat">PRICING</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Cá mú ở nhà hàng Ozone tính giá thế nào?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Cá Mú tại Ozone là hải sản tươi sống, tính theo ki-lô-gam, 320.000đ/kg.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-P-02">
+  <header><span class="n">9/13</span><span class="id">VI-P-02</span><span class="cat">PRICING</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Hút thuốc trong phòng bị phạt bao nhiêu?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Hút thuốc ngoài khu vực có biển cho phép bị tính 3.000.000 VNĐ cho mỗi kỳ lưu trú.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-C-13">
+  <header><span class="n">10/13</span><span class="id">VI-C-13</span><span class="cat">POLICY_CONDITIONAL</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Khách nước ngoài phải khai báo lưu trú trong bao lâu?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Khai báo ngay khi khách đến, hạn 12 giờ sau khi đến; khách nước ngoài phải khai trong ngày.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>Khách nước ngoài phải khai báo lưu trú ngay khi đến hoặc trong ngày.</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-C-05">
+  <header><span class="n">11/13</span><span class="id">VI-C-05</span><span class="cat">POLICY_CONDITIONAL</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Tôi huỷ phòng trước 10 ngày có mất tiền không?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Huỷ từ 7 ngày trở lên trước ngày nhận phòng là miễn phí.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>Việc hủy phòng trước 10 ngày được miễn phí hoàn toàn theo quy định của khách sạn. Dạ, em đã chuyển yêu cầu cho Lễ tân để kiểm tra và xác nhận lại với anh/chị ạ.</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-P-11">
+  <header><span class="n">12/13</span><span class="id">VI-P-11</span><span class="cat">PRICING</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Vé cáp treo khứ hồi giá bao nhiêu?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Vé cáp treo khứ hồi độc lập là 200.000đ/người; cư dân Khánh Hòa 100.000đ.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<article class="card" data-id="VI-P-12">
+  <header><span class="n">13/13</span><span class="id">VI-P-12</span><span class="cat">PRICING</span></header>
+  <div class="q"><b>Khách hỏi</b><p>Vé VinWonders người lớn bao nhiêu tiền?</p></div>
+  <div class="gt"><b>Đáp án chuẩn</b><p>Vé VinWonders tiêu chuẩn cho người lớn là 1.050.000đ, đã gồm cáp treo khứ hồi.</p></div>
+  <div class="a"><b>Hệ thống trả lời</b><p>(hệ thống không trả lời — đã chuyển người)</p></div>
+  <div class="row"><b>Hệ thống có làm đúng việc cần làm không?</b>
+    <div class="btns" data-field="handling"><button value="hop_ly" title="hệ thống KHÔNG trả lời thẳng mà chuyển nhân viên (thiếu căn cứ) hoặc hỏi lại (câu mơ hồ) — và làm vậy là đúng. Nếu nó CÓ trả lời nội dung thì chọn ô khác"><i>1</i>Hợp lý — KHÔNG trả lời thẳng</button><button value="dung_du" title="trả lời thẳng bằng nội dung, không bỏ sót ý chính nào"><i>2</i>Đúng và đủ — CÓ trả lời</button><button value="thieu" title="đúng hướng nhưng bỏ sót một ý mà khách cần"><i>3</i>Thiếu thông tin</button><button value="sai" title="có con số, giờ giấc hoặc sự kiện sai"><i>4</i>Sai thông tin</button><button value="khong_hop_ly" title="lẽ ra phải hỏi lại hoặc chuyển người, nhưng lại trả lời chắc nịch — hoặc trả lời lạc đề"><i>5</i>Trả lời không hợp lý</button><button value="im_lang" title="CHỈ khi đoạn tài liệu trước mặt bạn NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im hoặc đẩy sang nhân viên. Tài liệu không chứa câu trả lời thì đó là 'hop_ly', không phải ô này"><i>6</i>Có tài liệu mà không trả lời</button></div>
+  </div>
+  <div class="row"><b>Lời nói dựa trên cái gì?</b>
+    <div class="btns" data-field="source"><button value="dung_tl" title="mọi khẳng định đều có căn cứ trong đoạn hệ thống tìm được"><i>1</i>Đúng tài liệu</button><button value="sai_tl" title="nói ngược lại điều tài liệu ghi"><i>2</i>Sai tài liệu</button><button value="bia_tl" title="dựng ra con số hoặc sự kiện không có ở đâu cả"><i>3</i>Bịa tài liệu</button><button value="khong_co_tl" title="kho không có gì để bám vào — thường đi cùng một lời từ chối đúng. KHÔNG phải lỗi"><i>4</i>Tài liệu không sẵn có</button></div>
+  </div>
+  <div class="after"></div>
+</article>
+<footer>
+  <span id="prog">0/13</span>
+  <button id="save">Xuất JSON</button>
+  <button id="clear">Xoá hết</button>
+  <span id="saved" style="display:none;font-size:12px;color:var(--acc)"></span>
+</footer>
+<textarea id="out" spellcheck="false"></textarea>
+<script>
+const KEY = "aurea-labels-v3-danhmuc";
+/* Chrome CHẶN localStorage trên file:// — mở bảng này bằng cách bấm đúp vào file
+   thì mọi lần đọc/ghi đều ném SecurityError và trang chết ngay ở cú bấm đầu
+   tiên. Đo được, không phải phỏng đoán. Nên bọc lại và lùi về bộ nhớ tạm: mất
+   khả năng lưu qua lần tải lại, nhưng chấm xong một lượt rồi Xuất JSON vẫn chạy.
+   Muốn giữ tiến độ thì phục vụ qua http (xem hướng dẫn cuối script). */
+let mem = {};
+const LS = {
+  ok: true,
+  read(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(_) { this.ok=false; return mem; } },
+  write(v){ mem = v; try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(_) { this.ok=false; } },
+  clear(){ try { localStorage.removeItem(KEY); } catch(_) {} mem = {}; }
+};
+const store = LS.read();
+
+function paint(card){
+  const id = card.dataset.id, rec = store[id] || {};
+  for (const box of card.querySelectorAll(".btns")){
+    const f = box.dataset.field;
+    for (const b of box.querySelectorAll("button")) b.classList.toggle("sel", String(rec[f]) === b.value);
+  }
+  const after = card.querySelector(".after");
+  if (rec.handling === undefined || rec.source === undefined){ after.textContent=""; card.classList.remove("done"); return; }
+  card.classList.add("done");
+  after.textContent = "đã chấm";
+}
+function progress(){
+  const n = document.querySelectorAll(".card").length;
+  const d = Object.values(store).filter(r => r.handling !== undefined && r.source !== undefined).length;
+  document.getElementById("prog").textContent = d + "/" + n;
+}
+for (const card of document.querySelectorAll(".card")){
+  card.addEventListener("click", e => {
+    const b = e.target.closest("button"); if(!b) return;
+    const f = b.closest(".btns").dataset.field, id = card.dataset.id;
+    (store[id] = store[id] || {})[f] = b.value;
+    LS.write(store);
+    paint(card); progress();
+  });
+  paint(card);
+}
+progress();
+if (!LS.ok) {
+  const w = document.createElement("p");
+  w.style.cssText = "color:var(--warn);font-size:13px;border:1px solid var(--warn);border-radius:6px;padding:9px 11px";
+  w.textContent = "Trình duyệt không cho lưu tiến độ khi mở bằng file:// — chấm xong hãy bấm Xuất JSON NGAY, đừng tải lại trang. Muốn lưu được thì chạy: npx serve bench/data (hoặc mở qua http).";
+  document.querySelector(".lead").after(w);
+}
+/* Bấm số để chấm ô đang hiện giữa màn hình — chấm 100 ca bằng chuột thì mỏi.
+   Số trên mỗi nút chính là phím của nó, nên không phải nhớ gì. */
+const HV = ["hop_ly","dung_du","thieu","sai","khong_hop_ly","im_lang"];
+const SV = ["dung_tl","sai_tl","bia_tl","khong_co_tl"];
+addEventListener("keydown", e => {
+  if (!/^[1-9]$/.test(e.key)) return;
+  const mid = innerHeight/2;
+  let best=null, dist=1e9;
+  for (const c of document.querySelectorAll(".card:not(.done)")){
+    const r=c.getBoundingClientRect(), d=Math.abs(r.top+r.height/2-mid);
+    if (r.bottom>0 && r.top<innerHeight && d<dist){best=c;dist=d;}
+  }
+  if(!best) return;
+  const id=best.dataset.id, rec=store[id]||{};
+  const field = rec.handling===undefined ? "handling" : "source";
+  const opts = field==="handling" ? HV : SV;
+  const v = opts[+e.key - 1];
+  if (v===undefined) return;   // phím ngoài dải của mục đang mở
+  (store[id]=rec)[field]=v;
+  LS.write(store);
+  paint(best); progress();
+  if (rec.source!==undefined) best.nextElementSibling?.scrollIntoView({behavior:"smooth",block:"center"});
+});
+document.getElementById("save").onclick = () => {
+  const clean={}; for(const [k,v] of Object.entries(store))
+    if(v.handling!==undefined&&v.source!==undefined) clean[k]={handling:v.handling,source:v.source};
+  const t=document.getElementById("out");
+  t.style.display="block"; t.value=JSON.stringify(clean,null,2);
+  /* CUỘN TỚI Ô KẾT QUẢ.
+     Thiếu dòng này thì nút "Xuất JSON" trông y như hỏng: ô kết quả nằm cuối
+     luồng tài liệu, dưới toàn bộ thẻ bài, nên với 13 ca nó hiện ở khoảng
+     6400px trong khi màn hình cao 720px — cách chỗ người dùng đang nhìn gần
+     sáu nghìn pixel. Đo được, không phải phỏng đoán. Người chấm bấm xong,
+     không thấy gì, và kết luận là không xuất được. */
+  t.scrollIntoView({behavior:"smooth", block:"center"});
+  t.focus(); t.select();
+  const ok=document.getElementById("saved");
+  try{
+    navigator.clipboard.writeText(t.value);
+    ok.textContent="đã chép vào clipboard — dán vào tệp là xong";
+  }catch(_){
+    ok.textContent="không chép tự động được — bôi đen ô dưới rồi Ctrl+C";
+  }
+  ok.style.display="inline";
+};
+document.getElementById("clear").onclick = () => {
+  if(!confirm("Xoá toàn bộ điểm đã chấm?")) return;
+  LS.clear(); location.reload();
+};
+</script>

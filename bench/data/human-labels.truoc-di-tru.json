@@ -1,0 +1,406 @@
+{
+  "VI-U-08": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-M-04": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-P-09": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-11": {
+    "handling": "thieu",
+    "source": "sai_tl"
+  },
+  "VI-M-06": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-U-13": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-P-04": {
+    "handling": "thieu",
+    "source": "sai_tl"
+  },
+  "VI-P-18": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-C-04": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-S-05": {
+    "handling": "khong_hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-T-05": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-P-15": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-U-12": {
+    "handling": "hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-M-09": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-M-10": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-C-08": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-A-03": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-18": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-06": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-U-10": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-C-02": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-S-01": {
+    "handling": "khong_hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-P-16": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-P-07": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-U-07": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-P-17": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-F-09": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-P-08": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-T-10": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-C-03": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-05": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-T-03": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-U-03": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-S-03": {
+    "handling": "khong_hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-F-17": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-U-02": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-F-07": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-04": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-T-04": {
+    "handling": "hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-M-05": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-A-01": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-M-01": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-F-04": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-M-03": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-F-08": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-U-01": {
+    "handling": "hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-U-06": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-F-03": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-10": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-10": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-P-05": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-07": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-C-10": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-F-05": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-S-02": {
+    "handling": "khong_hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-T-09": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-15": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-T-11": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-P-10": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-P-12": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-C-14": {
+    "handling": "hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-P-13": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-M-02": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-A-08": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-M-11": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-09": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-02": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-P-14": {
+    "handling": "sai",
+    "source": "sai_tl"
+  },
+  "VI-C-01": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-01": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-C-12": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-M-08": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-T-01": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-13": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-T-07": {
+    "handling": "khong_hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-C-09": {
+    "handling": "sai",
+    "source": "sai_tl"
+  },
+  "VI-T-06": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-P-02": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-F-12": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-U-05": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-T-02": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-S-04": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-02": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-T-12": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-U-11": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-M-07": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-P-03": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-U-09": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-U-04": {
+    "handling": "hop_ly",
+    "source": "khong_co_tl"
+  },
+  "VI-C-07": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-F-14": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-C-11": {
+    "handling": "thieu",
+    "source": "sai_tl"
+  },
+  "VI-P-06": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-T-08": {
+    "handling": "khong_hop_ly",
+    "source": "sai_tl"
+  },
+  "VI-P-01": {
+    "handling": "thieu",
+    "source": "sai_tl"
+  },
+  "VI-P-11": {
+    "handling": "im_lang",
+    "source": "sai_tl"
+  },
+  "VI-C-06": {
+    "handling": "sai",
+    "source": "sai_tl"
+  },
+  "VI-C-13": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-C-05": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  },
+  "VI-A-06": {
+    "handling": "hop_ly",
+    "source": "dung_tl"
+  },
+  "VI-F-16": {
+    "handling": "dung_du",
+    "source": "dung_tl"
+  }
+}

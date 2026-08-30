@@ -1,0 +1,2 @@
+NAME          ID              SIZE      PROCESSOR    CONTEXT    UNTIL   
+qwen3.5:4b    2a654d98e6fb    3.1 GB    100% GPU     4096       Forever    

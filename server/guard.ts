@@ -50,7 +50,7 @@ export type GuardResult = {
  * guest asking for cannabis reached the model with no screening at all.
  */
 const PROHIBITED = [
-  /ma t(ú|u)y|ch(ấ|a)t c(ấ|a)m|thu(ố|o)c phi(ệ|e)n|c(ầ|a)n sa|b(ó|o)ng c(ườ|uo)i|heroin|cocaine|meth|ecstasy|illegal drugs|narcotics|weed\b|marijuana|cannabis/i,
+  /ma t(ú|u)y|ch(ấ|a)t c(ấ|a)m|thu(ố|o)c phi(ệ|e)n|c(ầ|a)n sa|b(ó|o)ng c(ườ|uo)i|heroin|cocaine|\bmeth\b|ecstasy|illegal drugs|narcotics|weed\b|marijuana|cannabis/i,
   /마약|대마초?|코카인|필로폰|헤로인|엑스터시/i,
   /麻薬|大麻|コカイン|覚醒剤|ヘロイン|違法薬物/i,
   /毒品|大麻|可卡因|冰毒|海洛因|摇头丸/i,
@@ -93,9 +93,23 @@ const ADULT_SERVICES = [
  * steak knife" is a normal request. Only a weapon named as a weapon matches.
  */
 const WEAPONS = [
-  /s(ú|u)ng(?! n(ư|u)(ớ|o)c)|v(ũ|u) kh(í|i)|dao g(ă|a)m|l(ự|u)u đ(ạ|a)n|ch(ấ|a)t n(ổ|o)|thu(ố|o)c n(ổ|o)|đ(ạ|a)n d(ư|u)(ợ|o)c/i,
+  /**
+   * `súng` ACCENTED only. Folded it becomes `sung`, which is `sưng` (swollen) —
+   * and a hotel hears that word from injured guests, not from gunmen. Measured
+   * on the 403-case evaluation set, the unaccented form matched "chân bị sưng
+   * to không đi được" (my leg is swollen, I cannot walk) and answered a medical
+   * emergency with a weapons refusal.
+   *
+   * Missing an unaccented gun request is the cheaper error by a wide margin:
+   * one is a daily injury, the other has never happened.
+   */
+  /súng(?! nước)|vũ khí|dao găm|lựu đạn|chất nổ|thuốc nổ|đạn dược/i,
   /\b(gun|handgun|pistol|firearm|rifle|shotgun|weapon|ammunition|explosive|grenade)s?\b/i,
-  /총기?|무기|폭발물|권총|실탄/i,
+  /* Bare 총 is also the prefix in 총지배인 (general manager), 총무, 총액 and
+     other ordinary words — "who is the general manager?" was screened as a
+     weapon request on the evaluation set. A lookahead keeps the real gun
+     without the collisions; dropping 총 entirely lost the Korean case. */
+  /총(?!지배인|무|장|리|액|계|평)|권총|무기|폭발물|실탄/i,
   /銃|拳銃|武器|爆発物|弾薬/i,
   /枪支?|武器|爆炸物|手枪|弹药/i,
   /оружи|пистолет|огнестрел|взрывчат|боеприпас/i,
@@ -368,8 +382,10 @@ export function screenGuestMessage(raw: string): GuardResult {
   if (medical) flags.push("medical_emergency");
   if (safety) flags.push("safety_threat");
   if (prohibited) flags.push("prohibited_substance");
-  if (adultService) flags.push("adult_service_request");
-  if (weapon) flags.push("weapon_request");
+  /* Both behind one switch, default OFF — see guard-config.ts. Drugs are not:
+     that screen predates this and was never in question. */
+  if (adultService && guardEnabled("restricted_requests")) flags.push("adult_service_request");
+  if (weapon && guardEnabled("restricted_requests")) flags.push("weapon_request");
   /* Switchable layers. The emergency checks above are NOT — see guard-config.ts. */
   if (guardEnabled("injection") && any(INJECTION, views)) flags.push("prompt_injection");
   if (any(AUTHORITY, views)) flags.push("authority_claim");

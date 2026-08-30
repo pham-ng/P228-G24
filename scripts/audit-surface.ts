@@ -36,7 +36,7 @@ const PAGES: { page: string; endpoints: string[] }[] = [
   { page: "Knowledge", endpoints: ["/api/kb"] },
   { page: "Policies", endpoints: ["/api/policies", "/api/retrieval"] },
   { page: "Campaigns", endpoints: ["/api/campaigns", "/api/campaigns/audience"] },
-  { page: "Benchmark", endpoints: ["/api/bench/report"] },
+  { page: "Benchmark", endpoints: ["/api/bench/rag", "/api/feedback"] },
   { page: "Guardrails", endpoints: ["/api/guardrails"] },
   { page: "Traces", endpoints: ["/api/traces", "/api/tracer/traces"] },
   { page: "Activity", endpoints: ["/api/events"] },

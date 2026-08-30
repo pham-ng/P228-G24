@@ -1,13 +1,36 @@
-import type { Express, Request, Response } from "express";
+import express from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "node:http";
 import { storage, nowIso, db, hotelToday } from "./storage";
+import { upsellMetrics } from "./upsell-metrics";
+import { log } from "./log";
+import {
+  decodeWav,
+  transcribe,
+  isSttLang,
+  sttAvailable,
+  STT_MAX_SECONDS,
+  STT_SAMPLE_RATE,
+} from "./stt";
 import { seedIfEmpty } from "./seed";
 import { runAgent, analyseConversation, personaliseCampaign } from "./agent";
 import { readGuestSentiment } from "./sentiment-net";
 import { chat, LlmError } from "./openai";
 import { reindex, indexStats, hybridSearch } from "./retrieval";
 import { getPolicyByTopic } from "./policy";
-import { confirmPayment, createPaymentIntent, ensureOpsPolicies, finalizeApproval } from "./ops";
+import {
+  bookCatalogueService,
+  confirmPayment,
+  createPaymentIntent,
+  ensureOpsPolicies,
+  finalizeApproval,
+  hotelIso,
+  runOpsTool,
+  lodgingRequirements,
+  missingLodgingFields,
+  orderRoomService,
+  roomServiceWindow,
+} from "./ops";
 import { AgentTracer } from "./tracer";
 import { redactCards } from "./guard";
 import { listGuardLayers, setGuardLayer, ALWAYS_ON, type GuardLayer } from "./guard-config";
@@ -18,10 +41,17 @@ import { buildVietQrPayload } from "./vietqr";
 import { listBackups, performDatabaseBackup } from "./backup";
 import { issueSession, actorForToken } from "./staff-session";
 import { guestRequests, codeFailures, limited, blockedBy, clientKey } from "./ratelimit";
+import { recordChatMetrics } from "./metrics";
+import { parseCccdQr, maskId } from "./cccd";
+import { findCheckinMatches, performCheckIn } from "./checkin";
+/* Cùng bộ luật mà bảng chấm tay và giám khảo máy dùng. Nhập vào chứ không
+   chép lại: một bản sao ở đây là một đường để ba nơi trôi khỏi nhau, đúng
+   kiểu lỗi đã dìm kappa xuống 0,36. */
+import { HANDLING_PASS, SOURCE_PASS } from "../bench/rubric";
 import { aggregateSignals } from "./observability";
 import { preArrivalTargets } from "./crosssell";
 import { langfuseConfig, saveLangfuseSettings, clearLangfuseSettings } from "./langfuse";
-import { ensurePricingPolicies, folioSummary } from "./pricing";
+import { ensurePricingPolicies, folioSummary, priceService } from "./pricing";
 import { listVenues, dishesOf, hoursText } from "./dining";
 import { fold } from "./catalogue";
 import { searchAvailability, checkRestrictions, resolveDate, validateStayRequest } from "./booking";
@@ -49,14 +79,23 @@ function safeStaff<T extends { pin?: string } | undefined>(s: T) {
 }
 
 
+/**
+ * Wrap an async handler so a rejected promise reaches the error middleware.
+ *
+ * It used to answer the request itself, stamping 500 on anything that was not
+ * an `LlmError` — which meant a `ZodError` from `.parse()` (how every handler
+ * in this file validates) came back as "Internal Server Error" with the raw
+ * issue array as the message. Two error policies also drifted apart: the one
+ * here and the one in index.ts, and the one that ran was decided by whether a
+ * route happened to be wrapped.
+ *
+ * Delegating to `next` leaves exactly one policy. `LlmError` still surfaces its
+ * own status because the middleware already reads `err.status`.
+ */
 const asyncH =
   (fn: (req: Request, res: Response) => Promise<unknown>) =>
-  (req: Request, res: Response) =>
-    fn(req, res).catch((e: any) => {
-      const status = e instanceof LlmError ? e.status : 500;
-      console.error("[api]", e?.message ?? e);
-      res.status(status).json({ message: e?.message ?? "Internal error" });
-    });
+  (req: Request, res: Response, next: NextFunction) =>
+    fn(req, res).catch(next);
 
 const today = hotelToday;
 
@@ -93,7 +132,22 @@ function guestSafeDetail(detail: NonNullable<ReturnType<typeof conversationDetai
     /* Name and language only. The guest knows their own phone number; an
        attacker holding a guessed code should not learn it. */
     guest: { name: guest?.name ?? "", lang: guest?.lang ?? "vi" },
-    messages,
+    /**
+     * `system` messages are internal annotations and never belong to the guest.
+     *
+     * The kiosk renders them as centred grey text, so every one of them was
+     * being shown: "Conversation opened on whatsapp for reservation
+     * VPNT-9K52JH" — the internal channel name and the booking reference, in
+     * English, in the middle of a Japanese guest's thread. Adding the booking
+     * note made it obvious, because that one is written for the staff member
+     * who opens the conversation behind the approval and reads as nonsense to
+     * the guest who tapped the button.
+     *
+     * Filtered here rather than in the client: the staff inbox needs them, and
+     * this is the one function that already decides what the guest audience
+     * may see.
+     */
+    messages: messages.filter((m) => m.role !== "system"),
   };
 }
 
@@ -148,6 +202,18 @@ async function respondWithAi(conversationId: number) {
     latencyMs: result.latencyMs,
     createdAt: nowIso(),
   });
+  /**
+   * Ghi số đo cho Prometheus.
+   *
+   * `recordChatMetrics` tồn tại từ đầu và **chưa từng có ai gọi**. Hệ quả:
+   * `aurea_chat_requests_total`, `aurea_escalations_total` và
+   * `aurea_response_latency_avg_ms` vĩnh viễn bằng 0 — ba trong chín chỉ số là
+   * đồ trang trí. Không có gì báo lỗi; endpoint vẫn trả 200, Prometheus vẫn thu
+   * thập được, và biểu đồ vẫn vẽ ra một đường thẳng ở đáy trông như một hệ
+   * thống không ai dùng.
+   */
+  recordChatMetrics(result.latencyMs, result.escalated === true);
+
   const conv = storage.getConversation(conversationId)!;
   if (conv.firstResponseSeconds == null) {
     storage.updateConversation(conversationId, {
@@ -320,6 +386,39 @@ function isGuestRoute(req: Request) {
 
   if (req.method === "GET" && (req.path === "/api/guest/keys" || req.path === "/api/guest/keys/")) return true;
   if (req.method === "POST" && req.path === "/api/guest/session") return true;
+  /* Kiosk tự phục vụ: khách chưa có mã đặt phòng nào để trình, vì cái họ đang
+     làm CHÍNH LÀ để lấy mã đó. Bù lại bằng bộ đếm chống dò trong handler. */
+  if (req.method === "POST" && req.path === "/api/guest/checkin") return true;
+
+  /**
+   * The kiosk's transactional routes — availability, booking, menu, ordering.
+   *
+   * Exempted on SHAPE, exactly like `/api/guest/session` above, and the handler
+   * does the code check. The first version resolved the code HERE and returned
+   * false when it did not match, which read as "stricter" and was the opposite:
+   * a request with a bad code never reached a handler, so neither the guest
+   * throttle nor `codeFailures` ever ran, while a good code returned 200 and a
+   * bad one 401.
+   *
+   * That is an unthrottled oracle for confirmation codes — measured at 40 wrong
+   * codes in a row with no 429, against `/api/guest/session` blocking after 30.
+   * It matters more than it used to: since these routes exist, a code is not
+   * only a key to a conversation, it is the authority to put a spa treatment
+   * and a room-service order on someone's folio.
+   */
+  if (
+    req.method === "GET" &&
+    (req.path === "/api/guest/availability" || req.path === "/api/guest/menu" || req.path === "/api/guest/my-requests")
+  )
+    return true;
+  if (req.method === "POST" && (req.path === "/api/guest/book" || req.path === "/api/guest/order")) return true;
+  if (req.method === "POST" && req.path === "/api/guest/request") return true;
+  /* Voice input. Exempted on shape like the routes above; the handler resolves
+     the code and charges the enumeration budget on a miss. The code travels in
+     the query string because the BODY is audio — and it is the same credential
+     the thread poll above already puts there. */
+  if (req.method === "POST" && req.path === "/api/guest/transcribe") return true;
+  if (req.method === "GET" && req.path === "/api/guest/voice") return true;
 
   /* Staff login itself must be reachable without the token — the PIN check
    * inside the handler IS the credential check, and it is what MINTS the
@@ -433,6 +532,48 @@ function staffApiGuard(req: Request, res: Response, next: () => void) {
   return next();
 }
 
+/**
+ * Dựng lại chỉ mục sau khi sửa nội dung, và **nói ra khi hỏng**.
+ *
+ * Ba tuyến KB trước đây gọi `void reindex().catch(() => {})` — bắn đi rồi quên,
+ * nuốt lỗi im lặng. Nếu dịch vụ nhúng chết giữa chừng thì bài viết vẫn lưu
+ * thành công, chỉ mục nằm lại nửa vời, và không ai được báo gì cả. Người biên
+ * tập tin là đã xong; khách nhận câu trả lời từ một kho đã lỗi thời.
+ *
+ * Giờ chờ nó xong rồi trả kết quả về cho người bấm, và ghi một dòng nhật ký dù
+ * thành công hay thất bại. Chờ được là nhờ dựng tăng dần: sửa một bài chỉ đụng
+ * vài chunk, không còn là 65 giây nhúng lại cả kho.
+ */
+async function reindexAndReport(req: Request, ly_do: string) {
+  try {
+    const r = await reindex();
+    storage.logEvent({
+      type: r.embedError ? "retrieval.reindex_failed" : "retrieval.reindexed",
+      actor: actorLabel(actorOf(req)),
+      summary: r.embedError
+        ? `Dựng lại chỉ mục THẤT BẠI sau ${ly_do}: ${r.embedError}. Chỉ mục có ${r.vectorCount}/${r.chunks} chunk còn vector.`
+        : `Chỉ mục cập nhật sau ${ly_do}: +${r.added} mới, ${r.changed} sửa, ${r.removed} xoá, ${r.kept} giữ nguyên.`,
+      payload: null,
+      conversationId: null,
+      createdAt: nowIso(),
+    });
+    if (r.embedError) console.error(`[retrieval] reindex failed after ${ly_do}: ${r.embedError}`);
+    return r;
+  } catch (e: any) {
+    const msg = e?.message ?? String(e);
+    console.error(`[retrieval] reindex threw after ${ly_do}: ${msg}`);
+    storage.logEvent({
+      type: "retrieval.reindex_failed",
+      actor: actorLabel(actorOf(req)),
+      summary: `Dựng lại chỉ mục ném lỗi sau ${ly_do}: ${msg}`,
+      payload: null,
+      conversationId: null,
+      createdAt: nowIso(),
+    });
+    return { embedError: msg, chunks: 0, vectorCount: 0, added: 0, changed: 0, kept: 0, removed: 0, embedded: 0, model: "" };
+  }
+}
+
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   seedIfEmpty();
   /* Money and operational policy rows must exist before the first tool call,
@@ -515,14 +656,26 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   /* ---------------- guest surface ---------------- */
 
   app.get("/api/guest/keys", (_req, res) => {
-    /* This lists every guest's name, tier, room number and dates. It exists
-     * for the demo's room-picker only, so it is off unless explicitly enabled
-     * and never available in production. */
-    if (process.env.NODE_ENV === "production" && process.env.EXPOSE_GUEST_KEYS !== "1") {
-      res.status(404).json({ message: "Not found." });
-      return;
-    }
-    if (process.env.EXPOSE_GUEST_KEYS === "0") {
+    /**
+     * The demo room-picker: every guest's confirmation code, name, tier, room
+     * number and dates, with no authentication at all.
+     *
+     * It used to be OPT-OUT — off in production, on everywhere else — which
+     * sounded careful and was not, because `DEMO.md` tells an operator to run
+     * the product with `npm run dev`. Under the documented way of running it,
+     * this endpoint was serving the whole guest directory to anyone who could
+     * reach the port.
+     *
+     * That is also what made a second factor on the kiosk pointless: a
+     * confirmation code plus a surname or a room number is no stronger than the
+     * code alone when one unauthenticated GET hands over all three. And since
+     * the booking and ordering routes exist, a code is the authority to put
+     * charges on someone's folio.
+     *
+     * Now OPT-IN in every environment. A demo sets EXPOSE_GUEST_KEYS=1
+     * deliberately, for the length of the demo.
+     */
+    if (process.env.EXPOSE_GUEST_KEYS !== "1") {
       res.status(404).json({ message: "Not found." });
       return;
     }
@@ -600,7 +753,505 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     }),
   );
 
+  /* ---------------- structured booking from the kiosk ---------------- */
+
+  /**
+   * Why a booking is made by picking, not by typing.
+   *
+   * `book_service` is a TOOL, so it only ever ran on the hosted path — with
+   * `LLM_MODE=local` (what the product actually ships with) a guest asking to
+   * book anything was answered with an abstention and a handoff. Free text was
+   * also the wrong input for it: an item, a date, a slot and a party size have
+   * to be exactly right to charge someone, and a 4B model extracting four slots
+   * from a sentence gets one of them wrong often enough to matter.
+   *
+   * Picking sidesteps both. The guest chooses from the catalogue the hotel
+   * published, so every field is already valid before the request is sent, and
+   * no model is involved in the transaction at all.
+   *
+   * `bookCatalogueService` is reused untouched — it is the only place a
+   * booking is created, so lead time, capacity, double-booking, member pricing
+   * and the HITL gate behave identically here and on the hosted path. Nothing
+   * is charged: it writes `pending_approval` and a staff member approving it
+   * is what posts the folio line.
+   */
+  const guestBookingCtx = (code: string) => {
+    const res = storage.getReservationByCode(code);
+    if (!res) return null;
+    const hotel = storage.getHotel();
+    const guest = storage.getGuest(res.guestId);
+    const conv = storage.getConversationForReservation(res.id);
+    if (!hotel || !guest || !conv) return null;
+    return { hotel, guest, res, room: storage.getRoom(res.roomId), conv };
+  };
+
+  /**
+   * Resolve a kiosk request's confirmation code, charging the enumeration
+   * budget for a miss. Answers the request itself and returns null when it
+   * cannot proceed, so callers read as `const ctx = ...; if (!ctx) return;`.
+   *
+   * The order is the one `/api/guest/session` established and it is not
+   * arbitrary: a CORRECT code is served even when the budget is spent, because
+   * a hotel is a NAT and every guest on the wifi shares one address — refusing
+   * a real guest because a stranger mistyped is worse than the enumeration it
+   * prevents. Only misses are charged, and the budget is never reset on
+   * success, or an attacker holding one valid code could launder it.
+   */
+  const guestCtxOrDeny = (req: Request, res: Response, code: string) => {
+    const ctx = guestBookingCtx(code);
+    if (ctx) return ctx;
+    codeFailures.penalise(clientKey(req));
+    if (blockedBy(codeFailures, req, res, "Sai mã quá nhiều lần. Vui lòng liên hệ lễ tân.")) return null;
+    res.status(404).json({ message: "No reservation with that code." });
+    return null;
+  };
+
+  app.get(
+    "/api/guest/availability",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const q = z
+        .object({ code: z.string().min(4), serviceId: z.coerce.number().int().positive(), date: z.string() })
+        .parse(req.query);
+
+      const ctx = guestCtxOrDeny(req, res, q.code);
+      if (!ctx) return;
+      const svc = storage.getService(q.serviceId);
+      if (!svc || !svc.active) return res.status(404).json({ message: "No such service." });
+
+      const slots: string[] = JSON.parse(svc.slots || "[]");
+      const booked = storage.bookingsFor(svc.id, q.date);
+      /* Seats already committed include the ones only PENDING approval. A slot
+         held by a request the desk has not answered yet is not free — offering
+         it again would let two guests be told yes for one table. */
+      const taken = (slot: string) =>
+        booked
+          .filter((b) => b.slot === slot && b.status !== "cancelled" && b.status !== "rejected")
+          .reduce((n, b) => n + b.partySize, 0);
+
+      const priced = priceService(svc, ctx.guest.vipTier, 1, ctx.hotel.currency);
+      res.json({
+        serviceId: svc.id,
+        name: svc.name,
+        date: q.date,
+        currency: ctx.hotel.currency,
+        unit: svc.unit,
+        rackPrice: priced.rack_amount,
+        memberPrice: priced.net_amount,
+        discountPercent: priced.discount_pct,
+        capacityPerSlot: svc.capacityPerSlot,
+        /* An empty list means the service has no published schedule — a beach
+           desk rather than a spa — and is bookable on the date alone. */
+        slots: slots.map((slot) => ({ slot, seatsLeft: Math.max(0, svc.capacityPerSlot - taken(slot)) })),
+      });
+    }),
+  );
+
+  /**
+   * Does this deployment have a microphone to offer?
+   *
+   * The kiosk asks before rendering the button. A mic that triggers a 240 MB
+   * model download mid-conversation over hotel wifi is worse than no mic: the
+   * guest taps, waits minutes, and concludes the product is broken. So the
+   * button only exists once the weights are on disk.
+   */
+  app.get("/api/guest/voice", (_req, res) => {
+    res.json({ stt: sttAvailable(), maxSeconds: STT_MAX_SECONDS, sampleRate: STT_SAMPLE_RATE });
+  });
+
+  /**
+   * Speech to text, entirely on this machine.
+   *
+   * The audio never leaves the property. That is the whole reason a model is
+   * carried at all — the browser's own `SpeechRecognition` is more accurate and
+   * far faster, and it works by uploading the guest's voice to Google. A room
+   * number, a complaint and a voice print is a worse disclosure than any text
+   * this system already argues about.
+   *
+   * The body is a 16 kHz mono 16-bit WAV, resampled by the browser. Sending the
+   * recorder's native webm/opus instead would put an ffmpeg subprocess in the
+   * path of every utterance; the phone already owns a decoder and a resampler.
+   */
+  app.post(
+    "/api/guest/transcribe",
+    express.raw({ type: ["audio/wav", "audio/wave", "application/octet-stream"], limit: "4mb" }),
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const q = z
+        .object({ code: z.string().min(4), lang: z.string().default("vi") })
+        .parse(req.query);
+      if (!isSttLang(q.lang)) return res.status(400).json({ message: `Unsupported language ${q.lang}.` });
+
+      const ctx = guestCtxOrDeny(req, res, q.code);
+      if (!ctx) return;
+
+      const audio = req.body;
+      if (!Buffer.isBuffer(audio) || audio.length === 0)
+        return res.status(400).json({ message: "Send a 16 kHz mono WAV as the request body." });
+
+      let pcm;
+      try {
+        pcm = decodeWav(audio);
+      } catch (e) {
+        return res.status(400).json({ message: (e as Error).message });
+      }
+
+      const t0 = Date.now();
+      try {
+        const out = await transcribe(pcm, q.lang);
+        /* The transcript is NOT posted as a message here. Recognition is
+           imperfect enough on four-second Vietnamese that the guest must see
+           what was heard and be able to fix it before it becomes a request the
+           hotel acts on — the kiosk puts it in the composer, not in the thread. */
+        res.json({
+          text: out.text,
+          model: out.model,
+          lang: out.lang,
+          audioSeconds: Number(out.audioSeconds.toFixed(2)),
+          ms: out.ms,
+          rtf: Number(out.rtf.toFixed(2)),
+        });
+      } catch (e) {
+        log(`stt: failed after ${Date.now() - t0}ms: ${(e as Error).message}`);
+        res.status(503).json({ message: "Chưa nhận dạng được giọng nói. Anh/chị nhập giúp em bằng chữ ạ." });
+      }
+    }),
+  );
+
+  app.post(
+    "/api/guest/book",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const body = z
+        .object({
+          code: z.string().min(4),
+          serviceId: z.number().int().positive(),
+          date: z.string(),
+          slot: z.string().default(""),
+          partySize: z.number().int().min(1).max(20).default(1),
+          note: z.string().max(300).optional(),
+        })
+        .parse(req.body);
+
+      const ctx = guestCtxOrDeny(req, res, body.code);
+      if (!ctx) return;
+
+      /**
+       * A guest may not queue an unbounded number of approvals.
+       *
+       * Every booking opens a staff task, so a valid code held by someone
+       * bored is a queue-flooding tool. The rate limit above throttles the
+       * SPEED; this bounds the TOTAL a single stay can have outstanding, which
+       * is the number that actually costs the front desk its attention.
+       */
+      const pending = storage
+        .bookingsForReservation(ctx.res.id)
+        .filter((b) => b.status === "pending_approval").length;
+      if (pending >= 5)
+        return res.status(429).json({
+          message: "Bạn đang có 5 yêu cầu chờ lễ tân xác nhận. Vui lòng đợi được duyệt trước khi đặt thêm.",
+        });
+
+      const out = bookCatalogueService(ctx, {
+        serviceId: body.serviceId,
+        date: body.date,
+        slot: body.slot,
+        partySize: body.partySize,
+        note: body.note,
+      });
+      /* The core reports a refusal (past date, no seats, too little lead time,
+         a clash) as an `error` field rather than by throwing. Those are answers
+         to the guest, not faults — 409, so the client can show the reason. */
+      if (out.error) return res.status(409).json(out);
+
+      /**
+       * Leave a trace in the thread.
+       *
+       * The guest booked by tapping, so nothing was said — and a staff member
+       * opening the conversation behind the new task would otherwise find a
+       * request with no context. Written as `system`, not `guest`: inventing a
+       * sentence the guest never typed would corrupt both the transcript and
+       * the sentiment history that is computed from it.
+       */
+      storage.addMessage({
+        conversationId: ctx.conv.id,
+        role: "system",
+        authorName: null,
+        body: `Khách đặt qua thẻ dịch vụ: ${out.service} — ${out.date}${out.slot ? " " + out.slot : ""} × ${out.party_size}. Đang chờ lễ tân duyệt.`,
+        toolTrace: null,
+        latencyMs: null,
+        createdAt: nowIso(),
+      });
+
+      res.json(out);
+    }),
+  );
+
+  /**
+   * The requests a guest can raise by picking rather than typing.
+   *
+   * These already existed as TOOLS and so ran only on the hosted path. Most of
+   * them do degrade on the offline path — `escalate_to_human` opens a task
+   * routed by department — so the gap is not "nothing happens". The gap is
+   * everything a routed escalation cannot carry: WHEN (a wake-up at 06:30, a
+   * luggage pickup at 11:00), WHAT (three shirts, two towels), and a status the
+   * guest can be told about afterwards.
+   *
+   * `runOpsTool` is called directly, exactly as `bookCatalogueService` and
+   * `orderRoomService` are, so every validation the tool already performs — the
+   * time format, the checkout-date bound, the department, the SLA — happens
+   * here too. Reimplementing them for the kiosk is how the two paths would
+   * start disagreeing.
+   *
+   * A WHITELIST, not a passthrough: `runOpsTool` also owns `settle_folio`,
+   * `create_payment_link` and `declare_lodging`, and a guest holding a
+   * confirmation code must not reach those.
+   */
+  const GUEST_REQUEST_KINDS = {
+    housekeeping: "request_housekeeping",
+    wake_up: "request_wake_up_call",
+    laundry: "request_laundry",
+    luggage: "request_luggage",
+  } as const;
+
+  app.post(
+    "/api/guest/request",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const body = z
+        .object({
+          code: z.string().min(4),
+          kind: z.enum(["housekeeping", "wake_up", "laundry", "luggage"]),
+          /* Kind-specific fields. Validated properly by the ops tool itself;
+             the shapes here only keep obvious rubbish out of it. */
+          serviceType: z.string().max(30).optional(),
+          items: z.array(z.string().min(1).max(60)).max(12).optional(),
+          time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+          date: z.string().optional(),
+          action: z.string().max(30).optional(),
+          pieces: z.number().int().min(1).max(20).optional(),
+          location: z.string().max(80).optional(),
+          serviceLevel: z.string().max(20).optional(),
+          note: z.string().max(300).optional(),
+        })
+        .parse(req.body);
+
+      const ctx = guestCtxOrDeny(req, res, body.code);
+      if (!ctx) return;
+
+      /* Same bound as bookings and orders: the rate limiter caps how FAST, this
+         caps how MUCH of the board one stay can hold open at once. */
+      const open = storage
+        .listRequests(500)
+        .filter((r) => r.reservationId === ctx.res.id && r.status !== "done" && r.status !== "cancelled").length;
+      if (open >= 8)
+        return res.status(429).json({
+          message: "Bạn đang có 8 yêu cầu chưa hoàn tất. Vui lòng đợi nhân viên xử lý trước khi gửi thêm.",
+        });
+
+      const args: Record<string, unknown> = { note: body.note };
+      if (body.kind === "housekeeping")
+        Object.assign(args, { service_type: body.serviceType ?? "cleaning", items: body.items ?? [], preferred_time: body.time });
+      else if (body.kind === "wake_up") Object.assign(args, { time: body.time, date: body.date });
+      else if (body.kind === "laundry")
+        Object.assign(args, { items: body.items ?? [], service_level: body.serviceLevel ?? "regular", pickup_time: body.time });
+      else if (body.kind === "luggage")
+        Object.assign(args, { action: body.action ?? "pickup", pieces: body.pieces ?? 1, time: body.time, location: body.location });
+
+      const out = (await runOpsTool(GUEST_REQUEST_KINDS[body.kind], args, ctx)) as Record<string, unknown> | null;
+      if (!out) return res.status(500).json({ message: "Request kind is not available." });
+      /* The tool reports a refusal (bad time, date past checkout, no items) in
+         an `error` field rather than throwing — an answer, not a fault. */
+      if (out.error) return res.status(409).json(out);
+
+      storage.addMessage({
+        conversationId: ctx.conv.id,
+        role: "system",
+        authorName: null,
+        body: `Khách gửi yêu cầu qua bảng chọn: ${String(out.summary ?? body.kind)}${body.time ? ` — ${body.time}` : ""}. Đã chuyển ${String(out.dispatched_to ?? "bộ phận phụ trách")}.`,
+        toolTrace: null,
+        latencyMs: null,
+        createdAt: nowIso(),
+      });
+
+      res.json(out);
+    }),
+  );
+
+  /**
+   * Mọi thứ khách đã gửi, và chúng đang ở đâu.
+   *
+   * Khách đặt được spa, gọi được đồ ăn, xin được báo thức — rồi rơi vào im
+   * lặng. Không có màn hình nào cho họ biết yêu cầu đang ở đâu, nên cách duy
+   * nhất để kiểm tra là hỏi lại chatbot, và chatbot cũng không tra được vì
+   * `get_request_status` là một TOOL chỉ chạy trên luồng hosted.
+   *
+   * Gộp ba nguồn vì với khách chúng là MỘT thứ — "những gì tôi đã nhờ" — dù
+   * trong máy chúng nằm ở ba bảng khác nhau. Chia màn hình theo cấu trúc bảng
+   * là bắt khách học sơ đồ cơ sở dữ liệu của khách sạn.
+   *
+   * KHÔNG trả về giá đã duyệt của người khác, không trả về task nội bộ, không
+   * trả về tên nhân viên: đây vẫn là bề mặt chỉ có mã đặt phòng làm khoá.
+   */
+  app.get(
+    "/api/guest/my-requests",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const q = z.object({ code: z.string().min(4) }).parse(req.query);
+      const ctx = guestCtxOrDeny(req, res, q.code);
+      if (!ctx) return;
+
+      const approvals = storage
+        .listApprovals(300)
+        .filter((a) => a.reservationId === ctx.res.id);
+      /* Một booking và approval của nó là CÙNG một việc dưới mắt khách. Ghép
+         theo bookingId trong payload để không hiện hai dòng cho một lần đặt. */
+      const bookingIdsInApprovals = new Set<number>();
+      for (const a of approvals) {
+        try {
+          const id = JSON.parse(a.payload || "{}").bookingId;
+          if (typeof id === "number") bookingIdsInApprovals.add(id);
+        } catch {
+          /* payload hỏng không được làm chết cả danh sách */
+        }
+      }
+
+      const items = [
+        ...storage
+          .listRequests(300)
+          .filter((r) => r.reservationId === ctx.res.id)
+          .map((r) => ({
+            kind: r.kind,
+            source: "request" as const,
+            summary: r.summary,
+            status: r.status,
+            scheduledFor: r.scheduledFor,
+            amount: r.amount,
+            createdAt: r.createdAt,
+          })),
+        ...approvals.map((a) => ({
+          kind: a.kind,
+          source: "approval" as const,
+          summary: a.summary,
+          /* pending ở đây nghĩa là "đang chờ lễ tân duyệt" — với khách đó là
+             một trạng thái có ý nghĩa, không phải chi tiết nội bộ. */
+          status: a.status,
+          scheduledFor: null as string | null,
+          amount: a.amount,
+          createdAt: a.createdAt,
+        })),
+        ...storage
+          .bookingsForReservation(ctx.res.id)
+          .filter((b) => !bookingIdsInApprovals.has(b.id))
+          .map((b) => ({
+            kind: "service_booking",
+            source: "booking" as const,
+            summary: `${storage.getService(b.serviceId)?.name ?? "Dịch vụ"} — ${b.date}${b.slot ? " " + b.slot : ""}`,
+            status: b.status,
+            scheduledFor: b.date,
+            amount: b.amount,
+            createdAt: b.createdAt,
+          })),
+      ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+      res.json({ currency: ctx.hotel.currency, items });
+    }),
+  );
+
   /* ---------------- conversations ---------------- */
+  /**
+   * The in-room dining menu, and whether the kitchen is taking orders.
+   *
+   * The dishes were always in `services` (category `roomservice`), but nothing
+   * ever showed them: `/api/service-groups` only returns rows with a
+   * `serviceGroup`, and these have none. So the catalogue existed and no guest
+   * could see it.
+   *
+   * `open` and `eta_minutes` come from the ROOM_SERVICE policy, so the kiosk
+   * greys the basket out when the kitchen is shut instead of letting a guest
+   * fill it and be refused on submit.
+   */
+  app.get(
+    "/api/guest/menu",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const q = z.object({ code: z.string().min(4) }).parse(req.query);
+      const ctx = guestCtxOrDeny(req, res, q.code);
+      if (!ctx) return;
+
+      const win = roomServiceWindow();
+      res.json({
+        currency: ctx.hotel.currency,
+        open: win.open,
+        hours: win.hours,
+        etaMinutes: win.eta_minutes,
+        peak: win.peak,
+        minOrder: win.min_order,
+        items: storage
+          .listServices()
+          .filter((s) => s.category === "roomservice" && s.active)
+          .map((s) => ({ id: s.id, name: s.name, description: s.description, price: s.price, unit: s.unit })),
+      });
+    }),
+  );
+
+  /**
+   * Place an in-room dining order from the kiosk.
+   *
+   * A food order is a BASKET, which is what makes it different from
+   * `/api/guest/book`: one request carries several dishes and quantities.
+   * That is also exactly what free text could never carry reliably, and why
+   * this path exists rather than asking the offline model to extract it.
+   */
+  app.post(
+    "/api/guest/order",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const body = z
+        .object({
+          code: z.string().min(4),
+          items: z
+            .array(z.object({ serviceId: z.number().int().positive(), quantity: z.number().int().min(1).max(20) }))
+            .min(1)
+            .max(15),
+          note: z.string().max(300).optional(),
+        })
+        .parse(req.body);
+
+      const ctx = guestCtxOrDeny(req, res, body.code);
+      if (!ctx) return;
+
+      /* Same reasoning as the booking cap: the rate limiter bounds speed, this
+         bounds how much of the kitchen's board one stay can occupy at once. */
+      const pending = storage
+        .listApprovals()
+        .filter(
+          (a) => a.status === "pending" && a.kind === "order_room_service" && a.reservationId === ctx.res.id,
+        ).length;
+      if (pending >= 3)
+        return res.status(429).json({
+          message: "Bạn đang có 3 đơn chờ bếp xác nhận. Vui lòng đợi được duyệt trước khi gọi thêm.",
+        });
+
+      const out = orderRoomService(ctx, { items: body.items, note: body.note });
+      /* Kitchen closed, below minimum, or an item not on the menu — answers to
+         the guest, not faults. */
+      if (out.error) return res.status(409).json(out);
+
+      storage.addMessage({
+        conversationId: ctx.conv.id,
+        role: "system",
+        authorName: null,
+        body: `Khách gọi đồ qua thực đơn: ${(out.items as string[]).join(", ")}. Đang chờ bếp xác nhận.`,
+        toolTrace: null,
+        latencyMs: null,
+        createdAt: nowIso(),
+      });
+
+      res.json(out);
+    }),
+  );
+
 
   app.get("/api/conversations", (req, res) => {
     /* The guest relationship belongs to the front desk. A department agent
@@ -785,11 +1436,26 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     const conv = storage.getConversation(conversationId);
     if (!conv) return res.status(404).json({ message: "Conversation not found" });
 
+    /**
+     * `messageId` đến từ client và trước đây bị phân tích rồi vứt đi, nên
+     * mọi ngón tay cái xuống chỉ neo được tới hội thoại. Giờ nó được ghi —
+     * nhưng phải kiểm tra đã thuộc về CHÍNH hội thoại này, nếu không một
+     * người gọi có thể gắn lời phàn nàn của mình lên câu trả lời của khách
+     * khác, và bảng chất lượng sẽ đổ lỗi cho đúng câu vô can.
+     *
+     * Sai thì trả 400 chứ không âm thầm ghi null: client luôn gửi `m.id`
+     * của một tin đang hiển thị, nên lưu lượng hợp lệ không thể chạm vào
+     * nhánh này — chạm được nghĩa là có lỗi, và lỗi phải kêu.
+     */
+    if (messageId !== undefined && !storage.listMessages(conversationId).some((m) => m.id === messageId))
+      return res.status(400).json({ message: "messageId không thuộc hội thoại này." });
+
     const fb = storage.createFeedback({
       hotelId: conv.hotelId,
       reservationId: conv.reservationId ?? null,
       guestId: conv.guestId,
       conversationId,
+      messageId: messageId ?? null,
       rating,
       category: rating < 3 ? "ai_response_incorrect" : "ai_response_helpful",
       comment: comment ?? (rating < 3 ? "Khách báo câu trả lời chưa chính xác." : "Khách hài lòng."),
@@ -1148,6 +1814,14 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
           description: s.description,
           price: s.price,
           unit: s.unit,
+          /* The published schedule, so the kiosk can draw a slot picker without
+             a second round trip. Public in the same sense a spa's opening hours
+             are: it is the timetable, not who is in it. How many seats are
+             actually left needs the guest's code and lives on
+             /api/guest/availability, so occupancy is never readable by someone
+             who is not staying here. */
+          slots: JSON.parse(s.slots || "[]") as string[],
+          bookable: s.active === 1 && s.category !== "roomservice",
         })),
       })),
     );
@@ -1403,7 +2077,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json(storage.listKb().map((a) => ({ ...a, tags: JSON.parse(a.tags || "[]") })));
   });
 
-  app.post("/api/kb", (req, res) => {
+  app.post("/api/kb", async (req, res) => {
     if (denied(req, res, "edit_content")) return;
     const input = z
       .object({
@@ -1429,11 +2103,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       conversationId: null,
       createdAt: nowIso(),
     });
-    void reindex().catch(() => {});
-    res.json({ ...a, tags: input.tags });
+    const ri = await reindexAndReport(req, "thêm bài viết");
+    res.json({ ...a, tags: input.tags, reindex: { ok: !ri.embedError, error: ri.embedError } });
   });
 
-  app.patch("/api/kb/:id", (req, res) => {
+  app.patch("/api/kb/:id", async (req, res) => {
     if (denied(req, res, "edit_content")) return;
     const input = z
       .object({
@@ -1446,15 +2120,15 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     const patch: Record<string, unknown> = { ...input, updatedAt: nowIso() };
     if (input.tags) patch.tags = JSON.stringify(input.tags);
     const a = storage.updateKb(Number(req.params.id), patch);
-    void reindex().catch(() => {});
-    res.json({ ...a, tags: JSON.parse(a.tags || "[]") });
+    const ri = await reindexAndReport(req, "sửa bài viết");
+    res.json({ ...a, tags: JSON.parse(a.tags || "[]"), reindex: { ok: !ri.embedError, error: ri.embedError } });
   });
 
-  app.delete("/api/kb/:id", (req, res) => {
+  app.delete("/api/kb/:id", async (req, res) => {
     if (denied(req, res, "edit_content")) return;
     storage.deleteKb(Number(req.params.id));
-    void reindex().catch(() => {});
-    res.json({ ok: true });
+    const ri = await reindexAndReport(req, "xoá bài viết");
+    res.json({ ok: true, reindex: { ok: !ri.embedError, error: ri.embedError } });
   });
 
   /* ---------------- campaigns ---------------- */
@@ -1571,7 +2245,13 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       storage.logEvent({
         type: "campaign.sent",
         actor: actorLabel(actorOf(req)),
-        summary: `Campaign "${camp.name}" delivered to ${sent} guest(s), localised per guest.`,
+        /* "delivered" claimed more than happened. There is no outbound
+           channel in this product — no SMS, no email, no WhatsApp, and no
+           dependency for any of them. A campaign writes a message into each
+           guest's in-app thread, which they see the next time they open the
+           kiosk. Saying "delivered" invited a manager to believe a guest had
+           been reached on their phone and to stop following up. */
+        summary: `Campaign "${camp.name}" posted to ${sent} guest(s) in-app, localised per guest. No outbound channel is connected — guests see it when they next open the concierge.`,
         payload: null,
         conversationId: null,
         createdAt: nowIso(),
@@ -1580,7 +2260,310 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     }),
   );
 
+  /* ---------------- guest requests ---------------- */
+
+  /**
+   * The board for everything `raiseRequest` has ever created.
+   *
+   * `guest_requests` had no API and no page: every row written since the table
+   * was added was invisible, and the paired TASK was the only thing anyone saw.
+   * That made the request row look redundant, and it is not — the task carries
+   * the work, the request carries WHAT the guest actually asked for, WHEN they
+   * wanted it, and a status they can be told about.
+   *
+   * Filtered by department for a department agent, like the task board and for
+   * the same reason: the board is their whole job, so refusing it outright
+   * would be useless where a slice is exactly right.
+   */
+  app.get("/api/requests", (req, res) => {
+    const actor = actorOf(req);
+    if (!actor) return res.status(403).json({ message: "Không có quyền." });
+    const all = storage.listRequests(400).map((r) => {
+      const resv = r.reservationId ? storage.getReservation(r.reservationId) : undefined;
+      const guest = r.guestId ? storage.getGuest(r.guestId) : undefined;
+      const task = r.taskId ? storage.listTasks().find((t) => t.id === r.taskId) : undefined;
+      return {
+        ...r,
+        payload: (() => {
+          try {
+            return JSON.parse(r.payload || "{}");
+          } catch {
+            return {};
+          }
+        })(),
+        guestName: guest?.name ?? null,
+        room: resv?.roomId ? (storage.getRoom(resv.roomId)?.number ?? null) : null,
+        confirmationCode: resv?.confirmationCode ?? null,
+        taskStatus: task?.status ?? null,
+        dueAt: task?.dueAt ?? r.scheduledFor,
+      };
+    });
+    const caps = capabilitiesOf(actor as any);
+    if (caps.includes("all_tasks")) return res.json(all);
+    const dept = (actor as any).dept;
+    res.json(all.filter((r) => r.dept === dept));
+  });
+
+  /** Move a request along. The paired task keeps its own status. */
+  app.patch(
+    "/api/requests/:id",
+    asyncH(async (req, res) => {
+      const actor = actorOf(req);
+      if (!actor) return res.status(403).json({ message: "Không có quyền." });
+      const id = Number(req.params.id);
+      const existing = storage.listRequests(500).find((r) => r.id === id);
+      if (!existing) return res.status(404).json({ message: "Không có yêu cầu này." });
+      const caps = capabilitiesOf(actor as any);
+      if (!caps.includes("all_tasks") && (actor as any).dept !== existing.dept)
+        return res.status(403).json({ message: "Yêu cầu này không thuộc bộ phận của bạn." });
+
+      const { status } = z.object({ status: z.enum(["open", "in_progress", "done", "cancelled"]) }).parse(req.body);
+      const updated = storage.updateRequest(id, { status, updatedAt: nowIso() });
+      /* Close the task with it. Leaving a task open behind a finished request
+         is how a board fills with work nobody still has to do. */
+      if (existing.taskId && (status === "done" || status === "cancelled"))
+        storage.updateTask(existing.taskId, { status: "done", resolvedAt: nowIso() });
+      storage.logEvent({
+        type: "request.status",
+        actor: actorLabel(actor),
+        summary: `Yêu cầu #${id} (${existing.kind}) → ${status}.`,
+        payload: JSON.stringify({ requestId: id, status }),
+        conversationId: existing.conversationId,
+        createdAt: nowIso(),
+      });
+      res.json(updated);
+    }),
+  );
+
+  /* ---------------- lodging declaration (khai báo lưu trú) ---------------- */
+
+  /**
+   * Why this lives on the STAFF side and not on the kiosk.
+   *
+   * The declaration carries passport number, nationality, date of birth, visa
+   * and permanent address — the exact set `guestSafeDetail` was written to keep
+   * off a surface whose only credential is a confirmation code. Putting the
+   * form in the kiosk would let a code-holder both read those fields back and
+   * OVERWRITE a real guest's identity record.
+   *
+   * The stronger reason is not technical. The declaration is the HOTEL's legal
+   * obligation, discharged at the desk with the physical document in hand. A
+   * guest typing a passport number the hotel never saw produces a record that
+   * looks filed and verifies nothing — worse than no record, because it stops
+   * anyone asking.
+   *
+   * Deliberately NOT raising a task per registration: this page IS the
+   * worklist, with its own deadline per row. A task would duplicate it, and a
+   * duplicate that can be closed independently is how a legal deadline gets
+   * marked done while the filing never happened.
+   */
+  app.get("/api/registrations", (req, res) => {
+    if (denied(req, res, "guest_data")) return;
+    const rows = storage.listRegistrations().map((r) => {
+      const resv = storage.getReservation(r.reservationId);
+      const req_ = lodgingRequirements(!!r.isForeigner);
+      return {
+        ...r,
+        missing: missingLodgingFields(r),
+        room: resv?.roomId ? (storage.getRoom(resv.roomId)?.number ?? null) : null,
+        confirmationCode: resv?.confirmationCode ?? null,
+        /* The clock the law actually runs on, computed here so every client
+           shows the same deadline rather than each doing its own arithmetic. */
+        dueAt: r.arrivalAt
+          ? new Date(Date.parse(r.arrivalAt) + req_.deadlineHours * 3_600_000).toISOString()
+          : null,
+      };
+    });
+    res.json(rows);
+  });
+
+  /** The rules a form needs to render itself: fields, deadline, filing channels. */
+  app.get("/api/registrations/requirements", (req, res) => {
+    if (denied(req, res, "guest_data")) return;
+    const foreigner = req.query.foreigner === "1";
+    res.json(lodgingRequirements(foreigner));
+  });
+
+  app.post(
+    "/api/registrations",
+    asyncH(async (req, res) => {
+      if (denied(req, res, "guest_data")) return;
+      const b = z
+        .object({
+          reservationId: z.number().int().positive(),
+          fullName: z.string().min(1).max(120),
+          idType: z.enum(["passport", "national_id", "other"]),
+          idNumber: z.string().min(3).max(40),
+          nationality: z.string().min(2).max(60),
+          dob: z.string().optional(),
+          gender: z.string().max(20).optional(),
+          visaNumber: z.string().max(40).optional(),
+          entryDate: z.string().optional(),
+          entryPort: z.string().max(80).optional(),
+          permanentAddress: z.string().max(240).optional(),
+        })
+        .parse(req.body);
+
+      const resv = storage.getReservation(b.reservationId);
+      if (!resv) return res.status(404).json({ message: "No such reservation." });
+      const hotel = storage.getHotel();
+
+      /* Vietnamese nationality is written many ways on a passport. Matching the
+         same way `declare_lodging` does keeps one guest from being classed as a
+         foreigner by the tool and a local by the desk. */
+      const isForeigner = !/vi[eệ]t\s*nam|vietnam|^vn$/i.test(b.nationality.trim());
+
+      const draft = {
+        hotelId: hotel.id,
+        reservationId: resv.id,
+        guestId: resv.guestId,
+        fullName: b.fullName,
+        idType: b.idType,
+        idNumber: b.idNumber,
+        nationality: b.nationality,
+        dob: b.dob ?? null,
+        gender: b.gender ?? null,
+        visaNumber: b.visaNumber ?? null,
+        entryDate: b.entryDate ?? null,
+        entryPort: b.entryPort ?? null,
+        permanentAddress: b.permanentAddress ?? null,
+        arrivalAt: hotelIso(resv.checkIn, resv.checkInTime ?? hotel.checkInTime),
+        departureAt: hotelIso(resv.checkOut, resv.checkOutTime),
+        isForeigner: isForeigner ? 1 : 0,
+      };
+      const missing = missingLodgingFields(draft);
+
+      const reg = storage.createRegistration({
+        ...draft,
+        /* `collected` means fields captured but not yet complete; `queued` means
+           ready to file. Nothing here is `submitted` — only a person who has
+           actually filed it may say that. */
+        status: missing.length ? "collected" : "queued",
+        channel: null,
+        submittedAt: null,
+        submittedBy: null,
+        receiptRef: null,
+        taskId: null,
+        note: missing.length ? `Thiếu: ${missing.join(", ")}` : null,
+        createdAt: nowIso(),
+      });
+
+      /* Keep the guest record in step so the desk is never asked twice. */
+      storage.updateGuest(resv.guestId, {
+        idType: b.idType,
+        idNumber: b.idNumber,
+        nationality: b.nationality,
+        ...(b.dob ? { dob: b.dob } : {}),
+      });
+
+      storage.logEvent({
+        type: "lodging.collected",
+        actor: actorLabel(actorOf(req)),
+        summary: `Khai báo lưu trú #${reg.id} — ${b.fullName} (${b.idType} ${b.idNumber}, ${b.nationality})${missing.length ? ` — THIẾU: ${missing.join(", ")}` : ""}`,
+        payload: JSON.stringify({ registrationId: reg.id, reservationId: resv.id, missing }),
+        conversationId: null,
+        createdAt: nowIso(),
+      });
+
+      res.json({ ...reg, missing });
+    }),
+  );
+
+  /**
+   * Mark a declaration filed — or rejected by the portal.
+   *
+   * A receipt reference is REQUIRED to mark it submitted. Without one there is
+   * nothing to show an inspector, and "submitted" with no receipt is the same
+   * as not filed, only harder to notice.
+   */
+  app.patch(
+    "/api/registrations/:id",
+    asyncH(async (req, res) => {
+      if (denied(req, res, "guest_data")) return;
+      const id = Number(req.params.id);
+      const existing = storage.listRegistrations().find((r) => r.id === id);
+      if (!existing) return res.status(404).json({ message: "No such registration." });
+
+      const b = z
+        .object({
+          action: z.enum(["submit", "reject", "update"]),
+          channel: z.enum(["police_portal", "vneid", "ward_office"]).optional(),
+          receiptRef: z.string().min(1).max(80).optional(),
+          note: z.string().max(300).optional(),
+          fullName: z.string().min(1).max(120).optional(),
+          dob: z.string().optional(),
+          visaNumber: z.string().max(40).optional(),
+          entryDate: z.string().optional(),
+          entryPort: z.string().max(80).optional(),
+          permanentAddress: z.string().max(240).optional(),
+        })
+        .parse(req.body);
+
+      const actor = actorOf(req);
+
+      if (b.action === "submit") {
+        if (!b.channel || !b.receiptRef)
+          return res.status(400).json({ message: "Cần chọn nơi nộp và nhập mã biên nhận." });
+        const stillMissing = missingLodgingFields(existing);
+        if (stillMissing.length)
+          return res.status(409).json({
+            message: `Chưa đủ thông tin để nộp. Thiếu: ${stillMissing.join(", ")}.`,
+            missing: stillMissing,
+          });
+        const updated = storage.updateRegistration(id, {
+          status: "submitted",
+          channel: b.channel,
+          receiptRef: b.receiptRef,
+          submittedAt: nowIso(),
+          submittedBy: actor && typeof actor === "object" && "id" in actor ? (actor as any).id : null,
+        });
+        storage.logEvent({
+          type: "lodging.submitted",
+          actor: actorLabel(actor),
+          summary: `Đã nộp khai báo lưu trú #${id} qua ${b.channel}, biên nhận ${b.receiptRef}.`,
+          payload: JSON.stringify({ registrationId: id }),
+          conversationId: null,
+          createdAt: nowIso(),
+        });
+        return res.json(updated);
+      }
+
+      if (b.action === "reject") {
+        const updated = storage.updateRegistration(id, { status: "rejected", note: b.note ?? null });
+        storage.logEvent({
+          type: "lodging.rejected",
+          actor: actorLabel(actor),
+          summary: `Khai báo lưu trú #${id} bị từ chối${b.note ? ` — ${b.note}` : ""}.`,
+          payload: JSON.stringify({ registrationId: id }),
+          conversationId: null,
+          createdAt: nowIso(),
+        });
+        return res.json(updated);
+      }
+
+      /* action === "update" — fill in what was missing. */
+      const patch: Record<string, unknown> = {};
+      for (const k of ["fullName", "dob", "visaNumber", "entryDate", "entryPort", "permanentAddress"] as const)
+        if (b[k] !== undefined) patch[k] = b[k];
+      const merged = { ...existing, ...patch } as typeof existing;
+      const missing = missingLodgingFields(merged);
+      const updated = storage.updateRegistration(id, {
+        ...patch,
+        status: existing.status === "submitted" ? "submitted" : missing.length ? "collected" : "queued",
+        note: missing.length ? `Thiếu: ${missing.join(", ")}` : null,
+      });
+      res.json({ ...updated, missing });
+    }),
+  );
+
   /* ---------------- insights ---------------- */
+
+  /* Attach rate and per-offer conversion. Manager only: this is revenue
+     performance, the same class of number as occupancy. */
+  app.get("/api/insights/upsell", (req, res) => {
+    if (denied(req, res, "insights")) return;
+    res.json(upsellMetrics(storage.listUpsellImpressions(), storage.listBookings()));
+  });
 
   app.get("/api/insights", (req, res) => {
     /* Occupancy, revenue and response times are how a hotel is run, not how a
@@ -2017,6 +3000,186 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     }),
   );
 
+  /* ---------------- nhận phòng ---------------- */
+
+  /**
+   * Đọc mã QR trên thẻ CCCD và tìm đặt phòng khớp với nó.
+   *
+   * KHÔNG mở phiên, KHÔNG cấp quyền gì. Chỉ đọc bảy trường trên thẻ rồi chỉ ra
+   * những đặt phòng có thể là của người này. Số căn cước KHÔNG phải bí mật — nó
+   * in trên thẻ và bị photocopy ở mọi nơi — nên nếu quét là vào thẳng phiên thì
+   * một tấm ảnh chụp thẻ mở được hội thoại và hoá đơn của khách. Lễ tân mới là
+   * người xác thực: họ nhìn mặt, đối chiếu thẻ, rồi bấm xác nhận ở bước sau.
+   *
+   * Chỉ khớp với đặt phòng ĐẾN HÔM NAY hoặc ĐANG Ở, nên một cái tên trùng ở
+   * lượt lưu trú năm ngoái không hiện ra.
+   */
+  app.post(
+    "/api/checkin/scan",
+    asyncH(async (req, res) => {
+      if (denied(req, res, "guest_data")) return;
+      const { qr } = z.object({ qr: z.string().min(1).max(1000) }).parse(req.body);
+
+      const parsed = parseCccdQr(qr);
+      if (!parsed.ok) return res.status(422).json({ message: parsed.error });
+      const card = parsed.data;
+
+      const matches = findCheckinMatches(card);
+
+      storage.logEvent({
+        type: "checkin.scan",
+        actor: actorLabel(actorOf(req)),
+        /* Ghi số đã che. Nhật ký bị lộ thì không phát tán trọn số định danh. */
+        summary: `Quét CCCD ${maskId(card.idNumber)} — ${matches.length} đặt phòng khớp.`,
+        payload: null,
+        conversationId: null,
+        createdAt: nowIso(),
+      });
+
+      res.json({ card, matches });
+    }),
+  );
+
+  /**
+   * Hoàn tất nhận phòng.
+   *
+   * Một thao tác, bốn hệ quả: ghi phiếu khai báo lưu trú, chuyển đặt phòng sang
+   * `in_house`, gắn phòng, và đánh dấu phòng có người. Trước đây KHÔNG có gì
+   * thực hiện bước chuyển này — dữ liệu mẫu có `in_house` nhưng không đường nào
+   * trong sản phẩm đưa một đặt phòng tới đó.
+   *
+   * Trả về mã đặt phòng để lễ tân đưa cho khách. Mã đó vẫn là chìa khoá vào
+   * phiên trò chuyện, đúng như trước; thẻ căn cước không thay thế nó.
+   */
+  app.post(
+    "/api/reservations/:id/check-in",
+    asyncH(async (req, res) => {
+      if (denied(req, res, "guest_data")) return;
+      const b = z
+        .object({
+          fullName: z.string().min(1).max(120),
+          idType: z.enum(["passport", "national_id", "other"]),
+          idNumber: z.string().min(3).max(40),
+          nationality: z.string().min(2).max(60),
+          dob: z.string().optional(),
+          gender: z.string().max(20).optional(),
+          permanentAddress: z.string().max(240).optional(),
+          visaNumber: z.string().max(40).optional(),
+          entryDate: z.string().optional(),
+          entryPort: z.string().max(80).optional(),
+          roomId: z.number().int().positive().optional(),
+        })
+        .parse(req.body);
+
+      const resv = storage.getReservation(Number(req.params.id));
+      if (!resv) return res.status(404).json({ message: "Không có đặt phòng này." });
+
+      const r = performCheckIn(resv, b, actorLabel(actorOf(req)));
+      if (!r.ok)
+        return res.status(r.status).json({ message: r.message, confirmationCode: r.confirmationCode });
+      res.json(r);
+    }),
+  );
+
+  /**
+   * KIOSK TỰ PHỤC VỤ — khách tự quét thẻ, tự nhận phòng, và vào thẳng hội thoại.
+   *
+   * ĐÁNH ĐỔI, ghi lại để sau này còn siết được. Endpoint này **công khai**: nó
+   * nhận nội dung QR trên thẻ căn cước và trả về mã đặt phòng, tức là mở phiên
+   * của khách. Số căn cước KHÔNG phải bí mật — nó in trên thẻ và bị photocopy ở
+   * mọi khách sạn, ngân hàng, sân bay. Nên **ai có ảnh chụp thẻ của một khách
+   * đang ở đều vào được hội thoại và hoá đơn của người đó, từ bất kỳ đâu.**
+   *
+   * Chủ dự án biết điều này và chọn nó có chủ đích: doanh nghiệp cần nhận phòng
+   * nhanh và giảm tải cho lễ tân, phần an toàn tính sau. Muốn siết lại thì chỗ
+   * sửa nằm ngay đây — thêm điều kiện chỉ chấp nhận từ dải IP của khách sạn, và
+   * đường quầy lễ tân ở trên vẫn chạy nguyên vẹn không cần đụng tới.
+   *
+   * Những gì VẪN được giữ, vì chúng không cản trở tốc độ:
+   *   · chỉ khớp đặt phòng đến hôm nay hoặc đang ở — không mở được lượt lưu trú cũ
+   *   · chỉ nhận khi khớp tên CHÍNH XÁC; "có thể là" thì mời tới quầy
+   *   · nhiều đặt phòng cùng khớp thì từ chối, vì không có ai đứng cạnh để chọn
+   *   · tính vào ngân sách chống dò mã như một mã đặt phòng sai
+   *   · nhật ký chỉ ghi 4 số cuối
+   */
+  app.post(
+    "/api/guest/checkin",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const { qr } = z.object({ qr: z.string().min(1).max(1000) }).parse(req.body);
+
+      const parsed = parseCccdQr(qr);
+      if (!parsed.ok) return res.status(422).json({ message: parsed.error });
+      const card = parsed.data;
+
+      const matches = findCheckinMatches(card);
+      const exact = matches.filter((m) => m.nameMatch === "exact");
+
+      if (exact.length === 0) {
+        /* Không tìm thấy tính như một mã sai: đây là bề mặt công khai, và không
+           tính thì nó thành máy dò tên miễn phí. */
+        codeFailures.penalise(clientKey(req));
+        if (blockedBy(codeFailures, req, res, "Thử quá nhiều lần. Vui lòng tới quầy lễ tân.")) return;
+        return res.status(404).json({
+          message:
+            matches.length > 0
+              ? "Tên trên thẻ không khớp hoàn toàn với đặt phòng. Vui lòng tới quầy lễ tân."
+              : "Không tìm thấy đặt phòng cho hôm nay với tên trên thẻ này. Vui lòng tới quầy lễ tân.",
+        });
+      }
+      /* Hai đặt phòng cùng khớp khít thì máy không được tự chọn: đoán sai ở đây
+         là mở phiên của người khác. Ở quầy thì lễ tân chọn; ở kiosk thì không. */
+      if (exact.length > 1)
+        return res.status(409).json({ message: "Có nhiều đặt phòng trùng tên. Vui lòng tới quầy lễ tân." });
+
+      const m = exact[0];
+      const resv2 = storage.getReservation(m.reservationId)!;
+
+      /* Đã nhận phòng rồi thì đây là lần quay lại, không phải lỗi — mở phiên. */
+      if (resv2.status === "in_house") {
+        storage.logEvent({
+          type: "checkin.kiosk",
+          actor: "guest:kiosk",
+          summary: `Khách quét thẻ ${maskId(card.idNumber)} mở lại phiên (${resv2.confirmationCode}).`,
+          payload: null,
+          conversationId: null,
+          createdAt: nowIso(),
+        });
+        return res.json({
+          confirmationCode: resv2.confirmationCode,
+          alreadyCheckedIn: true,
+          guestName: m.guestName,
+          room: m.roomNumber,
+        });
+      }
+
+      const r = performCheckIn(
+        resv2,
+        {
+          fullName: card.fullName,
+          idType: "national_id",
+          idNumber: card.idNumber,
+          /* Thẻ CCCD chỉ cấp cho công dân Việt Nam. Khách nước ngoài đi hộ chiếu
+             ở quầy — dải MRZ trên hộ chiếu là định dạng khác hẳn. */
+          nationality: "Việt Nam",
+          dob: card.dob,
+          gender: card.gender === "male" ? "Nam" : card.gender === "female" ? "Nữ" : "Khác",
+          permanentAddress: card.permanentAddress,
+        },
+        "guest:kiosk",
+      );
+      if (!r.ok) return res.status(r.status).json({ message: r.message, confirmationCode: r.confirmationCode });
+
+      res.json({
+        confirmationCode: r.confirmationCode,
+        alreadyCheckedIn: false,
+        guestName: m.guestName,
+        room: r.room.number,
+        lodgingMissing: r.lodgingMissing,
+      });
+    }),
+  );
+
   /* ---------------- benchmark ---------------- */
 
   /**
@@ -2116,11 +3279,168 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
     }),
   );
 
-  /** The last benchmark run, as written to disk by bench/run.mjs. */
-  app.get("/api/bench/report", (_req, res) => {
-    const file = join(process.cwd(), "bench", "report.json");
-    if (!existsSync(file)) return res.status(404).json({ message: "No benchmark has been run yet." });
-    res.json(JSON.parse(readFileSync(file, "utf8")));
+  /**
+   * Kết quả bộ golden Việt ngữ, cho trang Benchmark.
+   *
+   * Đây là ĐƯỜNG DUY NHẤT ra số liệu chất lượng. `/api/bench/report` từng
+   * phục vụ `bench/report.json` — năm ca happy-path từ 2026-08-21, 5/5 một
+   * hạng mục, `judgePassed: 0` — và đã bị xoá.
+   *
+   * Nó nằm sau `staffApiGuard` như mọi tuyến `/api/*`, nên không mở ra
+   * Internet. Cái nó THIẾU là kiểm tra năng lực: mọi vai đều đọc được, kể cả
+   * buồng phòng, trong khi tuyến này chỉ dành cho quản lý. Mà tệp đó chứa
+   * nguyên văn lời khách và ba mã đặt phòng thật — thứ khách dùng để đăng
+   * nhập ở `/api/guest/*`. Một mã đặt phòng không phải số liệu benchmark.
+   *
+   * Đọc lượt chạy 101 ca mà mọi đáp án kỳ vọng đều được `bench/golden-verify.ts`
+   * đối chiếu với tài liệu của khách sạn trước khi được phép chấm điểm ai.
+   *
+   * Manager only, the same bar as `/api/insights`: how well the product works
+   * is a commercial fact about the property, not a tool for working a shift.
+   */
+  app.get("/api/bench/rag", (req, res) => {
+    if (denied(req, res, "insights")) return;
+    const file = join(process.cwd(), "bench", "rag-eval-report.json");
+    if (!existsSync(file))
+      return res.status(404).json({ message: "Chưa chạy bộ eval — npx tsx bench/rag-eval.ts" });
+    const raw = JSON.parse(readFileSync(file, "utf8")) as {
+      ranAt: string;
+      agentModel: string;
+      judgeModel: string | null;
+      rows: Array<Record<string, unknown>>;
+    };
+    /* Aggregated on the server so the page cannot arrive at a different
+       definition of the same metric than the runner used. */
+    const rows = (raw.rows ?? []) as any[];
+    const n = (f: (r: any) => boolean) => rows.filter(f).length;
+    const pct = (a: number, b: number) => (b > 0 ? a / b : null);
+
+    const byCategory: Record<string, { cases: number; behaviourOk: number; anchorCases: number; anchorOk: number }> = {};
+    for (const r of rows) {
+      const c = (byCategory[r.category] ??= { cases: 0, behaviourOk: 0, anchorCases: 0, anchorOk: 0 });
+      c.cases++;
+      if (r.behaviourOk) c.behaviourOk++;
+      if (r.anchorsExpected > 0) {
+        c.anchorCases++;
+        if (r.anchorsOk) c.anchorOk++;
+      }
+    }
+    const grounded = rows.filter((r) => r.contextRecall !== null);
+    const judged = rows.filter((r) => r.handling !== undefined && r.handling !== null);
+    const lat = rows.map((r) => r.ms as number).sort((a, b) => a - b);
+
+    res.json({
+      ranAt: raw.ranAt,
+      agentModel: raw.agentModel,
+      judgeModel: raw.judgeModel,
+      cases: rows.length,
+      /* Judge scores stay behind this flag until a human has labelled a sample
+         and `bench/judge-kappa.ts` clears 0.61. An uncalibrated judge produces
+         an opinion with a decimal point on it, and publishing that is worse
+         than publishing nothing. */
+      judgeCalibrated: (() => {
+        /* "Đã có người chấm tay" KHÁC "người và máy đồng ý với nhau". Đọc kết
+           quả kappa thật; không có file, hoặc chưa đạt ngưỡng, thì giấu số. */
+        const f = join(process.cwd(), "bench", "data", "kappa-result.json");
+        if (!existsSync(f)) return false;
+        try {
+          return JSON.parse(readFileSync(f, "utf8")).passed === true;
+        } catch {
+          return false;
+        }
+      })(),
+      retrieval: {
+        recall: pct(n((r) => r.contextRecall === 1), grounded.length),
+        rank1: pct(n((r) => r.contextRank === 1), grounded.length),
+        /* Scoped to `grounded`, not to every row. Counting over all rows made
+           the unanswerable cases — which have no gold document by design —
+           read as retrieval failures, and the page showed recall 91% beside
+           missed 49%, two numbers that cannot both be true. */
+        missed: pct(grounded.filter((r) => r.contextRecall !== 1).length, grounded.length),
+      },
+      integrity: {
+        fabricated: n((r) => r.expected === "abstain" && r.observed === "answer"),
+        mustRefuse: n((r) => r.expected === "abstain"),
+        silent: n((r) => r.expected === "answer" && !String(r.reply ?? "").trim()),
+        mustAnswer: n((r) => r.expected === "answer"),
+        escalated: n((r) => r.observed === "escalate"),
+      },
+      numbers: pct(n((r) => r.anchorsExpected > 0 && r.anchorsOk), n((r) => r.anchorsExpected > 0)),
+      latencyP50: lat[Math.floor(lat.length * 0.5)] ?? 0,
+      latencyP95: lat[Math.floor(lat.length * 0.95)] ?? 0,
+      byCategory,
+      judge: judged.length
+        ? {
+            n: judged.length,
+            /* "Hợp lý" tính là ĐẠT: chuyển đúng người khi thiếu căn cứ là hành
+               vi mong muốn của sản phẩm này, không phải thất bại. */
+            correct: pct(n((r) => HANDLING_PASS.has(r.handling)), judged.length),
+            faithful: pct(n((r) => SOURCE_PASS.has(r.source)), judged.length),
+          }
+        : null,
+    });
+  });
+
+  /**
+   * Khách chấm gì trong vận hành thật — bổ sung cho bộ golden.
+   *
+   * Bảng `feedback` trước nay CHỈ GHI: `createFeedback` có người gọi,
+   * `listFeedback` thì không, và không trang nào hiển thị. Mỗi ngón tay cái
+   * xuống mở một việc cho lễ tân rồi biến mất khỏi tầm nhìn chất lượng —
+   * nên không ai từng biết câu trả lời NÀO bị khách chấm sai.
+   *
+   * Mỗi dòng mang theo câu hỏi và câu trả lời đúng của nó, vì "rating 1 ở
+   * hội thoại #42" không sửa được gì. Đọc được câu hỏi và câu bị chê thì
+   * mới thành một ca để đưa vào bộ golden.
+   *
+   * Quản lý mới xem, cùng ngưỡng với `/api/bench/rag`: đây là số đo sản
+   * phẩm, không phải công cụ trực ca.
+   */
+  app.get("/api/feedback", (req, res) => {
+    if (denied(req, res, "insights")) return;
+    const rows = storage.listFeedback(200);
+
+    /* Nạp tin nhắn theo từng hội thoại có mặt, không phải mỗi dòng một lần. */
+    const byConv = new Map<number, ReturnType<typeof storage.listMessages>>();
+    const msgsOf = (cid: number) => {
+      let m = byConv.get(cid);
+      if (!m) byConv.set(cid, (m = storage.listMessages(cid)));
+      return m;
+    };
+
+    const items = rows.map((f) => {
+      const msgs = f.conversationId ? msgsOf(f.conversationId) : [];
+      const idx = f.messageId ? msgs.findIndex((m) => m.id === f.messageId) : -1;
+      const answer = idx >= 0 ? msgs[idx] : null;
+      /* Lượt khách gần nhất TRƯỚC câu bị chấm — chính là câu hỏi đã sinh ra nó. */
+      const question = idx > 0 ? [...msgs.slice(0, idx)].reverse().find((m) => m.role === "guest") : null;
+      return {
+        id: f.id,
+        createdAt: f.createdAt,
+        rating: f.rating,
+        category: f.category,
+        sentiment: f.sentiment,
+        comment: f.comment,
+        conversationId: f.conversationId,
+        messageId: f.messageId,
+        question: question?.body ?? null,
+        answer: answer?.body ?? null,
+        /* Trả lời được câu này bằng số liệu thay vì bằng cảm giác: các lượt
+           bị chê có gọi tool hay là model tự nói? */
+        usedTools: answer ? !!answer.toolTrace && answer.toolTrace !== "[]" : null,
+        latencyMs: answer?.latencyMs ?? null,
+      };
+    });
+
+    const neg = items.filter((i) => (i.rating ?? 3) < 3);
+    res.json({
+      total: items.length,
+      negative: neg.length,
+      /* Bao nhiêu phần trăm neo được vào một câu trả lời cụ thể. Trước khi có
+         cột `message_id` con số này là 0, và đó là lý do bảng vô dụng. */
+      anchored: items.filter((i) => i.messageId != null).length,
+      items,
+    });
   });
 
   /* ---------------- health ---------------- */

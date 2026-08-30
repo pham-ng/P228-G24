@@ -1,0 +1,17 @@
+# Normalize line endings: always store LF in repo, checkout native on each OS
+* text=auto eol=lf
+
+# Binary files — never touch line endings
+*.db   binary
+*.db-* binary
+*.exe  binary
+*.zip  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.otf  binary

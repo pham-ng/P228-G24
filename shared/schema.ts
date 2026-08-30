@@ -202,6 +202,46 @@ export const services = sqliteTable("services", {
   serviceGroup: text("service_group"),
 });
 
+/**
+ * Every upsell suggestion the system has ever shown a guest.
+ *
+ * Without this the ranking could be described but not judged: the weights in
+ * `crosssell.ts` (+4 for rain, +6 for a matching request) were chosen by
+ * reasoning, and there was no way to find out whether any of them sell
+ * anything. Market upsell products are bought for exactly this number — attach
+ * rate and revenue per guest — and it was the one thing the feature had none of.
+ *
+ * It is also the training set. A propensity or learning-to-rank model needs
+ * labelled outcomes (shown → booked / not booked) and there were zero; this
+ * table is what makes that possible later, which is why the score and the
+ * individual reason are stored rather than just the service id.
+ *
+ * Conversion is derived, not written: a row counts as converted when a
+ * `service_bookings` row for the same reservation and service appears after it.
+ * That avoids a second write path that could disagree with the bookings table.
+ */
+export const upsellImpressions = sqliteTable("upsell_impressions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hotelId: integer("hotel_id").notNull(),
+  reservationId: integer("reservation_id").notNull(),
+  conversationId: integer("conversation_id"),
+  serviceId: integer("service_id").notNull(),
+  serviceName: text("service_name").notNull(),
+  /** Rank within this batch, 1 = first offered. Position bias is real. */
+  position: integer("position").notNull(),
+  /** What the ranking scored it, so weights can be tuned against outcomes. */
+  score: real("score").notNull(),
+  /** The reason shown to the guest — which signal actually earned the sale. */
+  why: text("why").notNull().default(""),
+  /** Context at the moment of the offer, for slicing the results later. */
+  dayPart: text("day_part").notNull(),
+  stayPhase: text("stay_phase").notNull(),
+  wet: integer("wet").notNull().default(0),
+  price: real("price").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+});
+export type UpsellImpression = typeof upsellImpressions.$inferSelect;
+
 export const serviceBookings = sqliteTable("service_bookings", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   serviceId: integer("service_id").notNull(),
@@ -732,6 +772,8 @@ export const feedbackEntries = sqliteTable("feedback", {
   reservationId: integer("reservation_id"),
   guestId: integer("guest_id"),
   conversationId: integer("conversation_id"),
+  /** Đúng câu trả lời bị chấm. Client đã gửi từ trước; chỉ thiếu chỗ chứa. */
+  messageId: integer("message_id"),
   rating: integer("rating"), // 1..5
   category: text("category").notNull().default("general"),
   comment: text("comment").notNull(),

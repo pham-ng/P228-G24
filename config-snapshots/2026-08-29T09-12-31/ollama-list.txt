@@ -1,0 +1,7 @@
+NAME                                 ID              SIZE      MODIFIED   
+llama3.2:3b                          a80c4f17acd5    2.0 GB    4 days ago    
+gemma2:2b                            8ccf136fdd52    1.6 GB    4 days ago    
+bge-m3:latest                        790764642607    1.2 GB    5 days ago    
+qwen2.5:3b                           357c53fb659c    1.9 GB    6 days ago    
+qllama/multilingual-e5-small:q8_0    96316f5cc784    131 MB    7 days ago    
+qwen3.5:4b                           2a654d98e6fb    3.4 GB    7 days ago    

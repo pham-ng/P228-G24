@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Loader2 } from "lucide-react";
-import { AureaLogo } from "@/components/logo";
+import { VinAureaLogo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-5 py-12">
       <div className="w-full max-w-sm">
-        <AureaLogo subtitle="Operations" />
+        <VinAureaLogo subtitle="Operations" />
         <h1 className="mt-6 text-lg font-semibold tracking-tight">Sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Use your name and the 4-digit team PIN.

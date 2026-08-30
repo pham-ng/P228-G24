@@ -1,0 +1,16 @@
+# Nạp bảng biểu từ tệp khi Grafana khởi động.
+#
+# `allowUiUpdates: true` để lúc demo có thể kéo thả sửa tại chỗ; nhưng sửa xong
+# phải xuất JSON ra lại tệp, vì dựng lại container là mất.
+apiVersion: 1
+providers:
+  - name: vinaurea
+    orgId: 1
+    folder: VinAurea
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: false

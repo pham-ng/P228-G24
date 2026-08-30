@@ -3,7 +3,9 @@ import express, { Response, NextFunction } from 'express';
 import type { Request } from 'express';
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
+import { recordHttpStatus } from "./metrics-extra";
 import { createServer } from "node:http";
+import { ZodError } from "zod";
 
 const app = express();
 const httpServer = createServer(app);
@@ -43,6 +45,10 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
+    /* Đếm mọi phản hồi API theo lớp mã trạng thái. Đặt ở đây chứ không rắc vào
+       từng handler: một handler mới quên đếm là một lỗ trong biểu đồ mà không
+       ai phát hiện cho tới lúc có sự cố. */
+    if (path.startsWith("/api")) recordHttpStatus(res.statusCode);
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
@@ -59,15 +65,57 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
+  /**
+   * Đường `/api` không khớp phải kêu 404, không được trả trang web.
+   *
+   * Cả `setupVite` lẫn `serveStatic` đều bắt mọi đường còn lại và trả
+   * `index.html` với mã 200 — kể cả `/api/...`. Nên một đường API gõ sai
+   * hoặc đã bị gỡ trả về 200 kèm HTML, `res.json()` nổ ở phía client với một
+   * lỗi cú pháp không liên quan gì tới nguyên nhân, và người đọc log thấy
+   * toàn 200.
+   *
+   * Phát hiện khi probe kiểm `/api/bench/report` đã gỡ: nó vẫn trả 200 sau
+   * khi route bị xoá và khởi động lại server. Route đã biến mất thật; thứ trả
+   * lời là catch-all.
+   *
+   * Đặt sau mọi route và trước Vite, nên không đường API thật nào chạm tới.
+   */
+  app.use("/api", (req, res) => {
+    res.status(404).json({ message: `Không có tuyến ${req.method} /api${req.path}` });
+  });
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+
+    /**
+     * A malformed request is the caller's mistake, not a server fault.
+     *
+     * Every handler in routes.ts validates with `z.object(...).parse()`, which
+     * throws, and nothing caught `ZodError` — so the handler below stamped 500
+     * on all of it. Three costs, and the third is the one that matters:
+     * the client cannot tell "you sent the wrong thing" from "the server is
+     * broken" and so cannot show a useful message; a 500 is logged as
+     * "Internal Server Error" with a stack, burying real faults in noise; and
+     * on a monitored deployment a guest fat-fingering a form pages somebody.
+     *
+     * Found by sending an empty basket to /api/guest/order and getting a 500.
+     * `zod-validation-error` has been a dependency the whole time and was
+     * imported nowhere; the issue list is formatted here instead, so there is
+     * one place to change rather than one per handler.
+     */
+    if (err instanceof ZodError) {
+      const detail = err.issues
+        .map((i) => `${i.path.join(".") || "body"}: ${i.message}`)
+        .join("; ");
+      return res.status(400).json({ message: detail || "Invalid request." });
+    }
+
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
     console.error("Internal Server Error:", err);
-
-    if (res.headersSent) {
-      return next(err);
-    }
 
     return res.status(status).json({ message });
   });

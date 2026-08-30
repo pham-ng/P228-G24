@@ -1,21 +1,28 @@
 import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowRight, Loader2, SendHorizonal, ShieldCheck, UserRound } from "lucide-react";
-import { AureaMark } from "@/components/logo";
+import { ArrowRight, Loader2, Moon, SendHorizonal, ShieldCheck, Sun, UserRound } from "lucide-react";
+import { VinAureaMark, VinAureaCrest } from "@/components/logo";
+import { Flag } from "@/components/flags";
 import { MarkdownBody } from "@/components/markdown-body";
 import { PackageActions, readRecommendation } from "@/components/package-actions";
 import { DiningActions, readDiningReference } from "@/components/dining-actions";
 import { RoomActions, readRoomReference } from "@/components/room-actions";
 import { ServiceActions, readServiceReference } from "@/components/service-actions";
+import { RoomServicePanel } from "@/components/room-service";
+import { GuestRequestsPanel } from "@/components/guest-requests";
+import { MyRequestsPanel } from "@/components/my-requests";
 import { SourceAndFeedback } from "@/components/source-and-feedback";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { MicButton } from "@/components/mic-button";
+import { KioskCheckin } from "@/components/kiosk-checkin";
 import { apiRequest } from "@/lib/queryClient";
 import { clock } from "@/lib/format";
 import { LANG_LABELS, type ConversationDetail, type GuestKey, type Hotel } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/session";
 
 const ROOM_QUICK_CHIPS: Record<string, string[]> = {
   vi: [
@@ -33,6 +40,33 @@ const ROOM_QUICK_CHIPS: Record<string, string[]> = {
     "🌟 Executive Suite",
     "🏡 2-Bedroom Villa",
   ],
+};
+
+/**
+ * The in-room dining toggle.
+ *
+ * Deliberately NOT driven off `toolTrace` the way the room, dining and service
+ * cards are. Those unfold when a tool was called, and `order_room_service` is a
+ * tool — which is exactly why in-room dining never appeared on the offline path
+ * the product ships with. A persistent control is the only affordance that
+ * works without a tool loop.
+ */
+const REQUESTS_LABEL: Record<string, string> = {
+  vi: "🛎️ Yêu cầu nhanh",
+  en: "🛎️ Quick requests",
+  ko: "🛎️ 빠른 요청",
+  ja: "🛎️ クイックリクエスト",
+  zh: "🛎️ 快捷请求",
+  ru: "🛎️ Быстрые запросы",
+};
+
+const ROOM_SERVICE_LABEL: Record<string, string> = {
+  vi: "🍜 Gọi đồ lên phòng",
+  en: "🍜 Order to my room",
+  ko: "🍜 룸서비스 주문",
+  ja: "🍜 ルームサービス",
+  zh: "🍜 客房送餐",
+  ru: "🍜 Заказ в номер",
 };
 
 const PROMPTS: Record<string, string[]> = {
@@ -87,13 +121,13 @@ const Bubble = memo(function Bubble({
     <div className={cn("flex gap-2.5", mine ? "justify-end" : "justify-start")}>
       {!mine && (
         <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
-          {role === "staff" ? <UserRound className="h-3.5 w-3.5" /> : <AureaMark className="h-4 w-4" />}
+          {role === "staff" ? <UserRound className="h-3.5 w-3.5" /> : <VinAureaMark className="h-4 w-4" />}
         </div>
       )}
       <div className={cn("max-w-[82%] sm:max-w-[70%]", mine && "text-right")}>
         {!mine && (
           <div className="mb-1 text-[11px] font-medium text-muted-foreground">
-            {role === "staff" ? `${author ?? "Front desk"} · Front desk` : "Aurea Concierge"}
+            {role === "staff" ? `${author ?? "Front desk"} · Front desk` : "VinAurea"}
           </div>
         )}
         <div
@@ -115,26 +149,244 @@ const Bubble = memo(function Bubble({
   );
 });
 
-function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
-  const { data: keys } = useQuery<GuestKey[]>({ queryKey: ["/api/guest/keys"] });
+/**
+ * Sáu ngôn ngữ concierge trả lời được, ở MỘT chỗ duy nhất.
+ *
+ * Danh sách này trước đây nằm inline trong thanh chuyển ngôn ngữ. Màn hình
+ * chọn lúc vào cần đúng sáu mục đó, và một bản chép thứ hai là cách chắc chắn
+ * để chúng lệch nhau: thêm một ngôn ngữ ở một chỗ, khách chọn được ở màn hình
+ * vào nhưng không đổi lại được trong lúc chat.
+ *
+ * `native` là tên ngôn ngữ VIẾT BẰNG CHÍNH NÓ. Người đang tìm tiếng Hàn tìm
+ * chữ "한국어", không tìm chữ "Korean" — nhãn dịch sang tiếng Anh chỉ giúp
+ * người đã đọc được tiếng Anh, tức là người ít cần màn hình này nhất.
+ */
+/**
+ * Chữ trên giao diện khách, sáu thứ tiếng.
+ *
+ * Nguyên tắc phân định — có thứ KHÔNG dịch, và đó là chủ ý:
+ *   - "VinAurea" là tên riêng. Tên thương hiệu dịch ra là mất thương hiệu.
+ *   - "Wi-Fi", "spa", "check-in" giữ nguyên: người Việt dùng đúng những chữ
+ *     đó hằng ngày, và "mạng không dây" nghe như sách giáo khoa năm 1998.
+ *   - Mã đặt phòng, tên nhà hàng, tên món giữ nguyên — khách phải đối chiếu
+ *     được với phiếu in trên tay.
+ *
+ * Ngược lại, mọi câu MÔ TẢ HÀNH VI của hệ thống đều phải dịch. Một dòng
+ * "Front desk is with you" nằm dưới header tiếng Hàn không phải là 'ai cũng
+ * hiểu' — nó là chỗ khách cần chắc chắn nhất rằng đang có người thật.
+ */
+const UI_COPY: Record<string, Record<string, string>> = {
+  vi: {
+    micHint: "Bấm để nói",
+    darkOn: "Chế độ tối",
+    darkOff: "Chế độ sáng",
+    greet: "Chào quý khách",
+    myReq: "📋 Yêu cầu của tôi",
+    handoffTitle: "Lễ tân đã nhận",
+    handoffBody: "Nhân viên sẽ trả lời ngay trong hội thoại này. Quý khách không cần làm gì thêm.",
+    room: "Phòng",
+    withStaff: "Nhân viên lễ tân đang hỗ trợ",
+    withAI: "Trợ lý AI · trả lời trong vài giây",
+    switchGuest: "Đổi mã",
+    sending: "Đang chuyển tới lễ tân…",
+    composer: "Hỏi bất cứ điều gì, hoặc cho chúng tôi biết quý khách cần gì…",
+    footer: "Mọi yêu cầu đều được ghi vào bảng điều hành của khách sạn. Nhân viên sẽ tham gia khi cần.",
+    staffSignIn: "Nhân viên đăng nhập",
+    loadingKeys: "Đang tải danh sách đặt phòng…",
+    noneInHouse: "Hiện chưa có khách nào đang lưu trú.",
+  },
+  en: {
+    micHint: "Tap to speak",
+    darkOn: "Dark mode",
+    darkOff: "Light mode",
+    greet: "Welcome",
+    myReq: "📋 My requests",
+    handoffTitle: "The front desk has this",
+    handoffBody: "A team member will reply here. Nothing further is needed from you.",
+    room: "Room",
+    withStaff: "Front desk is with you",
+    withAI: "AI assistant · replies in seconds",
+    switchGuest: "Switch",
+    sending: "Sending to the front desk…",
+    composer: "Ask anything, or tell us what you need…",
+    footer: "Requests are logged to the hotel's operations board. A human joins whenever it matters.",
+    staffSignIn: "Hotel team sign-in",
+    loadingKeys: "Loading reservations…",
+    noneInHouse: "No one is checked in right now.",
+  },
+  ko: {
+    micHint: "눌러서 말하기",
+    darkOn: "다크 모드",
+    darkOff: "라이트 모드",
+    greet: "환영합니다",
+    myReq: "📋 내 요청",
+    handoffTitle: "프런트가 확인했습니다",
+    handoffBody: "담당자가 이 대화에서 답변드립니다. 추가로 하실 일은 없습니다.",
+    room: "객실",
+    withStaff: "프런트 직원이 응대 중입니다",
+    withAI: "AI 어시스턴트 · 몇 초 내 응답",
+    switchGuest: "번호 변경",
+    sending: "프런트로 전달 중…",
+    composer: "무엇이든 물어보시거나 필요하신 것을 말씀해 주세요…",
+    footer: "모든 요청은 호텔 운영 보드에 기록되며, 필요할 때 직원이 참여합니다.",
+    staffSignIn: "직원 로그인",
+    loadingKeys: "예약 목록을 불러오는 중…",
+    noneInHouse: "현재 투숙 중인 고객이 없습니다.",
+  },
+  zh: {
+    micHint: "点击说话",
+    darkOn: "深色模式",
+    darkOff: "浅色模式",
+    greet: "欢迎",
+    myReq: "📋 我的请求",
+    handoffTitle: "前台已接手",
+    handoffBody: "工作人员会在此对话中回复您，您无需再做任何操作。",
+    room: "房间",
+    withStaff: "前台正在为您服务",
+    withAI: "AI 助理 · 数秒内回复",
+    switchGuest: "更换编码",
+    sending: "正在转交前台…",
+    composer: "有任何问题，或告诉我们您的需求…",
+    footer: "所有请求都会记录到酒店运营看板，必要时由员工接手。",
+    staffSignIn: "员工登录",
+    loadingKeys: "正在加载预订…",
+    noneInHouse: "目前没有在住客人。",
+  },
+  ja: {
+    micHint: "タップして話す",
+    darkOn: "ダークモード",
+    darkOff: "ライトモード",
+    greet: "ようこそ",
+    myReq: "📋 リクエスト履歴",
+    handoffTitle: "フロントが承りました",
+    handoffBody: "担当者がこのチャットで返信いたします。お客様の追加操作は不要です。",
+    room: "客室",
+    withStaff: "フロント担当が対応しています",
+    withAI: "AIアシスタント · 数秒で回答",
+    switchGuest: "番号を変更",
+    sending: "フロントへ転送しています…",
+    composer: "何でもお尋ねください。ご要望をお聞かせください…",
+    footer: "すべてのご依頼はホテルの運営ボードに記録され、必要に応じて担当者が対応します。",
+    staffSignIn: "スタッフ ログイン",
+    loadingKeys: "予約を読み込んでいます…",
+    noneInHouse: "現在ご滞在中のお客様はいません。",
+  },
+  ru: {
+    micHint: "Нажмите, чтобы говорить",
+    darkOn: "Тёмная тема",
+    darkOff: "Светлая тема",
+    greet: "Добро пожаловать",
+    myReq: "📋 Мои заявки",
+    handoffTitle: "Стойка регистрации приняла",
+    handoffBody: "Сотрудник ответит здесь. От вас больше ничего не требуется.",
+    room: "Номер",
+    withStaff: "С вами сотрудник стойки регистрации",
+    withAI: "AI-ассистент · ответ за секунды",
+    switchGuest: "Сменить код",
+    sending: "Передаём на стойку регистрации…",
+    composer: "Спросите о чём угодно или скажите, что вам нужно…",
+    footer: "Все заявки фиксируются на операционной панели отеля. Сотрудник подключается, когда это нужно.",
+    staffSignIn: "Вход для персонала",
+    loadingKeys: "Загружаем брони…",
+    noneInHouse: "Сейчас нет заселённых гостей.",
+  },
+};
+
+/** Chữ cho ngôn ngữ này, lùi về tiếng Anh khi thiếu. */
+const t = (lang: string, key: string) => (UI_COPY[lang] ?? UI_COPY.en)[key] ?? UI_COPY.en[key];
+const LANGS = [
+  { code: "vi", label: "VN", native: "Tiếng Việt" },
+  { code: "en", label: "EN", native: "English" },
+  { code: "ko", label: "KO", native: "한국어" },
+  { code: "zh", label: "ZH", native: "中文" },
+  { code: "ja", label: "JA", native: "日本語" },
+  { code: "ru", label: "RU", native: "Русский" },
+] as const;
+
+/** Câu mời nhập mã, mỗi thứ tiếng một câu — màn hình vào phải tự giải thích
+ *  được bằng ngôn ngữ khách vừa chọn, không thì việc chọn chẳng để làm gì. */
+const ENTRY_COPY: Record<string, { pick: string; code: string; open: string; hint: string; lead: string; quote: string; by: string }> = {
+  vi: { pick: "Chọn ngôn ngữ", code: "Mã đặt phòng", open: "Mở", hint: "Mã in trên phiếu nhận phòng, ví dụ VPNT-4Q18ZM", lead: "Trợ lý của quý khách trả lời bằng tiếng của quý khách, suốt ngày đêm — và làm được việc thật: đặt bàn, gọi đồ lên phòng, xin trả phòng muộn, gọi kỹ thuật.", quote: "Trợ lý đồng hành cùng quý khách trong suốt kỳ nghỉ.", by: "Phát triển bởi nhóm P228" },
+  en: { pick: "Choose your language", code: "Confirmation code", open: "Open", hint: "On your check-in slip, e.g. VPNT-4Q18ZM", lead: "Your concierge answers in your language, around the clock — and can actually act on requests: book a table, order to the room, arrange a late departure, call engineering.", quote: "An assistant that stays with you throughout your holiday.", by: "Developed by team P228" },
+  ko: { pick: "언어 선택", code: "예약 번호", open: "열기", hint: "체크인 확인서에 있습니다, 예: VPNT-4Q18ZM", lead: "컨시어지가 고객님의 언어로 24시간 응대하며, 실제로 처리해 드립니다: 레스토랑 예약, 룸서비스 주문, 레이트 체크아웃, 시설 요청.", quote: "휴가 내내 곁에서 함께하는 어시스턴트입니다.", by: "P228 팀 개발" },
+  zh: { pick: "选择语言", code: "预订确认码", open: "打开", hint: "见入住单，例如 VPNT-4Q18ZM", lead: "礼宾服务全天候以您的语言回复，并能实际办理：餐厅订位、客房送餐、延迟退房、报修。", quote: "假期全程陪伴您的智能助理。", by: "由 P228 团队开发" },
+  ja: { pick: "言語を選択", code: "予約番号", open: "開く", hint: "チェックイン控えに記載、例: VPNT-4Q18ZM", lead: "コンシェルジュがお客様の言語で24時間対応し、実際に手配いたします：レストランのご予約、ルームサービス、レイトチェックアウト、設備のご依頼。", quote: "ご滞在のあいだ、ずっとそばにいるアシスタントです。", by: "P228 チーム開発" },
+  ru: { pick: "Выберите язык", code: "Код бронирования", open: "Открыть", hint: "В вашем ваучере, например VPNT-4Q18ZM", lead: "Консьерж отвечает на вашем языке круглосуточно — и действительно выполняет заявки: бронь столика, заказ в номер, поздний выезд, вызов техника.", quote: "Ассистент, который сопровождает вас весь отпуск.", by: "Разработано командой P228" },
+};
+function KeyPicker({ onPick, lang, onLang }: { onPick: (code: string) => void; lang: string; onLang: (l: string) => void }) {
+  /* 404 is the normal answer now — the directory is opt-in (EXPOSE_GUEST_KEYS=1)
+     because it lists every guest's code, name and room. `isError` is what tells
+     the picker to show nothing rather than "Loading reservations…" forever. */
+  const { data: keys, isError: keysOff, isLoading: keysLoading } = useQuery<GuestKey[]>({
+    queryKey: ["/api/guest/keys"],
+    retry: false,
+  });
   const { data: hotel } = useQuery<Hotel>({ queryKey: ["/api/hotel"] });
   const [code, setCode] = useState("");
+  const copy = ENTRY_COPY[lang] ?? ENTRY_COPY.en;
   const inHouse = (keys ?? []).filter((k) => k.status === "in_house");
   const others = (keys ?? []).filter((k) => k.status !== "in_house");
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-5 py-12">
-      <AureaMark className="h-10 w-10 text-primary" />
-      <h1 className="mt-5 font-serif text-2xl font-semibold tracking-tight">
-        {hotel?.name ?? "Aurea"}
-      </h1>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Your concierge answers in your language, around the clock — and can actually act on
-        requests: book a table, order to the room, arrange a late departure, call engineering.
-      </p>
+    <div className="mx-auto flex min-h-[100dvh] w-full max-w-xl flex-col justify-center px-5 py-12">
+      {/* Khối nhận diện căn giữa. Phần còn lại của trang giữ căn trái, vì một
+          ô nhập liệu và một hàng nút căn giữa thì mắt không biết bắt đầu đọc từ
+          đâu — căn giữa hợp với thứ để NGẮM, căn trái hợp với thứ để DÙNG. */}
+      <div className="flex flex-col items-center text-center">
+        <VinAureaCrest className="h-24 w-24" />
+        <h1 className="mt-3 font-serif text-2xl font-semibold tracking-tight">
+          {hotel?.name ?? "VinAurea"}
+        </h1>
+        {/* Một câu, không phải danh sách tính năng.
+            Bản trước liệt kê bốn việc hệ thống làm được — đó là câu trả lời cho
+            câu hỏi "sản phẩm này có gì", mà người vừa nhận phòng thì chưa hỏi
+            câu đó. Câu này nói đúng điều sản phẩm thực sự làm — trả lời bằng
+            tiếng của khách — mà không bắt ai đọc một đoạn văn. */}
+        <p className="mt-2.5 max-w-sm font-serif text-[15px] italic leading-relaxed text-muted-foreground">
+          {copy.quote}
+        </p>
+        {/* Ghi công tách thành dòng riêng, nhỏ và nhạt hơn.
+            Gộp tên nhóm vào chính câu chào sẽ biến nó thành chú thích đồ án —
+            khách đọc dòng đầu để biết sản phẩm làm gì, dòng sau để biết ai làm,
+            và hai việc đó không nên tranh nhau cùng một cỡ chữ. */}
+        <p className="mt-2 text-[11px] tracking-wide text-muted-foreground/70">{copy.by}</p>
+      </div>
 
+      {/* Ngôn ngữ đứng TRƯỚC ô nhập mã, không phải sau.
+          Một khách không đọc được tiếng Việt sẽ không hiểu ô kia đòi gì; hỏi
+          ngôn ngữ trước rồi mới hỏi mã là thứ tự khiến màn hình tự giải thích
+          được. Nhãn dưới đây đổi theo lựa chọn, ngay lập tức. */}
+      <div className="mt-7">
+        <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          {copy.pick}
+        </div>
+        <div className="mt-2.5 flex flex-wrap gap-2" data-testid="entry-language">
+          {LANGS.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              onClick={() => onLang(l.code)}
+              data-testid={`entry-lang-${l.code}`}
+              aria-pressed={lang === l.code}
+              className={cn(
+                "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-all",
+                lang === l.code
+                  ? "border-primary bg-primary/10 text-foreground shadow-sm"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground",
+              )}
+            >
+              <Flag code={l.code} className="h-3.5 w-5" />
+              <span className="font-medium">{l.native}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+        {copy.code}
+      </div>
       <form
-        className="mt-7 flex gap-2"
+        className="mt-2 flex gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           if (code.trim()) onPick(code.trim().toUpperCase());
@@ -143,16 +395,21 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
         <Input
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="Confirmation code, e.g. VPNT-2M77VD"
+          placeholder={copy.hint}
           className="font-mono"
           data-testid="input-code"
         />
         <Button type="submit" data-testid="button-open-chat">
-          Open <ArrowRight className="ml-1 h-4 w-4" />
+          {copy.open} <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </form>
 
-      <div className="mt-8">
+      {/* Kiosk: khách chưa có mã thì quét thẻ, hệ thống nhận phòng rồi tự mở phiên. */}
+      <KioskCheckin lang={lang} onCode={onPick} />
+
+      {/* Hidden entirely when the directory is off, which is the default. The
+          code field above is the real way in; this was only ever a demo aid. */}
+      <div className="mt-8" hidden={keysOff}>
         <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
           In house now
         </div>
@@ -178,7 +435,7 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
           ))}
           {inHouse.length === 0 && (
             <div className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
-              Loading reservations…
+              {keysLoading ? t(lang, "loadingKeys") : t(lang, "noneInHouse")}
             </div>
           )}
         </div>
@@ -216,7 +473,7 @@ function KeyPicker({ onPick }: { onPick: (code: string) => void }) {
         className="mt-10 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
         data-testid="link-staff"
       >
-        <ShieldCheck className="h-3.5 w-3.5" /> Hotel team sign-in
+        <ShieldCheck className="h-3.5 w-3.5" /> {t(lang, "staffSignIn")}
       </Link>
     </div>
   );
@@ -271,6 +528,34 @@ export default function GuestPage() {
     return new URLSearchParams(q).get("code");
   })();
   const [code, setCode] = useState<string | null>(initialCode);
+  /**
+   * Ngôn ngữ khách CHỌN, tách khỏi ngôn ngữ lưu trong hồ sơ khách.
+   *
+   * Hồ sơ nói khách nói tiếng gì; màn hình vào nói khách muốn ĐỌC tiếng gì
+   * lúc này. Hai thứ khác nhau: một cặp vợ chồng dùng chung mã đặt phòng,
+   * hay một khách Nhật thạo tiếng Anh hơn, đều làm hồ sơ sai với thực tế
+   * ngay lúc đó. Lựa chọn của khách thắng, và `null` nghĩa là chưa chọn —
+   * lúc đó hồ sơ mới được dùng, thay vì ép mặc định tiếng Việt cho mọi người.
+   *
+   * Nhớ lại qua các lần mở nhờ localStorage: khách quét lại mã QR ở sảnh
+   * không nên phải chọn lại ngôn ngữ mỗi lần. Bọc try/catch vì trình duyệt
+   * ở chế độ riêng tư ném lỗi ngay ở bước đọc.
+   */
+  const [pickedLang, setPickedLang] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("aurea-lang");
+    } catch {
+      return null;
+    }
+  });
+  const chooseLang = (l: string) => {
+    setPickedLang(l);
+    try {
+      localStorage.setItem("aurea-lang", l);
+    } catch {
+      /* Riêng tư / bị chặn — lựa chọn vẫn có tác dụng trong phiên này. */
+    }
+  };
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const qc = useQueryClient();
@@ -294,7 +579,23 @@ export default function GuestPage() {
     refetchInterval: 5000,
   });
 
-  const detail = live.data ?? session.data;
+  const rawDetail = live.data ?? session.data;
+  /**
+   * Ngôn ngữ khách chọn ghi đè ngôn ngữ trong hồ sơ — ở ĐÚNG MỘT chỗ.
+   *
+   * `detail.guest.lang` được đọc ở tám nơi (thẻ phòng, thẻ dịch vụ, nút đọc to,
+   * bảng gọi đồ, yêu cầu nhanh, nhãn chip…). Ghi đè tại nguồn nghĩa là thêm
+   * một ngôn ngữ hay một thành phần mới không phải nhớ đọc biến nào; sửa từng
+   * nơi dùng là cách chắc chắn để bỏ sót một chỗ và khách thấy giao diện lẫn
+   * hai thứ tiếng — lỗi mà dự án này đã gặp hai lần ở dạng khác.
+   */
+  const detail =
+    rawDetail && pickedLang
+      ? { ...rawDetail, guest: { ...rawDetail.guest, lang: pickedLang } }
+      : rawDetail;
+  /* Ngôn ngữ dùng cho CHỮ GIAO DIỆN. Tách tên riêng ra vì `detail` có thể chưa
+     tải xong, mà header và ô soạn đã cần chữ ngay ở khung hình đầu tiên. */
+  const uiLang = pickedLang ?? rawDetail?.guest.lang ?? "vi";
 
   const send = useMutation({
     mutationFn: async (body: string) => {
@@ -338,6 +639,41 @@ export default function GuestPage() {
     );
   }, [draft, detail?.messages]);
 
+  const [roomServiceOpen, setRoomServiceOpen] = useState(false);
+  const [requestsOpen, setRequestsOpen] = useState(false);
+  const [myReqOpen, setMyReqOpen] = useState(false);
+  /**
+   * NHÓM 3.2 — nhắc một lần rằng nút micro dùng để nói.
+   *
+   * Nút micro là một hình tròn 14 pixel cạnh ô nhập tin và không nói gì về
+   * việc nó làm. Nhắc MỘT lần rồi nhớ vào localStorage: nhắc mãi thì thành
+   * phiền, mà không nhắc thì tính năng coi như không tồn tại.
+   */
+  const [micHintSeen, setMicHintSeen] = useState(() => {
+    try {
+      return localStorage.getItem("aurea-mic-hint") === "1";
+    } catch {
+      return true; // không lưu được thì thà im lặng còn hơn nhắc mỗi lần mở
+    }
+  });
+  const dismissMicHint = () => {
+    setMicHintSeen(true);
+    try {
+      localStorage.setItem("aurea-mic-hint", "1");
+    } catch {
+      /* riêng tư / bị chặn — vẫn ẩn trong phiên này */
+    }
+  };
+  /**
+   * NHÓM 4 — chế độ tối cho khách.
+   *
+   * Dashboard nhân viên có nút này từ đầu; kiosk khách thì không — mà khách
+   * mới là người mở điện thoại trên giường lúc mười một giờ đêm. Dùng lại
+   * đúng `toggleTheme` của SessionProvider (nó bật/tắt class `dark` trên
+   * <html>), nên không có hệ thống theme thứ hai để hai bên lệch nhau.
+   */
+  const { theme, toggleTheme } = useSession();
+
   const prompts = useMemo(() => {
     const lang = detail?.guest.lang ?? "en";
     const base = PROMPTS[lang] ?? PROMPTS.en;
@@ -352,7 +688,7 @@ export default function GuestPage() {
     return base;
   }, [detail?.guest.lang, roomRelated]);
 
-  if (!code) return <KeyPicker onPick={setCode} />;
+  if (!code) return <KeyPicker onPick={setCode} lang={pickedLang ?? "vi"} onLang={chooseLang} />;
 
   if (session.isError) {
     return (
@@ -384,26 +720,87 @@ export default function GuestPage() {
   };
 
   return (
-    <div className="mx-auto flex h-screen max-w-2xl flex-col bg-background">
+    <div className="mx-auto flex h-[100dvh] max-w-2xl flex-col bg-background">
       <header className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-3">
-        <AureaMark className="h-7 w-7 shrink-0 text-primary" />
+        <VinAureaMark className="h-7 w-7 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">
-          <div className="truncate font-serif text-sm font-semibold">Aurea Concierge</div>
+          <div className="truncate font-serif text-sm font-semibold">VinAurea</div>
           <div className="truncate text-xs text-muted-foreground">
-            {detail.guest.name} · Room {detail.room?.number ?? "—"} ·{" "}
-            {human ? "Front desk is with you" : "AI concierge · replies in seconds"}
+            {detail.guest.name} · {t(uiLang, "room")} {detail.room?.number ?? "—"} ·{" "}
+            {human ? t(uiLang, "withStaff") : t(uiLang, "withAI")}
           </div>
         </div>
+        <div className="flex items-center gap-1 rounded-full border border-border bg-secondary/50 p-1" data-testid="language-switcher">
+          {LANGS.map((l) => {
+            const active = (detail.guest.lang ?? "vi") === l.code;
+            return (
+              <button
+                key={l.code}
+                /* Ghi vào cùng một state với màn hình vào, không vào cache của
+                   React Query. Bản trước sửa cache, và khi màn hình vào bắt đầu
+                   ghi đè `detail.guest.lang` bằng lựa chọn của khách thì thanh
+                   này lập tức trông như hỏng: bấm cờ, cache đổi, rồi bị ghi đè
+                   lại ngay ở lượt render sau. Hai chỗ cùng sửa một giá trị thì
+                   phải cùng ghi vào một nơi. */
+                onClick={() => chooseLang(l.code)}
+                className={cn(
+                  "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-all",
+                  active
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-background/80 hover:text-foreground",
+                )}
+                title={`Switch language to ${l.label}`}
+                data-testid={`flag-${l.code}`}
+              >
+                <Flag code={l.code} className="h-3 w-[18px]" />
+                <span className="text-[10px] font-semibold">{l.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <button
+          onClick={toggleTheme}
+          title={theme === "light" ? t(uiLang, "darkOn") : t(uiLang, "darkOff")}
+          aria-label={theme === "light" ? t(uiLang, "darkOn") : t(uiLang, "darkOff")}
+          data-testid="button-theme-guest"
+          className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          {theme === "light" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+        </button>
         <button
           onClick={() => setCode(null)}
           className="text-xs text-muted-foreground hover:text-foreground"
           data-testid="button-switch-guest"
         >
-          Switch
+          {t(uiLang, "switchGuest")}
         </button>
       </header>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5" data-testid="thread">
+        {/**
+          * NHÓM 4.2 — lời chào khi chưa có tin nhắn nào.
+          *
+          * Hội thoại rỗng trước đây là một vùng trắng: khách vừa quét QR,
+          * nhìn thấy một ô nhập tin và không biết hỏi được những gì. Lời
+          * chào có TÊN và SỐ PHÒNG nói ngay rằng hệ thống biết họ là ai —
+          * đó là thứ trấn an, không phải một câu chào chung chung.
+          *
+          * Không dùng lời chào giả làm bong bóng chat: nó không phải câu
+          * model sinh ra, và trộn vào dòng hội thoại sẽ làm hỏng cả bản ghi
+          * lẫn lịch sử cảm xúc tính từ nó — cùng lý do ghi chú đặt dịch vụ
+          * được viết dưới role `system` chứ không phải `guest`.
+          */}
+        {detail.messages.length === 0 && (
+          <div className="flex flex-col items-center py-10 text-center" data-testid="empty-greeting">
+            <VinAureaCrest className="h-16 w-16 opacity-90" />
+            <p className="mt-3 text-sm font-medium text-foreground">
+              {t(uiLang, "greet")}, {detail.guest.name}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t(uiLang, "room")} {detail.room?.number ?? "—"}
+            </p>
+          </div>
+        )}
         {detail.messages.map((m, i) => {
           /* Follow-up taps belong to the concierge's latest turn only: leaving
              chips live on older messages lets a guest answer a question that has
@@ -438,7 +835,7 @@ export default function GuestPage() {
               )}
               {svcGroups.length > 0 && (
                 <div className="ml-9 mt-1">
-                  <ServiceActions groups={svcGroups} lang={detail.guest.lang} />
+                  <ServiceActions groups={svcGroups} lang={detail.guest.lang} code={code} />
                 </div>
               )}
               {m.role === "ai" && (
@@ -448,6 +845,8 @@ export default function GuestPage() {
                   code={code}
                   toolTrace={m.toolTrace}
                   lang={detail.guest.lang}
+                  body={m.body}
+                  isLast={isLastAi}
                 />
               )}
             </div>
@@ -456,7 +855,7 @@ export default function GuestPage() {
         {send.isPending && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="typing">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            {human ? "Sending to the front desk…" : <ReasoningIndicator lang={detail?.guest.lang ?? "en"} />}
+            {human ? t(uiLang, "sending") : <ReasoningIndicator lang={uiLang} />}
           </div>
         )}
         {error && (
@@ -467,21 +866,108 @@ export default function GuestPage() {
         <div ref={endRef} />
       </div>
 
+      {/**
+        * VIỆC 4 — trạng thái chuyển người.
+        *
+        * Một nửa số lượt (50/101 trên bộ eval) kết thúc bằng chuyển người, và
+        * trước đây khách chỉ thấy một dòng chữ lẫn trong bong bóng chat. Thứ
+        * làm khách thôi lo không phải câu trả lời nhanh, mà là biết CÓ NGƯỜI
+        * ĐANG CẦM việc này — nên nó phải là một dải băng đứng yên ở đầu màn
+        * hình, không phải một câu trôi đi khi hội thoại dài thêm.
+        */}
+      {human && (
+        <div
+          className="mx-4 mb-2 shrink-0 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2"
+          data-testid="handoff-banner"
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+            <UserRound className="h-3.5 w-3.5" />
+            {t(uiLang, "handoffTitle")}
+          </div>
+          <p className="mt-0.5 text-[11px] leading-relaxed text-foreground/75">{t(uiLang, "handoffBody")}</p>
+        </div>
+      )}
+
+      {/* In-room dining. A control rather than a chip: a chip sends a message
+          to the model, and the whole point here is that no model is involved. */}
+      <div className="shrink-0 px-4">
+        {roomServiceOpen && <RoomServicePanel code={code} lang={detail.guest.lang} />}
+        {requestsOpen && <GuestRequestsPanel code={code} lang={detail.guest.lang} />}
+        {myReqOpen && <MyRequestsPanel code={code} lang={detail.guest.lang} />}
+      </div>
+
       {/* Dynamic Quick Action Chips — Always visible so the guest doesn't have to type everything */}
-      <div className="flex shrink-0 flex-wrap gap-1.5 px-4 pb-2">
+      {/**
+        * NHÓM 3.1 — một dòng cuộn ngang, không xuống hàng.
+        *
+        * Đo trên iPhone 375px: mười chip xuống 2–3 hàng và đẩy ô nhập tin
+        * xuống dưới mép màn hình. Cuộn ngang giữ chiều cao cố định, và ô nhập
+        * tin — thứ khách thật sự cần chạm — luôn ở chỗ ngón tay đang đặt.
+        *
+        * `scrollbar-none` chỉ ẩn thanh cuộn, không tắt cuộn: trên điện thoại
+        * vốn không có thanh cuộn, còn trên máy tính chuột vẫn kéo ngang được.
+        */}
+      <div className="flex shrink-0 gap-1.5 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <button
+          onClick={() => setRoomServiceOpen((v) => !v)}
+          data-testid="chip-room-service"
+          className={`hover-elevate shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+            roomServiceOpen
+              ? "border-primary/60 bg-primary/15 text-primary"
+              : "border-border bg-card hover:border-primary/40 hover:bg-primary/10"
+          }`}
+        >
+          {ROOM_SERVICE_LABEL[detail.guest.lang] ?? ROOM_SERVICE_LABEL.en}
+        </button>
+        <button
+          onClick={() => setRequestsOpen((v) => !v)}
+          data-testid="chip-requests"
+          className={`hover-elevate shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+            requestsOpen
+              ? "border-primary/60 bg-primary/15 text-primary"
+              : "border-border bg-card hover:border-primary/40 hover:bg-primary/10"
+          }`}
+        >
+          {REQUESTS_LABEL[detail.guest.lang] ?? REQUESTS_LABEL.en}
+        </button>
+        <button
+          onClick={() => setMyReqOpen((v) => !v)}
+          data-testid="chip-my-requests"
+          className={`hover-elevate shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+            myReqOpen
+              ? "border-primary/60 bg-primary/15 text-primary"
+              : "border-border bg-card hover:border-primary/40 hover:bg-primary/10"
+          }`}
+        >
+          {t(uiLang, "myReq")}
+        </button>
         {prompts.map((p) => (
           <button
             key={p}
             onClick={() => send.mutate(p)}
             disabled={send.isPending}
             data-testid="prompt-chip"
-            className="hover-elevate rounded-full border border-border bg-card px-3 py-1 text-xs transition-colors hover:bg-primary/10 hover:border-primary/40 disabled:opacity-50"
+            className="hover-elevate shrink-0 whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-xs transition-colors hover:bg-primary/10 hover:border-primary/40 disabled:opacity-50"
           >
             {p}
           </button>
         ))}
       </div>
 
+      {!micHintSeen && (
+        <div className="mx-4 mb-1.5 flex shrink-0 items-center justify-end gap-2">
+          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] text-primary">
+            {t(uiLang, "micHint")} ↓
+          </span>
+          <button
+            onClick={dismissMicHint}
+            className="text-[11px] text-muted-foreground underline underline-offset-2"
+            data-testid="dismiss-mic-hint"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div className="shrink-0 border-t border-border p-3">
         <div className="flex items-end gap-2">
           <Textarea
@@ -494,9 +980,17 @@ export default function GuestPage() {
               }
             }}
             rows={1}
-            placeholder="Ask anything, or tell us what you need…"
+            placeholder={t(uiLang, "composer")}
             className="max-h-32 min-h-[42px] resize-none"
             data-testid="input-message"
+          />
+          <MicButton
+            code={code}
+            lang={detail?.guest.lang ?? "en"}
+            disabled={send.isPending}
+            /* Appended, not replaced: a guest who typed half a sentence and then
+               spoke the rest should keep both. */
+            onText={(text) => setDraft((d) => (d.trim() ? d.replace(/s*$/, " ") + text : text))}
           />
           <Button
             onClick={submit}
@@ -509,7 +1003,7 @@ export default function GuestPage() {
           </Button>
         </div>
         <p className="mt-1.5 text-[10px] text-muted-foreground">
-          Requests are logged to the hotel's operations board. A human joins whenever it matters.
+          {t(uiLang, "footer")}
         </p>
       </div>
     </div>

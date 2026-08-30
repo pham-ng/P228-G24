@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { recordLlmFailure } from "./metrics-extra";
 
 /**
  * Provider abstraction for chat + embeddings.
@@ -363,6 +364,14 @@ function noteFailure(p: Provider, err: unknown) {
   h.calls++;
   h.failures++;
   h.consecutiveFailures++;
+  /**
+   * Tách hết-giờ khỏi mọi lỗi khác, vì hai thứ này bảo người trực ca làm hai
+   * việc khác nhau: hết-giờ nghĩa là model còn sống nhưng quá tải (giảm tải,
+   * hoặc chấp nhận chờ), còn lỗi khác thường là model chết hoặc sai cấu hình.
+   * Gộp chung thành một con số thì mất đúng chỗ phân biệt đó.
+   */
+  const msg = err instanceof Error ? err.message : String(err);
+  recordLlmFailure(/did not respond within|AbortError|timeout|ETIMEDOUT/i.test(msg) ? "timeout" : "error");
   h.lastError = err instanceof Error ? err.message : String(err);
   if (h.consecutiveFailures >= BREAKER_FAILS) {
     h.trippedUntil = Date.now() + BREAKER_COOLDOWN_MS;

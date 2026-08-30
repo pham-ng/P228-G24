@@ -1,6 +1,7 @@
 import { providerHealth } from "./llm";
 import { listBackups } from "./backup";
 import { storage } from "./storage";
+import { chatLatency, renderExtraMetrics } from "./metrics-extra";
 
 let totalChatRequests = 0;
 let totalEscalations = 0;
@@ -10,6 +11,9 @@ export function recordChatMetrics(latencyMs: number, escalated: boolean) {
   totalChatRequests++;
   if (escalated) totalEscalations++;
   latencyBuckets.push(latencyMs);
+  /* Histogram chạy song song với trung bình. Trung bình giữ lại cho tương thích
+     ngược với bảng điều khiển đang có, nhưng p95 thì chỉ tính được từ xô. */
+  chatLatency.observe(latencyMs);
   if (latencyBuckets.length > 1000) latencyBuckets.shift();
 }
 
@@ -36,9 +40,17 @@ export function generatePrometheusMetrics(): string {
     "# TYPE aurea_ollama_status gauge",
     `aurea_ollama_status ${ollamaOnline}`,
 
-    "# HELP aurea_gpu_status 1 if GPU inference engine is active and healthy.",
-    "# TYPE aurea_gpu_status gauge",
-    `aurea_gpu_status ${ollamaOnline}`,
+    /* `aurea_gpu_status` ĐÃ BỊ GỠ, không phải đổi tên.
+     *
+     * Nó khai trong HELP là "1 nếu bộ suy luận GPU đang hoạt động" nhưng gán
+     * đúng `ollamaOnline` — cùng một giá trị với chỉ số ngay phía trên. Nó chưa
+     * bao giờ đo GPU: Ollama chạy trên CPU thì nó vẫn báo 1. Một chỉ số nói sai
+     * về chính nó tệ hơn một chỉ số không tồn tại, vì người trực ca sẽ tin nó
+     * lúc ba giờ sáng.
+     *
+     * Muốn đo GPU thật thì phải đọc `nvidia-smi` hoặc `/api/ps` của Ollama
+     * (trường `size_vram`) — cả hai đều là việc riêng, không phải đổi một dòng.
+     */
 
     "# HELP aurea_chat_requests_total Total number of guest chat turns processed.",
     "# TYPE aurea_chat_requests_total counter",
@@ -67,6 +79,8 @@ export function generatePrometheusMetrics(): string {
     "# HELP aurea_conversations_total Total active guest conversations stored in database.",
     "# TYPE aurea_conversations_total gauge",
     `aurea_conversations_total ${totalConvs}`,
+
+    ...renderExtraMetrics(),
   ];
 
   return lines.join("\n") + "\n";

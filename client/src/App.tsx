@@ -14,6 +14,9 @@ import ApprovalsPage from "@/pages/approvals";
 import RoomsPage from "@/pages/rooms";
 import ReservationsPage from "@/pages/reservations";
 import InsightsPage from "@/pages/insights";
+import CheckinPage from "@/pages/checkin";
+import RegistrationsPage from "@/pages/registrations";
+import RequestsPage from "@/pages/requests";
 import KnowledgePage from "@/pages/knowledge";
 import PoliciesPage from "@/pages/policies";
 import CampaignsPage from "@/pages/campaigns";
@@ -106,6 +109,9 @@ function AppRouter() {
         path="/staff/reservations"
         component={() => <Protected component={ReservationsPage} needs="guest_data" />}
       />
+      <Route path="/staff/requests" component={() => <Protected component={RequestsPage} />} />
+      <Route path="/staff/checkin" component={() => <Protected component={CheckinPage} needs="guest_data" />} />
+      <Route path="/staff/registrations" component={() => <Protected component={RegistrationsPage} needs="guest_data" />} />
       <Route path="/staff/insights" component={() => <Protected component={InsightsPage} needs="insights" />} />
       <Route path="/staff/knowledge" component={() => <Protected component={KnowledgePage} needs="edit_content" />} />
       <Route path="/staff/policies" component={() => <Protected component={PoliciesPage} needs="edit_content" />} />

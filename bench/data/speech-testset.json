@@ -1,0 +1,32 @@
+{
+  "note": "Read `bench/README-speech-eval.md` before quoting any number produced from this file. Each entry is one thing a guest actually says at a hotel front desk, chosen so the set covers the failure modes that cost money rather than the ones that look good in a demo. `id` is the audio filename stem; `ref` is the ground truth; `why` says what this line is here to catch.",
+  "cases": [
+    { "id": "vi-01", "lang": "vi", "ref": "Cho tôi đặt bàn ăn tối lúc bảy giờ cho hai người ở nhà hàng Lotus.", "why": "time + party size + a foreign venue name in one breath" },
+    { "id": "vi-02", "lang": "vi", "ref": "Điều hòa phòng ba không năm không mát, nhờ anh chị cho người lên kiểm tra giúp tôi.", "why": "dictated room number AND a negation — both models were caught inverting this one" },
+    { "id": "vi-03", "lang": "vi", "ref": "Tôi muốn trả phòng muộn lúc mười sáu giờ, phụ thu bao nhiêu ạ?", "why": "the late-checkout transaction, which carries a fee" },
+    { "id": "vi-04", "lang": "vi", "ref": "Bữa sáng phục vụ đến mấy giờ ạ?", "why": "the single most common question; short utterances are where padding hallucinations appear" },
+    { "id": "vi-05", "lang": "vi", "ref": "Tôi không đặt món này, sao lại tính vào hóa đơn của tôi?", "why": "a billing dispute — a dropped 'không' turns a complaint into a confirmation" },
+    { "id": "vi-06", "lang": "vi", "ref": "Cho tôi thêm hai cái khăn tắm và một cái gối nữa nhé.", "why": "gối/gọi is a known collision in this product's own routing" },
+    { "id": "vi-07", "lang": "vi", "ref": "Phòng tôi hai người lớn và một trẻ em năm tuổi.", "why": "three separate counts, and 'năm' meaning five next to a noun" },
+    { "id": "vi-08", "lang": "vi", "ref": "Xe đưa đón ra sân bay Cam Ranh giá bao nhiêu, đi lúc chín giờ sáng được không?", "why": "place name + price question + time, the shape of a transport booking" },
+    { "id": "vi-09", "lang": "vi", "ref": "Hủy giúp tôi lịch spa chiều nay, tôi bị mệt.", "why": "a cancellation — an action with money attached" },
+    { "id": "vi-10", "lang": "vi", "ref": "Wifi phòng tôi yếu lắm, cả tối không vào được mạng.", "why": "a complaint with a negation and no numbers" },
+
+    { "id": "en-01", "lang": "en", "ref": "Can I have a late checkout at four in the afternoon, and how much is it?", "why": "the same transaction as vi-03, for the language comparison" },
+    { "id": "en-02", "lang": "en", "ref": "The air conditioning in room three zero five is not working.", "why": "dictated room number and a negation in English" },
+    { "id": "en-03", "lang": "en", "ref": "Table for two at seven tonight at the Lotus restaurant, please.", "why": "matches vi-01 so the two languages can be read side by side" },
+    { "id": "en-04", "lang": "en", "ref": "What time does breakfast finish?", "why": "short utterance" },
+
+    { "id": "ko-01", "lang": "ko", "ref": "삼백오호 에어컨이 시원하지 않습니다.", "why": "room number and negation in Korean, on the multilingual model" },
+    { "id": "ko-02", "lang": "ko", "ref": "저녁 일곱 시에 두 명 예약하고 싶습니다.", "why": "time and party size in Korean" },
+
+    { "id": "ja-01", "lang": "ja", "ref": "三〇五号室のエアコンが効きません。", "why": "room number and negation in Japanese" },
+    { "id": "ja-02", "lang": "ja", "ref": "朝食は何時までですか。", "why": "the most common question, in Japanese" },
+
+    { "id": "zh-01", "lang": "zh", "ref": "三零五房间的空调不制冷。", "why": "room number and negation in Chinese" },
+    { "id": "zh-02", "lang": "zh", "ref": "今晚七点两位，想订洛特斯餐厅。", "why": "time and party size in Chinese" },
+
+    { "id": "ru-01", "lang": "ru", "ref": "В номере триста пять не работает кондиционер.", "why": "room number and negation in Russian" },
+    { "id": "ru-02", "lang": "ru", "ref": "Во сколько заканчивается завтрак?", "why": "the most common question, in Russian" }
+  ]
+}

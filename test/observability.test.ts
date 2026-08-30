@@ -178,8 +178,22 @@ async function main() {
   ok(detectMessageLang("체크아웃 時間") === "ko", "Hangul wins over stray Han");
 
   console.log("=== LANGFUSE: batch builder (pure, no network) ===");
+  /**
+   * Điều khiển môi trường, đừng ĐỌC nó.
+   *
+   * Hai phép kiểm này từng khẳng định "Langfuse tắt theo mặc định" và đọc thẳng
+   * `process.env`. Chúng xanh suốt — cho tới khi có người thật sự cấu hình
+   * Langfuse, và rồi cả bộ kiểm thử đỏ vì SẢN PHẨM ĐÃ ĐƯỢC BẬT ĐÚNG CÁCH. Một
+   * bài kiểm thử mà kết quả phụ thuộc vào việc người vận hành đã cấu hình gì
+   * thì không kiểm được gì cả.
+   *
+   * Giờ nó xoá khoá đi rồi mới hỏi, và trả lại nguyên trạng sau đó.
+   */
+  const khoaCu = { pk: process.env.LANGFUSE_PUBLIC_KEY, sk: process.env.LANGFUSE_SECRET_KEY };
+  delete process.env.LANGFUSE_PUBLIC_KEY;
+  delete process.env.LANGFUSE_SECRET_KEY;
   const lf = await import("../server/langfuse");
-  ok(lf.langfuseEnabled() === false, "langfuse disabled without keys (safe default)");
+  ok(lf.langfuseEnabled() === false, "không có khoá thì Langfuse tắt — mặc định an toàn");
 
   const now = new Date().toISOString();
   const exportSpans: any[] = [
@@ -199,7 +213,29 @@ async function main() {
   ok(!!span && span.body.level === "ERROR", "error tool span -> span-create at level ERROR");
   ok(span.body.statusMessage?.includes("tool_error"), "span statusMessage derived from worst signal");
   ok(lf.buildIngestionBatch([]).length === 0, "no root -> empty batch (nothing sent half-formed)");
-  ok(lf.langfuseConfig().enabled === false, "langfuseConfig reports disabled");
+  ok(lf.langfuseConfig().enabled === false, "langfuseConfig báo là đang tắt");
+
+  /* Và bật lên được khi CÓ khoá — nửa còn lại của phép kiểm, trước đây thiếu. */
+  const khoaGia = "pk-lf-0123456789abcdef";
+  process.env.LANGFUSE_PUBLIC_KEY = khoaGia;
+  process.env.LANGFUSE_SECRET_KEY = "sk-lf-0123456789abcdef";
+  ok(lf.langfuseEnabled() === true, "có khoá thì bật — cấu hình được đọc lại mỗi lần, không cache lúc nạp module");
+
+  /* Che nghĩa là GIẤU KHÚC GIỮA, không phải giấu sạch: bốn ký tự cuối để người
+     vận hành đối chiếu được với khoá trong bảng điều khiển Langfuse. Phép kiểm
+     đầu tôi viết đòi chuỗi che không chứa "test", mà khoá giả lại kết thúc bằng
+     "test" — kiểm sai, code đúng. */
+  const che = lf.langfuseConfig().publicKeyMasked;
+  ok(che !== khoaGia, "chuỗi hiển thị KHÁC khoá thật");
+  ok(!che.includes("0123456789"), "khúc giữa bị giấu");
+  ok(che.endsWith("cdef"), "vẫn để lộ 4 ký tự cuối để đối chiếu");
+  ok(lf.langfuseConfig().hasSecret === true && !JSON.stringify(lf.langfuseConfig()).includes("sk-lf-"), "khoá BÍ MẬT không bao giờ lọt ra, kể cả dạng che");
+
+  /* Trả môi trường về đúng như lúc nhận. */
+  if (khoaCu.pk) process.env.LANGFUSE_PUBLIC_KEY = khoaCu.pk;
+  else delete process.env.LANGFUSE_PUBLIC_KEY;
+  if (khoaCu.sk) process.env.LANGFUSE_SECRET_KEY = khoaCu.sk;
+  else delete process.env.LANGFUSE_SECRET_KEY;
 
   console.log(failures === 0 ? "\nALL OBSERVABILITY TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
   process.exit(failures === 0 ? 0 : 1);
