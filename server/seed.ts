@@ -19,6 +19,7 @@ import {
   diningVenues,
   offers,
   campaigns,
+  roomPackages,
 } from "@shared/schema";
 
 const day = (offset: number) => {
@@ -1434,6 +1435,46 @@ export function seedIfEmpty() {
       createdAt: iso(3000),
     })
     .run();
+
+  /* ------------- rate packages (68 rows from server/data/room-packages.json) ------
+   * Exported from the live DB by: node -e "..." (see docs for details).
+   * Without this, tool recommend_room_packages returns an error and defers
+   * the guest to the front desk instead of quoting a price.
+   * -------------------------------------------------------------------- */
+  try {
+    const pkgFile = join(process.cwd(), "server/data/room-packages.json");
+    const pkgRaw = JSON.parse(readFileSync(pkgFile, "utf-8")) as Array<Record<string, unknown>>;
+    const hotel = storage.getHotel();
+    const ts = iso(0);
+    for (const p of pkgRaw) {
+      db.insert(roomPackages).values({
+        hotelId: hotel.id,
+        roomCode: String(p.room_code ?? ""),
+        roomNameVi: String(p.room_name_vi ?? ""),
+        name: String(p.name ?? ""),
+        publicPrice: Number(p.public_price ?? 0),
+        memberPrice: p.member_price != null ? Number(p.member_price) : null,
+        mealPlan: String(p.meal_plan ?? "none"),
+        vinwonders: Number(p.vinwonders ?? 0),
+        golfRounds: Number(p.golf_rounds ?? 0),
+        hotelCredit: Number(p.hotel_credit ?? 0),
+        aquafield: Number(p.aquafield ?? 0),
+        saunaJacuzzi: Number(p.sauna_jacuzzi ?? 0),
+        cableCar: Number(p.cable_car ?? 0),
+        spaDiscountPct: Number(p.spa_discount_pct ?? 0),
+        fnbDiscountPct: Number(p.fnb_discount_pct ?? 0),
+        golfDiscountPct: Number(p.golf_discount_pct ?? 0),
+        inclusions: String(p.inclusions ?? "[]"),
+        conditions: String(p.conditions ?? "[]"),
+        hasBlackout: Number(p.has_blackout ?? 0),
+        sourceFile: p.source_file ? String(p.source_file) : null,
+        updatedAt: ts,
+      }).run();
+    }
+    console.log(`[seed] loaded ${pkgRaw.length} rate packages from room-packages.json`);
+  } catch (err) {
+    console.warn("[seed] room-packages.json not found — rate package tool will defer to front desk.", err);
+  }
 
   storage.logEvent({
     type: "system.seed",
