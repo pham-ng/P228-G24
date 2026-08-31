@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx cross-env NODE_ENV=development tsx server/index.ts",
+    "setup": "node scripts/setup.mjs",
+    "setup:verify": "node scripts/setup.mjs --verify",
     "chat": "npx cross-env tsx chat.ts",
     "build": "npx cross-env tsx script/build.ts",
     "start": "npx cross-env NODE_ENV=production node dist/index.cjs",

@@ -12,7 +12,11 @@
 | `models/hf/` (Whisper STT) | **885 MB** | Vượt giới hạn GitHub 100MB/file |
 | `models/piper/` (Piper TTS) | **412 MB** | Nhị phân + weights, không phải code |
 
-Cả hai thư mục đã có trong `.gitignore`. Bạn cần tải thủ công một lần.
+Cả hai thư mục đã có trong `.gitignore`.
+
+> **Cách nhanh:** `npm run setup` làm toàn bộ các bước dưới đây trong một lệnh,
+> bỏ qua thứ đã có, và in ra thiếu gì. Phần còn lại của tài liệu này là để làm
+> tay khi script hỏng, hoặc để hiểu nó đang làm gì.
 
 ---
 
@@ -144,10 +148,10 @@ npm run dev
 # Trong tab khác — kiểm tra API
 curl http://localhost:5000/api/guest/voice
 # Kết quả mong đợi:
-# {"stt":true,"maxSeconds":30,"sampleRate":16000,"tts":true,"ttsLangs":["vi","en","ko","zh","ru"],...}
+# {"stt":true,"maxSeconds":30,"sampleRate":16000,"tts":true,"ttsLangs":["vi","en","ko","zh","ru","ja"],...}
 
 # Test TTS tiếng Việt
-curl -X POST http://localhost:5000/api/tts \
+curl -X POST http://localhost:5000/api/guest/speak \
   -H "Content-Type: application/json" \
   -d '{"text":"Xin chào quý khách","lang":"vi"}' \
   --output test.wav && echo "TTS OK"
@@ -155,12 +159,15 @@ curl -X POST http://localhost:5000/api/tts \
 
 ---
 
-## Tiếng Nhật — tại sao không có TTS?
+## Tiếng Nhật — vì sao không đi qua Piper
 
-Piper chỉ có 1 giọng Nhật, và nó cần OpenJTalk để phiên âm. Piper 1.2.0 không có OpenJTalk, 
-nên nó tổng hợp sai hoàn toàn (13.5 giây âm thanh cho câu 4 giây, phát âm sai).
-**Giọng sai tệ hơn không có giọng** → tiếng Nhật dùng `speechSynthesis` của trình duyệt khách 
-(iPhone/Android Nhật luôn có giọng Nhật sẵn).
+Piper chỉ có 1 giọng Nhật, và nó khai `phoneme_type: "japanese"` — cần OpenJTalk
+để phiên âm. Piper 1.2.0 không có OpenJTalk nên nó nhồi âm vị espeak vào, **không
+báo lỗi**, và tổng hợp sai hoàn toàn (13,5 giây âm thanh cho câu 4 giây).
+
+**Giọng sai tệ hơn không có giọng** → tiếng Nhật đi một đường riêng: âm vị sinh
+bằng Python (`misaki[ja]` + pyopenjtalk), giọng bằng Kokoro ONNX. Xem **Bước 3**
+bên dưới. Thiếu Python thì nút loa không hiện với khách Nhật, không phải lỗi.
 
 ---
 

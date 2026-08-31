@@ -2,25 +2,38 @@ node_modules/
 dist/
 .vite/
 
-# SQLite database files — never commit; exposes demo data at rest
-data.db
+# --- Cơ sở dữ liệu ---------------------------------------------------------
+# `data.db` CÓ trong git, cố ý: clone về là có sẵn phòng, gói giá, thực đơn và
+# lịch sử hội thoại demo, không phải chạy migration nào. Nó là dữ liệu MẪU
+# (server/seed.ts), không phải khách thật.
+#
+# Nhưng -wal và -shm thì không: chúng là trạng thái tạm của một tiến trình đang
+# chạy, commit vào sẽ cho người khác một cơ sở dữ liệu ở giữa một giao dịch.
+# Chạy `PRAGMA wal_checkpoint(FULL)` trước khi commit data.db.
 data.db-shm
 data.db-wal
 data.db-journal
 data.db.*
 
-# Automated backup scheduler output and manual snapshots — same rule as data.db:
-# real guest names, phones, emails and folio charges. Never commit.
+# Bản sao lưu tự động và ảnh chụp tay — dữ liệu khách ở trạng thái nghỉ.
 backups/
 
-.env
+# --- Bí mật -----------------------------------------------------------------
+# `.env` ở GỐC có trong git và đã bị làm sạch (xem phần đầu của chính nó).
+# Mọi biến thể khác thì không: chúng là bản sao lưu chứa khoá thật.
 .env.*
 !.env.example
+
+# Ảnh chụp cấu hình — bên trong có một `.env` với khoá thật.
+config-snapshots/
+
+# Token cho Prometheus đọc /api/metrics — không bao giờ commit
+ops/scrape-token
 
 *.log
 .DS_Store
 
-# Local tooling, not project source
+# --- Công cụ cục bộ, không phải mã nguồn ------------------------------------
 .claude/
 ollama.exe
 ollama.zip
@@ -29,31 +42,35 @@ OllamaSetup.exe
 ollama_bin/
 lib/ollama/
 
-# Benchmark DB snapshots/checkpoints — binary, large, demo data at rest.
-# The JSON/MD reports next to them (the actual methodology record) stay tracked.
+# Ảnh chụp / điểm kiểm của bench — nhị phân, lớn, dữ liệu demo ở trạng thái nghỉ.
+# Báo cáo JSON/MD nằm cạnh chúng (bản ghi phương pháp thật) vẫn được theo dõi.
 bench/baselines/**/*.db
 bench/baselines/**/*.db.*
 bench/baselines/*.db
 
-# Scratch/probe files
+# Tệp nháp / thăm dò
 .pplx-probe.txt
 _live.ts
 _smoke.ts
 
-# Coverage reports — regenerate with `npm run test:coverage`
+# Báo cáo độ phủ — sinh lại bằng `npm run test:coverage`
 coverage/
 
-# Speech model weights (886 MB). Fetched on first use into models/hf by
-# server/stt.ts; seed an air-gapped box by copying the directory, not by
-# committing it.
-models/
+# --- Model giọng nói: 1,19 GB, tải bằng `npm run setup` ---------------------
+# Không commit được: GitHub chặn tệp trên 100 MB, và Git LFS miễn phí chỉ có
+# 1 GB lưu trữ + 1 GB băng thông/tháng — một lần clone là hết hạn mức cả tháng.
+# `scripts/setup.mjs` tải chúng từ nguồn gốc (HuggingFace + GitHub Releases).
+# Bốn dòng, không phải hai: git KHÔNG xét lại tệp bên trong một thư mục đã bị
+# loại, nên muốn giữ đúng một tệp thì phải mở lại từng cấp thư mục cha.
+# Tệp đó là README hướng dẫn tải Piper — scripts/setup.mjs trỏ người dùng tới
+# nó khi giải nén hỏng, nên một bản clone mới BẮT BUỘC phải có.
+models/*
+!models/piper/
+models/piper/*
+!models/piper/README.md
 
-# Token cho Prometheus doc /api/metrics — khong bao gio commit
-ops/scrape-token
-
-# Giong doc Piper: 375 MB nhi phan + trong so, tai bang models/piper/README.md
-models/piper/piper/
-models/piper/voices/
-
-# Môi trường ảo Python cho phiên âm tiếng Nhật (tái tạo bằng docs/SETUP-VOICE.md)
+# Môi trường ảo Python cho phiên âm tiếng Nhật.
+# KHÔNG commit được kể cả khi muốn: `pyvenv.cfg` ghi cứng đường dẫn Python và
+# đường dẫn dự án của máy tạo ra nó, nên chép sang máy khác là một venv chết.
+# `npm run setup` dựng lại nó bằng một lệnh.
 .venv-tts-ja/
