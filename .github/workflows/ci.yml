@@ -1,0 +1,93 @@
+# Kiểm tra mỗi lần đẩy code lên.
+#
+# CÁI NÓ LÀM ĐƯỢC: bắt lỗi kiểu, lỗi logic trong test, và build hỏng — trước khi
+# anh/chị kéo code mới về máy đang phục vụ người dùng thật.
+#
+# CÁI NÓ KHÔNG LÀM ĐƯỢC, và biết trước thì đỡ thất vọng: runner của GitHub
+# **không có Ollama, không có GPU, và không có 1,19 GB model giọng nói**. Nên
+# mọi phép đo thật — RAG eval, ASR/TTS eval, độ trễ — vẫn phải chạy tay trên máy
+# có phần cứng. Những gì chạy ở đây là phần không cần model, vốn là phần lớn của
+# `test/`: định tuyến, chấm điểm, quy tắc nghiệp vụ, làm sạch bản ghi.
+#
+# `test/` không dùng khung kiểm thử nào — mỗi tệp là một script tự khẳng định và
+# thoát khác 0 khi sai (xem scripts/run-tests.mjs). Nên `npm test` ở đây là thật,
+# không phải một lệnh giả để CI có màu xanh.
+name: CI
+
+on:
+  push:
+    branches: [master, "**"]
+  pull_request:
+    branches: [master]
+  # Cho phép bấm chạy tay từ tab Actions.
+  workflow_dispatch:
+
+# Đẩy liên tiếp thì huỷ lượt chạy cũ — không ai đọc kết quả của commit đã bị thay.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kiem-tra:
+    name: Kiểu, kiểm thử, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # `npm ci` chứ không phải `npm install`: nó cài đúng package-lock.json và
+      # thất bại nếu lock lệch với package.json — đúng thứ cần bắt ở CI.
+      # `better-sqlite3` biên dịch native; runner ubuntu đã có sẵn toolchain.
+      - name: Cài phụ thuộc
+        run: npm ci
+
+      - name: Kiểm tra kiểu
+        run: npx tsc --noEmit
+
+      # Chạy trên bản sao dùng một lần của data.db (runner tự lo, xem
+      # scripts/run-tests.mjs) nên không có test nào ghi vào cơ sở dữ liệu thật.
+      - name: Kiểm thử
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # Không chỉ "build xong không lỗi" — mà "có ra tệp không". Một bước build
+      # thành công nhưng không sinh gì là chuyện đã xảy ra với dự án khác.
+      - name: Xác nhận có sản phẩm build
+        run: |
+          test -f dist/index.cjs || { echo "Thiếu dist/index.cjs"; exit 1; }
+          test -d dist/public   || { echo "Thiếu dist/public"; exit 1; }
+          echo "dist/index.cjs $(du -h dist/index.cjs | cut -f1)"
+
+  # Chốt chặn riêng cho bí mật. Tách khỏi job trên để nó vẫn chạy (và vẫn đỏ)
+  # kể cả khi build hỏng vì lý do khác — một khoá bị commit là việc phải biết
+  # ngay, không phải thứ chờ sửa xong lỗi kiểu rồi mới lộ ra.
+  quet-bi-mat:
+    name: Không có khoá thật trong repo
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Quét mẫu khoá
+        run: |
+          # `.env` NẰM TRONG git một cách cố ý (để clone về là chạy được), nên
+          # nó phải trống khoá. Đây là chốt giữ điều đó đúng về sau.
+          # Dòng mang nhãn KHOA-GIA là khoá bịa trong test, cố ý giữ lại. Lọc
+          # bằng NHÃN chứ không bằng đường dẫn: loại trừ cả thư mục test/ sẽ
+          # làm một khoá thật lỡ commit vào đó không bị bắt.
+          HITS=$(grep -rInE 'sk-proj-[A-Za-z0-9]|sk-lf-[A-Za-z0-9]{8}|hf_[A-Za-z0-9]{15}|AQ\.Ab8[A-Za-z0-9]' \
+                   --exclude-dir=node_modules --exclude-dir=.git . \
+                 | grep -v 'KHOA-GIA' || true)
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
+            echo "::error::Có vẻ một khoá thật đã bị commit. Xoá nó VÀ thu hồi khoá đó."
+            exit 1
+          fi
+          echo "Không tìm thấy mẫu khoá nào."

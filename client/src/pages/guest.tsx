@@ -13,6 +13,7 @@ import { RoomServicePanel } from "@/components/room-service";
 import { GuestRequestsPanel } from "@/components/guest-requests";
 import { MyRequestsPanel } from "@/components/my-requests";
 import { SourceAndFeedback } from "@/components/source-and-feedback";
+import { QueueNotice } from "@/components/queue-notice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -853,9 +854,11 @@ export default function GuestPage() {
           );
         })}
         {send.isPending && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="typing">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" data-testid="typing">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
             {human ? t(uiLang, "sending") : <ReasoningIndicator lang={uiLang} />}
+            {/* Chỉ hiện khi thật sự có người phía trước — xem queue-notice.tsx. */}
+            {!human && <QueueNotice lang={uiLang} />}
           </div>
         )}
         {error && (

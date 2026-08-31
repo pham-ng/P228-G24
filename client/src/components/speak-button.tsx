@@ -37,7 +37,7 @@ function serverTtsLangs(): Promise<string[]> {
   return serverLangsCache;
 }
 
-export function SpeakButton({ text, lang }: { text: string; lang: string }) {
+export function SpeakButton({ text, lang, code }: { text: string; lang: string; code?: string | null }) {
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null);
   /** Server đọc được ngôn ngữ này không — dùng khi máy khách không có giọng. */
   const [serverCoGiong, setServerCoGiong] = useState(false);
@@ -126,7 +126,10 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
       const r = await fetch("/api/guest/speak", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, lang }),
+        /* Mã đặt phòng đi kèm: từ khi tuyến này ra Internet, nó kiểm mã như
+           `/api/guest/transcribe` — mỗi lần gọi là một tiến trình Piper ăn CPU
+           mà model trả lời đang cần. */
+        body: JSON.stringify({ text, lang, code }),
       });
       if (!r.ok) throw new Error(String(r.status));
       const blob = await r.blob();

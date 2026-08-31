@@ -135,7 +135,7 @@ export function SourceAndFeedback({
     <div className="ml-9 mt-1 flex flex-wrap items-center gap-2 text-xs">
       {/* Renders nothing when the device has no voice for this language —
           absent beats reading Japanese through an English voice. */}
-      <SpeakButton text={body} lang={lang} />
+      <SpeakButton text={body} lang={lang} code={code} />
       {/* View Sources Button */}
       {sources.length > 0 && (
         <button

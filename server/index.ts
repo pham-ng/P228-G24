@@ -130,13 +130,24 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(port, "127.0.0.1", async () => {
-    log(`serving on port ${port}`);
+  /**
+   * Nghe ở đâu — mặc định CHỈ máy này.
+   *
+   * `127.0.0.1` là mặc định có chủ đích, không phải sót: một sản phẩm mang dữ
+   * liệu khách và có bảng điều hành nhân viên thì không được tự mở ra mạng chỉ
+   * vì ai đó chạy `npm run dev`. Muốn máy khác vào được thì phải nói ra:
+   *
+   *     HOST=0.0.0.0 npm start
+   *
+   * Trước khi đặt `0.0.0.0`, đọc `docs/DEPLOY.md` — nó liệt kê những thứ phải
+   * tắt trước, và giới hạn thật về số người dùng cùng lúc.
+   */
+  const host = process.env.HOST || "127.0.0.1";
+  httpServer.listen(port, host, async () => {
+    log(`serving on ${host}:${port}`);
+    if (host !== "127.0.0.1" && host !== "localhost")
+      log(`CẢNH BÁO: đang nghe trên ${host} — máy khác vào được. Xem docs/DEPLOY.md.`);
     /* Verify the vector index against the running configuration before the first
        guest asks anything. This deployment once ran with a 1536-d index and a
        384-d embedder: the vector leg switched itself off, retrieval became

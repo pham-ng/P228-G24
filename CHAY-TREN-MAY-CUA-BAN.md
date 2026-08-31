@@ -79,12 +79,15 @@ Mong đợi:
 
 ```json
 {"stt":true,"maxSeconds":30,"sampleRate":16000,
- "tts":true,"ttsLangs":["vi","en","ko","zh","ru","ja"],"ttsMaxChars":600}
+ "tts":true,"ttsLangs":["vi","en","ko","zh","ru"],"ttsMaxChars":600}
 ```
 
 - `stt: false` → thiếu trọng số Whisper trong `models/hf/`
 - `tts: false` → thiếu Piper trong `models/piper/`
-- thiếu `"ja"` → chưa có venv Python, xem `docs/SETUP-VOICE.md` mục 3
+- **không có `"ja"` là ĐÚNG** với `.env` mặc định: `TTS_JA=0`. Kokoro chạy ONNX
+  ngay trong tiến trình Node nên nó khoá cả server 15–28 giây mỗi câu tiếng
+  Nhật. Muốn bật: đặt `TTS_JA=1` và cài venv Python (`docs/SETUP-VOICE.md` mục
+  3) — chỉ nên bật khi chỉ có một người dùng.
 
 Thiếu model **không gây lỗi**: nút mic 🎤 và nút loa 🔊 chỉ đơn giản không hiện.
 Chat văn bản chạy bình thường.
@@ -122,6 +125,28 @@ LOCAL_NUM_GPU=0
 
 ---
 
+## 5b. Cho người khác vào thử qua Internet
+
+```bash
+npm run deploy          # kéo code, kiểm thử, build
+HOST=0.0.0.0 npm start  # cửa sổ 1 — server
+npm run tunnel          # cửa sổ 2 — in ra link công khai
+```
+
+**Đọc [`docs/DEPLOY.md`](docs/DEPLOY.md) trước.** Nó liệt kê những gì phải tắt
+trước khi gửi link, và giới hạn thật về số người dùng cùng lúc — máy này phục vụ
+tuần tự, nên năm người bấm gửi cùng lúc thì người cuối chờ khoảng 69 giây.
+
+Kiosk có hiển thị chỗ trong hàng ("đang có 3 người hỏi trước bạn"), nên chậm thì
+vẫn giải thích được. Theo dõi bằng:
+
+```bash
+curl http://localhost:5000/api/health
+curl http://localhost:5000/api/queue
+```
+
+---
+
 ## 6. Bản đồ thư mục
 
 ```
@@ -136,6 +161,8 @@ server/           Express + Drizzle + agent chạy cục bộ
 client/src/       React + Tailwind + wouter (hash routing)
 shared/schema.ts  21 bảng Drizzle
 scripts/setup.mjs Tải model giọng nói — chính là `npm run setup`
+scripts/deploy.mjs Kéo + kiểm thử + build — `npm run deploy`
+scripts/tunnel.mjs Mở link công khai — `npm run tunnel`
 bench/            Bộ đo: RAG eval, ASR/TTS eval, ablation
 docs/             SETUP-VOICE.md, kiến trúc, ADR
 KIEN-TRUC.md      Tài liệu kiến trúc đầy đủ

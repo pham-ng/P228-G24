@@ -99,7 +99,18 @@ class Limiter {
 
 /** Chat is the expensive one — a turn costs a model call on one GPU — but it is
  *  also what a real guest does most, so the window is generous. */
-export const guestRequests = new Limiter(Number(process.env.RL_GUEST_REQUESTS ?? 60), 60_000);
+/**
+ * Ngưỡng được XUẤT RA, không chỉ nằm trong lời gọi hàm dựng.
+ *
+ * Trước đây hai con số này viết thẳng vào `new Limiter(...)`, còn test thì
+ * khẳng định `firstBlock === 61`. Khi siết giới hạn cho bản chạy công khai
+ * (60 → 20), hai test đỏ ngay — không phải vì hành vi sai mà vì cùng một con số
+ * được viết ở hai nơi. Xuất ra để test khẳng định **ranh giới**, không khẳng
+ * định một con số nó không kiểm soát.
+ */
+export const GUEST_REQUEST_LIMIT = Number(process.env.RL_GUEST_REQUESTS ?? 60);
+
+export const guestRequests = new Limiter(GUEST_REQUEST_LIMIT, 60_000);
 
 /**
  * Failed confirmation codes — the enumeration budget.
@@ -115,7 +126,9 @@ export const guestRequests = new Limiter(Number(process.env.RL_GUEST_REQUESTS ??
  * seen instead of the proxy's. The durable fix is a second factor — surname or
  * room number alongside the code — which no rate limit substitutes for.
  */
-export const codeFailures = new Limiter(Number(process.env.RL_CODE_FAILURES ?? 30), 5 * 60_000);
+export const CODE_FAILURE_LIMIT = Number(process.env.RL_CODE_FAILURES ?? 30);
+
+export const codeFailures = new Limiter(CODE_FAILURE_LIMIT, 5 * 60_000);
 
 function refuse(res: Response, retry: number, message: string): boolean {
   res.setHeader("Retry-After", String(retry));

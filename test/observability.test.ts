@@ -216,9 +216,13 @@ async function main() {
   ok(lf.langfuseConfig().enabled === false, "langfuseConfig báo là đang tắt");
 
   /* Và bật lên được khi CÓ khoá — nửa còn lại của phép kiểm, trước đây thiếu. */
+  /* KHOA-GIA: hai chuỗi dưới đây là bịa, và cái nhãn ở trên là để bước quét bí
+     mật trong .github/workflows/ci.yml bỏ qua chúng. Không có nhãn thì CI đỏ
+     vĩnh viễn vì một khoá giả — và một chốt chặn luôn đỏ là một chốt chặn không
+     ai còn đọc. */
   const khoaGia = "pk-lf-0123456789abcdef";
   process.env.LANGFUSE_PUBLIC_KEY = khoaGia;
-  process.env.LANGFUSE_SECRET_KEY = "sk-lf-0123456789abcdef";
+  process.env.LANGFUSE_SECRET_KEY = "sk-lf-0123456789abcdef"; // KHOA-GIA
   ok(lf.langfuseEnabled() === true, "có khoá thì bật — cấu hình được đọc lại mỗi lần, không cache lúc nạp module");
 
   /* Che nghĩa là GIẤU KHÚC GIỮA, không phải giấu sạch: bốn ký tự cuối để người

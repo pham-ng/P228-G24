@@ -44,6 +44,8 @@ import { guestRequests, codeFailures, limited, blockedBy, clientKey } from "./ra
 import { recordChatMetrics } from "./metrics";
 import { parseCccdQr, maskId } from "./cccd";
 import { synthesise, ttsAvailable, ttsLangs, isTtsLang, TTS_MAX_CHARS } from "./tts";
+import { xepHang, QueueFullError, conChoDuoc, trangThaiHang, tomTatHang } from "./queue";
+import { providerHealth } from "./llm";
 import { synthesiseJa, jaAvailable, warmJaTts } from "./tts-ja";
 import { findCheckinMatches, performCheckIn } from "./checkin";
 /* Cùng bộ luật mà bảng chấm tay và giám khảo máy dùng. Nhập vào chứ không
@@ -424,6 +426,10 @@ function isGuestRoute(req: Request) {
      the thread poll above already puts there. */
   if (req.method === "POST" && req.path === "/api/guest/transcribe") return true;
   if (req.method === "GET" && req.path === "/api/guest/voice") return true;
+  /* Sống chưa, và còn bao nhiêu người trước mặt. Cả hai đều không trả dữ liệu
+     của ai, và cả hai đều được hỏi bởi thứ không cầm token: healthcheck của
+     Docker, uptime monitor, và kiosk đang đếm chỗ trong hàng. */
+  if (req.method === "GET" && (req.path === "/api/health" || req.path === "/api/queue")) return true;
 
   /* Staff login itself must be reachable without the token — the PIN check
    * inside the handler IS the credential check, and it is what MINTS the
@@ -864,6 +870,74 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
    * guest taps, waits minutes, and concludes the product is broken. So the
    * button only exists once the weights are on disk.
    */
+  /**
+   * Hàng đợi đầy là 429, không phải 500.
+   *
+   * Khác biệt không phải hình thức: 500 nói "hệ thống hỏng", 429 kèm
+   * `Retry-After` nói "đang bận, thử lại sau chừng này giây". Người dùng đọc
+   * được cái thứ hai; và các nhánh `catch` ở đây vốn gói mọi lỗi thành 500,
+   * nên một hàng đợi đầy sẽ hiện ra như một sản phẩm hỏng.
+   */
+  const tuChoiVìĐông = (res: Response, e: unknown): boolean => {
+    if (!(e instanceof QueueFullError)) return false;
+    res.setHeader("Retry-After", String(e.retryAfterSeconds));
+    res.status(429).json({
+      message: "Máy đang đọc cho khách khác. Anh/chị thử lại sau ít giây giúp em ạ.",
+      retryAfterSeconds: e.retryAfterSeconds,
+    });
+    return true;
+  };
+
+  /**
+   * Máy này còn sống không — công khai, không cần xác thực.
+   *
+   * VÌ SAO CÔNG KHAI. Đây là thứ mà Docker healthcheck, uptime monitor và một
+   * người vừa được gửi link đều hỏi trước tiên, và cả ba đều KHÔNG có token.
+   * Trước tuyến này `/api/health` trả 401, nghĩa là cách duy nhất để biết dịch
+   * vụ còn sống là tự mở trình duyệt ra bấm thử.
+   *
+   * KHÔNG trả gì nhạy cảm: không tên khách, không cấu hình, không đường dẫn.
+   * Chỉ đủ để trả lời "có dùng được không, và nếu chậm thì vì sao".
+   */
+  app.get("/api/health", (_req, res) => {
+    const llm = providerHealth();
+    const idx = (() => {
+      try {
+        return indexStats();
+      } catch {
+        return null;
+      }
+    })();
+    const sanSang = !!llm.local.available;
+    res.status(sanSang ? 200 : 503).json({
+      status: sanSang ? "ok" : "degraded",
+      /* Không có model trả lời thì kiosk vẫn mở được nhưng không trả lời được —
+         đó là "degraded", không phải "ok", và monitor phải thấy khác nhau. */
+      uptimeSeconds: Math.round(process.uptime()),
+      model: {
+        engine: llm.local.available ? "up" : "down",
+        name: process.env.LOCAL_AGENT_MODEL ?? null,
+      },
+      retrieval: idx ? { chunks: idx.chunks, embedded: idx.embedded, model: idx.model } : null,
+      voice: {
+        stt: sttAvailable(),
+        tts: ttsAvailable() || jaAvailable(),
+        ttsLangs: [...ttsLangs(), ...(jaAvailable() ? (["ja"] as const) : [])],
+      },
+      queue: tomTatHang(),
+    });
+  });
+
+  /**
+   * Còn bao nhiêu người trước mặt.
+   *
+   * Kiosk hỏi tuyến này TRONG LÚC đang chờ câu trả lời của chính nó. Không có
+   * nó thì một lượt 13,7 giây — hoặc 41 giây khi có ba người — chỉ là một dấu
+   * xoay không giải thích gì, và người thứ ba kết luận sản phẩm hỏng trong khi
+   * nó đang chạy đúng.
+   */
+  app.get("/api/queue", (_req, res) => res.json(trangThaiHang("chat")));
+
   app.get("/api/guest/voice", (_req, res) =>
     res.json({
       stt: sttAvailable(),
@@ -902,6 +976,9 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         .object({ code: z.string().min(4), lang: z.string().default("vi") })
         .parse(req.query);
       if (!isSttLang(q.lang)) return res.status(400).json({ message: `Unsupported language ${q.lang}.` });
+      /* Giữ kiểu đã thu hẹp: `q.lang` là thuộc tính nên TypeScript bỏ phép thu
+         hẹp ngay khi nó đi vào một closure. */
+      const sttLang = q.lang;
 
       const ctx = guestCtxOrDeny(req, res, q.code);
       if (!ctx) return;
@@ -919,7 +996,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
       const t0 = Date.now();
       try {
-        const out = await transcribe(pcm, q.lang);
+        const out = await xepHang("speech", () => transcribe(pcm, sttLang));
         /* The transcript is NOT posted as a message here. Recognition is
            imperfect enough on four-second Vietnamese that the guest must see
            what was heard and be able to fix it before it becomes a request the
@@ -933,6 +1010,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
           rtf: Number(out.rtf.toFixed(2)),
         });
       } catch (e) {
+        if (tuChoiVìĐông(res, e)) return;
         log(`stt: failed after ${Date.now() - t0}ms: ${(e as Error).message}`);
         res.status(503).json({ message: "Chưa nhận dạng được giọng nói. Anh/chị nhập giúp em bằng chữ ạ." });
       }
@@ -1339,6 +1417,21 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         .parse(req.body);
 
       if (from === "guest") {
+        /**
+         * Từ chối TRƯỚC khi ghi, không phải sau.
+         *
+         * Một lượt bị từ chối mà câu hỏi đã nằm trong luồng thì khách gửi lại
+         * là có hai câu giống hệt nhau, và bảng điều hành thấy hai yêu cầu.
+         * Đây là lý do `conChoDuoc` tách khỏi `xepHang`.
+         */
+        if (isGuestScoped(req) && !conChoDuoc("chat")) {
+          const h = trangThaiHang("chat");
+          res.setHeader("Retry-After", String(Math.max(15, h.uocGiay)));
+          return res.status(429).json({
+            message: "Hiện đang có nhiều khách cùng hỏi. Anh/chị thử lại sau ít phút giúp em ạ.",
+            queue: h,
+          });
+        }
         storage.addMessage({
           conversationId: id,
           role: "guest",
@@ -1363,7 +1456,9 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
           try {
             AgentTracer.recordStep(traceId, id, provider, modelName, "llm_chat", { input: body });
-            const res = await respondWithAi(id);
+            /* Xếp hàng quanh ĐÚNG lệnh gọi model, không quanh cả handler: tin
+               nhắn của khách phải hiện ra ngay, chỗ chờ nằm ở đây. */
+            const res = await xepHang("chat", () => respondWithAi(id));
             AgentTracer.recordStep(traceId, id, provider, modelName, "completed", {
               replyLength: res.reply.length,
               traceCount: res.trace.length,
@@ -3040,8 +3135,22 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         .object({
           text: z.string().min(1).max(TTS_MAX_CHARS),
           lang: z.string().min(2).max(5),
+          code: z.string().min(4),
         })
         .parse(req.body);
+
+      /**
+       * Bắt kiểm mã đặt phòng — thêm vào khi tuyến này ra Internet.
+       *
+       * Trước đây để công khai với lý lẽ "câu cần đọc vốn đã hiển thị trên màn
+       * hình khách, không có gì bí mật để lộ". Lý lẽ đó vẫn đúng về BÍ MẬT, và
+       * sai về CHI PHÍ: mỗi lần gọi là một tiến trình Piper ăn CPU mà model trả
+       * lời đang cần, và một URL công khai bị máy quét tự động tìm ra trong vài
+       * phút mà không cần ai biết link. Đây không phải phòng người dùng phá, mà
+       * phòng tiếng ồn nền của Internet.
+       */
+      const ctx = guestCtxOrDeny(req, res, b.code);
+      if (!ctx) return;
 
       if (!ttsAvailable() && !jaAvailable())
         return res.status(503).json({ message: "Máy chủ chưa cài giọng đọc." });
@@ -3051,7 +3160,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         if (!jaAvailable())
           return res.status(503).json({ message: "Chưa có giọng tiếng Nhật — xem docs/SETUP-VOICE.md" });
         try {
-          const out = await synthesiseJa(b.text);
+          const out = await xepHang("speech", () => synthesiseJa(b.text));
           res.setHeader("content-type", "audio/wav");
           res.setHeader("cache-control", "no-store");
           res.setHeader("x-tts-ms", String(out.ms));
@@ -3059,15 +3168,17 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
           res.setHeader("x-tts-voice", out.voice);
           return res.send(out.wav);
         } catch (e: any) {
+          if (tuChoiVìĐông(res, e)) return;
           return res.status(500).json({ message: String(e?.message ?? e) });
         }
       }
 
       if (!isTtsLang(b.lang) || !ttsLangs().includes(b.lang))
         return res.status(415).json({ message: `Chưa có giọng cho ngôn ngữ "${b.lang}".` });
+      const ttsLang = b.lang;
 
       try {
-        const out = await synthesise(b.text, b.lang);
+        const out = await xepHang("speech", () => synthesise(b.text, ttsLang));
         res.setHeader("content-type", "audio/wav");
         res.setHeader("cache-control", "no-store");
         res.setHeader("x-tts-ms", String(out.ms));
@@ -3075,6 +3186,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         res.setHeader("x-tts-voice", out.voice);
         res.send(out.wav);
       } catch (e: any) {
+        if (tuChoiVìĐông(res, e)) return;
         res.status(500).json({ message: String(e?.message ?? e) });
       }
     }),

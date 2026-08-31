@@ -212,6 +212,23 @@ async function synthesiseJaRaw(text: string): Promise<JaTtsResult> {
  * Python lẫn đường ONNX đều chạy, và chỉ khi đó `ja` mới được công bố.
  */
 export async function warmJaTts(): Promise<void> {
+  /**
+   * Tắt được bằng một biến môi trường, và có lý do vận hành cụ thể.
+   *
+   * Kokoro chạy ONNX NGAY TRONG tiến trình Node, nên nó khoá vòng lặp sự kiện
+   * suốt thời gian tổng hợp: đo được một câu trả lời tiếng Nhật dài làm cả
+   * server đứng im **15–28 giây** — mọi khách khác, mọi trang nhân viên, đều
+   * treo. Piper không bị vì nó là tiến trình con.
+   *
+   * Khi mở ra Internet cho nhiều người thử cùng lúc, một lượt tiếng Nhật là đủ
+   * để cả nhóm nghĩ dịch vụ chết. Đặt `TTS_JA=0` cho tới khi Kokoro được đưa
+   * sang worker thread; tiếng Nhật khi đó rơi về `speechSynthesis` của máy
+   * khách — mà điện thoại Nhật thì luôn có giọng Nhật.
+   */
+  if (process.env.TTS_JA === "0") {
+    log("tts-ja: TẮT theo TTS_JA=0 — tiếng Nhật dùng giọng của máy khách");
+    return;
+  }
   if (!prerequisitesOnDisk()) {
     log("tts-ja: thiếu venv hoặc trọng số Kokoro — tiếng Nhật tắt");
     return;

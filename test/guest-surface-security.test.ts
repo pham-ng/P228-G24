@@ -17,7 +17,12 @@
  * own clock.
  */
 import "dotenv/config";
-import { guestRequests, codeFailures } from "../server/ratelimit";
+import {
+  guestRequests,
+  codeFailures,
+  GUEST_REQUEST_LIMIT,
+  CODE_FAILURE_LIMIT,
+} from "../server/ratelimit";
 
 let failures = 0;
 function ok(cond: boolean, label: string) {
@@ -110,10 +115,13 @@ const KEY = "203.0.113.9";
 for (let i = 0; i < 50; i++) codeFailures.over(KEY, t0);
 ok(codeFailures.over(KEY, t0) === 0, "kiểm tra 50 lần không tự tiêu ngân sách");
 
-for (let i = 0; i < 30; i++) codeFailures.penalise(KEY, t0);
-ok(codeFailures.over(KEY, t0) === 0, "30 lần sai vẫn cho qua (đúng giới hạn)");
+/* Ngưỡng đọc từ chính module, không viết cứng: nó cấu hình được bằng biến môi
+   trường, và bản chạy công khai siết nó lại. Cái phải đúng là RANH GIỚI — đúng
+   ngưỡng thì qua, hơn một là chặn — chứ không phải con số cụ thể. */
+for (let i = 0; i < CODE_FAILURE_LIMIT; i++) codeFailures.penalise(KEY, t0);
+ok(codeFailures.over(KEY, t0) === 0, `${CODE_FAILURE_LIMIT} lần sai vẫn cho qua (đúng giới hạn)`);
 codeFailures.penalise(KEY, t0);
-ok(codeFailures.over(KEY, t0) > 0, "lần sai thứ 31 bị chặn");
+ok(codeFailures.over(KEY, t0) > 0, `lần sai thứ ${CODE_FAILURE_LIMIT + 1} bị chặn`);
 
 /* Serving a correct code must NOT clear the miss budget — otherwise an
    attacker holding one valid code interleaves it and enumerates without limit.
@@ -123,17 +131,20 @@ codeFailures.reset(KEY);
 ok(codeFailures.over(KEY, t0) === 0, "reset() thủ công thì sạch");
 
 /* Windows expire, or a mistyped code would lock a room out for good. */
-for (let i = 0; i < 40; i++) codeFailures.penalise(KEY, t0);
+for (let i = 0; i < CODE_FAILURE_LIMIT + 10; i++) codeFailures.penalise(KEY, t0);
 ok(codeFailures.over(KEY, t0) > 0, "đang bị chặn");
 ok(codeFailures.over(KEY, t0 + 6 * 60_000) === 0, "hết cửa sổ 5 phút thì mở lại");
 
 console.log("\n=== chặn dội request ===");
 const K2 = "203.0.113.10";
 let firstBlock = -1;
-for (let i = 1; i <= 80; i++) {
+for (let i = 1; i <= GUEST_REQUEST_LIMIT + 20; i++) {
   if (guestRequests.check(K2, t0) > 0 && firstBlock < 0) firstBlock = i;
 }
-ok(firstBlock === 61, `chặn từ request thứ ${firstBlock} (giới hạn 60/phút)`);
+ok(
+  firstBlock === GUEST_REQUEST_LIMIT + 1,
+  `chặn từ request thứ ${firstBlock} (giới hạn ${GUEST_REQUEST_LIMIT}/phút)`,
+);
 ok(guestRequests.check(K2, t0 + 61_000) === 0, "sang phút mới thì cho lại");
 
 /* Separate keys must not share a budget, or one noisy guest silences a hotel. */
