@@ -6,8 +6,8 @@
  * an English voice produces noise, and a guest who taps it once learns the
  * feature is broken. Absent beats wrong.
  */
-import { useEffect, useState } from "react";
-import { Volume2, Square } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Volume2, Square, Loader2 } from "lucide-react";
 import { pickVoice, speak, speechSupported, stopSpeaking, voicesReady } from "@/lib/speech";
 
 const LABEL: Record<string, { play: string; stop: string }> = {
@@ -19,9 +19,31 @@ const LABEL: Record<string, { play: string; stop: string }> = {
   ru: { play: "Озвучить", stop: "Стоп" },
 };
 
+/**
+ * Server đọc được ngôn ngữ nào — hỏi MỘT lần cho cả trang.
+ *
+ * Không có bộ nhớ đệm này thì mỗi bong bóng câu trả lời gọi `/api/guest/voice`
+ * một lần; một hội thoại bốn mươi lượt là bốn mươi yêu cầu cho cùng một câu trả
+ * lời không đổi trong suốt phiên.
+ */
+let serverLangsCache: Promise<string[]> | null = null;
+function serverTtsLangs(): Promise<string[]> {
+  if (!serverLangsCache) {
+    serverLangsCache = fetch("/api/guest/voice")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => (j?.tts ? (j.ttsLangs ?? []) : []))
+      .catch(() => []);
+  }
+  return serverLangsCache;
+}
+
 export function SpeakButton({ text, lang }: { text: string; lang: string }) {
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null);
+  /** Server đọc được ngôn ngữ này không — dùng khi máy khách không có giọng. */
+  const [serverCoGiong, setServerCoGiong] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [dangTai, setDangTai] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -30,6 +52,9 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
     voicesReady().then((v) => {
       if (alive) setVoice(pickVoice(v, lang));
     });
+    serverTtsLangs().then((ls) => {
+      if (alive) setServerCoGiong(ls.includes(lang));
+    });
     return () => {
       alive = false;
     };
@@ -37,10 +62,91 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
 
   /* Stop when this message leaves the screen, or a guest scrolling away keeps
      hearing an answer they have moved on from. */
-  useEffect(() => () => stopSpeaking(), []);
+  useEffect(
+    () => () => {
+      stopSpeaking();
+      /* Audio của server không đi qua `speechSynthesis`, nên `stopSpeaking()`
+         không chạm tới nó. Thiếu dòng này thì khách cuộn đi và vẫn nghe tiếp. */
+      audioRef.current?.pause();
+      audioRef.current = null;
+    },
+    [],
+  );
 
-  if (!speechSupported() || !voice) return null;
+  /**
+   * ƯU TIÊN MODEL CỦA MÁY CHỦ. Giọng thiết bị là lưới đỡ.
+   *
+   * Trước đây ngược lại — `!voice && serverCoGiong` — nên Piper chỉ chạy khi
+   * thiết bị không có giọng. Đo trên máy demo: bấm nút loa gọi
+   * `speechSynthesis` 1 lần và gọi máy chủ 0 lần, vì Windows có sẵn Microsoft
+   * An cho tiếng Việt. Model 413 MB nằm im, và mỗi khách nghe một giọng khác
+   * nhau tuỳ máy họ cầm.
+   *
+   * Đảo lại vì đây là sản phẩm bán cho khách sạn, không phải tiện ích cá nhân:
+   *   · Giọng đồng nhất trên mọi thiết bị. Khách sạn nghe thử trên iPad ở sảnh
+   *     rồi ký hợp đồng, thì khách dùng iPhone phải nghe đúng giọng đó.
+   *   · Kiểm soát được chất lượng. Giọng thiết bị là hộp đen của Apple/Google,
+   *     có thể đổi sau một bản cập nhật hệ điều hành mà không ai báo.
+   *   · Chạy hoàn toàn ngoại tuyến trên máy khách sạn — cùng lời hứa với STT.
+   *
+   * Cái giá là thật và đã đo: ~1,3 giây mỗi câu, RTF 0,34–0,46 trên CPU này,
+   * cộng thêm tải lên chính máy đang chạy model trả lời. Vì vậy vẫn giữ đường
+   * lui: ngôn ngữ máy chủ không đọc được (tiếng Nhật — giọng Piper duy nhất
+   * cho ja phát âm sai vì thiếu OpenJTalk), hoặc lệnh gọi hỏng, thì rơi về
+   * giọng thiết bị thay vì im lặng.
+   */
+  const dungServer = serverCoGiong;
+  const coDuongLui = speechSupported() && !!voice;
+  if (!dungServer && !coDuongLui) return null;
   const l = LABEL[lang] ?? LABEL.en;
+
+  const phatTuServer = async () => {
+    setSpeaking(true);
+    /* Piper mất ~1,3 giây cho một câu. Giọng thiết bị phát ngay, nên trước đây
+       không cần trạng thái chờ; giờ máy chủ là đường chính, và một nút bấm rồi
+       im lặng hơn một giây đọc như nút hỏng. */
+    setDangTai(true);
+    try {
+      const r = await fetch("/api/guest/speak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, lang }),
+      });
+      if (!r.ok) throw new Error(String(r.status));
+      const url = URL.createObjectURL(await r.blob());
+      const a = new Audio(url);
+      audioRef.current = a;
+      /* Thu hồi URL khi xong, dù kết thúc bình thường hay lỗi: mỗi blob giữ
+         nguyên bộ nhớ cho tới khi được thu hồi. */
+      a.onplaying = () => setDangTai(false);
+      const xong = () => {
+        setDangTai(false);
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+        setSpeaking(false);
+      };
+      a.onended = xong;
+      a.onerror = xong;
+      await a.play();
+    } catch {
+      /**
+       * Máy chủ hỏng thì rơi về giọng thiết bị, không im lặng.
+       *
+       * Trước đây nhánh này chỉ `setSpeaking(false)`: khách bấm nút, không có
+       * gì phát ra, không có lời giải thích. Khi máy chủ còn là lưới đỡ thì
+       * hiếm khi chạm tới; giờ máy chủ là đường chính nên nó là đường mà một
+       * tiến trình Piper chết, một câu quá dài, hay một lần khởi động lại
+       * giữa chừng sẽ đi qua — và những chuyện đó xảy ra thật (đã gặp
+       * `Piper lỗi 3221225794` từ một tiến trình server cũ).
+       */
+      setDangTai(false);
+      if (coDuongLui) {
+        speak(text, voice!, { onEnd: () => setSpeaking(false) });
+        return;
+      }
+      setSpeaking(false);
+    }
+  };
 
   return (
     <button
@@ -48,18 +154,33 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
       onClick={() => {
         if (speaking) {
           stopSpeaking();
+          audioRef.current?.pause();
+          audioRef.current = null;
           setSpeaking(false);
+          setDangTai(false);
+          return;
+        }
+        if (dungServer) {
+          void phatTuServer();
           return;
         }
         setSpeaking(true);
-        speak(text, voice, { onEnd: () => setSpeaking(false) });
+        speak(text, voice!, { onEnd: () => setSpeaking(false) });
       }}
-      title={`${speaking ? l.stop : l.play} · ${voice.name}`}
+      /* Cho biết giọng nào đang thật sự phát — trước đây tooltip đọc tên giọng
+         thiết bị kể cả khi máy chủ mới là bên đọc. */
+      title={`${speaking ? l.stop : l.play} · ${dungServer ? "giọng máy chủ (Piper)" : (voice?.name ?? "giọng thiết bị")}`}
       aria-label={speaking ? l.stop : l.play}
       data-testid="button-speak"
       className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
-      {speaking ? <Square className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+      {dangTai ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : speaking ? (
+        <Square className="h-3.5 w-3.5" />
+      ) : (
+        <Volume2 className="h-3.5 w-3.5" />
+      )}
     </button>
   );
 }
