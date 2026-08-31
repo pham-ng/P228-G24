@@ -7,6 +7,7 @@
     "dev": "npx cross-env NODE_ENV=development tsx server/index.ts",
     "setup": "node scripts/setup.mjs",
     "setup:verify": "node scripts/setup.mjs --verify",
+    "seed:testers": "npx tsx scripts/seed-nguoi-thu.ts",
     "bootstrap:linux": "bash scripts/bootstrap-linux.sh",
     "deploy": "node scripts/deploy.mjs",
     "tunnel": "node scripts/tunnel.mjs",

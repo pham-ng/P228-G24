@@ -694,10 +694,27 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       res.status(404).json({ message: "Not found." });
       return;
     }
-    // The deep-link directory a real deployment would issue per reservation.
+    /**
+     * "Đang có người dùng" — tính từ `last_message_at`, không thêm cột nào.
+     *
+     * Khi nhiều người cùng thử một bản demo, ai cũng bấm vào cái tên đầu tiên
+     * họ thấy. Mà một mã đặt phòng ứng với MỘT hội thoại, nên họ đổ chung vào
+     * một luồng: đọc được tin nhắn của nhau, model lấy lịch sử của người khác
+     * làm ngữ cảnh, và không còn truy được ai hỏi gì.
+     *
+     * Mười lăm phút, không phải năm: người thử đọc câu trả lời rồi nghĩ tiếp
+     * câu sau, và một khoảng ngắn hơn sẽ báo "trống" trong lúc họ vẫn đang ngồi
+     * đó. Cũng không phải một giờ — như vậy thì cuối buổi thử mọi ô đều đỏ.
+     */
+    const NGUONG_MS = 15 * 60_000;
+    const bayGio = Date.now();
+
     const rows = storage.listReservations().map((r) => {
       const g = storage.getGuest(r.guestId)!;
       const room = storage.getRoom(r.roomId);
+      const conv = storage.getConversationForReservation(r.id);
+      const cuoi = conv?.lastMessageAt ? Date.parse(conv.lastMessageAt) : NaN;
+      const dangDung = Number.isFinite(cuoi) && bayGio - cuoi < NGUONG_MS;
       return {
         confirmationCode: r.confirmationCode,
         guestName: g.name,
@@ -707,6 +724,10 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         checkIn: r.checkIn,
         checkOut: r.checkOut,
         status: r.status,
+        dangDung,
+        /* Số phút kể từ tin nhắn cuối, để giao diện nói "5 phút trước" thay vì
+           chỉ một chấm đỏ không giải thích gì. */
+        phutTruoc: Number.isFinite(cuoi) ? Math.floor((bayGio - cuoi) / 60_000) : null,
       };
     });
     res.json(rows);

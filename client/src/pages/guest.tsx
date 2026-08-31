@@ -178,6 +178,10 @@ const Bubble = memo(function Bubble({
  */
 const UI_COPY: Record<string, Record<string, string>> = {
   vi: {
+    howToJoin: "Cách vào thử",
+    joinBody: "Mỗi người chọn MỘT tài khoản khác nhau bên dưới — chọn trùng thì cả nhóm chung một cuộc trò chuyện và đọc được tin nhắn của nhau. Ô nào ghi \"đang dùng\" thì bỏ qua, chọn ô trống. Không cần mật khẩu.",
+    inUse: "đang dùng",
+    freeNow: "còn trống",
     hideChips: "Ẩn gợi ý",
     showChips: "Hiện gợi ý nhanh",
     moreChips: "Kéo xem thêm",
@@ -200,6 +204,10 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "Hiện chưa có khách nào đang lưu trú.",
   },
   en: {
+    howToJoin: "How to join",
+    joinBody: "Pick a DIFFERENT account each — two people on the same one share a single conversation and can read each other's messages. Skip any marked \"in use\" and take a free one. No password needed.",
+    inUse: "in use",
+    freeNow: "free",
     hideChips: "Hide shortcuts",
     showChips: "Show quick shortcuts",
     moreChips: "Scroll for more",
@@ -222,6 +230,10 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "No one is checked in right now.",
   },
   ko: {
+    howToJoin: "참여 방법",
+    joinBody: "각자 다른 계정을 선택하세요. 같은 계정을 쓰면 대화가 공유됩니다. \"사용 중\" 표시는 건너뛰세요. 비밀번호는 필요 없습니다.",
+    inUse: "사용 중",
+    freeNow: "사용 가능",
     hideChips: "바로가기 숨기기",
     showChips: "바로가기 표시",
     moreChips: "옆으로 밀기",
@@ -244,6 +256,10 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "현재 투숙 중인 고객이 없습니다.",
   },
   zh: {
+    howToJoin: "如何加入",
+    joinBody: "每人选择不同的账号。选同一个会共用一个对话，能看到彼此的消息。跳过标记「使用中」的，选空闲的。无需密码。",
+    inUse: "使用中",
+    freeNow: "空闲",
     hideChips: "隐藏快捷方式",
     showChips: "显示快捷方式",
     moreChips: "向右滑动查看",
@@ -266,6 +282,10 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "目前没有在住客人。",
   },
   ja: {
+    howToJoin: "参加方法",
+    joinBody: "各自ちがうアカウントを選んでください。同じものだと会話が共有され、互いのメッセージが見えます。「使用中」は避けて空いているものを。パスワードは不要です。",
+    inUse: "使用中",
+    freeNow: "空き",
     hideChips: "ショートカットを隠す",
     showChips: "ショートカットを表示",
     moreChips: "横にスクロール",
@@ -288,6 +308,10 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "現在ご滞在中のお客様はいません。",
   },
   ru: {
+    howToJoin: "Как подключиться",
+    joinBody: "Каждый выбирает РАЗНЫЙ аккаунт — на одном вы попадёте в общий диалог и увидите сообщения друг друга. Пропускайте помеченные «занят». Пароль не нужен.",
+    inUse: "занят",
+    freeNow: "свободно",
     hideChips: "Скрыть подсказки",
     showChips: "Показать подсказки",
     moreChips: "Прокрутите вправо",
@@ -343,8 +367,19 @@ function KeyPicker({ onPick, lang, onLang }: { onPick: (code: string) => void; l
   const { data: hotel } = useQuery<Hotel>({ queryKey: ["/api/hotel"] });
   const [code, setCode] = useState("");
   const copy = ENTRY_COPY[lang] ?? ENTRY_COPY.en;
-  const inHouse = (keys ?? []).filter((k) => k.status === "in_house");
+  /**
+   * Tài khoản CHƯA CÓ AI dùng xếp lên trước.
+   *
+   * Khi nhiều người cùng thử, ai cũng bấm vào cái tên đầu tiên nhìn thấy — rồi
+   * cả nhóm chung một hội thoại, đọc tin nhắn của nhau, và model lấy lịch sử
+   * của người khác làm ngữ cảnh. Đưa ô trống lên đầu là cách rẻ nhất để việc
+   * đúng cũng là việc dễ nhất; cái nhãn bên dưới chỉ là lớp giải thích thứ hai.
+   */
+  const sapXep = (a: GuestKey, b: GuestKey) =>
+    Number(a.dangDung ?? false) - Number(b.dangDung ?? false);
+  const inHouse = (keys ?? []).filter((k) => k.status === "in_house").sort(sapXep);
   const others = (keys ?? []).filter((k) => k.status !== "in_house");
+  const soTrong = inHouse.filter((k) => !k.dangDung).length;
 
   return (
     <div className="mx-auto flex min-h-[100dvh] w-full max-w-xl flex-col justify-center px-5 py-12">
@@ -429,8 +464,28 @@ function KeyPicker({ onPick, lang, onLang }: { onPick: (code: string) => void; l
       {/* Hidden entirely when the directory is off, which is the default. The
           code field above is the real way in; this was only ever a demo aid. */}
       <div className="mt-8" hidden={keysOff}>
-        <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-          In house now
+        {/**
+          * Hướng dẫn cho người vào thử.
+          *
+          * Không phải trang trí: khi mở link cho một nhóm cùng thử, thứ hỏng
+          * trước tiên không phải phần mềm mà là việc mọi người chọn trùng một
+          * tài khoản. Ba dòng ở đây rẻ hơn nhiều so với một buổi thử có dữ liệu
+          * trộn vào nhau rồi không đọc lại được.
+          */}
+        <div className="rounded-lg border border-primary/25 bg-primary/[0.04] px-3.5 py-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-primary">
+            {t(lang, "howToJoin")}
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-foreground/80">{t(lang, "joinBody")}</p>
+        </div>
+
+        <div className="mt-4 flex items-baseline justify-between">
+          <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+            In house now
+          </div>
+          <div className="text-[11px] text-muted-foreground">
+            {soTrong}/{inHouse.length} {t(lang, "freeNow")}
+          </div>
         </div>
         <div className="mt-2 grid gap-1.5">
           {inHouse.map((k) => (
@@ -438,10 +493,23 @@ function KeyPicker({ onPick, lang, onLang }: { onPick: (code: string) => void; l
               key={k.confirmationCode}
               onClick={() => onPick(k.confirmationCode)}
               data-testid={`key-${k.confirmationCode}`}
-              className="hover-elevate flex items-center gap-3 rounded-md border border-card-border bg-card px-3 py-2.5 text-left"
+              /* Vẫn bấm được khi đang có người: người bỏ dở giữa chừng phải quay
+                 lại đúng hội thoại của mình được. Làm mờ để nói "đừng chọn cái
+                 này", không phải "cấm". */
+              className={`hover-elevate flex items-center gap-3 rounded-md border px-3 py-2.5 text-left ${
+                k.dangDung ? "border-dashed border-border bg-muted/30 opacity-70" : "border-card-border bg-card"
+              }`}
             >
               <div className="flex-1 min-w-0">
-                <div className="truncate text-sm font-medium">{k.guestName}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="truncate text-sm font-medium">{k.guestName}</span>
+                  {k.dangDung && (
+                    <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                      {t(lang, "inUse")}
+                      {k.phutTruoc != null && ` · ${k.phutTruoc}′`}
+                    </span>
+                  )}
+                </div>
                 <div className="truncate text-xs text-muted-foreground">
                   Room {k.room} · {LANG_LABELS[k.lang] ?? k.lang}
                   {k.vipTier !== "none" && ` · ${k.vipTier}`}

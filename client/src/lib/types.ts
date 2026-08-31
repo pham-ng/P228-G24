@@ -183,6 +183,10 @@ export type GuestKey = {
   checkIn: string;
   checkOut: string;
   status: string;
+  /** Co ai vua nhan tin trong 15 phut qua khong — de nguoi thu khong dam vao nhau. */
+  dangDung?: boolean;
+  /** So phut ke tu tin nhan cuoi, null neu chua co hoi thoai nao. */
+  phutTruoc?: number | null;
 };
 
 export type RoomRow = Room & {
