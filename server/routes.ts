@@ -43,6 +43,8 @@ import { issueSession, actorForToken } from "./staff-session";
 import { guestRequests, codeFailures, limited, blockedBy, clientKey } from "./ratelimit";
 import { recordChatMetrics } from "./metrics";
 import { parseCccdQr, maskId } from "./cccd";
+import { synthesise, ttsAvailable, ttsLangs, isTtsLang, TTS_MAX_CHARS } from "./tts";
+import { synthesiseJa, jaAvailable, warmJaTts } from "./tts-ja";
 import { findCheckinMatches, performCheckIn } from "./checkin";
 /* Cùng bộ luật mà bảng chấm tay và giám khảo máy dùng. Nhập vào chứ không
    chép lại: một bản sao ở đây là một đường để ba nơi trôi khỏi nhau, đúng
@@ -389,6 +391,9 @@ function isGuestRoute(req: Request) {
   /* Kiosk tự phục vụ: khách chưa có mã đặt phòng nào để trình, vì cái họ đang
      làm CHÍNH LÀ để lấy mã đó. Bù lại bằng bộ đếm chống dò trong handler. */
   if (req.method === "POST" && req.path === "/api/guest/checkin") return true;
+  /* Đọc thành tiếng: khách bấm nghe trước khi có phiên nào, và câu cần đọc
+     vốn đã hiển thị trên màn hình họ — không có gì bí mật để lộ. */
+  if (req.method === "POST" && req.path === "/api/guest/speak") return true;
 
   /**
    * The kiosk's transactional routes — availability, booking, menu, ordering.
@@ -601,6 +606,10 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       console.error("[retrieval] index build failed:", e?.message ?? e);
     }
   })();
+
+  /* Warm-up tiếng Nhật (Kokoro + kuroshiro) ngay khi khởi động.
+     Không block port — nếu chưa có weights, warmJaTts() tự thoát sớm. */
+  void warmJaTts();
 
   /* ---------------- property & directory ---------------- */
 
@@ -855,9 +864,21 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
    * guest taps, waits minutes, and concludes the product is broken. So the
    * button only exists once the weights are on disk.
    */
-  app.get("/api/guest/voice", (_req, res) => {
-    res.json({ stt: sttAvailable(), maxSeconds: STT_MAX_SECONDS, sampleRate: STT_SAMPLE_RATE });
-  });
+  app.get("/api/guest/voice", (_req, res) =>
+    res.json({
+      stt: sttAvailable(),
+      maxSeconds: STT_MAX_SECONDS,
+      sampleRate: STT_SAMPLE_RATE,
+      tts: ttsAvailable() || jaAvailable(),
+      /* jaAvailable() → Kokoro ONNX đã có trên đĩa, dùng được cho tiếng Nhật.
+         Piper vẫn xử lý 5 ngôn ngữ còn lại; tiếng Nhật đi qua kokoro-js. */
+      ttsLangs: [
+        ...ttsLangs(),
+        ...(jaAvailable() ? (["ja"] as const) : []),
+      ],
+      ttsMaxChars: TTS_MAX_CHARS,
+    }),
+  );
 
   /**
    * Speech to text, entirely on this machine.
@@ -2997,6 +3018,65 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     asyncH(async (req, res) => {
       const b = req.body ?? {};
       res.json(checkRestrictions(String(b.check_in), String(b.check_out), b.room_type ?? null));
+    }),
+  );
+
+  /**
+   * Đọc một câu thành tiếng, bằng model chạy trên máy này.
+   *
+   * Trả về WAV để trình duyệt phát thẳng. Không lưu tệp: câu trả lời đã nằm
+   * trong cơ sở dữ liệu rồi, và một thư mục âm thanh tạm là thứ sẽ đầy dần mà
+   * không ai dọn.
+   *
+   * Công khai như `/api/guest/transcribe`: kiosk chưa có phiên nào khi khách
+   * bấm nghe. Bù bằng bộ đếm chống lạm dụng và giới hạn độ dài — tổng hợp tốn
+   * CPU, và CPU đó đang phải chia với model trả lời.
+   */
+  app.post(
+    "/api/guest/speak",
+    asyncH(async (req, res) => {
+      if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
+      const b = z
+        .object({
+          text: z.string().min(1).max(TTS_MAX_CHARS),
+          lang: z.string().min(2).max(5),
+        })
+        .parse(req.body);
+
+      if (!ttsAvailable() && !jaAvailable())
+        return res.status(503).json({ message: "Máy chủ chưa cài giọng đọc." });
+
+      /* Tiếng Nhật đi qua Kokoro + kuroshiro, không phải Piper. */
+      if (b.lang === "ja") {
+        if (!jaAvailable())
+          return res.status(503).json({ message: "Chưa có giọng tiếng Nhật — xem docs/SETUP-VOICE.md" });
+        try {
+          const out = await synthesiseJa(b.text);
+          res.setHeader("content-type", "audio/wav");
+          res.setHeader("cache-control", "no-store");
+          res.setHeader("x-tts-ms", String(out.ms));
+          res.setHeader("x-tts-seconds", out.audioSeconds.toFixed(2));
+          res.setHeader("x-tts-voice", out.voice);
+          return res.send(out.wav);
+        } catch (e: any) {
+          return res.status(500).json({ message: String(e?.message ?? e) });
+        }
+      }
+
+      if (!isTtsLang(b.lang) || !ttsLangs().includes(b.lang))
+        return res.status(415).json({ message: `Chưa có giọng cho ngôn ngữ "${b.lang}".` });
+
+      try {
+        const out = await synthesise(b.text, b.lang);
+        res.setHeader("content-type", "audio/wav");
+        res.setHeader("cache-control", "no-store");
+        res.setHeader("x-tts-ms", String(out.ms));
+        res.setHeader("x-tts-seconds", out.audioSeconds.toFixed(2));
+        res.setHeader("x-tts-voice", out.voice);
+        res.send(out.wav);
+      } catch (e: any) {
+        res.status(500).json({ message: String(e?.message ?? e) });
+      }
     }),
   );
 
