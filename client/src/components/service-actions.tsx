@@ -3,7 +3,38 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Sparkles, X, ChevronLeft, ChevronRight, Tag, CalendarCheck, Loader2, Check } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
-export type ServiceGroupRef = { key: string; name: string };
+export type ServiceGroupRef = { key: string; name: string; category?: string | null };
+
+/**
+ * Nhãn nút "xem tất cả" — theo TỪNG nhóm dịch vụ, không phải một câu dùng chung.
+ *
+ * Trước đây mọi thẻ đều ghi "Xem tất cả liệu trình & Đặt". "Liệu trình" là từ
+ * của spa, và property này có năm nhóm: dining, spa, transport, experience,
+ * roomservice. Nên thẻ **Vinpearl cable car** — một chuyến cáp treo khứ hồi —
+ * mời khách xem "liệu trình" của nó. Khách đọc câu đó sẽ nghĩ hoặc là hệ thống
+ * nhầm, hoặc là chính họ đọc nhầm; cả hai đều làm mất lòng tin vào những con số
+ * ngay bên cạnh.
+ *
+ * Tra theo `category`, KHÔNG theo `key`. `key` là `service_group` trong cơ sở
+ * dữ liệu và nó chứa TÊN THƯƠNG HIỆU — "Vinpearl cable car", "Akoya Spa",
+ * "VinWonders Nha Trang" — nên tra theo nó thì mọi nhóm đều rơi vào câu dự
+ * phòng. Bản vá đầu của tôi mắc đúng lỗi đó, và nó chỉ lộ ra khi nhìn màn hình
+ * thật: nút đọc "Xem tất cả & Đặt" chứ không phải "Xem tuyến & Đặt".
+ */
+const NHAN_XEM: Record<string, { vi: string; en: string }> = {
+  spa: { vi: "Xem tất cả liệu trình & Đặt", en: "View all treatments & Book" },
+  dining: { vi: "Xem thực đơn & Đặt bàn", en: "View menu & Book a table" },
+  transport: { vi: "Xem tuyến & Đặt", en: "View routes & Book" },
+  experience: { vi: "Xem vé & Đặt", en: "View tickets & Book" },
+  roomservice: { vi: "Xem thực đơn & Gọi món", en: "View menu & Order" },
+};
+
+/** Nhóm lạ thì dùng câu trung tính — không bịa ra một danh từ sai. */
+export function nhanXemTatCa(category: string | null | undefined, vi: boolean): string {
+  const n = category ? NHAN_XEM[category] : undefined;
+  if (!n) return vi ? "Xem tất cả & Đặt" : "View all & Book";
+  return vi ? n.vi : n.en;
+}
 
 export type ServiceGroupDetail = {
   key: string;
@@ -514,7 +545,7 @@ export function ServiceActions({
                   data-testid={`button-view-service-${g.key}`}
                   className="inline-flex items-center gap-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-[11px] font-semibold transition-all"
                 >
-                  {vi ? "Xem tất cả liệu trình & Đặt" : "View all & Book"} ➔
+                  {nhanXemTatCa(g.category, vi)} ➔
                 </button>
               </div>
 

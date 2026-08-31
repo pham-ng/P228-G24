@@ -51,14 +51,14 @@ function focusNamesGroup(focus: string, group: string): boolean {
 export function detectReferencedServices(
   _passages: { title: string; category: string; content?: string; body?: string }[],
   focusText = "",
-): { key: string; name: string }[] {
+): { key: string; name: string; category: string | null }[] {
   /* Normalised, not merely folded, so the vocabulary in name-alias.ts lines
      the guest's "cáp treo" up with the group stored as "Vinpearl cable car". */
   const focus = normaliseName(focusText);
   if (!focus.trim()) return [];
 
   const seen = new Set<string>();
-  const out: { key: string; name: string }[] = [];
+  const out: { key: string; name: string; category: string | null }[] = [];
 
   for (const s of storage.listServices()) {
     /* Only groups the detail endpoint can actually resolve — see above. */
@@ -104,7 +104,10 @@ export function detectReferencedServices(
 
     if (named || linkedNamed) {
       seen.add(key);
-      out.push({ key, name: key });
+      /* Kèm loại dịch vụ: kiosk chọn động từ trên nút theo nó ("Xem tuyến" cho
+         cáp treo, "Xem liệu trình" cho spa). `key` là tên thương hiệu nên tự nó
+         không nói được đây là loại gì. */
+      out.push({ key, name: key, category: s.category ?? null });
     }
   }
 

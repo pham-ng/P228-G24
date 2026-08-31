@@ -178,6 +178,9 @@ const Bubble = memo(function Bubble({
  */
 const UI_COPY: Record<string, Record<string, string>> = {
   vi: {
+    hideChips: "Ẩn gợi ý",
+    showChips: "Hiện gợi ý nhanh",
+    moreChips: "Kéo xem thêm",
     micHint: "Bấm để nói",
     darkOn: "Chế độ tối",
     darkOff: "Chế độ sáng",
@@ -197,6 +200,9 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "Hiện chưa có khách nào đang lưu trú.",
   },
   en: {
+    hideChips: "Hide shortcuts",
+    showChips: "Show quick shortcuts",
+    moreChips: "Scroll for more",
     micHint: "Tap to speak",
     darkOn: "Dark mode",
     darkOff: "Light mode",
@@ -216,6 +222,9 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "No one is checked in right now.",
   },
   ko: {
+    hideChips: "바로가기 숨기기",
+    showChips: "바로가기 표시",
+    moreChips: "옆으로 밀기",
     micHint: "눌러서 말하기",
     darkOn: "다크 모드",
     darkOff: "라이트 모드",
@@ -235,6 +244,9 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "현재 투숙 중인 고객이 없습니다.",
   },
   zh: {
+    hideChips: "隐藏快捷方式",
+    showChips: "显示快捷方式",
+    moreChips: "向右滑动查看",
     micHint: "点击说话",
     darkOn: "深色模式",
     darkOff: "浅色模式",
@@ -254,6 +266,9 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "目前没有在住客人。",
   },
   ja: {
+    hideChips: "ショートカットを隠す",
+    showChips: "ショートカットを表示",
+    moreChips: "横にスクロール",
     micHint: "タップして話す",
     darkOn: "ダークモード",
     darkOff: "ライトモード",
@@ -273,6 +288,9 @@ const UI_COPY: Record<string, Record<string, string>> = {
     noneInHouse: "現在ご滞在中のお客様はいません。",
   },
   ru: {
+    hideChips: "Скрыть подсказки",
+    showChips: "Показать подсказки",
+    moreChips: "Прокрутите вправо",
     micHint: "Нажмите, чтобы говорить",
     darkOn: "Тёмная тема",
     darkOff: "Светлая тема",
@@ -662,6 +680,52 @@ export default function GuestPage() {
   const [roomServiceOpen, setRoomServiceOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [myReqOpen, setMyReqOpen] = useState(false);
+
+  /**
+   * Khách ẩn được hàng gợi ý, và lựa chọn đó được nhớ.
+   *
+   * Hàng chip luôn hiện là đúng cho người vừa mở lần đầu — họ chưa biết hỏi
+   * được gì. Nó sai với người đã dùng quen: mười cái nút chiếm một dải màn hình
+   * suốt cuộc hội thoại để mời làm những việc họ không định làm.
+   *
+   * Nhớ trong `localStorage` chứ không phải state: ẩn xong mà tải lại trang nó
+   * hiện lại thì cái nút ẩn đó vô nghĩa.
+   */
+  const [chipsAn, setChipsAn] = useState(() => {
+    try {
+      return localStorage.getItem("aurea.chips.hidden") === "1";
+    } catch {
+      /* Chế độ riêng tư, hoặc trình duyệt chặn lưu trữ. Không phải lỗi — chỉ là
+         lựa chọn không được nhớ qua các lần mở. */
+      return false;
+    }
+  });
+  const doiChips = (an: boolean) => {
+    setChipsAn(an);
+    try {
+      localStorage.setItem("aurea.chips.hidden", an ? "1" : "0");
+    } catch {
+      /* xem trên */
+    }
+  };
+
+  /**
+   * Còn chip ở bên phải màn hình hay không.
+   *
+   * Hàng chip cuộn ngang và thanh cuộn bị ẩn (`scrollbar-none`) để không chiếm
+   * chiều cao trên điện thoại — nhưng như vậy **không còn dấu hiệu nào** cho
+   * biết còn nội dung bên phải. Người mới vào thấy bốn cái nút và tưởng chỉ có
+   * bốn, trong khi tiếng Việt có tám.
+   */
+  const chipScroller = useRef<HTMLDivElement | null>(null);
+  const [conChipPhai, setConChipPhai] = useState(false);
+  const doChipPhai = () => {
+    const el = chipScroller.current;
+    if (!el) return;
+    /* Trừ 8px: cuộn tới cuối thường lệch vài phần trăm pixel, và không có biên
+       này thì mũi tên nhấp nháy ở cuối hàng. */
+    setConChipPhai(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+  };
   /**
    * NHÓM 3.2 — nhắc một lần rằng nút micro dùng để nói.
    *
@@ -707,6 +771,38 @@ export default function GuestPage() {
     }
     return base;
   }, [detail?.guest.lang, roomRelated]);
+
+  /**
+   * Tính lại "còn chip bên phải" khi danh sách hoặc bề rộng đổi.
+   *
+   * Không chỉ lúc cuộn: số chip đổi theo ngôn ngữ (tiếng Việt tám, tiếng Nga
+   * bốn) và theo việc lượt vừa rồi có nói tới phòng hay không. Chỉ nghe sự kiện
+   * `scroll` thì mũi tên không bao giờ xuất hiện cho tới khi khách đã tự cuộn —
+   * tức là sau khi họ đã tự phát hiện ra điều mà mũi tên định nói với họ.
+   *
+   * Đo BA lần bằng ba cơ chế, và không cái nào thừa:
+   *
+   *   · ngay lập tức — đủ cho trường hợp thường;
+   *   · `requestAnimationFrame` — sau khi trình duyệt dựng xong bố cục, vì đo
+   *     ngay trong effect thì `scrollWidth` vẫn là của lần dựng trước;
+   *   · `ResizeObserver` — vì rAF **bị hoãn khi tab đang ẩn**. Đo được: mở
+   *     trang trong một khung bị thu lại thì `innerWidth` là 0, rAF không chạy,
+   *     và mũi tên không bao giờ xuất hiện kể cả khi khung mở ra sau đó.
+   *     ResizeObserver kích hoạt đúng lúc phần tử nhận được kích thước thật.
+   */
+  useEffect(() => {
+    doChipPhai();
+    const id = requestAnimationFrame(doChipPhai);
+    const el = chipScroller.current;
+    const ro = el ? new ResizeObserver(doChipPhai) : null;
+    if (el && ro) ro.observe(el);
+    window.addEventListener("resize", doChipPhai);
+    return () => {
+      cancelAnimationFrame(id);
+      ro?.disconnect();
+      window.removeEventListener("resize", doChipPhai);
+    };
+  }, [prompts, chipsAn, roomServiceOpen, requestsOpen, myReqOpen]);
 
   if (!code) return <KeyPicker onPick={setCode} lang={pickedLang ?? "vi"} onLang={chooseLang} />;
 
@@ -946,7 +1042,26 @@ export default function GuestPage() {
         * `scrollbar-none` chỉ ẩn thanh cuộn, không tắt cuộn: trên điện thoại
         * vốn không có thanh cuộn, còn trên máy tính chuột vẫn kéo ngang được.
         */}
-      <div className="flex shrink-0 gap-1.5 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {chipsAn ? (
+        <div className="flex shrink-0 justify-center px-4 pb-2">
+          <button
+            type="button"
+            onClick={() => doiChips(false)}
+            data-testid="chip-show"
+            className="hover-elevate rounded-full border border-dashed border-border px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            {t(uiLang, "showChips")}
+          </button>
+        </div>
+      ) : (
+      <div className="relative shrink-0">
+      <div
+        ref={chipScroller}
+        onScroll={doChipPhai}
+        /* pr-16: chừa chỗ cho nút ẩn và mũi tên nằm đè bên phải, nếu không chip
+           cuối cùng chui xuống dưới chúng và không bấm được. */
+        className="flex gap-1.5 overflow-x-auto px-4 pb-2 pr-16 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         <button
           onClick={() => setRoomServiceOpen((v) => !v)}
           data-testid="chip-room-service"
@@ -992,6 +1107,53 @@ export default function GuestPage() {
           </button>
         ))}
       </div>
+
+        {/**
+          * Dấu hiệu "còn nữa ở bên phải".
+          *
+          * Vệt mờ nói rằng hàng chip bị cắt chứ không kết thúc; mũi tên là nút
+          * thật, bấm được — trên máy tính không có ngón tay để vuốt, và người
+          * mới vào không đoán ra là kéo ngang được. Cả hai chỉ hiện khi THẬT SỰ
+          * còn nội dung, nên chúng không thành đồ trang trí.
+          */}
+        {/**
+          * KHÔNG dùng "hover-elevate" ở hai nút dưới đây.
+          *
+          * index.css dòng 280 đặt "position: relative" cho lớp đó, và nó thắng
+          * "absolute" của Tailwind. Hậu quả không phải là lệch một chút: khi
+          * phần tử đang ở chế độ relative thì "right-3" DỊCH nó sang trái 12px
+          * thay vì neo vào mép phải. Đo trên màn hình thật: x = -12 và x = -36,
+          * tức cả hai nút nằm ngoài màn hình, xếp chồng bên dưới hàng chip.
+          *
+          * Hai nút đã có hiệu ứng hover riêng nên không mất gì khi bỏ lớp đó.
+          */}
+        {conChipPhai && (
+          <>
+            <div className="pointer-events-none absolute bottom-2 right-0 top-0 w-16 bg-gradient-to-l from-background to-transparent" />
+            <button
+              type="button"
+              onClick={() => chipScroller.current?.scrollBy({ left: 220, behavior: "smooth" })}
+              data-testid="chip-scroll-right"
+              aria-label={t(uiLang, "moreChips")}
+              title={t(uiLang, "moreChips")}
+              className="absolute right-9 top-0 flex h-[26px] w-[26px] items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              ›
+            </button>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={() => doiChips(true)}
+          data-testid="chip-hide"
+          aria-label={t(uiLang, "hideChips")}
+          title={t(uiLang, "hideChips")}
+          className="absolute right-3 top-0 flex h-[26px] w-[26px] items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
+          ×
+        </button>
+      </div>
+      )}
 
       {!micHintSeen && (
         <div className="mx-4 mb-1.5 flex shrink-0 items-center justify-end gap-2">

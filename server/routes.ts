@@ -1923,6 +1923,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       [...groups.entries()].map(([key, items]) => ({
         key,
         name: key,
+        /* Loại dịch vụ (spa / transport / experience / dining / roomservice).
+           `key` là TÊN THƯƠNG HIỆU — "Vinpearl cable car", "Akoya Spa" — nên nó
+           không nói được đây là loại gì, mà kiosk cần biết để chọn đúng động từ
+           trên nút: "Xem tuyến" cho cáp treo, "Xem liệu trình" cho spa. */
+        category: items[0].category ?? null,
         images: JSON.parse(items[0].images || "[]") as string[],
         items: items.map((s) => ({
           id: s.id,
