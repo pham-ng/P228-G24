@@ -598,6 +598,25 @@ export default function GuestPage() {
      tải xong, mà header và ô soạn đã cần chữ ngay ở khung hình đầu tiên. */
   const uiLang = pickedLang ?? rawDetail?.guest.lang ?? "vi";
 
+  /**
+   * Nói cho trình duyệt biết trang đang viết bằng tiếng gì.
+   *
+   * Không phải chi tiết trợ năng — nó là thứ quyết định trình duyệt có TỰ DỊCH
+   * trang hay không. `index.html` khai cố định `lang="en"` trong khi nội dung
+   * là tiếng Việt, nên Chrome/Edge thấy chênh lệch và đề nghị dịch; máy nào đã
+   * bật "luôn dịch" thì nó dịch im lặng.
+   *
+   * Đo được trong một buổi thử thật, hai người xem CÙNG một hội thoại: máy này
+   * hiện "nếu ngủ khách sạn có bao cafe sáng không", máy kia hiện bản tiếng Anh
+   * bắt đầu bằng "If…". Cơ sở dữ liệu chỉ lưu một chuỗi tiếng Việt duy nhất.
+   *
+   * Cập nhật theo lá cờ khách chọn, nên khách Hàn chọn 한국어 thì trang khai
+   * `ko` và trình duyệt của họ không đòi dịch nữa.
+   */
+  useEffect(() => {
+    document.documentElement.lang = uiLang;
+  }, [uiLang]);
+
   const send = useMutation({
     mutationFn: async (body: string) => {
       const res = await apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
@@ -777,7 +796,24 @@ export default function GuestPage() {
         </button>
       </header>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5" data-testid="thread">
+      {/**
+        * `translate="no"` CHỈ trên luồng hội thoại, không trên cả trang.
+        *
+        * Chữ giao diện thì dịch thoải mái. Nhưng nội dung ở đây là giá tiền và
+        * tên hạng phòng, và trình dịch của trình duyệt sẽ định dạng lại số:
+        * `2.640.000đ` là đúng ở tiếng Việt và biến thành một con số khác khi bị
+        * đọc theo quy ước tiếng Anh. Cả `numguard.ts` lẫn lớp giá tồn tại để
+        * ngăn đúng chuyện đó xảy ra phía máy chủ; để trình duyệt làm lại nó ở
+        * bước cuối cùng thì vô hiệu hoá toàn bộ công đó.
+        *
+        * Khách muốn đọc bằng thứ tiếng khác thì bấm lá cờ — trợ lý trả lời
+        * bằng sáu ngôn ngữ, đó mới là đường đúng, và nó giữ nguyên con số.
+        */}
+      <div
+        className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5"
+        data-testid="thread"
+        translate="no"
+      >
         {/**
           * NHÓM 4.2 — lời chào khi chưa có tin nhắn nào.
           *
