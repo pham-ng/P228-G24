@@ -127,11 +127,22 @@ LOCAL_NUM_GPU=0
 
 ## 5b. Cho người khác vào thử qua Internet
 
-```bash
-npm run deploy          # kéo code, kiểm thử, build
-HOST=0.0.0.0 npm start  # cửa sổ 1 — server
-npm run tunnel          # cửa sổ 2 — in ra link công khai
+1. Mở `.env`, bỏ dấu `#` ở dòng `HOST=0.0.0.0` và dòng `TRUST_PROXY=1`.
+2. Cửa sổ 1: `npm run deploy` rồi `npm start`
+3. Cửa sổ 2: `npm run tunnel` — lần đầu nó tự tải cloudflared vào `bin/`
+
+```powershell
+npm run deploy
+npm start
 ```
+
+```powershell
+npm run tunnel
+```
+
+> Chạy trong thư mục `aurea`, không phải thư mục cha — `package.json` nằm ở đó.
+> Và đừng dùng cú pháp `HOST=0.0.0.0 npm start`: đó là bash, PowerShell không
+> hiểu. Đặt trong `.env` là xong.
 
 **Đọc [`docs/DEPLOY.md`](docs/DEPLOY.md) trước.** Nó liệt kê những gì phải tắt
 trước khi gửi link, và giới hạn thật về số người dùng cùng lúc — máy này phục vụ

@@ -48,6 +48,9 @@ bench/baselines/**/*.db
 bench/baselines/**/*.db.*
 bench/baselines/*.db
 
+# cloudflared tự tải về (~70 MB nhị phân) — scripts/tunnel.mjs lấy nó khi thiếu.
+bin/
+
 # Tệp nháp / thăm dò
 .pplx-probe.txt
 _live.ts

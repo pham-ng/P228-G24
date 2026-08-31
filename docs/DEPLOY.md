@@ -6,13 +6,46 @@ nói rõ chỗ khác nhau.
 
 ---
 
-## 1. Bốn lệnh
+## 1. Ba bước
 
-```bash
-npm run deploy          # kéo code, kiểm thử, build  (bỏ qua nếu vừa clone)
-HOST=0.0.0.0 npm start  # cửa sổ 1 — server
-npm run tunnel          # cửa sổ 2 — in ra link công khai
+> **Chạy trong thư mục `aurea`.** `package.json` nằm ở đó, không nằm ở thư mục
+> cha. Chạy nhầm chỗ thì npm báo `ENOENT ... package.json`.
+>
+> **Các lệnh dưới đây viết cho PowerShell** (mặc định trên Windows). Cú pháp
+> `BIEN=gia_tri lenh` là của bash và **không chạy** trên PowerShell — đó là lý do
+> bước 1 dùng tệp `.env` thay vì đặt biến trên dòng lệnh.
+
+**Bước 1 — cho phép máy khác kết nối.** Mở `.env`, tìm dòng này và bỏ dấu `#`:
+
 ```
+HOST=0.0.0.0
+```
+
+Làm cùng lúc luôn với dòng `TRUST_PROXY=1` ngay bên dưới (xem mục 2).
+
+Server đọc `.env` lúc khởi động, nên **không cần đặt biến môi trường trên dòng
+lệnh** — không có cú pháp shell nào để gõ sai.
+
+**Bước 2 — cửa sổ thứ nhất, chạy server:**
+
+```powershell
+npm run deploy   # kéo code, kiểm thử, build (bỏ qua nếu vừa clone xong)
+npm start
+```
+
+Log phải hiện `serving on 0.0.0.0:5000` kèm dòng cảnh báo. Nếu vẫn thấy
+`127.0.0.1` thì `.env` chưa được sửa, hoặc server chưa khởi động lại.
+
+**Bước 3 — cửa sổ thứ hai, mở đường ra Internet:**
+
+```powershell
+npm run tunnel
+```
+
+Lần đầu nó **tự tải cloudflared** (~52 MB) vào `bin/`. Không cần `winget`, không
+cần quyền quản trị. (Trên nhiều máy Windows `winget` là một "App Execution
+Alias" hỏng: `where winget` tìm thấy nó nhưng chạy thì báo *The system cannot
+find the path specified*. Vì vậy script không dựa vào nó.)
 
 `npm run tunnel` in ra một khung như thế này, và đó là link gửi đi:
 
