@@ -54,3 +54,6 @@ ops/scrape-token
 # Giong doc Piper: 375 MB nhi phan + trong so, tai bang models/piper/README.md
 models/piper/piper/
 models/piper/voices/
+
+# Môi trường ảo Python cho phiên âm tiếng Nhật (tái tạo bằng docs/SETUP-VOICE.md)
+.venv-tts-ja/

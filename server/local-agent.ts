@@ -50,6 +50,7 @@ import { checkReply, repairReply } from "./numguard";
 import { namedEntities } from "./name-alias";
 import { shouldEscalateByIntent } from "./intent-net";
 import { needsClarification, type ClarifyLang } from "./clarify";
+import { greetingReply, type GreetLang } from "./greeting";
 
 /* ------------------------------------------------------------------ config */
 
@@ -1748,6 +1749,31 @@ export async function runLocalTurn(input: {
 }): Promise<LocalTurn> {
   const search = input.search ?? hybridSearch;
   const route = classifyLocal(input.question, input.isEmergency);
+
+  /**
+   * Lời chào được trả lời ngay, không truy xuất, không gọi model.
+   *
+   * Đặt TRƯỚC bước hỏi lại vì một lời chào không thiếu thông tin — nó đã đầy
+   * đủ, chỉ là không có gì để tra. Đo được trước khi có bước này: "xin chào"
+   * lấy về năm đoạn vô quan (giờ nhà hàng, nội quy) với topScore 0,0082 rồi
+   * model 4B trả lời "Bạn có thể hỗ trợ tôi về những vấn đề nào?" — mời khách
+   * giúp đỡ chính nó, ở đúng câu đầu tiên khách đọc.
+   */
+  /* KHÔNG chặn theo lịch sử, khác với bước hỏi lại ngay dưới. "Bao nhiêu?" cần
+     lịch sử để biết đang hỏi gì, còn "xin chào" thì không — nó là lời chào dù
+     đứng ở lượt đầu hay lượt thứ mười. Bản đầu có chặn, và vì mọi hội thoại
+     thật đều có lịch sử nên bước này không bao giờ chạy. */
+  const greet = greetingReply(input.question, input.lang as GreetLang);
+  if (greet) {
+    return {
+      route: "knowledge",
+      reply: greet,
+      escalate: false,
+      passages: [],
+      topScore: 1.0,
+      llmCalls: 0,
+    };
+  }
 
   if (isBareAmbiguousQuery(input.question) && !input.history) {
     /* Naming what is missing beats a generic "please be more specific": the

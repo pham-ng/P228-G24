@@ -180,3 +180,72 @@ models/
         ├── zh_CN-huayan-medium.onnx + .json
         └── ru_RU-irina-medium.onnx + .json
 ```
+
+---
+
+## Bước 3 — Tiếng Nhật (đường riêng, không đi qua Piper)
+
+Tiếng Nhật **không dùng Piper**. Giọng Nhật duy nhất trong `rhasspy/piper-voices`
+khai `phoneme_type: "japanese"` — cần OpenJTalk mà Piper 1.2.0 không có. Đo được:
+câu tám chữ ra **7,9 giây** âm thanh (tiếng Việt cùng độ dài: 1,8 giây), và cho
+Whisper nghe lại thì ra `チャイニゼート、チャイニゼート…` — âm tiết vô nghĩa lặp lại.
+
+Đường đang dùng: **âm vị từ Python, giọng từ Kokoro ONNX** (đã có sẵn trong
+`models/hf/`, không phải tải thêm).
+
+### 3a. Tạo môi trường ảo Python
+
+Cần Python 3.10+. Dùng venv **riêng**, không cài vào Python hệ thống — gói
+`misaki[ja]` nâng `numpy` lên 2.x và có thể làm hỏng môi trường đang dùng cho
+việc khác.
+
+```bash
+python -m venv .venv-tts-ja
+.venv-tts-ja/Scripts/python.exe -m pip install "misaki[ja]"
+```
+
+Linux/macOS: `.venv-tts-ja/bin/python -m pip install "misaki[ja]"`
+
+**94 MB.** Không có `torch` trong này — Python chỉ phiên âm, không tổng hợp.
+
+Lần chạy đầu, `pyopenjtalk` tự tải từ điển của nó (22,6 MB) về cache người dùng.
+
+### 3b. Kiểm tra
+
+```bash
+echo 朝食は何時までですか。 | .venv-tts-ja/Scripts/python.exe scripts/ja-g2p.py
+```
+
+Phải ra: `ʨoːɕokuwa naɴʥimadedesuka.__-------j__^____________j`
+
+Khởi động lại server, log phải có:
+
+```
+tts-ja: sẵn sàng — giọng jf_alpha, thử 5079ms cho 1.9s
+```
+
+Và `GET /api/guest/voice` phải liệt kê `ja` trong `ttsLangs`.
+
+### Vì sao không cần tải thêm trọng số
+
+`kokoro-js` **đã có sẵn cả 54 tệp giọng** trên đĩa, gồm 5 giọng Nhật — chỉ có
+*bảng metadata* của nó liệt kê 28 giọng en-us/en-gb. Vì vậy `generate()` từ chối
+`jf_alpha`, còn `generate_from_ids()` (không gọi `_validate_voice`) thì dùng
+được. Đó là cửa mà `server/tts-ja.ts` đi vào.
+
+### Nếu thiếu venv
+
+Server vẫn chạy bình thường, chỉ ghi log `tts-ja: thiếu venv hoặc trọng số
+Kokoro — tiếng Nhật tắt`, `ttsLangs` không có `ja`, và nút loa không hiện với
+khách Nhật. **Không có nút tốt hơn một nút im lặng.**
+
+### Chi phí, đo trên i7-10870H CPU
+
+| | sinh | audio | ghi chú |
+|---|---|---|---|
+| Piper (vi/en/ko/zh/ru) | 1,1–1,6 s | 3–4 s | RTF ~0,35 |
+| Kokoro + misaki (ja) | ~6 s | 4,5 s | RTF ~1,05, cộng ~400 ms khởi động Python |
+
+Tiếng Nhật chậm hơn khoảng 4 lần. Đổi lại là **không chiếm RAM khi rảnh**: tiến
+trình Python chạy một lần rồi thoát, giống Piper. Trên máy chỉ còn ~1 GB trống,
+một worker thường trú sẽ lấy chỗ của Piper và của model trả lời.

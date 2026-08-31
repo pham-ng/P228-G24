@@ -60,10 +60,26 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
     };
   }, [lang]);
 
+  /**
+   * Còn gắn trên màn hình hay không.
+   *
+   * Chỉ `pause()` trong cleanup là chưa đủ, và khoảng hở không nhỏ: giữa lúc
+   * bấm và lúc có tiếng là toàn bộ thời gian tổng hợp — đo được **20 giây** cho
+   * một câu trả lời tiếng Nhật. Trong khoảng đó `audioRef.current` vẫn là
+   * `null`, nên cleanup không có gì để dừng; rồi `fetch` trả về, `new Audio()`
+   * được tạo và `play()` chạy trên một component đã bị gỡ — khách đã rời trang
+   * mà tiếng vẫn phát, không còn nút nào để tắt.
+   *
+   * Cờ này là thứ duy nhất còn sống sau khi cleanup chạy, nên nó là chỗ đúng
+   * để chặn.
+   */
+  const alive = useRef(true);
+
   /* Stop when this message leaves the screen, or a guest scrolling away keeps
      hearing an answer they have moved on from. */
   useEffect(
     () => () => {
+      alive.current = false;
       stopSpeaking();
       /* Audio của server không đi qua `speechSynthesis`, nên `stopSpeaking()`
          không chạm tới nó. Thiếu dòng này thì khách cuộn đi và vẫn nghe tiếp. */
@@ -113,7 +129,11 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
         body: JSON.stringify({ text, lang }),
       });
       if (!r.ok) throw new Error(String(r.status));
-      const url = URL.createObjectURL(await r.blob());
+      const blob = await r.blob();
+      /* Khách đã rời đi trong lúc chờ tổng hợp. Không tạo audio, không phát,
+         và không rơi về giọng thiết bị — im lặng mới là điều họ muốn. */
+      if (!alive.current) return;
+      const url = URL.createObjectURL(blob);
       const a = new Audio(url);
       audioRef.current = a;
       /* Thu hồi URL khi xong, dù kết thúc bình thường hay lỗi: mỗi blob giữ
@@ -140,7 +160,10 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
        * `Piper lỗi 3221225794` từ một tiến trình server cũ).
        */
       setDangTai(false);
-      if (coDuongLui) {
+      /* Cùng lý do như trên: hỏng SAU khi khách rời đi thì không được rơi về
+         giọng thiết bị, nếu không lỗi máy chủ lại thành tiếng nói ở một trang
+         khách không còn xem. */
+      if (coDuongLui && alive.current) {
         speak(text, voice!, { onEnd: () => setSpeaking(false) });
         return;
       }
@@ -167,9 +190,12 @@ export function SpeakButton({ text, lang }: { text: string; lang: string }) {
         setSpeaking(true);
         speak(text, voice!, { onEnd: () => setSpeaking(false) });
       }}
-      /* Cho biết giọng nào đang thật sự phát — trước đây tooltip đọc tên giọng
-         thiết bị kể cả khi máy chủ mới là bên đọc. */
-      title={`${speaking ? l.stop : l.play} · ${dungServer ? "giọng máy chủ (Piper)" : (voice?.name ?? "giọng thiết bị")}`}
+      /* Cho biết giọng nào đang thật sự phát. Hai lần sai trước đó: đọc tên
+         giọng thiết bị kể cả khi máy chủ mới là bên đọc, rồi ghi "Piper" cho
+         cả tiếng Nhật — mà tiếng Nhật chạy Kokoro, không phải Piper. */
+      title={`${speaking ? l.stop : l.play} · ${
+        dungServer ? (lang === "ja" ? "giọng máy chủ (Kokoro)" : "giọng máy chủ (Piper)") : (voice?.name ?? "giọng thiết bị")
+      }`}
       aria-label={speaking ? l.stop : l.play}
       data-testid="button-speak"
       className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

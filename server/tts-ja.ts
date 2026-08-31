@@ -1,89 +1,167 @@
 /**
- * server/tts-ja.ts — Tiếng Nhật TTS qua kokoro-js + kuroshiro
+ * server/tts-ja.ts — TTS tiếng Nhật: âm vị từ Python, giọng từ Kokoro ONNX.
  *
- * VẤN ĐỀ ĐƯỢC GIẢI QUYẾT
- * ──────────────────────
- * Piper 1.2.0 chỉ có một giọng Nhật nhưng cần OpenJTalk (phoneme_type:"japanese").
- * Piper không có OpenJTalk → nhồi âm vị espeak → phát âm sai, 13.5s cho câu 4s.
+ * VÌ SAO TIẾNG NHẬT KHÔNG ĐI CHUNG ĐƯỜNG VỚI NĂM NGÔN NGỮ KIA
  *
- * Kokoro-82M (ONNX) có 5 giọng Nhật (jf_alpha, jf_gongitsune, jf_nezumi,
- * jf_tebukuro, jm_kumo) nhưng kokoro-js dùng phonemizer tiếng Anh → kết quả
- * tương tự: Nhật đọc bằng quy tắc Anh.
+ * Piper đọc vi/en/ko/zh/ru tốt, nhưng giọng Nhật duy nhất trong kho
+ * `rhasspy/piper-voices` khai `phoneme_type: "japanese"` — cần OpenJTalk, mà
+ * Piper 1.2.0 không có. Đo được: câu tám chữ ra 7,9 giây âm thanh (tiếng Việt
+ * cùng độ dài: 1,8 giây), kèm cảnh báo thiếu âm vị, và Whisper nghe lại ra
+ * `チャイニゼート、チャイニゼート…` — âm tiết vô nghĩa lặp lại. Không phải chậm,
+ * là sai hẳn.
  *
- * GIẢI PHÁP
- * ─────────
- * 1. kuroshiro + kuromoji: convert Kanji → Hiragana (pure JS, offline)
- *    "こんにちは世界" → "こんにちはせかい"
- * 2. Feed Hiragana/Romaji vào kokoro-js với Japanese voice
+ * ĐƯỜNG ĐI HIỆN TẠI, VÀ HAI NGÕ CỤT ĐÃ LOẠI TRỪ TRƯỚC KHI CHỌN NÓ
  *
- * ĐO ĐƯỢC (i7-10870H, CPU, không GPU):
- *   Kuroshiro convert:    ~15ms (sau khi warm up)
- *   Kokoro synthesis:     ~400-800ms cho câu 5s (RTF ~0.1)
- *   Tổng:                 ~420-820ms — dùng được
+ *   1. `kokoro-js` + chữ Nhật thẳng → phiên âm bằng quy tắc tiếng Anh.
+ *      Hiragana: 15,2 giây âm thanh cho câu 2,5 giây, Whisper nghe ra
+ *      "japanese letter" — tức không nhận ra là tiếng nói.
+ *   2. `kokoro-js` + romaji → đúng độ dài (2,3 giây) nhưng Whisper phiên ra
+ *      `CHA-SHOKUWAITSUME DISUKA`: chữ Latin, giọng Anh đọc phiên âm. Khách
+ *      Nhật không hiểu.
+ *   3. **Cách đang dùng**: misaki[ja] + pyopenjtalk sinh âm vị tiếng Nhật thật,
+ *      rồi đưa thẳng vào Kokoro bằng `generate_from_ids`. Whisper nghe lại
+ *      `朝食は何時までですか` — nguyên văn.
  *
- * WARM-UP: Cả kuromoji dictionary (~30MB) và Kokoro ONNX (~88MB) đều cần
- * nạp lần đầu (~2-3s). Warm-up khi server khởi động, không khi khách nói.
+ * BA CHI TIẾT KHIẾN NÓ CHẠY ĐƯỢC
+ *
+ *   · `generate_from_ids` KHÔNG gọi `_validate_voice`. Bảng metadata của
+ *     `kokoro-js` chỉ liệt kê 28 giọng en-us/en-gb, nên `generate()` từ chối
+ *     `jf_alpha` — nhưng gói vẫn **có sẵn đủ 54 tệp giọng** trên đĩa, gồm năm
+ *     giọng Nhật. Vào bằng cửa token là dùng được, không phải tải thêm gì.
+ *   · Python chỉ làm PHIÊN ÂM, không tổng hợp. Không có torch trong venv, nên
+ *     nạp nguội chỉ 371–523 ms và venv chỉ 94 MB.
+ *   · Tiến trình con chạy một lần rồi thoát, giống Piper. Máy này còn khoảng
+ *     1 GB RAM trống; một worker thường trú sẽ lấy chỗ của Piper và của model
+ *     trả lời, mà chi phí tiết kiệm được chỉ là ~400 ms trên tổng ~3,6 giây.
  */
 
-import { join } from "node:path";
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { log } from "./log";
 
 const KOKORO_MODEL = "onnx-community/Kokoro-82M-v1.0-ONNX";
-const JA_VOICE = "jf_alpha"; // Grade A quality, female
+/** Giọng nữ, hạng A trong bảng chất lượng của Kokoro. */
+const JA_VOICE = "jf_alpha";
 const KOKORO_DIR = join(process.cwd(), "models", "hf");
 
+const VENV = process.env.JA_TTS_VENV ?? join(process.cwd(), ".venv-tts-ja");
+const PY = join(VENV, "Scripts", process.platform === "win32" ? "python.exe" : "python");
+const PY_POSIX = join(VENV, "bin", "python");
+const G2P_SCRIPT = join(process.cwd(), "scripts", "ja-g2p.py");
+
+/** Câu dài nhất chấp nhận, khớp với TTS_MAX_CHARS của Piper. */
+const MAX_CHARS = 600;
+/** Bỏ cuộc nếu phiên âm treo. Nạp nguội đo được 523 ms; 15 giây là rất rộng. */
+const G2P_TIMEOUT_MS = 15_000;
+
 type KokoroInstance = {
-  generate(text: string, opts: { voice: string }): Promise<{ audio: Float32Array | ArrayLike<number>; sampling_rate: number }>;
+  tokenizer(text: string, opts: { truncation: boolean }): { input_ids: unknown };
+  generate_from_ids(
+    ids: unknown,
+    opts: { voice: string },
+  ): Promise<{ audio: Float32Array; sampling_rate: number }>;
 };
 
-let kokoroInstance: KokoroInstance | null = null;
-let kuroshiroInstance: { convert(text: string, opts: { to: string }): Promise<string> } | null = null;
-let loadingPromise: Promise<void> | null = null;
+let kokoro: KokoroInstance | null = null;
+let loading: Promise<void> | null = null;
 
 /**
- * Kiểm tra xem Kokoro ONNX đã có trên đĩa chưa.
- * Không cần tải mới nếu weights đã ở models/hf/.
+ * Đặt `true` CHỈ SAU KHI một lần tổng hợp thật đã thành công.
+ *
+ * Sự tồn tại của tệp không chứng minh được gì, và bản trước của tệp này đã dạy
+ * đúng bài đó theo cả hai chiều: một phép kiểm sai một đoạn đường dẫn (`onnx/`)
+ * khiến toàn bộ phần tích hợp đúng đắn nằm im, rồi khi sửa đường dẫn thì nó
+ * quảng cáo `ja` trong lúc `generate()` vẫn ném `Voice "jf_alpha" not found` —
+ * nút loa hiện ra và im lặng, tệ hơn là không có nút.
+ *
+ * Cờ này biến `jaAvailable()` thành câu hỏi "đã đọc được một câu chưa", và đó
+ * là câu hỏi duy nhất đáng hỏi.
  */
-export function jaAvailable(): boolean {
-  if (kokoroInstance) return true;
-  return existsSync(join(KOKORO_DIR, "onnx-community", "Kokoro-82M-v1.0-ONNX", "model_quantized.onnx"));
+let jaReady = false;
+
+function pythonBin(): string | null {
+  if (existsSync(PY)) return PY;
+  if (existsSync(PY_POSIX)) return PY_POSIX;
+  return null;
 }
 
+/** Điều kiện CẦN để bõ công warm-up — không phải điều kiện đủ để công bố. */
+function prerequisitesOnDisk(): boolean {
+  return (
+    !!pythonBin() &&
+    existsSync(G2P_SCRIPT) &&
+    existsSync(join(KOKORO_DIR, "onnx-community", "Kokoro-82M-v1.0-ONNX", "onnx", "model_quantized.onnx"))
+  );
+}
+
+export function jaAvailable(): boolean {
+  return jaReady;
+}
+
+/* ------------------------------------------------------------- phiên âm */
+
 /**
- * Nạp Kokoro + kuroshiro một lần. Các lần gọi sau dùng cache.
+ * Chữ Nhật → âm vị, qua tiến trình con Python.
+ *
+ * Văn bản đi qua **stdin**, không qua tham số dòng lệnh: đường dẫn dự án này có
+ * dấu tiếng Việt và gạch dài, và cùng lớp lỗi mã hoá đó đã từng làm Piper chết
+ * với `0xC0000409` và stderr rỗng. stdin là luồng byte, không đi qua bộ phân
+ * tích dòng lệnh của Windows.
  */
-async function ensureLoaded(): Promise<void> {
-  if (kokoroInstance && kuroshiroInstance) return;
-  if (loadingPromise) return loadingPromise;
+function toPhonemes(text: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const bin = pythonBin();
+    if (!bin) return reject(new Error("Chưa có venv tiếng Nhật — xem docs/SETUP-VOICE.md"));
 
-  loadingPromise = (async () => {
+    const p = spawn(bin, [G2P_SCRIPT], { stdio: ["pipe", "pipe", "pipe"] });
+    let out = "";
+    let err = "";
+    const timer = setTimeout(() => {
+      p.kill();
+      reject(new Error("phiên âm tiếng Nhật quá hạn"));
+    }, G2P_TIMEOUT_MS);
+
+    p.stdout.setEncoding("utf8");
+    p.stderr.setEncoding("utf8");
+    p.stdout.on("data", (d) => (out += d));
+    p.stderr.on("data", (d) => (err += d));
+    p.on("error", (e) => {
+      clearTimeout(timer);
+      reject(e);
+    });
+    p.on("close", (code) => {
+      clearTimeout(timer);
+      if (code !== 0) return reject(new Error(`g2p thoát ${code}: ${err.slice(0, 200)}`));
+      const ps = out.trim();
+      if (!ps) return reject(new Error("g2p trả về chuỗi rỗng"));
+      resolve(ps);
+    });
+
+    p.stdin.end(text, "utf8");
+  });
+}
+
+/* ------------------------------------------------------------ tổng hợp */
+
+async function ensureKokoro(): Promise<void> {
+  if (kokoro) return;
+  if (loading) return loading;
+  loading = (async () => {
     const t0 = Date.now();
-
-    // 1. Kokoro TTS
     const { KokoroTTS, env } = await import("kokoro-js");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const kokoroEnv = env as any;
-    kokoroEnv.cacheDir = KOKORO_DIR;
-    kokoroEnv.allowLocalModels = true;
-    kokoroEnv.allowRemoteModels = false;
-
-    kokoroInstance = (await KokoroTTS.from_pretrained(KOKORO_MODEL, {
+    const e = env as unknown as { cacheDir: string; allowLocalModels: boolean; allowRemoteModels: boolean };
+    e.cacheDir = KOKORO_DIR;
+    e.allowLocalModels = true;
+    /* Ngoại tuyến là một lời hứa của sản phẩm này, không phải tuỳ chọn. */
+    e.allowRemoteModels = false;
+    kokoro = (await KokoroTTS.from_pretrained(KOKORO_MODEL, {
       dtype: "q8",
       device: "cpu",
     })) as unknown as KokoroInstance;
-
-    // 2. Kuroshiro (Kanji → Hiragana)
-    const Kuroshiro = (await import("kuroshiro")).default;
-    const KuromojiAnalyzer = (await import("kuroshiro-analyzer-kuromoji")).default;
-    const k = new Kuroshiro();
-    await k.init(new KuromojiAnalyzer());
-    kuroshiroInstance = k;
-
-    log(`tts-ja: loaded Kokoro + kuroshiro in ${Date.now() - t0}ms`);
+    log(`tts-ja: nạp Kokoro trong ${Date.now() - t0}ms`);
   })();
-
-  return loadingPromise;
+  return loading;
 }
 
 export type JaTtsResult = {
@@ -91,60 +169,70 @@ export type JaTtsResult = {
   ms: number;
   audioSeconds: number;
   voice: string;
-  hiragana: string;
+  phonemes: string;
 };
 
-/**
- * Tổng hợp một câu tiếng Nhật thành WAV.
- *
- * Pipeline: text → kuroshiro (Kanji→Hiragana) → kokoro-js (ja voice) → WAV buffer
- */
 export async function synthesiseJa(text: string): Promise<JaTtsResult> {
-  if (!jaAvailable()) {
-    throw new Error("Kokoro model chưa có. Chạy: node scripts/download-kokoro.mjs");
-  }
+  if (!jaAvailable()) throw new Error("Tiếng Nhật chưa dùng được — xem log tts-ja lúc khởi động.");
+  return synthesiseJaRaw(text);
+}
 
-  await ensureLoaded();
-
-  const t0 = Date.now();
-  const cat = text.trim().slice(0, 600);
+/**
+ * Lõi tổng hợp, KHÔNG kiểm `jaAvailable()`.
+ *
+ * Tách ra vì warm-up phải gọi được trước khi cờ sẵn sàng bật lên — nếu phép
+ * kiểm và phép chứng minh cùng chờ nhau thì tiếng Nhật không bao giờ bật.
+ */
+async function synthesiseJaRaw(text: string): Promise<JaTtsResult> {
+  const cat = text.trim().slice(0, MAX_CHARS);
   if (!cat) throw new Error("Không có gì để đọc.");
 
-  // Bước 1: Kanji → Hiragana để phonemizer xử lý đúng
-  const hiragana = await kuroshiroInstance!.convert(cat, { to: "hiragana" });
+  const t0 = Date.now();
+  const phonemes = await toPhonemes(cat);
+  await ensureKokoro();
 
-  // Bước 2: Kokoro synthesis với Japanese voice
-  const out = await kokoroInstance!.generate(hiragana, { voice: JA_VOICE });
+  const { input_ids } = kokoro!.tokenizer(phonemes, { truncation: true });
+  const out = await kokoro!.generate_from_ids(input_ids, { voice: JA_VOICE });
 
-  const samples = out.audio instanceof Float32Array
-    ? out.audio
-    : new Float32Array(out.audio as ArrayLike<number>);
+  const samples = out.audio;
   const rate = out.sampling_rate;
-
-  const wav = wrapWav(samplesToPcm(samples), rate);
-  const ms = Date.now() - t0;
-
   return {
-    wav,
-    ms,
+    wav: wrapWav(samplesToPcm(samples), rate),
+    ms: Date.now() - t0,
     audioSeconds: samples.length / rate,
     voice: JA_VOICE,
-    hiragana,
+    phonemes,
   };
 }
 
-/** Warm-up lúc khởi động để không delay khách đầu tiên. */
+/**
+ * Warm-up lúc khởi động — và đồng thời là bằng chứng.
+ *
+ * Một câu thật, không phải chuỗi rỗng: nếu nó trả về âm thanh thì cả đường
+ * Python lẫn đường ONNX đều chạy, và chỉ khi đó `ja` mới được công bố.
+ */
 export async function warmJaTts(): Promise<void> {
-  if (!jaAvailable()) return;
+  if (!prerequisitesOnDisk()) {
+    log("tts-ja: thiếu venv hoặc trọng số Kokoro — tiếng Nhật tắt");
+    return;
+  }
   try {
-    await ensureLoaded();
-    // Synthesis ngắn để JIT compile kernel
-    await synthesiseJa("いらっしゃいませ");
-    log("tts-ja: warm-up complete");
+    const probe = await synthesiseJaRaw("いらっしゃいませ");
+    if (!probe.wav.length) throw new Error("tổng hợp trả về 0 byte");
+    jaReady = true;
+    log(`tts-ja: sẵn sàng — giọng ${JA_VOICE}, thử ${probe.ms}ms cho ${probe.audioSeconds.toFixed(1)}s`);
   } catch (e) {
-    log(`tts-ja: warm-up failed: ${(e as Error).message}`);
+    jaReady = false;
+    /* Trả lại bộ nhớ: Kokoro có thể đã nạp xong trước khi bước sau hỏng, và
+       giữ 88 MB trọng số cho một tính năng đã tự tuyên bố là hỏng là lấy chỗ
+       của Piper. */
+    kokoro = null;
+    loading = null;
+    log(`tts-ja: KHÔNG dùng được, đã trả lại bộ nhớ — ${(e as Error).message}`);
   }
 }
+
+/* ---------------------------------------------------------------- WAV */
 
 function samplesToPcm(samples: Float32Array): Buffer {
   const buf = Buffer.alloc(samples.length * 2);
