@@ -28,7 +28,28 @@ Trên Windows PowerShell, `npm start` có thể báo lỗi vì lệnh gốc đ�
 $env:NODE_ENV="production"; node dist/index.cjs
 ```
 
-## 3. Chế độ phát triển
+## 3. Tính năng giọng nói (tuỳ chọn, cần tải thêm)
+
+Chat văn bản chạy ngay sau 4 lệnh trên. **Nút mic 🎤 và nút đọc 🔊 chỉ hiện khi có model**.
+
+| Tính năng | Model | Kích thước | Bắt buộc? |
+|---|---|---|---|
+| Nhận dạng giọng nói (STT) | Whisper ONNX q8 | ~430 MB/model | Không |
+| Đọc câu trả lời (TTS) | Piper VITS | ~412 MB | Không |
+
+**Hướng dẫn tải đầy đủ**: xem [`docs/SETUP-VOICE.md`](docs/SETUP-VOICE.md)
+
+**Kiểm tra nhanh** sau khi tải:
+```bash
+curl http://localhost:5000/api/guest/voice
+# {"stt":true,"tts":true,"ttsLangs":["vi","en","ko","zh","ru"]}
+```
+
+> Nếu `stt: false` → chưa có weights trong `models/hf/`  
+> Nếu `tts: false` → chưa có Piper trong `models/piper/`  
+> Cả hai `false` → chat vẫn chạy bình thường, chỉ không có nút mic/đọc
+
+## 4. Chế độ phát triển
 
 ```bash
 npm run dev      # Vite HMR cho client + tsx cho server, cùng cổng 5000
