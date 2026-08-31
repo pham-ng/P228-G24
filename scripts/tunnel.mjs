@@ -18,6 +18,18 @@
  *      mọi khách trông như cùng một địa chỉ, và giới hạn tần suất sẽ khoá cả
  *      nhóm vì một người bấm nhiều.
  */
+/**
+ * Nạp `.env` GIỐNG server, nếu không mọi phép kiểm cấu hình ở đây đều sai.
+ *
+ * Bản đầu thiếu dòng này và hậu quả cụ thể: script đọc `process.env.TRUST_PROXY`
+ * từ môi trường shell — nơi nó không bao giờ được đặt — rồi cảnh báo "TRUST_PROXY
+ * chưa bật" trong khi `.env` đã bật và server đã áp dụng đúng (kiểm bằng 25 yêu
+ * cầu từ 25 địa chỉ khác nhau: cả 25 đều qua, tức mỗi địa chỉ một ngân sách).
+ *
+ * Một cảnh báo sai còn tệ hơn không có cảnh báo: nó dạy người dùng bỏ qua cảnh
+ * báo, và lần sau cái thật hiện ra thì cũng bị bỏ qua nốt.
+ */
+import "dotenv/config";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync, renameSync, chmodSync, statSync } from "node:fs";
 import { join } from "node:path";
