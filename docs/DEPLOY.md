@@ -72,7 +72,7 @@ chạy — người nhận link sẽ mở được trang nhưng không hỏi đ�
 
 | | Trạng thái mặc định | |
 |---|---|---|
-| `TTS_JA=0` | **đã tắt** | Kokoro chạy ONNX trong tiến trình Node nên nó khoá vòng lặp sự kiện: đo được một câu tiếng Nhật dài làm **cả server đứng im 15–28 giây**. Một người bấm loa là cả nhóm mất kết nối. |
+| `TTS_JA=1` | **bật được rồi** | Kokoro đã chuyển sang worker thread. Trước đây nó khoá vòng lặp sự kiện 15–28 giây mỗi câu dài; nay cùng phép đo cho 160 ping lọt, trung vị 2 ms. Cần venv Python, thiếu thì tự tắt. |
 | `RL_GUEST_REQUESTS=20` | **đã siết** | 60/phút là con số cho mạng nội bộ. Mỗi lượt là một lần chạy model. |
 | `/api/guest/speak` kiểm mã | **đã bật** | Một URL công khai bị máy quét tự động tìm ra trong vài phút. Mỗi lần gọi là một tiến trình Piper ăn CPU mà model trả lời đang cần. |
 | `TRUST_PROXY=1` | **chưa bật** | Bật khi chạy qua tunnel. Không bật thì mọi khách trông như một địa chỉ, và một người bấm nhiều sẽ khoá cả nhóm. |

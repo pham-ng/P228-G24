@@ -79,15 +79,14 @@ Mong đợi:
 
 ```json
 {"stt":true,"maxSeconds":30,"sampleRate":16000,
- "tts":true,"ttsLangs":["vi","en","ko","zh","ru"],"ttsMaxChars":600}
+ "tts":true,"ttsLangs":["vi","en","ko","zh","ru","ja"],"ttsMaxChars":600}
 ```
 
 - `stt: false` → thiếu trọng số Whisper trong `models/hf/`
 - `tts: false` → thiếu Piper trong `models/piper/`
-- **không có `"ja"` là ĐÚNG** với `.env` mặc định: `TTS_JA=0`. Kokoro chạy ONNX
-  ngay trong tiến trình Node nên nó khoá cả server 15–28 giây mỗi câu tiếng
-  Nhật. Muốn bật: đặt `TTS_JA=1` và cài venv Python (`docs/SETUP-VOICE.md` mục
-  3) — chỉ nên bật khi chỉ có một người dùng.
+- thiếu `"ja"` → chưa có venv Python, xem `docs/SETUP-VOICE.md` mục 3. Tiếng Nhật
+  giờ chạy trong worker thread nên **bật được kể cả khi đông người** — trước đây
+  nó khoá cả server 15–28 giây mỗi câu, nay không còn.
 
 Thiếu model **không gây lỗi**: nút mic 🎤 và nút loa 🔊 chỉ đơn giản không hiện.
 Chat văn bản chạy bình thường.
@@ -110,7 +109,7 @@ Số đo trên máy phát triển (i7-10870H, GPU 4 GB, RAM 8 GB):
 | Trả lời một câu hỏi (LLM) | ~13,7 s |
 | Nhận dạng một câu nói (STT) | 2,4 – 6,6 s |
 | Đọc một câu trả lời (Piper: vi en ko zh ru) | 0,6 – 1,7 s |
-| Đọc một câu trả lời (Kokoro: ja) | 9 – 28 s |
+| Đọc một câu trả lời (Kokoro: ja, trong worker) | 9 – 28 s — chậm, nhưng không còn khoá server |
 
 **Không có GPU?** Vẫn chạy, chỉ chậm hơn. Sửa `.env`:
 

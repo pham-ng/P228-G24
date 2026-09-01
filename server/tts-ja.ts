@@ -30,9 +30,33 @@
  *     giọng Nhật. Vào bằng cửa token là dùng được, không phải tải thêm gì.
  *   · Python chỉ làm PHIÊN ÂM, không tổng hợp. Không có torch trong venv, nên
  *     nạp nguội chỉ 371–523 ms và venv chỉ 94 MB.
- *   · Tiến trình con chạy một lần rồi thoát, giống Piper. Máy này còn khoảng
- *     1 GB RAM trống; một worker thường trú sẽ lấy chỗ của Piper và của model
- *     trả lời, mà chi phí tiết kiệm được chỉ là ~400 ms trên tổng ~3,6 giây.
+ *   · Phiên âm chạy bằng tiến trình con một-lần-rồi-thoát, giống Piper.
+ *
+ * VÌ SAO KOKORO CHẠY TRONG MỘT TIẾN TRÌNH RIÊNG, THƯỜNG TRÚ
+ *
+ * Bản đầu của tệp này chạy Kokoro thẳng trong luồng chính, kèm lập luận rằng
+ * một tiến trình thường trú sẽ lấy mất RAM của Piper. **Lập luận đó sai**, và
+ * phép đo cho thấy sai ở đâu: Node chạy mọi JavaScript trên MỘT luồng, nên suy
+ * luận ONNX đồng bộ ngay trong luồng đó làm cả server đứng im. Đo được một câu
+ * dài khoá **15–28 giây** — trong khoảng đó chỉ 5 lần ping lọt thay vì ~100.
+ *
+ * Bản sửa thứ hai dùng `worker_threads`. Nó GIẢI QUYẾT được chuyện khoá — cùng
+ * phép đo cho 160 ping lọt, trung vị 2 ms, tệ nhất 161 ms. Nhưng nó mang theo
+ * một khiếm khuyết riêng, và chỉ lộ ra khi chạy bộ kiểm thử:
+ *
+ *     `process.exit()` gọi trong lúc Kokoro đang nạp → tiến trình thoát **127**
+ *
+ * Tái hiện được bằng một script mười dòng, và `terminate()` trong handler `exit`
+ * cũng không cứu được (đã thử, vẫn 127). Mã thoát bẩn không phải chuyện nhỏ: CI
+ * và trình giám sát tiến trình đều đọc nó để biết lần chạy vừa rồi có sạch không.
+ *
+ * Tiến trình con không có vấn đề đó — bộ nhớ riêng, cha thoát thì nó chỉ bị mồ
+ * côi rồi được hệ điều hành dọn. Và khác với Piper (chạy-một-lần-rồi-thoát vì
+ * nhị phân nạp nhanh), tiến trình này **sống lâu** nên không phải trả 1,5–3,1
+ * giây nạp model cho từng câu.
+ *
+ * Tổng hợp vẫn chậm như cũ (RTF ~1,4 trên CPU). Tách ra không làm nó nhanh hơn,
+ * chỉ khiến nó không còn kéo theo ai.
  */
 
 import { spawn } from "node:child_process";
@@ -55,16 +79,34 @@ const MAX_CHARS = 600;
 /** Bỏ cuộc nếu phiên âm treo. Nạp nguội đo được 523 ms; 15 giây là rất rộng. */
 const G2P_TIMEOUT_MS = 15_000;
 
-type KokoroInstance = {
-  tokenizer(text: string, opts: { truncation: boolean }): { input_ids: unknown };
-  generate_from_ids(
-    ids: unknown,
-    opts: { voice: string },
-  ): Promise<{ audio: Float32Array; sampling_rate: number }>;
-};
+/** Đường tới worker. Tệp rời trên đĩa, không nằm trong bản đóng gói — xem
+ *  phần đầu `server/tts-ja-worker.mjs` để biết vì sao. */
+const WORKER_FILE = join(process.cwd(), "server", "tts-ja-worker.mjs");
 
-let kokoro: KokoroInstance | null = null;
-let loading: Promise<void> | null = null;
+/**
+ * Bỏ cuộc nếu worker không trả lời.
+ *
+ * Câu dài nhất đo được trên CPU của máy phát triển là 28 giây. 60 giây là rộng
+ * gấp đôi, và vẫn đủ chặt để một worker kẹt bị phát hiện thay vì giữ lời hứa
+ * treo mãi.
+ */
+const WORKER_TIMEOUT_MS = 60_000;
+
+let worker: import("node:child_process").ChildProcessWithoutNullStreams | null = null;
+let idKe = 0;
+type DangCho = { resolve: (v: { pcm: Buffer; rate: number }) => void; reject: (e: Error) => void; timer: NodeJS.Timeout };
+const dangCho = new Map<number, DangCho>();
+
+/** Huỷ mọi lời hứa còn treo khi worker chết, rồi mở đường cho lần sau dựng lại.
+ *  Thiếu bước này thì một worker sập biến thành một loạt yêu cầu treo vĩnh viễn. */
+function workerChet(ly: string) {
+  worker = null;
+  for (const [, c] of dangCho) {
+    clearTimeout(c.timer);
+    c.reject(new Error(`worker tiếng Nhật dừng: ${ly}`));
+  }
+  dangCho.clear();
+}
 
 /**
  * Đặt `true` CHỈ SAU KHI một lần tổng hợp thật đã thành công.
@@ -144,24 +186,93 @@ function toPhonemes(text: string): Promise<string> {
 
 /* ------------------------------------------------------------ tổng hợp */
 
-async function ensureKokoro(): Promise<void> {
-  if (kokoro) return;
-  if (loading) return loading;
-  loading = (async () => {
-    const t0 = Date.now();
-    const { KokoroTTS, env } = await import("kokoro-js");
-    const e = env as unknown as { cacheDir: string; allowLocalModels: boolean; allowRemoteModels: boolean };
-    e.cacheDir = KOKORO_DIR;
-    e.allowLocalModels = true;
-    /* Ngoại tuyến là một lời hứa của sản phẩm này, không phải tuỳ chọn. */
-    e.allowRemoteModels = false;
-    kokoro = (await KokoroTTS.from_pretrained(KOKORO_MODEL, {
-      dtype: "q8",
-      device: "cpu",
-    })) as unknown as KokoroInstance;
-    log(`tts-ja: nạp Kokoro trong ${Date.now() - t0}ms`);
-  })();
-  return loading;
+/**
+ * Dựng worker nếu chưa có. Model nằm THƯỜNG TRÚ trong đó.
+ *
+ * Không nạp lại mỗi câu — Kokoro nạp mất 1,5–3,1 giây (đo được), và trả cái giá
+ * đó cho từng lượt là đúng lý do người ta hay chọn nhầm tiến trình con ở đây.
+ * Đổi lại là ~88 MB thường trú, rẻ trên bất kỳ máy nào chạy nổi model trả lời.
+ */
+function ensureWorker() {
+  if (worker) return worker;
+  const w = spawn(process.execPath, [WORKER_FILE], {
+    stdio: ["pipe", "pipe", "pipe"],
+    env: {
+      ...process.env,
+      /* Cấu hình đi qua biến môi trường, không qua tham số dòng lệnh: đường dẫn
+         dự án này có dấu tiếng Việt và gạch dài, và cùng lớp lỗi mã hoá đó đã
+         từng làm Piper chết với `0xC0000409` và stderr rỗng. */
+      JA_WORKER_CONFIG: JSON.stringify({
+        cacheDir: KOKORO_DIR,
+        model: KOKORO_MODEL,
+        dtype: "q8",
+        device: "cpu",
+      }),
+    },
+  });
+
+  /* Gom theo DÒNG, không theo chunk. Một phản hồi là ~2,5 MB base64 nên nó
+     chắc chắn tới thành nhiều mảnh, và xử lý từng chunk sẽ cắt đôi JSON. */
+  let dem = "";
+  w.stdout.setEncoding("utf8");
+  w.stdout.on("data", (chunk: string) => {
+    dem += chunk;
+    let i: number;
+    while ((i = dem.indexOf("\n")) >= 0) {
+      const line = dem.slice(0, i);
+      dem = dem.slice(i + 1);
+      if (!line.trim()) continue;
+      let m: { id: number; ok: boolean; rate?: number; pcm?: string; error?: string };
+      try {
+        m = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      const cho = dangCho.get(m.id);
+      if (!cho) continue;
+      dangCho.delete(m.id);
+      clearTimeout(cho.timer);
+      if (m.ok && m.pcm && m.rate) cho.resolve({ pcm: Buffer.from(m.pcm, "base64"), rate: m.rate });
+      else cho.reject(new Error(m.error ?? "worker tiếng Nhật không nói lý do"));
+    }
+  });
+
+  /* stderr là nơi worker và các thư viện của nó nói chuyện. Ghi lại để một lần
+     nạp model hỏng còn có manh mối, nhưng đừng để nó lẫn vào giao thức. */
+  w.stderr.setEncoding("utf8");
+  w.stderr.on("data", (d: string) => {
+    const s = d.trim();
+    if (s) log(`tts-ja[worker]: ${s.slice(0, 200)}`);
+  });
+
+  w.on("error", (e) => {
+    log(`tts-ja: không chạy được worker — ${e.message}`);
+    workerChet(e.message);
+  });
+  w.on("close", (code) => {
+    if (code !== 0) log(`tts-ja: worker thoát ${code}`);
+    workerChet(`thoát ${code}`);
+  });
+  /* Đừng giữ tiến trình cha sống chỉ vì worker còn đó. Khác với worker thread,
+     tiến trình con không kéo theo cha khi cha thoát đột ngột — đó chính là lý
+     do đổi sang cách này. */
+  w.unref();
+  worker = w;
+  return w;
+}
+
+/** Gửi một câu sang worker và chờ âm thanh. */
+function tongHopTrongWorker(phonemes: string, voice: string): Promise<{ pcm: Buffer; rate: number }> {
+  const w = ensureWorker();
+  const id = ++idKe;
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      dangCho.delete(id);
+      reject(new Error("worker tiếng Nhật quá thời gian."));
+    }, WORKER_TIMEOUT_MS);
+    dangCho.set(id, { resolve, reject, timer });
+    w.stdin.write(JSON.stringify({ id, phonemes, voice }) + "\n");
+  });
 }
 
 export type JaTtsResult = {
@@ -189,17 +300,15 @@ async function synthesiseJaRaw(text: string): Promise<JaTtsResult> {
 
   const t0 = Date.now();
   const phonemes = await toPhonemes(cat);
-  await ensureKokoro();
+  const out = await tongHopTrongWorker(phonemes, JA_VOICE);
 
-  const { input_ids } = kokoro!.tokenizer(phonemes, { truncation: true });
-  const out = await kokoro!.generate_from_ids(input_ids, { voice: JA_VOICE });
-
-  const samples = out.audio;
-  const rate = out.sampling_rate;
+  const rate = out.rate;
   return {
-    wav: wrapWav(samplesToPcm(samples), rate),
+    /* PCM 16-bit da duoc tien trinh con doi san — gui Float32 qua ong la gap
+       doi so byte cho cung mot doan am thanh. */
+    wav: wrapWav(out.pcm, rate),
     ms: Date.now() - t0,
-    audioSeconds: samples.length / rate,
+    audioSeconds: out.pcm.length / 2 / rate,
     voice: JA_VOICE,
     phonemes,
   };
@@ -243,22 +352,13 @@ export async function warmJaTts(): Promise<void> {
     /* Trả lại bộ nhớ: Kokoro có thể đã nạp xong trước khi bước sau hỏng, và
        giữ 88 MB trọng số cho một tính năng đã tự tuyên bố là hỏng là lấy chỗ
        của Piper. */
-    kokoro = null;
-    loading = null;
+    worker?.kill();
+    worker = null;
     log(`tts-ja: KHÔNG dùng được, đã trả lại bộ nhớ — ${(e as Error).message}`);
   }
 }
 
 /* ---------------------------------------------------------------- WAV */
-
-function samplesToPcm(samples: Float32Array): Buffer {
-  const buf = Buffer.alloc(samples.length * 2);
-  for (let i = 0; i < samples.length; i++) {
-    const s = Math.max(-1, Math.min(1, samples[i]));
-    buf.writeInt16LE(Math.round(s * 32767), i * 2);
-  }
-  return buf;
-}
 
 function wrapWav(pcm: Buffer, rate: number): Buffer {
   const h = Buffer.alloc(44);
