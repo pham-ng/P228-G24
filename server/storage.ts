@@ -896,6 +896,11 @@ export const storage = {
   updatePolicyRules(code: string, rules: string): void {
     db.update(policies).set({ rules }).where(eq(policies.code, code)).run();
   },
+  /** Replace one policy's guest-facing summary. Used by corrective migrations to
+   *  strip internal QA placeholders that were leaking into guest answers. */
+  updatePolicySummary(code: string, summary: string): void {
+    db.update(policies).set({ summary }).where(eq(policies.code, code)).run();
+  },
 
   /* ---------------- vector index identity ---------------- */
 

@@ -46,7 +46,7 @@ import { storage } from "./storage";
 import type { DocChunk } from "@shared/schema";
 import { chat } from "./llm";
 import { scoreFamilies, type FamilyName } from "./toolrouter";
-import { checkReply, repairReply } from "./numguard";
+import { checkReply, repairReply, checkCategoricalTraps } from "./numguard";
 import { namedEntities } from "./name-alias";
 import { shouldEscalateByIntent } from "./intent-net";
 import { needsClarification, type ClarifyLang } from "./clarify";
@@ -1746,6 +1746,14 @@ export async function runLocalTurn(input: {
    *  still sees only the raw current message: routing safety is decided on
    *  what the guest is asking right now, not on what was asked before. */
   history?: string;
+  /** A running summary of turns OLDER than the recent-history window, condensing
+   *  which entities the guest is interested in (a specific room, venue, service)
+   *  and what has been discussed. Names entities, never figures — so a follow-up
+   *  like "giá phòng lúc nãy?" can be pointed at the right room for retrieval to
+   *  price freshly, without reintroducing the cross-topic NUMBER attribution the
+   *  money-signal history gate exists to prevent. Empty for short conversations,
+   *  so single-turn behaviour is unchanged. */
+  summary?: string;
 }): Promise<LocalTurn> {
   const search = input.search ?? hybridSearch;
   const route = classifyLocal(input.question, input.isEmergency);
@@ -1881,7 +1889,21 @@ export async function runLocalTurn(input: {
      BM25 cannot, so it only gets the exchange most likely to be the right
      one — the last one. */
   const lastExchangeOnly = input.history?.split("\n").slice(-2).join("\n") ?? "";
-  const retrievalQuery = useHistory && lastExchangeOnly ? `${lastExchangeOnly}\n${input.question}` : input.question;
+  let retrievalQuery = useHistory && lastExchangeOnly ? `${lastExchangeOnly}\n${input.question}` : input.question;
+  /* When the current message REFERS BACK to something ("phòng lúc nãy", "nó",
+     "cái đó", "còn … thì sao") but the referent has fallen out of the recent
+     window, the running summary names the entity the guest means. Prepending it
+     to the retrieval query points BM25/vectors at the right room/venue so the
+     answer is priced/described from the correct document. It is added to the
+     retrieval query ONLY (never asserted as fact) and only for a back-reference,
+     so it cannot pull an unrelated topic into an ordinary question. Unlike the
+     recent-history path, this is NOT gated on the money signal: the summary
+     carries entities, not figures, so it disambiguates WHICH room without ever
+     handing the model a number to misattribute. */
+  const BACK_REFERENCE = /\bnó\b|\bđó\b|\bấy\b|\bnày\b|lúc nãy|ban nãy|vừa (?:nãy|rồi)|hồi nãy|còn .* thì sao|cái (?:kia|đó)/i;
+  if (input.summary && BACK_REFERENCE.test(input.question)) {
+    retrievalQuery = `${input.summary}\n${retrievalQuery}`;
+  }
   const retrievalStart = Date.now();
   const found = await search(retrievalQuery, { k: LOCAL_PASSAGES });
   const retrievalMs = Date.now() - retrievalStart;
@@ -1979,6 +2001,30 @@ export async function runLocalTurn(input: {
      the front desk to confirm" notice, for a figure read straight out of
      `room_packages`. */
   const rateFacts = buildRoomRateBlock(input.question, input.lang, enrichedPassages);
+
+  /* Non-numeric fabrication guard: a confident tier or required-document answer
+     the passages do not actually support. Grounds against the same evidence the
+     numeric guard uses, so it self-disables the moment the corpus gains the
+     fact. Placed before the numeric guard so a trap short-circuits to a handoff
+     rather than shipping an invented category. */
+  if (answer.reply) {
+    const evidenceText =
+      enrichedPassages.map((p) => p.content).join("\n") + (rateFacts ? "\n" + rateFacts : "");
+    const trap = checkCategoricalTraps(input.question, answer.reply, evidenceText);
+    if (trap.abstain) {
+      return {
+        route,
+        reply: null,
+        escalate: true,
+        escalateReason: `Câu trả lời khẳng định điều tài liệu không có (${trap.reason}) — chuyển nhân viên.`,
+        passages: enrichedPassages,
+        topScore: gate.topScore,
+        llmCalls: 1,
+        retrievalMs,
+        timing: answer.timing,
+      };
+    }
+  }
 
   if (answer.reply) {
     const numCheck = checkReply(answer.reply, {

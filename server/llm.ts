@@ -541,8 +541,16 @@ async function chatOllamaNative(opts: ChatOptions, model: string): Promise<ChatR
     model,
     messages: opts.messages,
     stream: false,
-    /* The whole reason this transport exists. */
-    think: false,
+    /**
+     * Tắt suy luận theo mặc định — đó là lý do transport này tồn tại.
+     *
+     * Nhưng cho bật được, vì Qwen3 là model SUY LUẬN: thế mạnh của nó là lập
+     * luận nhiều bước (giờ 15:00 → rơi vào bậc phí nào → 50%), đúng thứ các câu
+     * PRICING/POLICY_CONDITIONAL cần. Trên GPU khoẻ, đánh đổi độ trễ lấy độ
+     * chính xác con số có thể đáng — phải ĐO mới biết, nên đặt sau cờ thay vì
+     * chọn cứng một chiều. Khối <think> vẫn bị `extractJsonObject`/`cleanReply`
+     * cắt bỏ, nên câu trả lời cuối luôn sạch dù bật hay tắt. */
+    think: process.env.LOCAL_THINK === "1" || process.env.LOCAL_THINK === "true",
     /* Ollama's default keep_alive is 5 minutes — any gap longer than that
      * between guest turns forces a full model reload (measured on this
      * deployment: 9-19s just to reload qwen2.5:3b), which is what actually

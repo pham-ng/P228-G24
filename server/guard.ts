@@ -78,6 +78,13 @@ const ADULT_SERVICES = [
   /デリヘル|風俗|援助交際|女.{0,4}(呼んで|派遣)/i,
   /小姐.{0,4}(到|来)|叫鸡|特殊服务|上门服务|性服务/i,
   /эскорт|проститут|девушк\w*.{0,12}(номер|в номер)|интим услуг/i,
+  /* "KTV girl / hostess to the room" — the euphemism the live testers actually
+     used ("cho tôi 1 em ktv lên phòng"), which none of the terms above caught.
+     Requires the "to the room" context so a legitimate "ktv ở đâu?" / "phòng
+     karaoke giá bao nhiêu?" is untouched (verified against a benign set). Plus
+     the bare "kích dục" (sexual arousal) — no legitimate hotel use, and it also
+     covers "thuốc kích dục". */
+  /(?:em |g(?:á|a)i |b(?:é|e) )?ktv (?:l(?:ê|e)n|v(?:ề|e)|t(?:ớ|to)i) (?:ph(?:ò|o)ng|đ(?:â|a)y)|g(?:á|a)i ktv|k(?:í|i)ch d(?:ụ|u)c/i,
 ];
 
 /**
