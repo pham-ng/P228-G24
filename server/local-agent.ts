@@ -1889,7 +1889,20 @@ export async function runLocalTurn(input: {
      BM25 cannot, so it only gets the exchange most likely to be the right
      one — the last one. */
   const lastExchangeOnly = input.history?.split("\n").slice(-2).join("\n") ?? "";
-  let retrievalQuery = useHistory && lastExchangeOnly ? `${lastExchangeOnly}\n${input.question}` : input.question;
+  /* A BARE attribute follow-up — "phạt bao nhiêu?", "giá bao nhiêu?", "bao lâu?"
+     — names an attribute but no subject, so it only makes sense against the
+     previous turn. needsConversationContext misses it (no pronoun / "còn"), and
+     the money word in "phạt/giá" would anyway blank the history, so the live turn
+     "làm hỏng ga giường?" → "phạt bao nhiêu?" retrieved smoking and lodging fines
+     instead of the damage rule. Steer RETRIEVAL with the last exchange for these,
+     independent of the money gate: retrieval only targets the right topic and
+     cannot misattribute a number — the answer prompt below still keeps the money
+     gate, and numguard still guards every figure. */
+  const ATTR_CUE = /\b(bao nhiêu|bao lâu|phạt|giá|phí|mấy giờ|thế nào|ra sao)\b/i;
+  const isBareFollowup =
+    !!input.history && input.question.trim().split(/\s+/).length <= 6 && ATTR_CUE.test(input.question);
+  let retrievalQuery =
+    (useHistory || isBareFollowup) && lastExchangeOnly ? `${lastExchangeOnly}\n${input.question}` : input.question;
   /* When the current message REFERS BACK to something ("phòng lúc nãy", "nó",
      "cái đó", "còn … thì sao") but the referent has fallen out of the recent
      window, the running summary names the entity the guest means. Prepending it
