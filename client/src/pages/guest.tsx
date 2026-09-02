@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, memo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ArrowRight, Loader2, Moon, SendHorizonal, ShieldCheck, Sun, UserRound } from "lucide-react";
@@ -817,6 +817,22 @@ export default function GuestPage() {
    * bốn, trong khi tiếng Việt có tám.
    */
   const chipScroller = useRef<HTMLDivElement | null>(null);
+  /**
+   * Callback ref, KHÔNG phải `ref={chipScroller}` đơn thuần.
+   *
+   * Lần render đầu component trả về <KeyPicker> nên hàng chip chưa có trong
+   * cây DOM, và `chipScroller.current` vẫn là null lúc effect chạy — effect
+   * thoát sớm, listener không được gắn, mũi tên không bao giờ xuất hiện.
+   * Đo được: cuộn thật tới 250px mà lề vẫn `pl-4`.
+   *
+   * Callback ref chạy ĐÚNG lúc node gắn vào cây. Đẩy node vào state để effect
+   * chạy lại với node thật, thay vì hy vọng một dependency nào đó tình cờ đổi.
+   */
+  const [chipEl, setChipEl] = useState<HTMLDivElement | null>(null);
+  const ganChipScroller = useCallback((el: HTMLDivElement | null) => {
+    chipScroller.current = el;
+    setChipEl(el);
+  }, []);
   const [conChipPhai, setConChipPhai] = useState(false);
   /* Đối xứng với mũi tên phải. Bản đầu chỉ có một chiều, nên cuộn sang phải
      rồi thì không có đường quay lại bằng chuột — người dùng báo đúng chỗ này. */
@@ -882,12 +898,30 @@ export default function GuestPage() {
     const ro = el ? new ResizeObserver(doChipPhai) : null;
     if (el && ro) ro.observe(el);
     window.addEventListener("resize", doChipPhai);
+    /**
+     * Nghe `scroll` bằng listener DOM THẬT, không dùng `onScroll` của React.
+     *
+     * Sự kiện `scroll` KHÔNG bubble. React gom phần lớn sự kiện về gốc cây rồi
+     * phân phát xuống theo đường bubble, nên một sự kiện không bubble có thể
+     * không bao giờ tới handler.
+     *
+     * Đo được trên bản đã dựng: bấm mũi tên phải thì `scrollLeft` nhảy đúng từ
+     * 0 lên 220, nhưng state không đổi — lề vẫn `pl-4` và mũi tên trái không
+     * hiện. Tự bắn một `Event("scroll", { bubbles: true })` thì lại chạy, đúng
+     * bằng chứng cho chuyện bubble.
+     *
+     * Lỗi này CÓ SẴN từ trước, chỉ là không ai thấy: mũi tên phải bật lên ngay
+     * ở lần đo đầu trong effect này nên trông vẫn "đúng" — nó chỉ chưa bao giờ
+     * tự ẩn khi cuộn tới cuối hàng.
+     */
+    el?.addEventListener("scroll", doChipPhai, { passive: true });
     return () => {
       cancelAnimationFrame(id);
       ro?.disconnect();
       window.removeEventListener("resize", doChipPhai);
+      el?.removeEventListener("scroll", doChipPhai);
     };
-  }, [prompts, chipsAn, roomServiceOpen, requestsOpen, myReqOpen, handbookOpen]);
+  }, [chipEl, prompts, chipsAn, roomServiceOpen, requestsOpen, myReqOpen, handbookOpen]);
 
   if (!code) return <KeyPicker onPick={setCode} lang={pickedLang ?? "vi"} onLang={chooseLang} />;
 
@@ -1157,8 +1191,9 @@ export default function GuestPage() {
       ) : (
       <div className="relative shrink-0">
       <div
-        ref={chipScroller}
-        onScroll={doChipPhai}
+        ref={ganChipScroller}
+        /* KHÔNG dùng `onScroll` ở đây — xem lý do trong useEffect bên trên.
+           Listener DOM thật đã lo việc này. */
         /* pr-16: chừa chỗ cho nút ẩn và mũi tên nằm đè bên phải, nếu không chip
            cuối cùng chui xuống dưới chúng và không bấm được. */
         /* Lề phải/trái NỞ RA đúng lúc mũi tên hiện. Trước đây `pr-16` là cố
