@@ -12,6 +12,7 @@ import { ServiceActions, readServiceReference } from "@/components/service-actio
 import { RoomServicePanel } from "@/components/room-service";
 import { GuestRequestsPanel } from "@/components/guest-requests";
 import { MyRequestsPanel } from "@/components/my-requests";
+import { HandbookPanel } from "@/components/handbook";
 import { SourceAndFeedback } from "@/components/source-and-feedback";
 import { QueueNotice } from "@/components/queue-notice";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,15 @@ const REQUESTS_LABEL: Record<string, string> = {
   ja: "🛎️ クイックリクエスト",
   zh: "🛎️ 快捷请求",
   ru: "🛎️ Быстрые запросы",
+};
+
+const HANDBOOK_LABEL: Record<string, string> = {
+  vi: "📖 Nội quy khách sạn",
+  en: "📖 House rules",
+  ko: "📖 이용 규정",
+  ja: "📖 利用規約",
+  zh: "📖 住宿规定",
+  ru: "📖 Правила отеля",
 };
 
 const ROOM_SERVICE_LABEL: Record<string, string> = {
@@ -748,6 +758,7 @@ export default function GuestPage() {
   const [roomServiceOpen, setRoomServiceOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [myReqOpen, setMyReqOpen] = useState(false);
+  const [handbookOpen, setHandbookOpen] = useState(false);
 
   /**
    * Khách ẩn được hàng gợi ý, và lựa chọn đó được nhớ.
@@ -870,7 +881,7 @@ export default function GuestPage() {
       ro?.disconnect();
       window.removeEventListener("resize", doChipPhai);
     };
-  }, [prompts, chipsAn, roomServiceOpen, requestsOpen, myReqOpen]);
+  }, [prompts, chipsAn, roomServiceOpen, requestsOpen, myReqOpen, handbookOpen]);
 
   if (!code) return <KeyPicker onPick={setCode} lang={pickedLang ?? "vi"} onLang={chooseLang} />;
 
@@ -1097,6 +1108,7 @@ export default function GuestPage() {
         {roomServiceOpen && <RoomServicePanel code={code} lang={detail.guest.lang} />}
         {requestsOpen && <GuestRequestsPanel code={code} lang={detail.guest.lang} />}
         {myReqOpen && <MyRequestsPanel code={code} lang={detail.guest.lang} />}
+        {handbookOpen && <HandbookPanel lang={detail.guest.lang} />}
       </div>
 
       {/* Dynamic Quick Action Chips — Always visible so the guest doesn't have to type everything */}
@@ -1162,6 +1174,17 @@ export default function GuestPage() {
           }`}
         >
           {t(uiLang, "myReq")}
+        </button>
+        <button
+          onClick={() => setHandbookOpen((v) => !v)}
+          data-testid="chip-handbook"
+          className={`hover-elevate shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+            handbookOpen
+              ? "border-primary/60 bg-primary/15 text-primary"
+              : "border-border bg-card hover:border-primary/40 hover:bg-primary/10"
+          }`}
+        >
+          {HANDBOOK_LABEL[detail.guest.lang] ?? HANDBOOK_LABEL.en}
         </button>
         {prompts.map((p) => (
           <button
