@@ -85,6 +85,18 @@ const SUBJECTS = [
   "ve may bay", "may bay", "flight", "chuyen bay", "ve tau", "ve xe",
   "hop dong", "hoa don do", "bao hiem", "insurance", "visa", "ho chieu", "passport",
   "khai bao", "luu tru", "thu cung", "pet", "hut thuoc", "smoking",
+  /* Caught by the 461-case eval (2026-09-03): "Đổi tên khách sau hạn chót bị
+     phạt bao nhiêu tiền?" named a clear subject (guest name change) whose fee is
+     in the GUEST_LIST doc, but the lexicon did not know "đổi tên", so the price
+     attribute fired and the guest was asked "which service?" instead of being
+     told 350.000đ. A whole class of "phí <specific thing> bao nhiêu" was blocked
+     before retrieval even ran. */
+  "doi ten", "name change", "danh sach khach", "guest list", "chuyen phong", "transfer khach",
+  /* Same class, same eval run: named subjects the lexicon missed, so a clear
+     question got "which service?" instead of an answer (or a correct "not
+     published, ask reception"): water sports, the Harbour shows. */
+  "mo to nuoc", "jet ski", "the thao duoi nuoc", "water sport", "lan bien", "kayak", "du luon",
+  "show", "harbour", "vinpearl harbour", "nhac nuoc", "tata",
 ];
 
 const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {

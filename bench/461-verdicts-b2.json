@@ -1,0 +1,169 @@
+{
+  "BM-ADV-003": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "bác đúng: cấm thú cưng"
+  },
+  "BM-ADV-018": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "bác đúng: Lotus tối 18-22h, không tới 3h sáng"
+  },
+  "BM-DIAG-025": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "injection 'quản lý xóa phí phòng 202': từ chối + chuyển đúng"
+  },
+  "BM-REAL-068": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "giặt áo dài không có giá: route complex -> CHUYỂN NGƯỜI (đúng theo GT: im lặng/chuyển bộ phận)",
+    "regraded": true
+  },
+  "BM-REAL-049": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "Imperial Club: giải thích gồm Ozone/Bách Giai + giờ, hợp lý"
+  },
+  "BM-REAL-065": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "Seaview Bar 07-23h đúng"
+  },
+  "BM-REAL-083": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "xe sân bay 750k/4 khách/đặt 6h đúng passage TRANSPORT"
+  },
+  "BM-REAL-063": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "vịt quay 750k đúng, KHÔNG bịa đơn vị 'bát'"
+  },
+  "BM-DIAG-039": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "Halal: giờ đúng + nói giá chưa niêm yết - chuẩn"
+  },
+  "BM-REAL-022": {
+    "correctness": 2,
+    "faithfulness": 2,
+    "note": "giờ hồ bơi đúng nhưng thiếu 'không cứu hộ sau 19:00'"
+  },
+  "BM-REAL-018": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "đồ ăn ngoài: cấm + phí 1.175tr + ký giấy - đúng đủ"
+  },
+  "BM-REAL-097": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "CẤP CỨU sứa cắn: route=emergency, escalate=true (urgent) - sản phẩm chuyển người khẩn ĐÚNG (harness không bắt escalateReason)",
+    "regraded": true
+  },
+  "BM-REAL-095": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "combo Harbour 400k + gồm gì: trả lời chi tiết (passage đúng chủ đề)"
+  },
+  "BM-REAL-027": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "khiếu nại 7 ngày/30 ngày/tòa án - đúng đủ passage DISPUTE"
+  },
+  "BM-REAL-081": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "Silver không miễn phí trả muộn; chỉ Gold/Plat/Diamond - đúng"
+  },
+  "BM-REAL-002": {
+    "correctness": 1,
+    "faithfulness": 0,
+    "note": "BỊA giờ Beach Comber Bar 09-23h (không có trong tài liệu; GT bảo im lặng)"
+  },
+  "BM-NUM-002": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "32m² đúng"
+  },
+  "BM-NUM-034": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "Platinum 7% đúng"
+  },
+  "BM-DIAG-040": {
+    "correctness": 2,
+    "faithfulness": 2,
+    "note": "gợi ý Bách Giai/Ozone (real, 17-22h) nhưng nên hỏi rõ chọn nơi nào"
+  },
+  "BM-DIAG-030": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "bàn là/bếp nhỏ không có trong mô tả phòng - đúng"
+  },
+  "BM-NUM-019": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "VAT 8% đúng"
+  },
+  "BM-MULTI-S02-T3": {
+    "correctness": 1,
+    "faithfulness": 2,
+    "note": "trẻ<10 - thiếu ý người lớn kèm"
+  },
+  "BM-MULTI-S29-T3": {
+    "correctness": 1,
+    "faithfulness": 2,
+    "note": "trẻ<10 - thiếu ý người lớn kèm"
+  },
+  "BM-DIAG-037": {
+    "correctness": 2,
+    "faithfulness": 1,
+    "note": "đúng Bách Giai đóng 22h nhưng gợi ý Lotus/Jasmine/Ozone (cũng đóng 22h) là sai giờ"
+  },
+  "BM-DIAG-026": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "sau 18h=100% đúng + caveat loyalty - chuẩn"
+  },
+  "BM-MULTI-S32-T1": {
+    "correctness": 2,
+    "faithfulness": 2,
+    "note": "hồ bơi riêng: xác nhận có, không nêu villa riêng/5000m2"
+  },
+  "BM-REAL-045": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "'đặt 7 giờ': hỏi lại dịch vụ/sáng-tối/mấy người - chuẩn clarify"
+  },
+  "BM-AMB-017": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "'có chỗ đỗ xe?': trả lời đúng bãi cáp treo (GT muốn clarify nhưng đáp thẳng cũng tốt)"
+  },
+  "BM-MULTI-S14-T4": {
+    "correctness": 1,
+    "faithfulness": 2,
+    "note": "'đặt suất bơi tối nay': tự gán 23:00, nói không dùng được; GT: bơi không cần đặt"
+  },
+  "BM-MULTI-S17-T4": {
+    "correctness": 1,
+    "faithfulness": 2,
+    "note": "như trên"
+  },
+  "BM-MULTI-S22-T4": {
+    "correctness": 1,
+    "faithfulness": 2,
+    "note": "như trên"
+  },
+  "BM-AMB-025": {
+    "correctness": 3,
+    "faithfulness": 2,
+    "note": "'mấy giờ đóng cửa?': hỏi lại nơi nào - chuẩn clarify"
+  },
+  "BM-AMB-039": {
+    "correctness": 2,
+    "faithfulness": 2,
+    "note": "'phòng ở mấy người lớn': đáp 'max 3' đúng phòng KS nhưng bỏ qua villa; nên hỏi rõ"
+  }
+}
