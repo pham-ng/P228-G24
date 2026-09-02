@@ -195,7 +195,8 @@ const UI_COPY: Record<string, Record<string, string>> = {
     hideChips: "Ẩn gợi ý",
     showChips: "Hiện gợi ý nhanh",
     moreChips: "Kéo xem thêm",
-    micHint: "Bấm để nói",
+    closePanel: "Đóng",
+    lessChips: "Kéo về trái",
     darkOn: "Chế độ tối",
     darkOff: "Chế độ sáng",
     greet: "Chào quý khách",
@@ -221,7 +222,8 @@ const UI_COPY: Record<string, Record<string, string>> = {
     hideChips: "Hide shortcuts",
     showChips: "Show quick shortcuts",
     moreChips: "Scroll for more",
-    micHint: "Tap to speak",
+    closePanel: "Close",
+    lessChips: "Scroll back",
     darkOn: "Dark mode",
     darkOff: "Light mode",
     greet: "Welcome",
@@ -247,7 +249,8 @@ const UI_COPY: Record<string, Record<string, string>> = {
     hideChips: "바로가기 숨기기",
     showChips: "바로가기 표시",
     moreChips: "옆으로 밀기",
-    micHint: "눌러서 말하기",
+    closePanel: "닫기",
+    lessChips: "왼쪽으로 밀기",
     darkOn: "다크 모드",
     darkOff: "라이트 모드",
     greet: "환영합니다",
@@ -273,7 +276,8 @@ const UI_COPY: Record<string, Record<string, string>> = {
     hideChips: "隐藏快捷方式",
     showChips: "显示快捷方式",
     moreChips: "向右滑动查看",
-    micHint: "点击说话",
+    closePanel: "关闭",
+    lessChips: "向左滑动",
     darkOn: "深色模式",
     darkOff: "浅色模式",
     greet: "欢迎",
@@ -299,7 +303,8 @@ const UI_COPY: Record<string, Record<string, string>> = {
     hideChips: "ショートカットを隠す",
     showChips: "ショートカットを表示",
     moreChips: "横にスクロール",
-    micHint: "タップして話す",
+    closePanel: "閉じる",
+    lessChips: "左にスクロール",
     darkOn: "ダークモード",
     darkOff: "ライトモード",
     greet: "ようこそ",
@@ -325,7 +330,8 @@ const UI_COPY: Record<string, Record<string, string>> = {
     hideChips: "Скрыть подсказки",
     showChips: "Показать подсказки",
     moreChips: "Прокрутите вправо",
-    micHint: "Нажмите, чтобы говорить",
+    closePanel: "Закрыть",
+    lessChips: "Прокрутите влево",
     darkOn: "Тёмная тема",
     darkOff: "Светлая тема",
     greet: "Добро пожаловать",
@@ -759,6 +765,20 @@ export default function GuestPage() {
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [myReqOpen, setMyReqOpen] = useState(false);
   const [handbookOpen, setHandbookOpen] = useState(false);
+  const bangDangMo = roomServiceOpen || requestsOpen || myReqOpen || handbookOpen;
+  /**
+   * Đóng mọi bảng đang mở.
+   *
+   * Trước đây muốn đóng phải bấm lại đúng cái chip đã mở nó — mà chip ấy có
+   * thể đã trôi khỏi màn hình vì hàng chip cuộn ngang. Người dùng báo lại
+   * đúng chỗ này. Một nút × ngay trên bảng thì không phải đi tìm.
+   */
+  const dongMoiBang = () => {
+    setRoomServiceOpen(false);
+    setRequestsOpen(false);
+    setMyReqOpen(false);
+    setHandbookOpen(false);
+  };
 
   /**
    * Khách ẩn được hàng gợi ý, và lựa chọn đó được nhớ.
@@ -798,35 +818,21 @@ export default function GuestPage() {
    */
   const chipScroller = useRef<HTMLDivElement | null>(null);
   const [conChipPhai, setConChipPhai] = useState(false);
+  /* Đối xứng với mũi tên phải. Bản đầu chỉ có một chiều, nên cuộn sang phải
+     rồi thì không có đường quay lại bằng chuột — người dùng báo đúng chỗ này. */
+  const [conChipTrai, setConChipTrai] = useState(false);
   const doChipPhai = () => {
     const el = chipScroller.current;
     if (!el) return;
     /* Trừ 8px: cuộn tới cuối thường lệch vài phần trăm pixel, và không có biên
        này thì mũi tên nhấp nháy ở cuối hàng. */
     setConChipPhai(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+    setConChipTrai(el.scrollLeft > 8);
   };
-  /**
-   * NHÓM 3.2 — nhắc một lần rằng nút micro dùng để nói.
-   *
-   * Nút micro là một hình tròn 14 pixel cạnh ô nhập tin và không nói gì về
-   * việc nó làm. Nhắc MỘT lần rồi nhớ vào localStorage: nhắc mãi thì thành
-   * phiền, mà không nhắc thì tính năng coi như không tồn tại.
-   */
-  const [micHintSeen, setMicHintSeen] = useState(() => {
-    try {
-      return localStorage.getItem("aurea-mic-hint") === "1";
-    } catch {
-      return true; // không lưu được thì thà im lặng còn hơn nhắc mỗi lần mở
-    }
-  });
-  const dismissMicHint = () => {
-    setMicHintSeen(true);
-    try {
-      localStorage.setItem("aurea-mic-hint", "1");
-    } catch {
-      /* riêng tư / bị chặn — vẫn ẩn trong phiên này */
-    }
-  };
+  /* NHÓM 3.2 (đã gỡ) — nhãn "Bấm để nói ↓" cùng localStorage `aurea-mic-hint`.
+     Nó giải quyết đúng vấn đề "nút micro không tự giới thiệu", nhưng bằng cách
+     thêm một dòng chữ và một nút tắt ngay sát ô nhập tin. Cách rẻ hơn là làm
+     chính nút micro đủ rõ để không cần chú thích. */
   /**
    * NHÓM 4 — chế độ tối cho khách.
    *
@@ -1104,7 +1110,22 @@ export default function GuestPage() {
 
       {/* In-room dining. A control rather than a chip: a chip sends a message
           to the model, and the whole point here is that no model is involved. */}
-      <div className="shrink-0 px-4">
+      <div className="relative shrink-0 px-4">
+        {/* Nút đóng dùng chung cho cả bốn bảng: đặt ở đây thay vì sửa từng
+            component con, nên chỉ có MỘT chỗ quyết định nó trông thế nào và
+            nằm ở đâu. z-10 để nó nổi trên phần đầu của bảng bên dưới. */}
+        {bangDangMo && (
+          <button
+            type="button"
+            onClick={dongMoiBang}
+            data-testid="panel-close"
+            aria-label={t(uiLang, "closePanel")}
+            title={t(uiLang, "closePanel")}
+            className="absolute right-6 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-foreground"
+          >
+            ×
+          </button>
+        )}
         {roomServiceOpen && <RoomServicePanel code={code} lang={detail.guest.lang} />}
         {requestsOpen && <GuestRequestsPanel code={code} lang={detail.guest.lang} />}
         {myReqOpen && <MyRequestsPanel code={code} lang={detail.guest.lang} />}
@@ -1140,7 +1161,12 @@ export default function GuestPage() {
         onScroll={doChipPhai}
         /* pr-16: chừa chỗ cho nút ẩn và mũi tên nằm đè bên phải, nếu không chip
            cuối cùng chui xuống dưới chúng và không bấm được. */
-        className="flex gap-1.5 overflow-x-auto px-4 pb-2 pr-16 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        /* Lề phải/trái NỞ RA đúng lúc mũi tên hiện. Trước đây `pr-16` là cố
+           định nên khi có cả hai nút (× và ›) thì chip cuối vẫn trượt xuống
+           dưới chúng — đó là chỗ người dùng thấy "bị chồng lấp". */
+        className={`flex gap-1.5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+          conChipTrai ? "pl-10" : "pl-4"
+        } ${conChipPhai ? "pr-20" : "pr-11"}`}
       >
         <button
           onClick={() => setRoomServiceOpen((v) => !v)}
@@ -1218,6 +1244,21 @@ export default function GuestPage() {
           *
           * Hai nút đã có hiệu ứng hover riêng nên không mất gì khi bỏ lớp đó.
           */}
+        {conChipTrai && (
+          <>
+            <div className="pointer-events-none absolute bottom-2 left-0 top-0 w-10 bg-gradient-to-r from-background to-transparent" />
+            <button
+              type="button"
+              onClick={() => chipScroller.current?.scrollBy({ left: -220, behavior: "smooth" })}
+              data-testid="chip-scroll-left"
+              aria-label={t(uiLang, "lessChips")}
+              title={t(uiLang, "lessChips")}
+              className="absolute left-1 top-0 flex h-[26px] w-[26px] items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              ‹
+            </button>
+          </>
+        )}
         {conChipPhai && (
           <>
             <div className="pointer-events-none absolute bottom-2 right-0 top-0 w-16 bg-gradient-to-l from-background to-transparent" />
@@ -1227,7 +1268,7 @@ export default function GuestPage() {
               data-testid="chip-scroll-right"
               aria-label={t(uiLang, "moreChips")}
               title={t(uiLang, "moreChips")}
-              className="absolute right-9 top-0 flex h-[26px] w-[26px] items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              className="absolute right-9 top-0 flex h-[26px] w-[26px] items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground"
             >
               ›
             </button>
@@ -1246,20 +1287,10 @@ export default function GuestPage() {
       </div>
       )}
 
-      {!micHintSeen && (
-        <div className="mx-4 mb-1.5 flex shrink-0 items-center justify-end gap-2">
-          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] text-primary">
-            {t(uiLang, "micHint")} ↓
-          </span>
-          <button
-            onClick={dismissMicHint}
-            className="text-[11px] text-muted-foreground underline underline-offset-2"
-            data-testid="dismiss-mic-hint"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Nhãn "Bấm để nói ↓" đã bỏ. Nó chiếm một dòng ngay trên ô nhập tin,
+          kéo theo một nút ✕ thứ hai chỉ để tắt chính nó — hai thứ nhiễu cho
+          một câu mà cái micro tự nói được. Thay vào đó nút micro được làm nổi
+          hơn (xem mic-button.tsx), nên không cần chú thích. */}
       <div className="shrink-0 border-t border-border p-3">
         <div className="flex items-end gap-2">
           <Textarea

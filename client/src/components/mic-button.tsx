@@ -93,9 +93,6 @@ export function MicButton({
   const rec = useRef<Recorder | null>(null);
   const frame = useRef<number>(0);
 
-  /* Releasing the microphone on unmount is not a tidiness detail: the browser
-     shows a recording indicator for as long as the track is live, and a kiosk
-     that appears to be listening after the guest navigated away is alarming. */
   useEffect(
     () => () => {
       cancelAnimationFrame(frame.current);
@@ -104,10 +101,6 @@ export function MicButton({
     [],
   );
 
-  /* Whisper is told which language to expect, so an unknown profile language
-     has to resolve to something. English is the right default here — unlike the
-     speak button, where a wrong voice is noise, a wrong ASR hint on clear
-     speech degrades gracefully. */
   const sttLang: SpeechLang = (lang in LABELS ? lang : "en") as SpeechLang;
   const t = LABELS[sttLang];
   if (!caps?.stt || !recordingSupported()) return null;
@@ -124,8 +117,6 @@ export function MicButton({
       setState("recording");
       frame.current = requestAnimationFrame(pump);
     } catch {
-      /* Denied, or no microphone. Both are the guest's own device telling them
-         something; repeating it as an error would be noise. */
       setNote(t.fail);
       setState("idle");
     }
@@ -168,12 +159,26 @@ export function MicButton({
   const working = state === "working";
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="relative flex flex-col items-center group">
+      {/* Dynamic Glow Aura when recording */}
+      {recording && (
+        <span className="absolute -inset-1 rounded-full bg-rose-500/30 animate-ping pointer-events-none" />
+      )}
+
       <Button
         type="button"
         variant={recording ? "destructive" : "outline"}
         size="icon"
-        className="h-[42px] w-[42px] shrink-0"
+        className={`relative h-11 w-11 shrink-0 rounded-full transition-all duration-300 ${
+          recording
+            ? "bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/40 ring-4 ring-rose-500/20 scale-105"
+            /* Trạng thái nghỉ phải TỰ MỜI GỌI. Bản cũ là `bg-background/80` với
+               viền `primary/20` — gần như trong suốt, nên đứng cạnh nút gửi tô
+               đặc thì nó trông như bị vô hiệu hoá. Đây chính là lý do phải dán
+               thêm nhãn "Bấm để nói ↓"; tô nền nhạt và đậm viền lên thì nhãn đó
+               thành thừa. */
+            : "border-primary/40 bg-primary/10 text-primary shadow-sm hover:bg-primary/20 hover:border-primary/60 hover:scale-105 hover:shadow-md hover:shadow-primary/20"
+        }`}
         disabled={disabled || working}
         onClick={recording ? finish : begin}
         aria-label={recording ? t.rec : t.idle}
@@ -181,30 +186,45 @@ export function MicButton({
         data-testid="button-mic"
       >
         {working ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
         ) : recording ? (
-          <Square className="h-3.5 w-3.5" />
+          <Square className="h-4 w-4 fill-current animate-pulse text-white" />
         ) : (
-          <Mic className="h-4 w-4" />
+          <Mic className="h-5 w-5 text-primary transition-transform group-hover:scale-110" />
         )}
       </Button>
+
+      {/* Friendly Audio Visualizer Wave / Level Meter */}
       {recording && (
-        /* A level meter, not a timer. The question a guest has while recording
-           is "can it hear me", and a permission that was granted at the browser
-           but muted at the OS looks identical to a working microphone without
-           this. */
-        <div className="mt-1 h-1 w-8 overflow-hidden rounded-full bg-muted" aria-hidden>
+        <div
+          className="mt-1.5 flex items-center justify-center gap-0.5 px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 backdrop-blur-xs animate-in fade-in zoom-in-95 duration-200"
+          aria-hidden
+        >
           <div
-            className="h-full rounded-full bg-destructive transition-[width] duration-75"
-            style={{ width: `${Math.min(100, Math.round(level * 140))}%` }}
+            className="w-1 rounded-full bg-rose-500 transition-all duration-75"
+            style={{ height: `${Math.max(4, Math.min(16, Math.round(level * 40)))}px` }}
+          />
+          <div
+            className="w-1 rounded-full bg-rose-500 transition-all duration-75"
+            style={{ height: `${Math.max(6, Math.min(20, Math.round(level * 70)))}px` }}
+          />
+          <div
+            className="w-1 rounded-full bg-rose-500 transition-all duration-75"
+            style={{ height: `${Math.max(4, Math.min(16, Math.round(level * 45)))}px` }}
           />
         </div>
       )}
+
+      {/* Thông báo NỔI lên trên nút, không nằm trong dòng chảy bố cục.
+          Trước đây nó là phần tử thường nên khi hiện ("Chưa nhận được, anh/chị
+          thử lại…") nó đội chiều cao cả hàng nhập tin lên và đẩy nút gửi lệch
+          đi — thấy rõ trong ảnh người dùng gửi. Nổi lên thì hàng đứng yên. */}
       {note && !recording && (
-        <span className="mt-1 max-w-[9rem] text-center text-[10px] leading-tight text-muted-foreground">
+        <span className="absolute bottom-full left-1/2 z-20 mb-1.5 w-max max-w-[12rem] -translate-x-1/2 rounded-md border border-border bg-popover px-2 py-1 text-center text-[10px] font-medium leading-tight text-popover-foreground shadow-md animate-in fade-in">
           {note}
         </span>
       )}
     </div>
   );
 }
+
