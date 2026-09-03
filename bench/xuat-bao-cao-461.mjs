@@ -1,4 +1,11 @@
 /**
+ * ĐÃ THAY THẾ bởi bench/build461report.ts — giữ tệp này lại để xem lịch sử,
+ * KHÔNG dùng nữa. build461report.ts làm mọi việc tệp này làm, cộng thêm:
+ * khử trùng câu lặp qua ~35 kịch bản multi-turn, và một golden fix đã kiểm
+ * chứng (NUM-013). Viết trước trong cùng phiên này mà không biết bản kia đã
+ * tồn tại (phần hội thoại đó bị nén tóm tắt) — phát hiện khi `git pull` báo
+ * xung đột tệp chưa theo dõi trên prod.
+ *
  * Chuyển bench/461-run.jsonl (harness run461.ts) sang đúng schema
  * bench/rag-eval-report.json mà /api/bench/rag đọc.
  *

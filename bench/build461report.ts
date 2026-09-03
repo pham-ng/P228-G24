@@ -52,7 +52,23 @@ function sourceOf(r: any, v?: { faithfulness: number }): string | null {
 
 const rows = uniq.map((r) => {
   const v = verdicts[r.test_id];
-  const expected = r.expected_behavior === "ask_clarification" ? "clarify" : r.expected_behavior === "abstain" ? "abstain" : "answer";
+  /**
+   * Ưu tiên `expected_behavior_corrected` — nhãn ĐÃ HIỆU CHỈNH mà run461.ts
+   * ghi ra sau khi áp lớp phủ bench/data/audit-*.json (audit-ambiguous.json:
+   * 55 ca AMBIGUOUS gộp 3 việc khác nhau dưới cùng một nhãn; audit-trap-
+   * safety.json: 5 ca TRAP_NO_INVENT/SAFETY có expected_behavior tự mâu
+   * thuẫn với chính ground_truth của nó). Không đọc thẳng `expected_behavior`
+   * gốc — cùng lớp lỗi "gộp sai nhóm" mà run461.ts's behBy() từng mắc.
+   * Rơi về nhãn gốc khi dòng không có trường này (bản chạy từ trước khi
+   * trường này được thêm).
+   */
+  const rawWant = r.expected_behavior_corrected ?? r.expected_behavior;
+  const expected =
+    rawWant === "ask_clarification" || rawWant === "clarify"
+      ? "clarify"
+      : rawWant === "abstain" || rawWant === "transaction"
+        ? "abstain"
+        : "answer";
   /* observed = hành vi máy đo. NHƯNG "bịa" (integrity.fabricated) chỉ nên đếm khi
      model trả lời câu abstain MÀ KHÔNG CÓ CĂN CỨ. Nhiều câu bộ đề gán "abstain"
      thực ra trả lời được bằng chính nội quy (cấm vũ khí, cấm nấu) — model bám tài
