@@ -23,8 +23,22 @@ const vpath = join(process.cwd(), "bench", "461-verdicts.json");
 const verdicts: Record<string, { correctness: number; faithfulness: number; note?: string }> =
   existsSync(vpath) ? JSON.parse(readFileSync(vpath, "utf8")) : {};
 
-/* Golden đã kiểm chứng sai -> con số đúng. */
-const GOLDEN_FIX: Record<string, string[]> = { "BM-NUM-013": ["3000000", "3.000.000"] };
+/**
+ * Golden đã kiểm chứng sai -> con số đúng.
+ *
+ * BM-REAL-037: `ground_truth` không phải một con số đáp án mà là CÂU TƯỜNG
+ * THUẬT về lỗi ("Tài liệu 2 có giá vé 800k nhưng trợ lý lại im lặng") — mô tả
+ * hành vi sai của một lần chạy CŨ, không phải giá trị chuẩn để so khớp. Model
+ * hiện trả lời đúng "800.000 VND" khớp article #4 (curated, xem migration
+ * 014) — cùng cặp câu hỏi song sinh với BM-REAL-040 (vé 2 ngày, xem
+ * bench/data/audit-pricing.json), cùng nguyên nhân: golden viết trước khi
+ * corpus có số liệu curated, bộ đếm gốc trong run461.ts không tách được con
+ * số khỏi câu tường thuật nên chấm nhầm sai.
+ */
+const GOLDEN_FIX: Record<string, string[]> = {
+  "BM-NUM-013": ["3000000", "3.000.000"],
+  "BM-REAL-037": ["800000", "800.000"],
+};
 
 /**
  * `(?![a-zà-ỹ])` sau nhóm đơn vị — cùng bản vá đã áp cho `numbers()` trong
@@ -44,9 +58,29 @@ function canonNums(s: string): Set<string> {
 const seen = new Set<string>();
 const uniq = run.filter((r) => { const q = (r.question || "").replace(/\(.*?\)/g, "").trim(); if (seen.has(q)) return false; seen.add(q); return true; });
 
+/**
+ * ĐÃ BỎ override "abstain && expected=abstain -> im_lang" (bench/rubric.ts
+ * định nghĩa lại sau vòng đo κ đầu, 2026-08-29 — đọc rubric.ts để biết vì
+ * sao). `im_lang` theo rubric CHỈ áp dụng khi đoạn tài liệu trước mặt giám
+ * khảo NHÌN THẤY RÕ câu trả lời mà mô hình vẫn im — "tài liệu không chứa câu
+ * trả lời thì đó là 'hop_ly', không phải ô này".
+ *
+ * Override cũ ép mọi ca observed=abstain + expected=abstain thành `im_lang`
+ * chỉ dựa trên HÀNH VI khớp nhau, bỏ qua điểm `correctness` giám khảo (tôi)
+ * đã chấm sau khi đọc corpus — tức là ghi đè phán đoán "im lặng ĐÚNG vì
+ * tài liệu không có gì" (đáng ra hop_ly, ĐẠT) thành "im lặng SAI" (im_lang,
+ * KHÔNG đạt) một cách vô căn cứ. Đo được: 8 ca correctness=2 hoặc 3 (giám
+ * khảo đã chấm ĐẠT) bị override này lật thành thất bại.
+ *
+ * Sửa: chỉ dùng correctness đã chấm trực tiếp — đúng cách tôi tự chấm khi
+ * đọc từng ca (2 = im lặng/chuyển việc hợp lý, 3 = trả lời đúng đủ). Không
+ * còn đường nào tạo ra nhãn `im_lang` nữa vì thang correctness 0-3 của tôi
+ * không phân biệt "mô hình im dù tài liệu có" khỏi "sai thông tin khác" —
+ * cả hai đều rơi vào correctness=0 ("sai"), và cả hai đều đã bị loại khỏi
+ * HANDLING_PASS như nhau, nên tổng tỉ lệ đạt không đổi vì thiếu nhãn này.
+ */
 function handlingOf(r: any, v?: { correctness: number }): string | null {
   if (!v) return null;
-  if (r.behaviour === "abstain" && r.expected_behavior === "abstain") return "im_lang";
   return v.correctness >= 3 ? "dung_du" : v.correctness === 2 ? "hop_ly" : v.correctness === 1 ? "thieu" : "sai";
 }
 function sourceOf(r: any, v?: { faithfulness: number }): string | null {
