@@ -2476,24 +2476,24 @@ async function runOfflineTurn(ctx: {
   /* A billing dispute must never be answered from the model's own reading,
      even when routing let it through — that is what `forceEscalation` is for,
      and it is applied here rather than as a fake emergency upstream. */
-  if (guard.forceEscalation && !turn.escalate) {
-    turn.escalate = true;
-    turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
+  if (guard.forceEscalation) {
+    if (!turn.escalate) {
+      turn.escalate = true;
+      turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
+    }
     /**
-     * XOÁ reply — bug thật bắt được qua audit bench/461-run.jsonl.
+     * XOÁ reply — KHÔNG điều kiện theo `!turn.escalate`. Bug thật bắt được
+     * qua kiểm chứng trực tiếp trên prod (không chỉ dry-run): "Tôi bị tính
+     * tiền hai lần cho cùng một bữa tối" vẫn nhận câu trả lời về MỨC BỒI
+     * THƯỜNG HƯ HỎNG VẬT DỤNG dù bản vá đầu tiên đã thêm dòng này — vì
+     * `numericGuard` phía trên (dòng ~2472) đã đặt `turn.escalate = true`
+     * TRƯỚC khi tới đây (nó bắt được một con số vô căn cứ trong chính câu trả
+     * lời lạc đề đó), nên điều kiện `guard.forceEscalation && !turn.escalate`
+     * bản đầu luôn sai và khối xoá reply không bao giờ chạy.
      *
-     * Trước bản vá này, dòng comment phía trên đã NÓI ĐÚNG ý định ("must
-     * never be answered from the model's own reading") nhưng code chỉ đặt
-     * `escalate = true`, không đụng tới `reply`. Hậu quả: khách hỏi "Tôi bị
-     * tính tiền hai lần cho cùng một bữa tối, không ai giải thích được" nhận
-     * được câu trả lời về MỨC BỒI THƯỜNG HƯ HỎNG VẬT DỤNG — hoàn toàn lạc đề,
-     * vì retrieval đã chạy trước khi guard kịp chặn. Khối bên dưới chỉ điền
-     * câu chuyển người khi `reply` RỖNG, nên câu lạc đề đó vẫn được gửi đi
-     * kèm cờ escalate, chứ không bị thay thế.
-     *
-     * Xoá ở đây để khối `if (!reply.trim())` bên dưới điền đúng câu — "dispute"
-     * cho tranh chấp tiền, "privacy" cho tiết lộ thông tin khách khác — thay
-     * vì giữ lại nội dung sai mà retrieval trót sinh ra.
+     * Việc XOÁ reply và việc ĐẶT escalate là hai quyết định độc lập — con nào
+     * cũng có thể đã xảy ra trước bởi lý do khác, không được cho phép cái này
+     * chặn cái kia.
      */
     reply = "";
   }
