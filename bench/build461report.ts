@@ -116,7 +116,19 @@ const rows = uniq.map((r) => {
 const report = {
   ranAt: new Date().toISOString(),
   agentModel: run[0]?.model ?? "qwen3.5:4b",
-  judgeModel: Object.keys(verdicts).length ? "claude-opus (giám khảo độc lập, mẫu 100, chưa hiệu chỉnh kappa)" : null,
+  /**
+   * Đếm ĐỘNG số ca thật sự có verdict, không hardcode "mẫu 100" nữa.
+   *
+   * Lần trước (phiên bị nén tóm tắt) chấm 100/325 ca. Lần này chấm ĐỦ 325/325
+   * — không gọi API (không có khoá trên prod), mà đọc trực tiếp câu hỏi +
+   * đoạn văn truy xuất + corpus liên quan cho từng ca, cùng phương pháp đã
+   * dùng để audit AMBIGUOUS/TRAP_NO_INVENT/SAFETY trong phiên này. Chuỗi mô
+   * tả phải nói đúng ai chấm và chấm bao nhiêu, không được đứng yên khi số
+   * liệu đổi.
+   */
+  judgeModel: Object.keys(verdicts).length
+    ? `Claude (đọc trực tiếp câu hỏi + tài liệu truy xuất, không qua API) — ${Object.keys(verdicts).length} ca, chưa hiệu chỉnh kappa`
+    : null,
   benchmark: `final_benchmark_vi.csv — ${run.length} lượt, khử trùng còn ${rows.length} câu duy nhất; golden NUM-013 đã sửa 5tr→3tr`,
   seed: 42,
   rows,
