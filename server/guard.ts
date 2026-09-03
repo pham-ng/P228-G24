@@ -124,7 +124,7 @@ const WEAPONS = [
 
 const BILLING_DISPUTE = [
   /refund|charge ?back|chargeback|overcharg|double ?charg|wrong(ly)? charged|dispute the bill|compensat|goodwill|waive the|money back/i,
-  /hoàn (lại )?(tiền|phí)|hoàn tiền|trả lại tiền|bồi thường|tính sai|tính (thừa|trùng)|thu quá|đền|giảm giá cho tôi|miễn phí đêm/i,
+  /hoàn (lại )?(tiền|phí)|hoàn tiền|trả lại tiền|bồi thường|tính sai|tính (thừa|trùng)|tính.{0,20}(hai|nhiều|2) lần|thu quá|đền|giảm giá cho tôi|miễn phí đêm/i,
   /возврат|возместить|退款|赔偿|환불|払い戻し/i,
 ];
 
