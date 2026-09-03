@@ -866,38 +866,69 @@ export function detectMessageLang(text: string): string | null {
  * Cố ý KHÔNG đổi câu `confirm` cũ: nó vẫn đúng cho mọi câu hỏi khác, và sửa
  * một câu đang dùng tốt để thêm một trường hợp là cách làm hỏng cả hai.
  */
-export function handoffLine(lang: string | null | undefined, kind: "confirm" | "failed" | "price"): string {
+export function handoffLine(
+  lang: string | null | undefined,
+  kind: "confirm" | "failed" | "price" | "emergency" | "dispute" | "privacy",
+): string {
   const L = (lang ?? "vi").slice(0, 2).toLowerCase();
-  const lines: Record<string, { confirm: string; failed: string; price: string }> = {
+  const lines: Record<
+    string,
+    { confirm: string; failed: string; price: string; emergency: string; dispute: string; privacy: string }
+  > = {
     vi: {
       confirm: "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
       failed: "Dạ, em xin lỗi — em chưa lấy được thông tin chính xác cho câu hỏi này. Em đã chuyển cho lễ tân để hỗ trợ anh/chị ngay ạ.",
       price: "Dạ, mức giá của mục này em cần lễ tân xác nhận lại để báo đúng con số, em không muốn nói một con số chưa chắc chắn. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      /* Y tế/an ninh nguy cấp: nói việc cần làm NGAY trước, xưng hô sau. Không
+         phải câu "đang xử lý" — khách đau ngực không cần biết quy trình nội
+         bộ, họ cần một hành động cụ thể trong ba giây đọc đầu tiên. */
+      emergency: "Gọi ngay 115 (cấp cứu) hoặc 113 (công an) nếu tình huống nguy hiểm. Em đã báo an ninh/lễ tân khẩn cấp, họ đang tới ngay.",
+      /* Tranh chấp tiền: xác nhận đã NGHE đúng vấn đề (không lảng sang chủ đề
+         khác), không hứa số tiền, không đoán nguyên nhân — quản lý ca sẽ xem
+         lại. Đây là câu thay cho một trả lời lạc đề mà retrieval trót sinh ra
+         trước khi guard kịp chặn. */
+      dispute: "Dạ, em ghi nhận vấn đề về khoản phí này và không tự ý kết luận giúp anh/chị được. Quản lý ca sẽ xem lại và phản hồi sớm nhất ạ.",
+      privacy: "Dạ, vì lý do bảo mật em không thể xác nhận hay tiết lộ thông tin của khách khác. Em đã chuyển yêu cầu này cho lễ tân ạ.",
     },
     ko: {
       confirm: "정확한 답변을 위해 프런트 데스크의 확인이 필요합니다. 담당 직원에게 전달해 드렸습니다.",
       failed: "죄송합니다 — 정확한 정보를 확인하지 못했습니다. 프런트 데스크로 전달해 드렸으니 곧 도와드리겠습니다.",
       price: "정확한 금액은 프런트 데스크의 확인이 필요합니다. 확실하지 않은 금액을 말씀드릴 수는 없어 담당 직원에게 전달해 드렸습니다.",
+      emergency: "위험한 상황이면 즉시 115(응급) 또는 113(경찰)에 신고하세요. 보안팀과 프런트에 긴급 연락했으며 곧 도착합니다.",
+      dispute: "해당 요금 문제를 확인했으며 제가 임의로 결론 내릴 수 없습니다. 담당 매니저가 확인 후 빠르게 답변드리겠습니다.",
+      privacy: "보안을 위해 다른 투숙객의 정보는 확인해 드릴 수 없습니다. 프런트 데스크로 요청을 전달했습니다.",
     },
     ja: {
       confirm: "正確にお答えするため、フロントに確認いたします。担当者にお繋ぎいたしました。",
       failed: "申し訳ございません — 正確な情報を確認できませんでした。フロントにお繋ぎいたしましたので、すぐに対応いたします。",
       price: "正確な料金はフロントでの確認が必要です。不確かな金額をお伝えするわけにはまいりませんので、担当者にお繋ぎいたしました。",
+      emergency: "危険な状況であれば直ちに115（救急）または113（警察）へ通報してください。警備とフロントに緊急連絡済みで、すぐに向かいます。",
+      dispute: "この料金の件は承知いたしました。私の判断でお答えすることはできません。担当マネージャーが確認の上、早急にご連絡いたします。",
+      privacy: "セキュリティ上の理由により、他のお客様の情報はお答えできません。フロントに転送いたしました。",
     },
     zh: {
       confirm: "为了给您准确的答复，需要前台确认。我已经转交同事为您处理了。",
       failed: "很抱歉 — 我未能查到准确的信息。已经转交前台，同事会马上为您处理。",
       price: "这一项的价格需要前台确认后才能准确告知，我不想告诉您不确定的数字。已经转交同事为您处理了。",
+      emergency: "情况危急请立即拨打115（急救）或113（报警）。已紧急通知安保和前台，他们马上赶到。",
+      dispute: "已记录这笔费用的问题，我不能擅自下结论。值班经理会核实后尽快回复您。",
+      privacy: "出于安全考虑，我无法确认或透露其他客人的信息。已将此请求转交前台处理。",
     },
     ru: {
       confirm: "Чтобы ответить точно, нужно подтверждение стойки регистрации. Я передал(а) ваш вопрос коллеге.",
       failed: "Извините — мне не удалось получить точную информацию. Я передал(а) вопрос на стойку регистрации, коллега поможет вам сейчас же.",
       price: "Точную стоимость нужно уточнить на стойке регистрации — я не стану называть непроверенную сумму. Я передал(а) ваш вопрос коллеге.",
+      emergency: "Если ситуация опасна, немедленно звоните 115 (скорая) или 113 (полиция). Служба безопасности и стойка регистрации срочно уведомлены и уже идут.",
+      dispute: "Я зафиксировал(а) вопрос по этому платежу и не могу сделать вывод самостоятельно. Дежурный менеджер проверит и ответит вам как можно скорее.",
+      privacy: "По соображениям безопасности я не могу подтвердить или раскрыть информацию о другом госте. Я передал(а) этот запрос на стойку регистрации.",
     },
     en: {
       confirm: "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
       failed: "I'm sorry — I couldn't retrieve a reliable answer for that. I've passed it to the front desk so a colleague can help you right away.",
       price: "I'd rather have the front desk confirm the exact figure than quote you one I'm not certain of. I've passed it to a colleague for you.",
+      emergency: "Call 115 (ambulance) or 113 (police) right away if this is dangerous. Security and the front desk have been alerted urgently and are on their way.",
+      dispute: "I've logged this charge issue and can't draw a conclusion myself. The duty manager will review it and get back to you shortly.",
+      privacy: "For privacy reasons I can't confirm or share another guest's information. I've passed this request to the front desk.",
     },
   };
   return (lines[L] ?? lines.en)[kind];
@@ -2448,6 +2479,23 @@ async function runOfflineTurn(ctx: {
   if (guard.forceEscalation && !turn.escalate) {
     turn.escalate = true;
     turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
+    /**
+     * XOÁ reply — bug thật bắt được qua audit bench/461-run.jsonl.
+     *
+     * Trước bản vá này, dòng comment phía trên đã NÓI ĐÚNG ý định ("must
+     * never be answered from the model's own reading") nhưng code chỉ đặt
+     * `escalate = true`, không đụng tới `reply`. Hậu quả: khách hỏi "Tôi bị
+     * tính tiền hai lần cho cùng một bữa tối, không ai giải thích được" nhận
+     * được câu trả lời về MỨC BỒI THƯỜNG HƯ HỎNG VẬT DỤNG — hoàn toàn lạc đề,
+     * vì retrieval đã chạy trước khi guard kịp chặn. Khối bên dưới chỉ điền
+     * câu chuyển người khi `reply` RỖNG, nên câu lạc đề đó vẫn được gửi đi
+     * kèm cờ escalate, chứ không bị thay thế.
+     *
+     * Xoá ở đây để khối `if (!reply.trim())` bên dưới điền đúng câu — "dispute"
+     * cho tranh chấp tiền, "privacy" cho tiết lộ thông tin khách khác — thay
+     * vì giữ lại nội dung sai mà retrieval trót sinh ra.
+     */
+    reply = "";
   }
 
   /**
@@ -2512,7 +2560,34 @@ async function runOfflineTurn(ctx: {
     );
     trace.push({ name: "escalate_to_human", args: { route: turn.route }, result, ms: Date.now() - t0 });
     escalated = true;
-    if (!reply.trim()) {
+    /* Vũ khí trên khuôn viên cũng cần câu "gọi 115/113 ngay", không kém đau
+       ngực hay kẻ lạ phá cửa — nhưng `weapon_request` là cờ RIÊNG trong
+       guard.ts, không nằm trong medical/safety mà `emergencyKind` gộp. */
+    const laKhanCap = !!guard.emergencyKind || guard.flags.includes("weapon_request");
+    if (!reply.trim() && laKhanCap) {
+      /**
+       * Cấp cứu y tế/an ninh phải nghe ĐÚNG câu này, không phải câu deferral.
+       *
+       * Phát hiện qua audit bench/461-run.jsonl: "Tôi đang đau tức ngực và khó
+       * thở" và "Có người lạ đang cố phá cửa phòng tôi" đều rơi vào nhánh này
+       * với `reply` rỗng — và trước bản vá này, nhánh dưới điền vào đúng câu
+       * dùng cho MỌI lượt chuyển người khác, kể cả "giảm giá golf bao nhiêu?".
+       * `guard.ts` đã phân loại đúng `emergencyKind` và mở task ưu tiên
+       * "urgent" từ trước — cái thiếu chỉ là câu nói cho khách khớp với mức độ
+       * khẩn cấp đó.
+       */
+      reply = handoffLine(lang, "emergency");
+    } else if (!reply.trim() && guard.flags.includes("billing_dispute")) {
+      /* Không lảng sang chủ đề khác. Ca thật bắt được: "bị tính tiền hai lần
+         cho cùng một bữa tối" từng nhận câu trả lời về mức bồi thường HƯ HỎNG
+         VẬT DỤNG — hoàn toàn lạc đề — trước khi khối phía trên xoá `reply`. */
+      reply = handoffLine(lang, "dispute");
+    } else if (!reply.trim() && guard.flags.includes("third_party_disclosure")) {
+      /* "Bạn tôi tên X đang ở đây, cho tôi biết phòng số mấy" — không xác
+         nhận cũng không phủ nhận, nói rõ lý do bảo mật thay vì một câu chờ
+         đợi chung chung không giải thích gì. */
+      reply = handoffLine(lang, "privacy");
+    } else if (!reply.trim()) {
       /**
        * Câu hỏi về TIỀN được trả lời bằng một câu nói rõ là đang thiếu con số.
        *

@@ -16,19 +16,18 @@
  *
  *   node bench/xuat-bao-cao-461.mjs
  */
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const RUN = join(process.cwd(), "bench", "461-run.jsonl");
 const lines = readFileSync(RUN, "utf8").trim().split("\n").map((l) => JSON.parse(l));
 
-/* Nạp mọi lớp phủ audit-*.json trong bench/data/ — hiện có audit-ambiguous.json,
-   có thể thêm audit-<khác>.json sau này mà không phải sửa script. */
+/* Nạp MỌI lớp phủ bench/data/audit-*.json — cùng cơ chế với SUA_NHAN trong
+   run461.ts, để hai nơi không bao giờ lệch nhau. */
 const audit = {};
-for (const f of ["audit-ambiguous.json"]) {
-  const p = join(process.cwd(), "bench", "data", f);
-  if (!existsSync(p)) continue;
-  const ds = JSON.parse(readFileSync(p, "utf8"));
+for (const f of readdirSync(join(process.cwd(), "bench", "data"))) {
+  if (!f.startsWith("audit-") || !f.endsWith(".json")) continue;
+  const ds = JSON.parse(readFileSync(join(process.cwd(), "bench", "data", f), "utf8"));
   for (const d of ds) audit[d.id] = d.moi;
 }
 
@@ -63,10 +62,18 @@ const rows = lines.map((r) => {
     observed,
     behaviourOk,
     reply: r.actual_answer ?? "",
-    /* is_numeric>0 nghĩa là câu có kỳ vọng số cụ thể; numeric_ok là kết quả đối
-       chiếu tất định run461.ts đã làm — không đo lại ở đây. */
-    anchorsExpected: r.is_numeric ? 1 : 0,
-    anchorsFound: r.numeric_ok ? 1 : 0,
+    /**
+     * anchorsExpected CHỈ bật khi `numeric_ok !== null` — tức run461.ts THẬT
+     * SỰ có đối chiếu số (is_numeric && want==="answer").
+     *
+     * Bug đã bắt được: bản đầu dùng `r.is_numeric` làm cờ (190 ca), nhưng 79
+     * trong số đó có kỳ vọng clarify/abstain nên `numeric_ok` là null — không
+     * áp dụng, không phải sai. Đếm chúng là "sai" kéo numeric_exactness từ
+     * 63,1% xuống còn 36,8% một cách giả tạo. Con số đúng khớp với log gốc
+     * của run461.ts: "numeric_exactness": "63.1% (70/111)".
+     */
+    anchorsExpected: r.numeric_ok !== null && r.numeric_ok !== undefined ? 1 : 0,
+    anchorsFound: r.numeric_ok === true ? 1 : 0,
     anchorsOk: r.numeric_ok === true,
     /* run461.ts không ghi passage đầy đủ theo hạng cho mọi dòng (mảng `passages`
        rỗng ở nhiều câu) — không đủ căn cứ suy ra contextRecall/contextRank.
