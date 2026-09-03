@@ -38,6 +38,28 @@ const verdicts: Record<string, { correctness: number; faithfulness: number; note
 const GOLDEN_FIX: Record<string, string[]> = {
   "BM-NUM-013": ["3000000", "3.000.000"],
   "BM-REAL-037": ["800000", "800.000"],
+  /**
+   * Audit PRICING mở rộng (2026-09-04): trong 18 ca PRICING, 9 ca golden khác
+   * cũng là CÂU TƯỜNG THUẬT LỖI CŨ, không phải đáp án ("tài liệu có sẵn
+   * nhưng mô hình không trả lời" / "nhầm 20% thay vì 33%" — mô tả một lần
+   * chạy CŨ, không phải chuẩn để so khớp). Đối chiếu tay từng số với body
+   * KB article thật (id 6, 13, 17, 18, 20, 4) qua SSH vào prod — cả 9 số dưới
+   * đây xác nhận đúng nguồn, và actual_answer hiện tại của model đã khớp cả
+   * 9 (xem 461-run.jsonl). BM-REAL-040 đã sửa expected_behavior ở
+   * audit-pricing.json trước đó nhưng CHƯA có neo số — GT gốc của nó
+   * ("không có giá vé 2 ngày cụ thể") không chứa con số nào để so khớp nên
+   * anchorsExpected vẫn = 0 dù hành vi đã đúng; thêm neo ở đây để đo được.
+   */
+  "BM-REAL-003": ["3000000", "3.000.000"], // hút thuốc trong phòng — KB #20
+  "BM-REAL-010": ["350000", "350.000"], // đổi tên khách trễ hạn — KB #18 (GT gốc bảo "không có tin", KB #18 CÓ)
+  "BM-REAL-011": ["30"], // Pearl Club giảm spa — KB #13
+  "BM-REAL-029": ["650000", "650.000"], // buffet Lotus người lớn — KB #6
+  "BM-REAL-040": ["1280000", "1.280.000"], // vé VinWonders 2 ngày — KB #4
+  "BM-REAL-051": ["200000", "200.000"], // cáp treo khứ hồi — KB #3
+  "BM-REAL-056": ["33"], // Pearl Club giảm golf — KB #13
+  "BM-REAL-064": ["7"], // Platinum giảm giá phòng — KB #13
+  "BM-REAL-073": ["1050000", "1.050.000"], // vé VinWonders người lớn — KB #4
+  "BM-REAL-095": ["400000", "400.000"], // combo Vinpearl Harbour — KB #3
 };
 
 /**

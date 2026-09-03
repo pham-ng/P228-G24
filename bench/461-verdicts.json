@@ -1623,5 +1623,300 @@
   "correctness": 3,
   "faithfulness": 1,
   "note": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+ },
+ "BM-DIAG-046": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 100% truoc 06:00"
+ },
+ "BM-DIAG-047": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 50% cho 06:00-12:00, giai thich dung 8h roi vao khung nao"
+ },
+ "BM-DIAG-048": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 50% cho 12:00-18:00, them dung uu dai Gold/Platinum/Diamond mien phi den 14:00 (KB#13)"
+ },
+ "BM-DIAG-049": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: coc phong 1.000.000"
+ },
+ "BM-DIAG-050": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: coc villa 3.000.000"
+ },
+ "BM-DIAG-051": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: phat hut thuoc 3.000.000/luot o"
+ },
+ "BM-DIAG-052": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: phi do an ngoai 1.175.000/lan"
+ },
+ "BM-DIAG-053": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 45 ngay lam viec"
+ },
+ "BM-DIAG-054": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 32m2 (goi 'Giuong Doi' thay vi 'Queen' nhung cung SKU)"
+ },
+ "BM-DIAG-055": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 42m2"
+ },
+ "BM-DIAG-056": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "THAT BAI: cau hoi don gian (476 phong, co san trong KB#9) nhung tra loi RONG hoan toan"
+ },
+ "BM-DIAG-057": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 370m2"
+ },
+ "BM-DIAG-058": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: toi da 4 nguoi ke ca tre duoi 4 tuoi"
+ },
+ "BM-DIAG-059": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 2 lon + 2 tre/phong ngu villa, dung nhu KB#16 yeu cau (khong lay nham so 4 chung)"
+ },
+ "BM-DIAG-060": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: toi da 1 giuong phu, dung dieu kien villa"
+ },
+ "BM-DIAG-061": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "SAI SO: KB#9 ghi villa 3PN huong bien toi da 12 khach, model noi 8 — loi that, se keo theo BM-DIAG-077 tu choi nham"
+ },
+ "BM-DIAG-062": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: Lotus 06:00-10:30"
+ },
+ "BM-DIAG-063": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: Jasmine den 22:00"
+ },
+ "BM-DIAG-064": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "SAI GIO: KB#5 ghi Pool Bar 09:00-18:00, model noi 09:00-23:00 (trung gio Beach Comber/Seaview) — co the huong dan khach den luc quay da dong"
+ },
+ "BM-DIAG-065": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: Ozone toi 17:30-22:00"
+ },
+ "BM-DIAG-066": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: Bach Giai 250 cho"
+ },
+ "BM-DIAG-067": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "SAI NGAY: KB#5 ghi Groove & Grill vao THU BAY, model noi Chu nhat — gio dung nhung ngay sai, khach co the den nham ngay"
+ },
+ "BM-DIAG-068": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: Seaview Lounge tu 07:00"
+ },
+ "BM-DIAG-069": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "THAT BAI: cau hoi don gian (SDT dat ban, co san trong KB#5) nhung tra loi RONG"
+ },
+ "BM-DIAG-070": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "NGHI BIA: so 50%/100% huy dua don khong tim thay trong KB da doc qua; GT that (KB#18) la quy tac 72h truoc gio don ma model khong nhac — chua xac minh duoc nguon, can kiem tra rieng"
+ },
+ "BM-DIAG-071": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "dung huong (chuyen le tan thay vi tu quyet), nhung thieu neu chenh lech gia nhu GT yeu cau"
+ },
+ "BM-DIAG-072": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: neu dung dieu kien 1 giuong phu/tuy kha nang, dung dieu kien villa"
+ },
+ "BM-DIAG-073": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: dieu kien 5 ngay + check-in truoc 13:00"
+ },
+ "BM-DIAG-074": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung SDT, va trung thuc tu choi xac nhan ma dat phong khong the kiem tra duoc thay vi bia"
+ },
+ "BM-DIAG-075": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "SAI: KB#18 phan biet theo MUA (thap/cao diem/Tet), model gan nham thanh 'don le vs doan' — dao nguoc/tron lan hai truc khac nhau"
+ },
+ "BM-DIAG-076": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "XAC MINH DUNG: 4.620.000-9.400.000 la gia goi THAT trong bang room_packages cho Grand Deluxe Huong Bien (lop gia thu 3, khac KB narrative) — khong phai bia, he thong dang lay dung nguon gia goi that"
+ },
+ "BM-DIAG-077": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "KE THUA LOI 061: tu choi nham dat 10 nguoi vi tin sai villa toi da 8 khach (thuc te 12) — mot loi day chuyen tu du lieu sai lay ra truoc do"
+ },
+ "BM-DIAG-078": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 4.097.000/dem"
+ },
+ "BM-DIAG-079": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "THAT BAI: cau hoi tinh tong 2 dem (2.410.000x2) nhung tra loi RONG, khong tinh duoc phep nhan don gian"
+ },
+ "BM-DIAG-080": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "chuyen le tan hop ly cho gia han o, nhung khong neu gia dem them (2.200.000) nhu GT mong doi"
+ },
+ "BM-DIAG-081": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "NHAM TEN PHONG: goi Deluxe Queen (phong vuon) la 'Deluxe Huong Bien Giuong Doi' ngay trong luc dang so sanh chinh no voi Deluxe Ocean View — nham lan loai phong"
+ },
+ "BM-DIAG-082": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "THAT BAI: cau hoi tinh tong 5 phongx2 dem nhung tra loi RONG"
+ },
+ "BM-DIAG-083": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "an toan (chuyen le tan) nhung lac de: neu quy dinh villa/doan thay vi hoi ngay & so nguoi con thieu"
+ },
+ "BM-DIAG-084": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "SAI: liet ke 'Grand Deluxe 2 Giuong Don' (thuc te la hang PHONG VUON theo KB#9) vao danh sach phong HUONG BIEN — tron lan hai loai phong khac nhau"
+ },
+ "BM-DIAG-085": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "im lang dung huong (thieu du kien de tra loi thang), khong bia gi"
+ },
+ "BM-DIAG-086": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi an toan, chuyen le tan dung huong"
+ },
+ "BM-DIAG-087": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "XAC MINH DUNG: 3.580.000-8.360.000 la gia goi THAT trong room_packages cho Deluxe Queen/Twin — khong phai bia"
+ },
+ "BM-DIAG-088": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi dung TREN DU LIEU DANG TRUY XUAT (KB khong co lich gia ngay le) — nhung phat hien kien truc lon hon: co bang restrictions THAT trong DB (Tet 2027 min_los=3) ma local-agent.ts chua bao gio doc"
+ },
+ "BM-DIAG-089": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi dung tren du lieu dang truy xuat, cung phat hien kien truc nhu 088"
+ },
+ "BM-DIAG-090": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi dung, dung phan loai doan (>=5 villa) tu KB#19"
+ },
+ "BM-DIAG-091": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi dung tren du lieu dang truy xuat"
+ },
+ "BM-DIAG-092": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "KHONG BAT NGAY QUA KHU (01/01/2026): tra loi nhu binh thuong — cung lop loi da biet tu BM-DIAG-002, xac nhan day la loi he thong chua sua duoc"
+ },
+ "BM-DIAG-093": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "khong bat ngay qua khu (15/06/2026), nhung it nhat hoi lai hang phong thay vi xac nhan sai"
+ },
+ "BM-DIAG-094": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi an toan (ranh gioi ngay gan qua khu, van bat dung)"
+ },
+ "BM-DIAG-095": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "KHONG BAT NGAY KHONG TON TAI (31/02): tra loi lac de ve gio nhan phong tieu chuan, khong nhan ra ngay vo ly"
+ },
+ "BM-DIAG-096": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "khong bat thang 13 khong ton tai, nhung it nhat hoi lai hang phong thay vi xac nhan"
+ },
+ "BM-MULTI-S36-T1": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: 1.050.000 nguoi lon"
+ },
+ "BM-MULTI-S36-T2": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "giu dung ngu canh VinWonders tu luot 1, dung 800.000 cho tre 1-1.4m"
+ },
+ "BM-MULTI-S36-T3": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "TU MAU THUAN TRONG CUNG HOI THOAI: luot 1 da noi dung 've sau 16h gia 700.000', luot 3 lai noi 'khong co quy dinh cu the ve giam gia sau 16h' — quen chinh thong tin vua dua ra 2 luot truoc"
+ },
+ "BM-MULTI-S36-T4": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "note": "tu choi dat ve dung huong (khong co cong cu dat ve VinWonders), khong bia kha nang"
+ },
+ "BM-MULTI-S37-T1": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "dung & du: Bach Giai 10:30-14:00, 17:00-22:00"
+ },
+ "BM-MULTI-S37-T2": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "LAC NGU CANH: cau hoi la 'nha hang DO' (Bach Giai tu luot 1) nhung tra loi liet ke lan sang Jasmine/Ozone/Lotus voi cac so chua xac minh duoc, so 250 cua Bach Giai bi chon vui trong danh sach roi rac"
+ },
+ "BM-MULTI-S37-T3": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "THAT BAI: cau hoi dat ban trong gio mo cua (19h, Bach Giai mo den 22h) nhung tra loi RONG thay vi xac nhan/chuyen le tan"
+ },
+ "BM-MULTI-S37-T4": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "note": "im lang khi le ra phai tu choi VA goi y gio/quan khac (Seaview Lounge, Beach Comber toi 23h) nhu GT mong doi — huong an toan (khong xac nhan sai) nhung mat het thong tin huu ich"
  }
 }
