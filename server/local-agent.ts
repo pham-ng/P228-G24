@@ -745,6 +745,44 @@ export function needsConversationContext(question: string): boolean {
 const EXTRA_NIGHTS_SUPPLIED =
   /(?:them|gia han|extra|another|additional|more)\s*\d*\s*(?:ngay|dem|night|nights|day|days)|(?<!\bcon\s)\d+\s*(?:ngay|dem|night|nights|day|days)\s*(?:nua|them|more|extra)|\d+\s*(?:박|泊|晚)\s*(?:더|多|更)|(?:더|もう|再)\s*\d+\s*(?:박|泊|晚)/iu;
 
+/**
+ * Ngày trả phòng đứng TRƯỚC hoặc TRÙNG ngày nhận phòng — lỗi logic thuần
+ * tuý, đúng bất kể lịch giá/PMS nào. "Nhận phòng 10/09 và trả phòng 08/09"
+ * là bất khả thi theo bất kỳ nghĩa nào; retrieval vẫn trả về đoạn phòng bình
+ * thường và model tự tin trả lời — không đoạn văn nào có thể sửa việc đó vì
+ * đây không phải câu hỏi thiếu tài liệu, mà là câu hỏi TỰ MÂU THUẪN.
+ *
+ * KHÔNG bắt "quá khứ" hay "quá xa tương lai" — hai điều đó cần biết "hôm nay"
+ * của khách sạn và một lịch đặt phòng thật, ngoài tầm regex. Đây chỉ bắt thứ
+ * suy được từ chính hai con số trong câu, không cần biết gì thêm.
+ */
+function ngayTraPhongDaoNguoc(text: string): boolean {
+  const f = fold(text);
+  const ds = [...f.matchAll(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/g)];
+  if (ds.length < 2) return false;
+  const soHoa = (m: RegExpMatchArray) => {
+    const nam = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : 2100;
+    return nam * 10000 + Number(m[2]) * 100 + Number(m[1]);
+  };
+  return soHoa(ds[1]) <= soHoa(ds[0]);
+}
+
+/**
+ * Số đêm phi lý (>30) — vượt quá mức một hệ thống đặt phòng online thường xử
+ * lý, cần bộ phận lưu trú dài hạn xem riêng.
+ *
+ * CHỈ bắt "đêm", KHÔNG bắt "ngày". Sau khi bỏ dấu, "ngày" (đơn vị thời gian)
+ * và "ngay" (phó từ "ngay lập tức", vốn đã không dấu) gập về CÙNG một chuỗi
+ * — y hệt lỗi "thẻ"≡"thế" đã sửa ở clarify.ts. Bắt "ngày" ở đây từng biến
+ * "phòng 202 ngay" ("làm ngay") thành dương tính giả "202 ngày ở". "đêm"
+ * không có va chạm này nên an toàn để bắt một mình. Đo trên 461 câu: 0
+ * dương tính giả.
+ */
+function soDemPhiLy(text: string): boolean {
+  const m = fold(text).match(/\b(\d{1,3})\s*dem\b/);
+  return !!m && Number(m[1]) > 30;
+}
+
 export function isPriceInfoOnly(text: string): boolean {
   const t = fold(text);
   if (EXTRA_NIGHTS_SUPPLIED.test(t)) return false;
@@ -768,6 +806,13 @@ export function isPolicyInfoOnly(text: string): boolean {
 
 export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
   if (isEmergency) return "emergency";
+  /* Tự mâu thuẫn hoặc phi lý theo chính con số khách gõ — không cần tra tài
+     liệu để biết sai, nên đặt TRƯỚC family scoring. Ca thật bắt được: "Tôi
+     muốn Deluxe Suite King Ocean View từ 20/09 đến 22/09" (ngày hợp lệ,
+     KHÔNG rơi vào đây) trả lời được bình thường, còn "nhận phòng 10/09 và
+     trả phòng 08/09" thì không — phân biệt đúng hai loại mà một luật chặn
+     rộng "có ngày + có ý định đặt phòng" sẽ gộp nhầm làm một. */
+  if (ngayTraPhongDaoNguoc(text) || soDemPhiLy(text)) return "complex";
   const scored = scoreFamilies(text);
   const top = scored[0]?.family;
 

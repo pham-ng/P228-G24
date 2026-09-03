@@ -477,7 +477,11 @@ export function screenGuestMessage(raw: string): GuardResult {
          would fill the board with incidents nobody can act on. */
       weapon ||
       flags.includes("billing_dispute") ||
-      flags.includes("third_party_disclosure"),
+      flags.includes("third_party_disclosure") ||
+      /* Refusal ở refusal.ts hứa "lễ tân sẽ gửi link thanh toán an toàn" —
+         lời hứa đó phải thật. Không escalate thì không ai biết khách này
+         đang cần một đường link, và câu trả lời trở thành hứa suông. */
+      flags.includes("card_number"),
     emergencyKind: medical ? "medical" : safety ? "safety" : null,
   };
 }

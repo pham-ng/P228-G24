@@ -162,13 +162,54 @@ function classifyBehaviour(reply: string, escalate: boolean): "answer" | "clarif
   return "answer";
 }
 
-/* Trích token số để chấm đúng-số. Giữ cả bản có và không dấu phân cách nghìn. */
+/**
+ * Trích token số để chấm đúng-số. Giữ cả bản có và không dấu phân cách nghìn
+ * — VÀ hiểu hậu tố độ lớn ("800k", "3 tr", "5 triệu").
+ *
+ * Bắt được qua audit PRICING: ground_truth viết tắt "800k", numbers() cũ tách
+ * ra bare "800" (chữ 'k' không phải chữ số); model trả lời đúng và đầy đủ
+ * "800.000 VND" -> tách ra "800000". Hai chuỗi biểu diễn CÙNG một giá trị mà
+ * không bao giờ khớp bằng so sánh chuỗi, nên một câu trả lời đúng bị chấm
+ * `numeric_ok: false`. Không phải lỗi hiếm — ground_truth của cả bộ 461 viết
+ * xen kẽ giữa "800.000" và "800k" tuỳ người soạn câu, còn model luôn trả lời
+ * theo định dạng đầy đủ VNĐ.
+ *
+ * Quy về GIÁ TRỊ (một số nguyên), không phải chuỗi — "800k" và "800.000" quy
+ * về cùng "800000". `build461report.ts` đã có đúng logic này (`canonNums`)
+ * nhưng chỉ áp cho một ca hardcode (NUM-013); nâng lên đây để mọi ca đều
+ * được chấm bằng cùng một quy tắc.
+ */
 function numbers(s: string): Set<string> {
   const out = new Set<string>();
-  const m = s.match(/\d[\d.,:]*\d|\d/g) || [];
-  for (const tok of m) {
-    out.add(tok);
-    out.add(tok.replace(/[.,]/g, "")); // 3.000.000 -> 3000000
+  /**
+   * `(?![a-zA-ZÀ-ỹ])` sau nhóm đơn vị — bắt buộc RANH GIỚI TỪ.
+   *
+   * Không có nó, "k" khớp luôn chữ cái đầu của "khách": "600 khách" (600 vị
+   * khách) bị đọc thành "600k" = 600.000, biến GT đúng "600 người" thành
+   * không khớp với chính câu trả lời đúng. Cùng lớp lỗi với "thẻ"≡"thế" đã
+   * sửa ở clarify.ts — một chữ viết tắt ngắn va chạm với chữ cái đầu của một
+   * từ thường gặp khác. Đo trước/sau trên toàn bộ 111 ca is_numeric của bộ
+   * 461: có ranh giới từ → 1 ca sửa đúng (800k), 0 ca hỏng thêm; không có
+   * ranh giới từ → 1 ca sửa đúng NHƯNG làm hỏng 1 ca khác (600 khách).
+   */
+  for (const m of s.matchAll(/(\d[\d.,]*)\s*(?:(k|nghìn|ngàn|tr|triệu)(?![a-zA-ZÀ-ỹ]))?/g)) {
+    const raw = m[1];
+    const stripped = raw.replace(/[.,]/g, "");
+    const n = parseInt(stripped, 10);
+    if (Number.isNaN(n)) continue;
+    const donVi = (m[2] || "").toLowerCase();
+    if (donVi === "k" || donVi === "nghìn" || donVi === "ngàn") {
+      /* CHỈ thêm giá trị ĐÃ QUY ĐỔI — không thêm "800" trần trụi. Bug đã bắt
+         được: thêm cả hai khiến "800" trở thành một token BẮT BUỘC phải khớp,
+         mà "800" một mình không bao giờ xuất hiện trong câu trả lời viết đầy
+         đủ ("800.000 VND"), nên .every() luôn trượt dù giá trị đúng. */
+      out.add(String(n * 1000));
+    } else if (donVi === "tr" || donVi === "triệu") {
+      out.add(String(n * 1_000_000));
+    } else {
+      out.add(raw);
+      out.add(stripped);
+    }
   }
   return out;
 }

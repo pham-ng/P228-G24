@@ -1,0 +1,9 @@
+[
+  {
+    "id": "BM-REAL-040",
+    "q": "Vé VinWonders 2 ngày giá bao nhiêu?",
+    "cu": "abstain",
+    "moi": "answer",
+    "ghi_chu": "Ground truth ghi 'Tài liệu không có giá vé 2 ngày cụ thể, không trả lời là hợp lý' — nhưng article #4 'VinWonders Nha Trang tickets and shows' (curated, có nguồn 'Official VinWonders source, checked 2026-08-23') ghi rõ 'Multi-day passes are 1,280,000 for 2 days'. Model trả lời đúng 1.280.000đ theo đúng tài liệu curated. Nhãn kỳ vọng viết trước khi bảng giá đa ngày được thêm vào corpus, hoặc bị nhầm sang article #34 (placeholder, đã tắt truy xuất ở migration 014)."
+  }
+]

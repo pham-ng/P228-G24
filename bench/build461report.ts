@@ -26,9 +26,14 @@ const verdicts: Record<string, { correctness: number; faithfulness: number; note
 /* Golden đã kiểm chứng sai -> con số đúng. */
 const GOLDEN_FIX: Record<string, string[]> = { "BM-NUM-013": ["3000000", "3.000.000"] };
 
+/**
+ * `(?![a-zà-ỹ])` sau nhóm đơn vị — cùng bản vá đã áp cho `numbers()` trong
+ * run461.ts: thiếu ranh giới từ thì "k" khớp luôn chữ cái đầu của "khách",
+ * biến "600 khách" thành 600.000. Đồng bộ hai nơi để không lệch quy tắc.
+ */
 function canonNums(s: string): Set<string> {
   s = (s || "").toLowerCase(); const out = new Set<string>();
-  for (const m of s.matchAll(/(\d[\d.,]*)\s*(k|nghìn|ngàn|tr|triệu)?/g)) {
+  for (const m of s.matchAll(/(\d[\d.,]*)\s*(?:(k|nghìn|ngàn|tr|triệu)(?![a-zà-ỹ]))?/g)) {
     let n = parseInt(m[1].replace(/[.,]/g, ""), 10); if (isNaN(n)) continue;
     const u = m[2] || ""; if (u === "k" || u === "nghìn" || u === "ngàn") n *= 1000; else if (u === "tr" || u === "triệu") n *= 1000000;
     if (n >= 10) out.add(String(n));
