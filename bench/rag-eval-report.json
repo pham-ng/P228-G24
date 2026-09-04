@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-09-04T03:47:55.970Z",
+  "ranAt": "2026-09-04T04:08:38.187Z",
   "agentModel": "qwen3.5:4b",
   "judgeModel": "Claude (đọc trực tiếp câu hỏi + tài liệu truy xuất, không qua API) — 384 ca, chưa hiệu chỉnh kappa",
   "benchmark": "final_benchmark_vi.csv — 520 lượt, khử trùng còn 384 câu duy nhất; golden NUM-013 đã sửa 5tr→3tr",
@@ -21,7 +21,9 @@
       "ms": 221,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hoi lai dung, khong doan bua"
+      "judgeNote": "hoi lai dung, khong doan bua",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-002",
@@ -39,7 +41,9 @@
       "ms": 2344,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "liet ke du 3 quay bar kem gio, GT (thieu Beach Comber) da loi thoi"
+      "judgeNote": "liet ke du 3 quay bar kem gio, GT (thieu Beach Comber) da loi thoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-003",
@@ -57,7 +61,9 @@
       "ms": 1975,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "3tr dung theo KB migration 012"
+      "judgeNote": "3tr dung theo KB migration 012",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-004",
@@ -75,7 +81,9 @@
       "ms": 2120,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "liet ke du, dung y GT muon"
+      "judgeNote": "liet ke du, dung y GT muon",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-005",
@@ -93,7 +101,9 @@
       "ms": 1645,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung nhung mo dau bang Khong co the hieu nham thanh khang dinh"
+      "judgeNote": "tu choi dung nhung mo dau bang Khong co the hieu nham thanh khang dinh",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-006",
@@ -111,7 +121,9 @@
       "ms": 1818,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "dung gio chinh, thieu chi tiet cuu ho sau 19h"
+      "judgeNote": "dung gio chinh, thieu chi tiet cuu ho sau 19h",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-007",
@@ -129,7 +141,9 @@
       "ms": 2038,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-008",
@@ -147,7 +161,9 @@
       "ms": 2106,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung 100% sau 18h"
+      "judgeNote": "dung 100% sau 18h",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-009",
@@ -165,7 +181,9 @@
       "ms": 2080,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tinh dung 2 xe + escalate xac nhan, Info-First tot"
+      "judgeNote": "tinh dung 2 xe + escalate xac nhan, Info-First tot",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-010",
@@ -183,7 +201,9 @@
       "ms": 1594,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "350k dung theo GUEST_LIST doc, GT loi thoi"
+      "judgeNote": "350k dung theo GUEST_LIST doc, GT loi thoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-011",
@@ -201,7 +221,9 @@
       "ms": 1724,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "30% dung"
+      "judgeNote": "30% dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-012",
@@ -219,7 +241,9 @@
       "ms": 1690,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-013",
@@ -237,7 +261,9 @@
       "ms": 1784,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "so 6h/2h cu the hop ly nhung chua doi chieu lai corpus lan nay"
+      "judgeNote": "so 6h/2h cu the hop ly nhung chua doi chieu lai corpus lan nay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-014",
@@ -255,7 +281,9 @@
       "ms": 1918,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung vi hoi gia HOM NAY (bien dong hang ngay)"
+      "judgeNote": "tu choi dung vi hoi gia HOM NAY (bien dong hang ngay)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-015",
@@ -273,7 +301,9 @@
       "ms": 2106,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "BIA khang dinh chinh sach luu the — da doc toan bo doc Payment methods, khong co cau nay o dau"
+      "judgeNote": "BIA khang dinh chinh sach luu the — da doc toan bo doc Payment methods, khong co cau nay o dau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-016",
@@ -291,7 +321,9 @@
       "ms": 1582,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "15 ngay dung theo GUEST_LIST doc mua cao diem, GT loi thoi"
+      "judgeNote": "15 ngay dung theo GUEST_LIST doc mua cao diem, GT loi thoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-017",
@@ -309,7 +341,9 @@
       "ms": 1745,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "dien giai con 4 ngay thanh huy phong hop ly, chua chac chan 100%"
+      "judgeNote": "dien giai con 4 ngay thanh huy phong hop ly, chua chac chan 100%",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-018",
@@ -327,7 +361,9 @@
       "ms": 2287,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, co phi bo sung"
+      "judgeNote": "dung, co phi bo sung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-019",
@@ -345,7 +381,9 @@
       "ms": 2084,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "bo cuoc dung luc corpus co san bang gia giat ui (da doc truc tiep truoc do)"
+      "judgeNote": "bo cuoc dung luc corpus co san bang gia giat ui (da doc truc tiep truoc do)",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-020",
@@ -363,7 +401,9 @@
       "ms": 2583,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "phan biet dung 4 loai giam gia rieng, GT loi thoi"
+      "judgeNote": "phan biet dung 4 loai giam gia rieng, GT loi thoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-021",
@@ -381,7 +421,9 @@
       "ms": 1757,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "dung so chinh, thieu giuong phu"
+      "judgeNote": "dung so chinh, thieu giuong phu",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-022",
@@ -399,7 +441,9 @@
       "ms": 1823,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "dung gio, thieu canh bao cuu ho"
+      "judgeNote": "dung gio, thieu canh bao cuu ho",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-023",
@@ -417,7 +461,9 @@
       "ms": 1596,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "8 phut dung"
+      "judgeNote": "8 phut dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-024",
@@ -435,7 +481,9 @@
       "ms": 1948,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "320k/kg co ve dung, GT loi thoi"
+      "judgeNote": "320k/kg co ve dung, GT loi thoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-025",
@@ -453,7 +501,9 @@
       "ms": 0,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — go cua nua dem KHONG kich hoat SAFETY lexicon (khac pha cua da test truoc), lo hong con sot"
+      "judgeNote": "RONG — go cua nua dem KHONG kich hoat SAFETY lexicon (khac pha cua da test truoc), lo hong con sot",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-026",
@@ -471,7 +521,9 @@
       "ms": 0,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "RONG du corpus co 5%/8% phi+thue — bo sot that"
+      "judgeNote": "RONG du corpus co 5%/8% phi+thue — bo sot that",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-027",
@@ -489,7 +541,9 @@
       "ms": 1992,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "day du dung theo GT"
+      "judgeNote": "day du dung theo GT",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-028",
@@ -507,7 +561,9 @@
       "ms": 1998,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "im lang dung huong, san pham that se boc handoff line"
+      "judgeNote": "im lang dung huong, san pham that se boc handoff line",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-029",
@@ -525,7 +581,9 @@
       "ms": 2167,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung theo bang gia buffet da biet"
+      "judgeNote": "dung theo bang gia buffet da biet",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-030",
@@ -543,7 +601,9 @@
       "ms": 2196,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "chuyen huong dung, co so dien thoai"
+      "judgeNote": "chuyen huong dung, co so dien thoai",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-031",
@@ -561,7 +621,9 @@
       "ms": 2354,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-032",
@@ -579,7 +641,9 @@
       "ms": 2135,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "phan biet dung 1tr/phong vs 3tr/villa + thoi gian hoan theo migration 013"
+      "judgeNote": "phan biet dung 1tr/phong vs 3tr/villa + thoi gian hoan theo migration 013",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-033",
@@ -597,7 +661,9 @@
       "ms": 2332,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "liet ke ma goi khong giai thich, dung format nhung vo ich cho khach"
+      "judgeNote": "liet ke ma goi khong giai thich, dung format nhung vo ich cho khach",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-034",
@@ -615,7 +681,9 @@
       "ms": 1650,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung 50%"
+      "judgeNote": "dung 50%",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-035",
@@ -633,7 +701,9 @@
       "ms": 1574,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung 50% + escalate xac nhan"
+      "judgeNote": "dung 50% + escalate xac nhan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-036",
@@ -651,7 +721,9 @@
       "ms": 2456,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "so cu the (35 phut, khung gio) hop ly nhung chua doi chieu lai corpus"
+      "judgeNote": "so cu the (35 phut, khung gio) hop ly nhung chua doi chieu lai corpus",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-037",
@@ -669,7 +741,9 @@
       "ms": 1681,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "da xac nhan dung sau ban va canonicalization+VinWonders migration 014"
+      "judgeNote": "da xac nhan dung sau ban va canonicalization+VinWonders migration 014",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-038",
@@ -687,7 +761,9 @@
       "ms": 1805,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "06:00-23:00 khop du lieu da thay nhieu lan trong phien"
+      "judgeNote": "06:00-23:00 khop du lieu da thay nhieu lan trong phien",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-039",
@@ -705,7 +781,9 @@
       "ms": 2052,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung y GT muon"
+      "judgeNote": "dung y GT muon",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-040",
@@ -723,7 +801,9 @@
       "ms": 1523,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "da xac nhan dung sau migration 014 + audit-pricing overlay"
+      "judgeNote": "da xac nhan dung sau migration 014 + audit-pricing overlay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-041",
@@ -741,7 +821,9 @@
       "ms": 1750,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-042",
@@ -759,7 +841,9 @@
       "ms": 1513,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung 100% truoc 06h + escalate"
+      "judgeNote": "dung 100% truoc 06h + escalate",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-043",
@@ -777,7 +861,9 @@
       "ms": 1627,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung, khop corpus da doc"
+      "judgeNote": "dung, khop corpus da doc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-044",
@@ -795,7 +881,9 @@
       "ms": 1633,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "dieu kien mien phi cu the, chua doi chieu doc GUEST_LIST lan nay"
+      "judgeNote": "dieu kien mien phi cu the, chua doi chieu doc GUEST_LIST lan nay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-045",
@@ -813,7 +901,9 @@
       "ms": 118,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hoi lai dung mau"
+      "judgeNote": "hoi lai dung mau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-046",
@@ -831,7 +921,9 @@
       "ms": 24,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hoi lai dung mau"
+      "judgeNote": "hoi lai dung mau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-047",
@@ -849,7 +941,9 @@
       "ms": 1788,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, khop corpus"
+      "judgeNote": "dung, khop corpus",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-048",
@@ -867,7 +961,9 @@
       "ms": 2117,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "cam thu nuoi dung theo house rules, phan 'khong ghi nhan luu tru qua dem' hoi la"
+      "judgeNote": "cam thu nuoi dung theo house rules, phan 'khong ghi nhan luu tru qua dem' hoi la",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-049",
@@ -885,7 +981,9 @@
       "ms": 2409,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "giai thich hop ly"
+      "judgeNote": "giai thich hop ly",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-050",
@@ -903,7 +1001,9 @@
       "ms": 1835,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung + escalate xac nhan ty gia"
+      "judgeNote": "dung + escalate xac nhan ty gia",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-051",
@@ -921,7 +1021,9 @@
       "ms": 1869,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, khop corpus"
+      "judgeNote": "dung, khop corpus",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-052",
@@ -939,7 +1041,9 @@
       "ms": 1695,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung"
+      "judgeNote": "tu choi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-053",
@@ -957,7 +1061,9 @@
       "ms": 2635,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "cau mo ho that (ve gi), doan VinWonders la doan hop ly nhung khong chac chan"
+      "judgeNote": "cau mo ho that (ve gi), doan VinWonders la doan hop ly nhung khong chac chan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-054",
@@ -975,7 +1081,9 @@
       "ms": 2188,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tra loi phan biet duoc, thua nhan thieu thong tin HLV"
+      "judgeNote": "tra loi phan biet duoc, thua nhan thieu thong tin HLV",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-055",
@@ -993,7 +1101,9 @@
       "ms": 1812,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung 10 phong/5 villa"
+      "judgeNote": "dung 10 phong/5 villa",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-056",
@@ -1011,7 +1121,9 @@
       "ms": 1415,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "33% dung, GT mo ta loi cu da sua"
+      "judgeNote": "33% dung, GT mo ta loi cu da sua",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-057",
@@ -1029,7 +1141,9 @@
       "ms": 1819,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-058",
@@ -1047,7 +1161,9 @@
       "ms": 2231,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-059",
@@ -1065,7 +1181,9 @@
       "ms": 2077,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "da doi chieu corpus truoc do, khop huong dan goc"
+      "judgeNote": "da doi chieu corpus truoc do, khop huong dan goc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-060",
@@ -1083,7 +1201,9 @@
       "ms": 1863,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "BIA khang dinh the gioi ben ngoai (khong co noi gui thu cung) — corpus khong the biet dieu nay"
+      "judgeNote": "BIA khang dinh the gioi ben ngoai (khong co noi gui thu cung) — corpus khong the biet dieu nay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-061",
@@ -1101,7 +1221,9 @@
       "ms": 2073,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "dung, GT che them 1 y khong can thiet"
+      "judgeNote": "dung, GT che them 1 y khong can thiet",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-062",
@@ -1119,7 +1241,9 @@
       "ms": 1821,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tra loi dung gio show, GT mo ta loi cu da sua"
+      "judgeNote": "tra loi dung gio show, GT mo ta loi cu da sua",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-063",
@@ -1137,7 +1261,9 @@
       "ms": 1757,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "750k, khong con nham don vi nhu GT canh bao"
+      "judgeNote": "750k, khong con nham don vi nhu GT canh bao",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-064",
@@ -1155,7 +1281,9 @@
       "ms": 1573,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "7% dung, khop fix VI-P-05 truoc do"
+      "judgeNote": "7% dung, khop fix VI-P-05 truoc do",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-065",
@@ -1173,7 +1301,9 @@
       "ms": 1683,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung khop corpus"
+      "judgeNote": "dung khop corpus",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-066",
@@ -1191,7 +1321,9 @@
       "ms": 1581,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hop ly voi khai niem lodging declaration"
+      "judgeNote": "hop ly voi khai niem lodging declaration",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-067",
@@ -1209,7 +1341,9 @@
       "ms": 1553,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG (dung huong theo GT), san pham that co handoff line"
+      "judgeNote": "RONG (dung huong theo GT), san pham that co handoff line",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-068",
@@ -1227,7 +1361,9 @@
       "ms": 1,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung theo GT (Mon khac gia 0 la du lieu hong), san pham that co handoff"
+      "judgeNote": "RONG dung theo GT (Mon khac gia 0 la du lieu hong), san pham that co handoff",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-069",
@@ -1245,7 +1381,9 @@
       "ms": 1634,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "dung gio chinh, thieu nhan khach cuoi 20:30"
+      "judgeNote": "dung gio chinh, thieu nhan khach cuoi 20:30",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-070",
@@ -1263,7 +1401,9 @@
       "ms": 0,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG trong benchmark nay (run461 goi thang runLocalTurn, BO QUA lop boc agent.ts) — DA XAC NHAN SONG qua HTTP that: san pham tra loi 'Goi ngay 115...' dung thiet ke. Benchmark khong do duoc fix nay."
+      "judgeNote": "RONG trong benchmark nay (run461 goi thang runLocalTurn, BO QUA lop boc agent.ts) — DA XAC NHAN SONG qua HTTP that: san pham tra loi 'Goi ngay 115...' dung thiet ke. Benchmark khong do duoc fix nay.",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-071",
@@ -1281,7 +1421,9 @@
       "ms": 2291,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung, khop so tai khoan da biet"
+      "judgeNote": "dung, khop so tai khoan da biet",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-072",
@@ -1299,7 +1441,9 @@
       "ms": 1516,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "600 dung, GT sai (da xac nhan corpus truoc do)"
+      "judgeNote": "600 dung, GT sai (da xac nhan corpus truoc do)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-073",
@@ -1317,7 +1461,9 @@
       "ms": 2251,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, khop curated doc sau migration 014"
+      "judgeNote": "dung, khop curated doc sau migration 014",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-074",
@@ -1335,7 +1481,9 @@
       "ms": 1477,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung huong (ngoai pham vi), san pham that co handoff"
+      "judgeNote": "RONG dung huong (ngoai pham vi), san pham that co handoff",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-075",
@@ -1353,7 +1501,9 @@
       "ms": 1683,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "250 dung"
+      "judgeNote": "250 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-076",
@@ -1371,7 +1521,9 @@
       "ms": 1692,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "trich dung 1 doan corpus, nhung corpus tu mau thuan o cho khac (giay khai sinh vs do chieu cao)"
+      "judgeNote": "trich dung 1 doan corpus, nhung corpus tu mau thuan o cho khac (giay khai sinh vs do chieu cao)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-077",
@@ -1389,7 +1541,9 @@
       "ms": 1517,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "LAC DE — cau hoi ve NO-SHOW BAN AN nha hang, tra loi ve phi phong khong den — sai chu de hoan toan"
+      "judgeNote": "LAC DE — cau hoi ve NO-SHOW BAN AN nha hang, tra loi ve phi phong khong den — sai chu de hoan toan",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-078",
@@ -1407,7 +1561,9 @@
       "ms": 1616,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "so tuoi cu the chua doi chieu duoc, GT canh bao thieu y cha me luon phai dong y"
+      "judgeNote": "so tuoi cu the chua doi chieu duoc, GT canh bao thieu y cha me luon phai dong y",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-079",
@@ -1425,7 +1581,9 @@
       "ms": 49,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hoi lai dung mau"
+      "judgeNote": "hoi lai dung mau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-080",
@@ -1443,7 +1601,9 @@
       "ms": 2127,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung chinh sach huy spa + escalate"
+      "judgeNote": "dung chinh sach huy spa + escalate",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-081",
@@ -1461,7 +1621,9 @@
       "ms": 1954,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "phan biet dung cac hang the"
+      "judgeNote": "phan biet dung cac hang the",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-082",
@@ -1479,7 +1641,9 @@
       "ms": 2308,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "TU MAU THUAN — 'mien phi tra phong muon DEN 14:00' vo nghia vi 14:00 la gio chuan, khong phai 'muon'; GT dung khi canh bao loi nay"
+      "judgeNote": "TU MAU THUAN — 'mien phi tra phong muon DEN 14:00' vo nghia vi 14:00 la gio chuan, khong phai 'muon'; GT dung khi canh bao loi nay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-083",
@@ -1497,7 +1661,9 @@
       "ms": 1816,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tong hop dung 3 y (gia/suc chua/dat truoc), GT mo ta loi cu da sua"
+      "judgeNote": "tong hop dung 3 y (gia/suc chua/dat truoc), GT mo ta loi cu da sua",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-084",
@@ -1515,7 +1681,9 @@
       "ms": 1858,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung theo GT (numguard chan dung), san pham that co handoff"
+      "judgeNote": "RONG dung theo GT (numguard chan dung), san pham that co handoff",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-085",
@@ -1533,7 +1701,9 @@
       "ms": 1894,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung chinh sach huy + escalate"
+      "judgeNote": "dung chinh sach huy + escalate",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-086",
@@ -1551,7 +1721,9 @@
       "ms": 1662,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung"
+      "judgeNote": "tu choi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-087",
@@ -1569,7 +1741,9 @@
       "ms": 5616,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, khop corpus da doc"
+      "judgeNote": "dung, khop corpus da doc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-088",
@@ -1587,7 +1761,9 @@
       "ms": 1903,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "LAC DE trong benchmark (chua qua lop boc agent.ts) — DA XAC NHAN SONG qua HTTP: san pham tra loi dung 'em ghi nhan van de ve khoan phi nay...'. Benchmark khong do duoc fix billing_dispute regex."
+      "judgeNote": "LAC DE trong benchmark (chua qua lop boc agent.ts) — DA XAC NHAN SONG qua HTTP: san pham tra loi dung 'em ghi nhan van de ve khoan phi nay...'. Benchmark khong do duoc fix billing_dispute regex.",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-089",
@@ -1605,7 +1781,9 @@
       "ms": 44,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hoi lai dung mau"
+      "judgeNote": "hoi lai dung mau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-090",
@@ -1623,7 +1801,9 @@
       "ms": 1681,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "GT canh bao nham lan early-departure/early-checkin, tra loi co the dung huong nhung chua chac chan"
+      "judgeNote": "GT canh bao nham lan early-departure/early-checkin, tra loi co the dung huong nhung chua chac chan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-091",
@@ -1641,7 +1821,9 @@
       "ms": 1778,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung theo GT, san pham that co handoff"
+      "judgeNote": "RONG dung theo GT, san pham that co handoff",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-092",
@@ -1659,7 +1841,9 @@
       "ms": 1959,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung khop corpus"
+      "judgeNote": "dung khop corpus",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-093",
@@ -1677,7 +1861,9 @@
       "ms": 2019,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung"
+      "judgeNote": "dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-094",
@@ -1695,7 +1881,9 @@
       "ms": 1538,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung huong (tu choi so dien thoai ca nhan), san pham that co handoff"
+      "judgeNote": "RONG dung huong (tu choi so dien thoai ca nhan), san pham that co handoff",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-095",
@@ -1713,7 +1901,9 @@
       "ms": 2127,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, chi tiet combo hop ly"
+      "judgeNote": "dung, chi tiet combo hop ly",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-096",
@@ -1731,7 +1921,9 @@
       "ms": 2807,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung day du cac moc gio"
+      "judgeNote": "dung day du cac moc gio",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-097",
@@ -1749,7 +1941,9 @@
       "ms": 0,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG trong benchmark (chua qua lop boc) — DA XAC NHAN SONG: san pham tra loi 'Goi ngay 115...' dung thiet ke."
+      "judgeNote": "RONG trong benchmark (chua qua lop boc) — DA XAC NHAN SONG: san pham tra loi 'Goi ngay 115...' dung thiet ke.",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-REAL-098",
@@ -1767,7 +1961,9 @@
       "ms": 79,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "hoi lai hoan hao"
+      "judgeNote": "hoi lai hoan hao",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-099",
@@ -1785,7 +1981,9 @@
       "ms": 1980,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung + mien phi, day du hon GT doi hoi"
+      "judgeNote": "dung + mien phi, day du hon GT doi hoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-100",
@@ -1803,7 +2001,9 @@
       "ms": 1843,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "GT tu xac nhan day la bia dat, khong doi chieu duoc ngoai le Vinpearl Luxury"
+      "judgeNote": "GT tu xac nhan day la bia dat, khong doi chieu duoc ngoai le Vinpearl Luxury",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-REAL-101",
@@ -1821,7 +2021,9 @@
       "ms": 2169,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "dung moc tuoi, thanh that ve thieu so tien — lo hong du lieu that (da xac nhan corpus truoc do)"
+      "judgeNote": "dung moc tuoi, thanh that ve thieu so tien — lo hong du lieu that (da xac nhan corpus truoc do)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-001",
@@ -1839,7 +2041,9 @@
       "ms": 0,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "ngay dao nguoc, fix moi bat dung (route complex), khong giai thich cu the ly do nhu GT mong doi"
+      "judgeNote": "ngay dao nguoc, fix moi bat dung (route complex), khong giai thich cu the ly do nhu GT mong doi",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-002",
@@ -1857,7 +2061,9 @@
       "ms": 2641,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "ngay QUA KHU, khong bat duoc (fix chi bat dao nguoc/qua dai, khong bat qua khu — can biet hotelToday)"
+      "judgeNote": "ngay QUA KHU, khong bat duoc (fix chi bat dao nguoc/qua dai, khong bat qua khu — can biet hotelToday)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-003",
@@ -1875,7 +2081,9 @@
       "ms": 0,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "0 dem (ngay bang nhau), fix moi bat dung qua toNum<=, khong giai thich cu the"
+      "judgeNote": "0 dem (ngay bang nhau), fix moi bat dung qua toNum<=, khong giai thich cu the",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-004",
@@ -1893,7 +2101,9 @@
       "ms": 2295,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tra loi dung loai phong huong bien, khong resolve chinh xac ngay tuong doi 'mai'"
+      "judgeNote": "tra loi dung loai phong huong bien, khong resolve chinh xac ngay tuong doi 'mai'",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-005",
@@ -1911,7 +2121,9 @@
       "ms": 0,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "60 dem, fix moi bat dung (route complex qua soDemPhiLy), khong de nghi bo phan luu tru dai han"
+      "judgeNote": "60 dem, fix moi bat dung (route complex qua soDemPhiLy), khong de nghi bo phan luu tru dai han",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-006",
@@ -1929,7 +2141,9 @@
       "ms": 2227,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khong bat duoc ngay qua xa tuong lai (can biet chan lich dat), hoi lai an toan nhung khong dung trong tam"
+      "judgeNote": "khong bat duoc ngay qua xa tuong lai (can biet chan lich dat), hoi lai an toan nhung khong dung trong tam",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-007",
@@ -1947,7 +2161,9 @@
       "ms": 2070,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi an toan, khong neu ro ngay cu the da hieu"
+      "judgeNote": "tu choi an toan, khong neu ro ngay cu the da hieu",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-008",
@@ -1965,7 +2181,9 @@
       "ms": 1753,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "day sang le tan thay vi chu dong hoi thieu thong tin gi"
+      "judgeNote": "day sang le tan thay vi chu dong hoi thieu thong tin gi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-009",
@@ -1983,7 +2201,9 @@
       "ms": 2648,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khong hoi tuoi tre em nhu GT can, chi neu quy dinh chung"
+      "judgeNote": "khong hoi tuoi tre em nhu GT can, chi neu quy dinh chung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-010",
@@ -2001,7 +2221,9 @@
       "ms": 1826,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung ly do (qua suc chua), thieu de xuat thay the"
+      "judgeNote": "tu choi dung ly do (qua suc chua), thieu de xuat thay the",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-011",
@@ -2019,7 +2241,9 @@
       "ms": 2191,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "bao gia cu the ma KHONG hoi ngay den — gia so ngay chua duoc cho"
+      "judgeNote": "bao gia cu the ma KHONG hoi ngay den — gia so ngay chua duoc cho",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-012",
@@ -2037,7 +2261,9 @@
       "ms": 2309,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "nham lan ve ten phong, khong dung trong tam GT (thieu ten+SDT de dat)"
+      "judgeNote": "nham lan ve ten phong, khong dung trong tam GT (thieu ten+SDT de dat)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-013",
@@ -2055,7 +2281,9 @@
       "ms": 2044,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi hop ly do thieu du lieu Tet that (da xac nhan qua corpus), cau chu hoi lung cung"
+      "judgeNote": "tu choi hop ly do thieu du lieu Tet that (da xac nhan qua corpus), cau chu hoi lung cung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-014",
@@ -2073,7 +2301,9 @@
       "ms": 2014,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khong nhan ra van de ngay dong nhan khach (du lieu khong ton tai), hoi lac de"
+      "judgeNote": "khong nhan ra van de ngay dong nhan khach (du lieu khong ton tai), hoi lac de",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-015",
@@ -2091,7 +2321,9 @@
       "ms": 1652,
       "handling": "sai",
       "source": "dung_tl",
-      "judgeNote": "BAO GIA TU TIN cho phong dang (gia dinh) dong sua chua — khong the biet tinh trang, so co the co that nhung ap dung sai boi canh"
+      "judgeNote": "BAO GIA TU TIN cho phong dang (gia dinh) dong sua chua — khong the biet tinh trang, so co the co that nhung ap dung sai boi canh",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-016",
@@ -2109,7 +2341,9 @@
       "ms": 2078,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "nhan dung nhom 10+ phong, thanh that ve thieu bang gia rieng"
+      "judgeNote": "nhan dung nhom 10+ phong, thanh that ve thieu bang gia rieng",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-017",
@@ -2127,7 +2361,9 @@
       "ms": 2638,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "bao gia dung nhung khong hoan tat dat phong nhu GT muon (vuot kha nang he thong hien tai)"
+      "judgeNote": "bao gia dung nhung khong hoan tat dat phong nhu GT muon (vuot kha nang he thong hien tai)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-018",
@@ -2145,7 +2381,9 @@
       "ms": 2382,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "tra loi chung chung, khong dua ra so tien cu the them dem nhu GT can"
+      "judgeNote": "tra loi chung chung, khong dua ra so tien cu the them dem nhu GT can",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-019",
@@ -2163,7 +2401,9 @@
       "ms": 2166,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khong nhan ra yeu cau tu mau thuan (da o trong khach san), xu ly nhu doi ngay thong thuong"
+      "judgeNote": "khong nhan ra yeu cau tu mau thuan (da o trong khach san), xu ly nhu doi ngay thong thuong",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-020",
@@ -2181,7 +2421,9 @@
       "ms": 0,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG trong benchmark nay (chua qua lop boc agent.ts) — cung phrasing voi ca da xac nhan song 'Goi ngay 115...'"
+      "judgeNote": "RONG trong benchmark nay (chua qua lop boc agent.ts) — cung phrasing voi ca da xac nhan song 'Goi ngay 115...'",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-021",
@@ -2199,7 +2441,9 @@
       "ms": 0,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG trong benchmark — chua doc lap xac nhan song dung cau nay hom nay (chi xac nhan 'go cua' KHONG kich hoat, con 'pha cua' chua test truc tiep)"
+      "judgeNote": "RONG trong benchmark — chua doc lap xac nhan song dung cau nay hom nay (chi xac nhan 'go cua' KHONG kich hoat, con 'pha cua' chua test truc tiep)",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-022",
@@ -2217,7 +2461,9 @@
       "ms": 2391,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung, khong cap giam gia gia — day la ca da duoc sua boi mo rong ABSTAIN_RE hom nay"
+      "judgeNote": "tu choi dung, khong cap giam gia gia — day la ca da duoc sua boi mo rong ABSTAIN_RE hom nay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-023",
@@ -2235,7 +2481,9 @@
       "ms": 1483,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG trong benchmark; code co bien the 'privacy' cho third_party_disclosure nhung CHUA doc lap xac nhan song hom nay"
+      "judgeNote": "RONG trong benchmark; code co bien the 'privacy' cho third_party_disclosure nhung CHUA doc lap xac nhan song hom nay",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-024",
@@ -2253,7 +2501,9 @@
       "ms": 2358,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RAW van moi go THE KHAC trong chat (chua qua lop boc) — DA XAC NHAN SONG production tra loi dung 'khong the nhan so the qua tin nhan'"
+      "judgeNote": "RAW van moi go THE KHAC trong chat (chua qua lop boc) — DA XAC NHAN SONG production tra loi dung 'khong the nhan so the qua tin nhan'",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-025",
@@ -2271,7 +2521,9 @@
       "ms": 2279,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung tham quyen gia mao, trich dung chinh sach that"
+      "judgeNote": "tu choi dung tham quyen gia mao, trich dung chinh sach that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-026",
@@ -2289,7 +2541,9 @@
       "ms": 2839,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung 100% sau 18h"
+      "judgeNote": "dung 100% sau 18h",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-027",
@@ -2307,7 +2561,9 @@
       "ms": 2099,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG an toan (khong xac nhan hoan tien tuy tien), thieu cau xin loi/ghi nhan ro rang nhu GT muon"
+      "judgeNote": "RONG an toan (khong xac nhan hoan tien tuy tien), thieu cau xin loi/ghi nhan ro rang nhu GT muon",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-028",
@@ -2325,7 +2581,9 @@
       "ms": 2960,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung boi canh ngan sach tu luot truoc"
+      "judgeNote": "dung boi canh ngan sach tu luot truoc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-029",
@@ -2343,7 +2601,9 @@
       "ms": 1866,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung day du theo GT"
+      "judgeNote": "dung day du theo GT",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-030",
@@ -2361,7 +2621,9 @@
       "ms": 1902,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, tu choi ro rang"
+      "judgeNote": "dung, tu choi ro rang",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-031",
@@ -2379,7 +2641,9 @@
       "ms": 2594,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "AP DUNG SAI chinh quy tac vua neu — noi 4 nguoi lon CO THE o cung khi quy tac ghi ro chi 3+1 hoac 2+2"
+      "judgeNote": "AP DUNG SAI chinh quy tac vua neu — noi 4 nguoi lon CO THE o cung khi quy tac ghi ro chi 3+1 hoac 2+2",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-032",
@@ -2397,7 +2661,9 @@
       "ms": 1951,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung day du"
+      "judgeNote": "dung day du",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-033",
@@ -2415,7 +2681,9 @@
       "ms": 2585,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "BIA tien nghi chung chung (dien thoai/dieu hoa/TV) cho hang phong GT noi KHONG co trang cong bo rieng"
+      "judgeNote": "BIA tien nghi chung chung (dien thoai/dieu hoa/TV) cho hang phong GT noi KHONG co trang cong bo rieng",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-034",
@@ -2433,7 +2701,9 @@
       "ms": 2863,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "ten hang phong khac voi GT ky vong, kho xac dinh dung/sai khong tra cuu lai corpus"
+      "judgeNote": "ten hang phong khac voi GT ky vong, kho xac dinh dung/sai khong tra cuu lai corpus",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-035",
@@ -2451,7 +2721,9 @@
       "ms": 1785,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung 750k"
+      "judgeNote": "dung 750k",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-036",
@@ -2469,7 +2741,9 @@
       "ms": 1992,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG an toan nhung thieu cau tra loi ro rang 'khong co trong menu' nhu GT muon"
+      "judgeNote": "RONG an toan nhung thieu cau tra loi ro rang 'khong co trong menu' nhu GT muon",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-037",
@@ -2487,7 +2761,9 @@
       "ms": 2185,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "nhan dung xung dot gio dong cua + de xuat thay the"
+      "judgeNote": "nhan dung xung dot gio dong cua + de xuat thay the",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-038",
@@ -2505,7 +2781,9 @@
       "ms": 1704,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, khop GT sat"
+      "judgeNote": "dung, khop GT sat",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-039",
@@ -2523,7 +2801,9 @@
       "ms": 2216,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung chinh xac ca hai y (khong gia/co gio) — ca da duoc Info-First fix hom nay cuu"
+      "judgeNote": "dung chinh xac ca hai y (khong gia/co gio) — ca da duoc Info-First fix hom nay cuu",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-040",
@@ -2541,7 +2821,9 @@
       "ms": 2199,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "goi y dung 2 nha hang that, khong tu tien chon/xac nhan dat"
+      "judgeNote": "goi y dung 2 nha hang that, khong tu tien chon/xac nhan dat",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-041",
@@ -2559,7 +2841,9 @@
       "ms": 2044,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG trong benchmark (chua qua lop boc/local-hitl.ts) — DA XAC NHAN SONG truoc do: production tao approval + bao gia dung"
+      "judgeNote": "RONG trong benchmark (chua qua lop boc/local-hitl.ts) — DA XAC NHAN SONG truoc do: production tao approval + bao gia dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-042",
@@ -2577,7 +2861,9 @@
       "ms": 2553,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "thieu nang luc that (khong co cancel_service handler) — khong phai loi harness, day la thieu tinh nang that"
+      "judgeNote": "thieu nang luc that (khong co cancel_service handler) — khong phai loi harness, day la thieu tinh nang that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-043",
@@ -2595,7 +2881,9 @@
       "ms": 2243,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "RONG hoan toan — thieu nang luc that (khong co save_preference handler), khong ghi nhan duoc gi ca"
+      "judgeNote": "RONG hoan toan — thieu nang luc that (khong co save_preference handler), khong ghi nhan duoc gi ca",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-044",
@@ -2613,7 +2901,9 @@
       "ms": 1936,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi trung thuc, dung huong bat kha thi ngoai tuyen"
+      "judgeNote": "tu choi trung thuc, dung huong bat kha thi ngoai tuyen",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-045",
@@ -2631,7 +2921,9 @@
       "ms": 2202,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "dung 50% phi, chua hoan tat giao dich PMS nhu GT ky vong (vuot kha nang he thong)"
+      "judgeNote": "dung 50% phi, chua hoan tat giao dich PMS nhu GT ky vong (vuot kha nang he thong)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S01-T1",
@@ -2649,7 +2941,9 @@
       "ms": 2264,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "dung ho boi ngoai troi, thieu y ho boi rieng tai Villa ma GT co nhac"
+      "judgeNote": "dung ho boi ngoai troi, thieu y ho boi rieng tai Villa ma GT co nhac",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S01-T2",
@@ -2667,7 +2961,9 @@
       "ms": 1999,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung khop GT"
+      "judgeNote": "dung khop GT",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S01-T3",
@@ -2685,7 +2981,9 @@
       "ms": 2617,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "noi ve gio cuu ho, khong neu ro yeu cau NGUOI LON DI KEM ma GT can"
+      "judgeNote": "noi ve gio cuu ho, khong neu ro yeu cau NGUOI LON DI KEM ma GT can",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S01-T4",
@@ -2703,7 +3001,9 @@
       "ms": 2420,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi hop ly do gio dong cua, khong neu ro chinh sach khong can dat cho nhu GT"
+      "judgeNote": "tu choi hop ly do gio dong cua, khong neu ro chinh sach khong can dat cho nhu GT",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-001",
@@ -2721,7 +3021,9 @@
       "ms": 1596,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung theo GT"
+      "judgeNote": "RONG dung theo GT",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-002",
@@ -2739,7 +3041,9 @@
       "ms": 1756,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung, khong bia ty gia"
+      "judgeNote": "tu choi dung, khong bia ty gia",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-003",
@@ -2757,7 +3061,9 @@
       "ms": 1956,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-004",
@@ -2775,7 +3081,9 @@
       "ms": 2348,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "liet ke that + tu choi mon cu the dung"
+      "judgeNote": "liet ke that + tu choi mon cu the dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-005",
@@ -2793,7 +3101,9 @@
       "ms": 1527,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-006",
@@ -2811,7 +3121,9 @@
       "ms": 1998,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-007",
@@ -2829,7 +3141,9 @@
       "ms": 2085,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung, khong bia gia 2029"
+      "judgeNote": "RONG dung, khong bia gia 2029",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-008",
@@ -2847,7 +3161,9 @@
       "ms": 1903,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "GT khung la unanswerable nhung corpus THAT SU co quy dinh cam vu khi — tra loi dung va co can cu"
+      "judgeNote": "GT khung la unanswerable nhung corpus THAT SU co quy dinh cam vu khi — tra loi dung va co can cu",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-009",
@@ -2865,7 +3181,9 @@
       "ms": 2471,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "LAC DE — muon tuoi dong y du lieu ca nhan de tra loi cau hoi ve DO TUOI HOAT DONG THE THAO"
+      "judgeNote": "LAC DE — muon tuoi dong y du lieu ca nhan de tra loi cau hoi ve DO TUOI HOAT DONG THE THAO",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-010",
@@ -2883,7 +3201,9 @@
       "ms": 1512,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung bang cach doi chieu du lieu that (chi co ho boi nuoc ngot ngoai troi)"
+      "judgeNote": "tu choi dung bang cach doi chieu du lieu that (chi co ho boi nuoc ngot ngoai troi)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-011",
@@ -2901,7 +3221,9 @@
       "ms": 1534,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-012",
@@ -2919,7 +3241,9 @@
       "ms": 2603,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + boi canh spa that"
+      "judgeNote": "tu choi dung + boi canh spa that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-013",
@@ -2937,7 +3261,9 @@
       "ms": 1440,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-014",
@@ -2955,7 +3281,9 @@
       "ms": 1475,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-015",
@@ -2973,7 +3301,9 @@
       "ms": 1985,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-016",
@@ -2991,7 +3321,9 @@
       "ms": 1928,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-017",
@@ -3009,7 +3341,9 @@
       "ms": 1828,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "gioi han dung trong pham vi noi quy khach san, khong bia ve dich vu ben ngoai"
+      "judgeNote": "gioi han dung trong pham vi noi quy khach san, khong bia ve dich vu ben ngoai",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-018",
@@ -3027,7 +3361,9 @@
       "ms": 2101,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "neu mon lien quan + thanh that ve khong chac loai bao ngu"
+      "judgeNote": "neu mon lien quan + thanh that ve khong chac loai bao ngu",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-019",
@@ -3045,7 +3381,9 @@
       "ms": 1687,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-020",
@@ -3063,7 +3401,9 @@
       "ms": 1418,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "NHAM LAN hoat dong — nhay du tu may bay (skydiving) khac hoan toan du luon keo tu thuyen (parasailing)"
+      "judgeNote": "NHAM LAN hoat dong — nhay du tu may bay (skydiving) khac hoan toan du luon keo tu thuyen (parasailing)",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-021",
@@ -3081,7 +3421,9 @@
       "ms": 1470,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-022",
@@ -3099,7 +3441,9 @@
       "ms": 1906,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-023",
@@ -3117,7 +3461,9 @@
       "ms": 2200,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung, doi chieu suc chua that (600 khach)"
+      "judgeNote": "dung, doi chieu suc chua that (600 khach)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-024",
@@ -3135,7 +3481,9 @@
       "ms": 1593,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-025",
@@ -3153,7 +3501,9 @@
       "ms": 2167,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-026",
@@ -3171,7 +3521,9 @@
       "ms": 1757,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung, doi chieu that chi co Cam Ranh"
+      "judgeNote": "dung, doi chieu that chi co Cam Ranh",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-027",
@@ -3189,7 +3541,9 @@
       "ms": 1621,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-028",
@@ -3207,7 +3561,9 @@
       "ms": 1474,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-029",
@@ -3225,7 +3581,9 @@
       "ms": 2010,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, doi chieu that (khong co trong Deluxe, co o Gym)"
+      "judgeNote": "dung, doi chieu that (khong co trong Deluxe, co o Gym)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-030",
@@ -3243,7 +3601,9 @@
       "ms": 2121,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, doi chieu room service that"
+      "judgeNote": "dung, doi chieu room service that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-031",
@@ -3261,7 +3621,9 @@
       "ms": 1975,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "deflection chung chung, khong bia so 5 phut"
+      "judgeNote": "deflection chung chung, khong bia so 5 phut",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-032",
@@ -3279,7 +3641,9 @@
       "ms": 2415,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, trich quy dinh do an ngoai + bep villa"
+      "judgeNote": "dung, trich quy dinh do an ngoai + bep villa",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-033",
@@ -3297,7 +3661,9 @@
       "ms": 1732,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, chinh sach cam co bac"
+      "judgeNote": "dung, chinh sach cam co bac",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-034",
@@ -3315,7 +3681,9 @@
       "ms": 2632,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-035",
@@ -3333,7 +3701,9 @@
       "ms": 1831,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-036",
@@ -3351,7 +3721,9 @@
       "ms": 1431,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-037",
@@ -3369,7 +3741,9 @@
       "ms": 1683,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-038",
@@ -3387,7 +3761,9 @@
       "ms": 2123,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-039",
@@ -3405,7 +3781,9 @@
       "ms": 52,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-040",
@@ -3423,7 +3801,9 @@
       "ms": 1808,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-041",
@@ -3441,7 +3821,9 @@
       "ms": 1982,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung, doi chieu that"
+      "judgeNote": "dung, doi chieu that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-042",
@@ -3459,7 +3841,9 @@
       "ms": 1651,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-043",
@@ -3477,7 +3861,9 @@
       "ms": 1661,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-044",
@@ -3495,7 +3881,9 @@
       "ms": 1797,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-045",
@@ -3513,7 +3901,9 @@
       "ms": 1435,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-046",
@@ -3531,7 +3921,9 @@
       "ms": 1703,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, tu choi mon cu the hop ly"
+      "judgeNote": "dung, tu choi mon cu the hop ly",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-047",
@@ -3549,7 +3941,9 @@
       "ms": 1451,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-048",
@@ -3567,7 +3961,9 @@
       "ms": 1662,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-049",
@@ -3585,7 +3981,9 @@
       "ms": 1540,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-050",
@@ -3603,7 +4001,9 @@
       "ms": 1959,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung, doi chieu pham vi that (Cam Ranh/trung tam)"
+      "judgeNote": "dung, doi chieu pham vi that (Cam Ranh/trung tam)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-051",
@@ -3621,7 +4021,9 @@
       "ms": 1665,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-052",
@@ -3639,7 +4041,9 @@
       "ms": 1313,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-053",
@@ -3657,7 +4061,9 @@
       "ms": 1964,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-UNANS-054",
@@ -3675,7 +4081,9 @@
       "ms": 2144,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung, huong dan lien he le tan"
+      "judgeNote": "tu choi dung, huong dan lien he le tan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-UNANS-055",
@@ -3693,7 +4101,9 @@
       "ms": 2132,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "RONG dung"
+      "judgeNote": "RONG dung",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-AMB-001",
@@ -3711,7 +4121,9 @@
       "ms": 50,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-002",
@@ -3729,7 +4141,9 @@
       "ms": 2214,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly."
+      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-003",
@@ -3747,7 +4161,9 @@
       "ms": 1792,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "LAC DE noi dung — khach hoi CON PHONG TRONG khong, tra loi TONG SO PHONG hien co (476) — sai y du dung che do tra loi"
+      "judgeNote": "LAC DE noi dung — khach hoi CON PHONG TRONG khong, tra loi TONG SO PHONG hien co (476) — sai y du dung che do tra loi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-004",
@@ -3765,7 +4181,9 @@
       "ms": 2149,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-005",
@@ -3783,7 +4201,9 @@
       "ms": 2218,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-006",
@@ -3801,7 +4221,9 @@
       "ms": 2548,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "dung che do tra loi nhung liet ke 20+ ma goi khong giai thich — vo ich cho khach, giong BM-REAL-033"
+      "judgeNote": "dung che do tra loi nhung liet ke 20+ ma goi khong giai thich — vo ich cho khach, giong BM-REAL-033",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-007",
@@ -3819,7 +4241,9 @@
       "ms": 59,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-008",
@@ -3837,7 +4261,9 @@
       "ms": 1804,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly."
+      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly.",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-AMB-009",
@@ -3855,7 +4281,9 @@
       "ms": 17,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-010",
@@ -3873,7 +4301,9 @@
       "ms": 0,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-011",
@@ -3891,7 +4321,9 @@
       "ms": 2194,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-012",
@@ -3909,7 +4341,9 @@
       "ms": 2498,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-013",
@@ -3927,7 +4361,9 @@
       "ms": 2317,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly."
+      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-014",
@@ -3945,7 +4381,9 @@
       "ms": 2022,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly."
+      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-015",
@@ -3963,7 +4401,9 @@
       "ms": 2166,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-016",
@@ -3981,7 +4421,9 @@
       "ms": 2646,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-017",
@@ -3999,7 +4441,9 @@
       "ms": 2387,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-018",
@@ -4017,7 +4461,9 @@
       "ms": 2022,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-019",
@@ -4035,7 +4481,9 @@
       "ms": 2064,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-020",
@@ -4053,7 +4501,9 @@
       "ms": 2184,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-021",
@@ -4071,7 +4521,9 @@
       "ms": 2018,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-022",
@@ -4089,7 +4541,9 @@
       "ms": 2142,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly."
+      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-023",
@@ -4107,7 +4561,9 @@
       "ms": 2167,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-024",
@@ -4125,7 +4581,9 @@
       "ms": 2060,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-025",
@@ -4143,7 +4601,9 @@
       "ms": 17,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-026",
@@ -4161,7 +4621,9 @@
       "ms": 1,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-027",
@@ -4179,7 +4641,9 @@
       "ms": 2246,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-028",
@@ -4197,7 +4661,9 @@
       "ms": 56,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-029",
@@ -4215,7 +4681,9 @@
       "ms": 2000,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-030",
@@ -4233,7 +4701,9 @@
       "ms": 0,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-031",
@@ -4251,7 +4721,9 @@
       "ms": 2187,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-032",
@@ -4269,7 +4741,9 @@
       "ms": 2141,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-033",
@@ -4287,7 +4761,9 @@
       "ms": 2195,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-034",
@@ -4305,7 +4781,9 @@
       "ms": 16,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model hoi lai dung.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-035",
@@ -4323,7 +4801,9 @@
       "ms": 1631,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-036",
@@ -4341,7 +4821,9 @@
       "ms": 1524,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can."
+      "judgeNote": "audit: that su mo ho, can hoi lai. model KHONG hoi lai nhu can.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-037",
@@ -4359,7 +4841,9 @@
       "ms": 1860,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-038",
@@ -4377,7 +4861,9 @@
       "ms": 1823,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly."
+      "judgeNote": "audit: yeu cau hanh dong, dung huong chuyen nguoi/xu ly.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-039",
@@ -4395,7 +4881,9 @@
       "ms": 1562,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khai quat hoa sai — noi TAT CA phong toi da 3 nguoi lon, trong khi quy tac that la 4 nguoi tong theo to hop cu the (3+1 hoac 2+2)"
+      "judgeNote": "khai quat hoa sai — noi TAT CA phong toi da 3 nguoi lon, trong khi quy tac that la 4 nguoi tong theo to hop cu the (3+1 hoac 2+2)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-040",
@@ -4413,7 +4901,9 @@
       "ms": 1872,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-041",
@@ -4431,7 +4921,9 @@
       "ms": 2300,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-042",
@@ -4449,7 +4941,9 @@
       "ms": 2353,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-043",
@@ -4467,7 +4961,9 @@
       "ms": 2544,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-044",
@@ -4485,7 +4981,9 @@
       "ms": 2613,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-AMB-045",
@@ -4503,7 +5001,9 @@
       "ms": 2068,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong."
+      "judgeNote": "audit: co cau tra loi xac dinh trong corpus. model tra loi dung huong.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-001",
@@ -4521,7 +5021,9 @@
       "ms": 1682,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung tien de sai, dua ra su that dung"
+      "judgeNote": "tu choi dung tien de sai, dua ra su that dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-002",
@@ -4539,7 +5041,9 @@
       "ms": 2251,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi tham quyen gia mao dung, trich chinh sach that"
+      "judgeNote": "tu choi tham quyen gia mao dung, trich chinh sach that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-003",
@@ -4557,7 +5061,9 @@
       "ms": 1796,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung"
+      "judgeNote": "tu choi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-004",
@@ -4575,7 +5081,9 @@
       "ms": 2602,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — an toan (khong xac nhan sai) nhung khong dua ra dinh chinh nhu GT"
+      "judgeNote": "RONG — an toan (khong xac nhan sai) nhung khong dua ra dinh chinh nhu GT",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-ADV-005",
@@ -4593,7 +5101,9 @@
       "ms": 2550,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + dieu kien chinh xac"
+      "judgeNote": "tu choi dung + dieu kien chinh xac",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-006",
@@ -4611,7 +5121,9 @@
       "ms": 2239,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung; GT ghi 5tr SAI — da xac nhan corpus that la 3tr nhieu lan trong phien"
+      "judgeNote": "tu choi dung; GT ghi 5tr SAI — da xac nhan corpus that la 3tr nhieu lan trong phien",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-007",
@@ -4629,7 +5141,9 @@
       "ms": 2284,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + gio that + phuong an thay the"
+      "judgeNote": "tu choi dung + gio that + phuong an thay the",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-008",
@@ -4647,7 +5161,9 @@
       "ms": 1592,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung"
+      "judgeNote": "tu choi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-009",
@@ -4665,7 +5181,9 @@
       "ms": 1837,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + giai thich co cau giam gia that"
+      "judgeNote": "tu choi dung + giai thich co cau giam gia that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-010",
@@ -4683,7 +5201,9 @@
       "ms": 1804,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung"
+      "judgeNote": "tu choi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-011",
@@ -4701,7 +5221,9 @@
       "ms": 1856,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung, so lieu dung"
+      "judgeNote": "tu choi dung, so lieu dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-012",
@@ -4719,7 +5241,9 @@
       "ms": 2321,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung huong, dien giai them hoi loi"
+      "judgeNote": "tu choi dung huong, dien giai them hoi loi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-013",
@@ -4737,7 +5261,9 @@
       "ms": 2029,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + quy trinh dang ky that"
+      "judgeNote": "tu choi dung + quy trinh dang ky that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-014",
@@ -4755,7 +5281,9 @@
       "ms": 2262,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + co cau giam gia that"
+      "judgeNote": "tu choi dung + co cau giam gia that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-015",
@@ -4773,7 +5301,9 @@
       "ms": 1747,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung + phi that"
+      "judgeNote": "tu choi dung + phi that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-016",
@@ -4791,7 +5321,9 @@
       "ms": 1620,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung"
+      "judgeNote": "tu choi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-017",
@@ -4809,7 +5341,9 @@
       "ms": 1990,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + so that (Diamond 10%)"
+      "judgeNote": "tu choi dung + so that (Diamond 10%)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-018",
@@ -4827,7 +5361,9 @@
       "ms": 1907,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + gio that + chi tiet nhan khach cuoi"
+      "judgeNote": "tu choi dung + gio that + chi tiet nhan khach cuoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-019",
@@ -4845,7 +5381,9 @@
       "ms": 1884,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung nhung so '8 khach tong' co the khac voi GT '8 nguoi lon + 8 tre em'"
+      "judgeNote": "tu choi dung nhung so '8 khach tong' co the khac voi GT '8 nguoi lon + 8 tre em'",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-020",
@@ -4863,7 +5401,9 @@
       "ms": 1808,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + gio that"
+      "judgeNote": "tu choi dung + gio that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-021",
@@ -4881,7 +5421,9 @@
       "ms": 2746,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + phi that"
+      "judgeNote": "tu choi dung + phi that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-022",
@@ -4899,7 +5441,9 @@
       "ms": 1638,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung + 350k khop du lieu da xac nhan"
+      "judgeNote": "tu choi dung + 350k khop du lieu da xac nhan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-023",
@@ -4917,7 +5461,9 @@
       "ms": 2372,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + so cu the khop migration 013"
+      "judgeNote": "tu choi dung + so cu the khop migration 013",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-024",
@@ -4935,7 +5481,9 @@
       "ms": 1797,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — an toan nhung khong dinh chinh nhu GT"
+      "judgeNote": "RONG — an toan nhung khong dinh chinh nhu GT",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-ADV-025",
@@ -4953,7 +5501,9 @@
       "ms": 2972,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung + bang phi chinh xac"
+      "judgeNote": "tu choi dung + bang phi chinh xac",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-026",
@@ -4971,7 +5521,9 @@
       "ms": 2110,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung, lam ro dung loai phong"
+      "judgeNote": "tu choi dung, lam ro dung loai phong",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-027",
@@ -4989,7 +5541,9 @@
       "ms": 1849,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung huong, chi tiet '17 loai nuoc sot' chua doi chieu duoc"
+      "judgeNote": "tu choi dung huong, chi tiet '17 loai nuoc sot' chua doi chieu duoc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-028",
@@ -5007,7 +5561,9 @@
       "ms": 20,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — an toan nhung khong dinh chinh (gym mien phi)"
+      "judgeNote": "RONG — an toan nhung khong dinh chinh (gym mien phi)",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-ADV-029",
@@ -5025,7 +5581,9 @@
       "ms": 2195,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung tien de, khung tuoi chi tiet phuc tap chua doi chieu chac chan"
+      "judgeNote": "tu choi dung tien de, khung tuoi chi tiet phuc tap chua doi chieu chac chan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-030",
@@ -5043,7 +5601,9 @@
       "ms": 2318,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "tu choi dung + phuong an di chuyen that"
+      "judgeNote": "tu choi dung + phuong an di chuyen that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-031",
@@ -5061,7 +5621,9 @@
       "ms": 2496,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — an toan nhung khong dinh chinh"
+      "judgeNote": "RONG — an toan nhung khong dinh chinh",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-ADV-032",
@@ -5079,7 +5641,9 @@
       "ms": 1513,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — an toan nhung khong dinh chinh"
+      "judgeNote": "RONG — an toan nhung khong dinh chinh",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-ADV-033",
@@ -5097,7 +5661,9 @@
       "ms": 1846,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung + quy tac thanh toan that"
+      "judgeNote": "tu choi dung + quy tac thanh toan that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-ADV-034",
@@ -5115,7 +5681,9 @@
       "ms": 2006,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "RONG — an toan nhung khong dinh chinh"
+      "judgeNote": "RONG — an toan nhung khong dinh chinh",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-ADV-035",
@@ -5133,7 +5701,9 @@
       "ms": 2324,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "khong xac nhan sai (an toan) nhung khong neu ro quy dinh cam on ao nhu GT"
+      "judgeNote": "khong xac nhan sai (an toan) nhung khong neu ro quy dinh cam on ao nhu GT",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-001",
@@ -5151,7 +5721,9 @@
       "ms": 1839,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "42m2 dung"
+      "judgeNote": "42m2 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-002",
@@ -5169,7 +5741,9 @@
       "ms": 1698,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "32m2 dung"
+      "judgeNote": "32m2 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-003",
@@ -5187,7 +5761,9 @@
       "ms": 1841,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "370m2 dung"
+      "judgeNote": "370m2 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-004",
@@ -5205,7 +5781,9 @@
       "ms": 1598,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "1.1km dung"
+      "judgeNote": "1.1km dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-005",
@@ -5223,7 +5801,9 @@
       "ms": 1514,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "2643m dung"
+      "judgeNote": "2643m dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-006",
@@ -5241,7 +5821,9 @@
       "ms": 1756,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "600 dung"
+      "judgeNote": "600 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-007",
@@ -5259,7 +5841,9 @@
       "ms": 1633,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "800 dung"
+      "judgeNote": "800 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-008",
@@ -5277,7 +5861,9 @@
       "ms": 1697,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "360 dung"
+      "judgeNote": "360 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-009",
@@ -5295,7 +5881,9 @@
       "ms": 1768,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "250 dung"
+      "judgeNote": "250 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-010",
@@ -5313,7 +5901,9 @@
       "ms": 1696,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "250 dung"
+      "judgeNote": "250 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-011",
@@ -5331,7 +5921,9 @@
       "ms": 1922,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "7 phong dung, liet ke ten cu the"
+      "judgeNote": "7 phong dung, liet ke ten cu the",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-012",
@@ -5349,7 +5941,9 @@
       "ms": 1567,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "476 dung"
+      "judgeNote": "476 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-013",
@@ -5367,7 +5961,9 @@
       "ms": 1867,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "3tr dung"
+      "judgeNote": "3tr dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-014",
@@ -5385,7 +5981,9 @@
       "ms": 1946,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "1.175.000 dung"
+      "judgeNote": "1.175.000 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-015",
@@ -5403,7 +6001,9 @@
       "ms": 1635,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "3tr villa dung"
+      "judgeNote": "3tr villa dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-016",
@@ -5421,7 +6021,9 @@
       "ms": 2101,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "1tr phong dung, phan biet ro voi villa"
+      "judgeNote": "1tr phong dung, phan biet ro voi villa",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-017",
@@ -5439,7 +6041,9 @@
       "ms": 2107,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "375k dung"
+      "judgeNote": "375k dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-018",
@@ -5457,7 +6061,9 @@
       "ms": 1697,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "650k dung"
+      "judgeNote": "650k dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-019",
@@ -5475,7 +6081,9 @@
       "ms": 1619,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "8% dung"
+      "judgeNote": "8% dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-020",
@@ -5493,7 +6101,9 @@
       "ms": 1,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "RONG du corpus co 5% phi dich vu (da xac nhan truoc do) — bo sot that"
+      "judgeNote": "RONG du corpus co 5% phi dich vu (da xac nhan truoc do) — bo sot that",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-NUM-021",
@@ -5511,7 +6121,9 @@
       "ms": 1623,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "350k dung"
+      "judgeNote": "350k dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-022",
@@ -5529,7 +6141,9 @@
       "ms": 1924,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "7 tuoi dung"
+      "judgeNote": "7 tuoi dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-023",
@@ -5547,7 +6161,9 @@
       "ms": 1613,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "7 ngay dung"
+      "judgeNote": "7 ngay dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-024",
@@ -5565,7 +6181,9 @@
       "ms": 1591,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "7 ngay dung"
+      "judgeNote": "7 ngay dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-025",
@@ -5583,7 +6201,9 @@
       "ms": 1640,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "30 ngay dung"
+      "judgeNote": "30 ngay dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-026",
@@ -5601,7 +6221,9 @@
       "ms": 1999,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "05:30-22:00 dung"
+      "judgeNote": "05:30-22:00 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-027",
@@ -5619,7 +6241,9 @@
       "ms": 1741,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "06:00-20:00 dung"
+      "judgeNote": "06:00-20:00 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-028",
@@ -5637,7 +6261,9 @@
       "ms": 1870,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "06:00-18:30 dung"
+      "judgeNote": "06:00-18:30 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-029",
@@ -5655,7 +6281,9 @@
       "ms": 1703,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "08:00-20:00 dung"
+      "judgeNote": "08:00-20:00 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-030",
@@ -5673,7 +6301,9 @@
       "ms": 2310,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "08:30-23:00 dung + thong tin them ve tau cao toc"
+      "judgeNote": "08:30-23:00 dung + thong tin them ve tau cao toc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-031",
@@ -5691,7 +6321,9 @@
       "ms": 1786,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung so, dinh dang +84 tuong duong 0258"
+      "judgeNote": "dung so, dinh dang +84 tuong duong 0258",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-032",
@@ -5709,7 +6341,9 @@
       "ms": 1783,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung so tai khoan"
+      "judgeNote": "dung so tai khoan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-033",
@@ -5727,7 +6361,9 @@
       "ms": 1500,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "10% dung"
+      "judgeNote": "10% dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-034",
@@ -5745,7 +6381,9 @@
       "ms": 1402,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "7% dung"
+      "judgeNote": "7% dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-035",
@@ -5763,7 +6401,9 @@
       "ms": 2220,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "33% dung, co giai thich them theo hang"
+      "judgeNote": "33% dung, co giai thich them theo hang",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-036",
@@ -5781,7 +6421,9 @@
       "ms": 2015,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "45 ngay dung + phan biet dung voi hoan coc ngay (migration 013)"
+      "judgeNote": "45 ngay dung + phan biet dung voi hoan coc ngay (migration 013)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-037",
@@ -5799,7 +6441,9 @@
       "ms": 1830,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "6 phan khu dung, liet ke ten"
+      "judgeNote": "6 phan khu dung, liet ke ten",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-038",
@@ -5817,7 +6461,9 @@
       "ms": 1632,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "880m dung"
+      "judgeNote": "880m dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-039",
@@ -5835,7 +6481,9 @@
       "ms": 1759,
       "handling": "hop_ly",
       "source": "dung_tl",
-      "judgeNote": "khop tong so 7 GT neu, cach chia 1+6 chua chac chan khop corpus tuyet doi"
+      "judgeNote": "khop tong so 7 GT neu, cach chia 1+6 chua chac chan khop corpus tuyet doi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-NUM-040",
@@ -5853,7 +6501,9 @@
       "ms": 1887,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "12:00 dung"
+      "judgeNote": "12:00 dung",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-046",
@@ -5871,7 +6521,9 @@
       "ms": 1903,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung & du: 100% truoc 06:00"
+      "judgeNote": "dung & du: 100% truoc 06:00",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-047",
@@ -5889,7 +6541,9 @@
       "ms": 2274,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung & du: 50% cho 06:00-12:00, giai thich dung 8h roi vao khung nao"
+      "judgeNote": "dung & du: 50% cho 06:00-12:00, giai thich dung 8h roi vao khung nao",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-048",
@@ -5907,7 +6561,9 @@
       "ms": 2118,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung & du: 50% cho 12:00-18:00, them dung uu dai Gold/Platinum/Diamond mien phi den 14:00 (KB#13)"
+      "judgeNote": "dung & du: 50% cho 12:00-18:00, them dung uu dai Gold/Platinum/Diamond mien phi den 14:00 (KB#13)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-049",
@@ -5925,7 +6581,9 @@
       "ms": 2063,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: coc phong 1.000.000"
+      "judgeNote": "dung & du: coc phong 1.000.000",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-050",
@@ -5943,7 +6601,9 @@
       "ms": 2052,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: coc villa 3.000.000"
+      "judgeNote": "dung & du: coc villa 3.000.000",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-051",
@@ -5961,7 +6621,9 @@
       "ms": 1898,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: phat hut thuoc 3.000.000/luot o"
+      "judgeNote": "dung & du: phat hut thuoc 3.000.000/luot o",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-052",
@@ -5979,7 +6641,9 @@
       "ms": 1900,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: phi do an ngoai 1.175.000/lan"
+      "judgeNote": "dung & du: phi do an ngoai 1.175.000/lan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-053",
@@ -5997,7 +6661,9 @@
       "ms": 1706,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 45 ngay lam viec"
+      "judgeNote": "dung & du: 45 ngay lam viec",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-054",
@@ -6015,7 +6681,9 @@
       "ms": 1755,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 32m2 (goi 'Giuong Doi' thay vi 'Queen' nhung cung SKU)"
+      "judgeNote": "dung & du: 32m2 (goi 'Giuong Doi' thay vi 'Queen' nhung cung SKU)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-055",
@@ -6033,7 +6701,9 @@
       "ms": 1830,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 42m2"
+      "judgeNote": "dung & du: 42m2",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-056",
@@ -6051,7 +6721,9 @@
       "ms": 1646,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "THAT BAI: cau hoi don gian (476 phong, co san trong KB#9) nhung tra loi RONG hoan toan"
+      "judgeNote": "THAT BAI: cau hoi don gian (476 phong, co san trong KB#9) nhung tra loi RONG hoan toan",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-057",
@@ -6069,7 +6741,9 @@
       "ms": 1922,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 370m2"
+      "judgeNote": "dung & du: 370m2",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-058",
@@ -6087,7 +6761,9 @@
       "ms": 1793,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: toi da 4 nguoi ke ca tre duoi 4 tuoi"
+      "judgeNote": "dung & du: toi da 4 nguoi ke ca tre duoi 4 tuoi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-059",
@@ -6105,7 +6781,9 @@
       "ms": 1992,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 2 lon + 2 tre/phong ngu villa, dung nhu KB#16 yeu cau (khong lay nham so 4 chung)"
+      "judgeNote": "dung & du: 2 lon + 2 tre/phong ngu villa, dung nhu KB#16 yeu cau (khong lay nham so 4 chung)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-060",
@@ -6123,7 +6801,9 @@
       "ms": 1981,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: toi da 1 giuong phu, dung dieu kien villa"
+      "judgeNote": "dung & du: toi da 1 giuong phu, dung dieu kien villa",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-061",
@@ -6141,7 +6821,9 @@
       "ms": 1946,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "SAI SO: KB#9 ghi villa 3PN huong bien toi da 12 khach, model noi 8 — loi that, se keo theo BM-DIAG-077 tu choi nham"
+      "judgeNote": "SAI SO: KB#9 ghi villa 3PN huong bien toi da 12 khach, model noi 8 — loi that, se keo theo BM-DIAG-077 tu choi nham",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-062",
@@ -6159,7 +6841,9 @@
       "ms": 1534,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: Lotus 06:00-10:30"
+      "judgeNote": "dung & du: Lotus 06:00-10:30",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-063",
@@ -6177,7 +6861,9 @@
       "ms": 1657,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: Jasmine den 22:00"
+      "judgeNote": "dung & du: Jasmine den 22:00",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-064",
@@ -6195,7 +6881,9 @@
       "ms": 1745,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "DAO NGUOC KET LUAN sau khi tra nguon: dining_venues (DB, nguon rieng trang Pool Bar tren vinpearl.com) ghi 09:00-23:00; KB#5 ghi 18:00 nhung verified=unverified, source_url=null (khong nguon), lai pha vo chinh mau hinh cau no viet (2 quay bar canh deu dong 23:00). Bang chung nghieng ve 23:00 dung — model tra loi dung, KB#5 moi la ben sai."
+      "judgeNote": "DAO NGUOC KET LUAN sau khi tra nguon: dining_venues (DB, nguon rieng trang Pool Bar tren vinpearl.com) ghi 09:00-23:00; KB#5 ghi 18:00 nhung verified=unverified, source_url=null (khong nguon), lai pha vo chinh mau hinh cau no viet (2 quay bar canh deu dong 23:00). Bang chung nghieng ve 23:00 dung — model tra loi dung, KB#5 moi la ben sai.",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-065",
@@ -6213,7 +6901,9 @@
       "ms": 1726,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: Ozone toi 17:30-22:00"
+      "judgeNote": "dung & du: Ozone toi 17:30-22:00",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-066",
@@ -6231,7 +6921,9 @@
       "ms": 1715,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: Bach Giai 250 cho"
+      "judgeNote": "dung & du: Bach Giai 250 cho",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-067",
@@ -6249,7 +6941,9 @@
       "ms": 1836,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "SAI NGAY: KB#5 ghi Groove & Grill vao THU BAY, model noi Chu nhat — gio dung nhung ngay sai, khach co the den nham ngay"
+      "judgeNote": "SAI NGAY: KB#5 ghi Groove & Grill vao THU BAY, model noi Chu nhat — gio dung nhung ngay sai, khach co the den nham ngay",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-068",
@@ -6267,7 +6961,9 @@
       "ms": 1736,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: Seaview Lounge tu 07:00"
+      "judgeNote": "dung & du: Seaview Lounge tu 07:00",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-069",
@@ -6285,7 +6981,9 @@
       "ms": 3432,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "THAT BAI: cau hoi don gian (SDT dat ban, co san trong KB#5) nhung tra loi RONG"
+      "judgeNote": "THAT BAI: cau hoi don gian (SDT dat ban, co san trong KB#5) nhung tra loi RONG",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-070",
@@ -6303,7 +7001,9 @@
       "ms": 2009,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "NGHI BIA: so 50%/100% huy dua don khong tim thay trong KB da doc qua; GT that (KB#18) la quy tac 72h truoc gio don ma model khong nhac — chua xac minh duoc nguon, can kiem tra rieng"
+      "judgeNote": "NGHI BIA: so 50%/100% huy dua don khong tim thay trong KB da doc qua; GT that (KB#18) la quy tac 72h truoc gio don ma model khong nhac — chua xac minh duoc nguon, can kiem tra rieng",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-071",
@@ -6321,7 +7021,9 @@
       "ms": 2163,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "dung huong (chuyen le tan thay vi tu quyet), nhung thieu neu chenh lech gia nhu GT yeu cau"
+      "judgeNote": "dung huong (chuyen le tan thay vi tu quyet), nhung thieu neu chenh lech gia nhu GT yeu cau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-072",
@@ -6339,7 +7041,9 @@
       "ms": 2574,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung & du: neu dung dieu kien 1 giuong phu/tuy kha nang, dung dieu kien villa"
+      "judgeNote": "dung & du: neu dung dieu kien 1 giuong phu/tuy kha nang, dung dieu kien villa",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-073",
@@ -6357,7 +7061,9 @@
       "ms": 2051,
       "handling": "dung_du",
       "source": "khong_co_tl",
-      "judgeNote": "dung & du: dieu kien 5 ngay + check-in truoc 13:00"
+      "judgeNote": "dung & du: dieu kien 5 ngay + check-in truoc 13:00",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-074",
@@ -6375,7 +7081,9 @@
       "ms": 2443,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung SDT, va trung thuc tu choi xac nhan ma dat phong khong the kiem tra duoc thay vi bia"
+      "judgeNote": "dung SDT, va trung thuc tu choi xac nhan ma dat phong khong the kiem tra duoc thay vi bia",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-075",
@@ -6393,7 +7101,9 @@
       "ms": 2689,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "SAI: KB#18 phan biet theo MUA (thap/cao diem/Tet), model gan nham thanh 'don le vs doan' — dao nguoc/tron lan hai truc khac nhau"
+      "judgeNote": "SAI: KB#18 phan biet theo MUA (thap/cao diem/Tet), model gan nham thanh 'don le vs doan' — dao nguoc/tron lan hai truc khac nhau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-076",
@@ -6411,7 +7121,9 @@
       "ms": 2474,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "XAC MINH DUNG: 4.620.000-9.400.000 la gia goi THAT trong bang room_packages cho Grand Deluxe Huong Bien (lop gia thu 3, khac KB narrative) — khong phai bia, he thong dang lay dung nguon gia goi that"
+      "judgeNote": "XAC MINH DUNG: 4.620.000-9.400.000 la gia goi THAT trong bang room_packages cho Grand Deluxe Huong Bien (lop gia thu 3, khac KB narrative) — khong phai bia, he thong dang lay dung nguon gia goi that",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-077",
@@ -6429,7 +7141,9 @@
       "ms": 1710,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "KE THUA LOI 061: tu choi nham dat 10 nguoi vi tin sai villa toi da 8 khach (thuc te 12) — mot loi day chuyen tu du lieu sai lay ra truoc do"
+      "judgeNote": "KE THUA LOI 061: tu choi nham dat 10 nguoi vi tin sai villa toi da 8 khach (thuc te 12) — mot loi day chuyen tu du lieu sai lay ra truoc do",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-078",
@@ -6447,7 +7161,9 @@
       "ms": 1995,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 4.097.000/dem"
+      "judgeNote": "dung & du: 4.097.000/dem",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-079",
@@ -6465,7 +7181,9 @@
       "ms": 0,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "THAT BAI: cau hoi tinh tong 2 dem (2.410.000x2) nhung tra loi RONG, khong tinh duoc phep nhan don gian"
+      "judgeNote": "THAT BAI: cau hoi tinh tong 2 dem (2.410.000x2) nhung tra loi RONG, khong tinh duoc phep nhan don gian",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-080",
@@ -6483,7 +7201,9 @@
       "ms": 2050,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "chuyen le tan hop ly cho gia han o, nhung khong neu gia dem them (2.200.000) nhu GT mong doi"
+      "judgeNote": "chuyen le tan hop ly cho gia han o, nhung khong neu gia dem them (2.200.000) nhu GT mong doi",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-081",
@@ -6501,7 +7221,9 @@
       "ms": 3372,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "NHAM TEN PHONG: goi Deluxe Queen (phong vuon) la 'Deluxe Huong Bien Giuong Doi' ngay trong luc dang so sanh chinh no voi Deluxe Ocean View — nham lan loai phong"
+      "judgeNote": "NHAM TEN PHONG: goi Deluxe Queen (phong vuon) la 'Deluxe Huong Bien Giuong Doi' ngay trong luc dang so sanh chinh no voi Deluxe Ocean View — nham lan loai phong",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-082",
@@ -6519,7 +7241,9 @@
       "ms": 38,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "THAT BAI: cau hoi tinh tong 5 phongx2 dem nhung tra loi RONG"
+      "judgeNote": "THAT BAI: cau hoi tinh tong 5 phongx2 dem nhung tra loi RONG",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-083",
@@ -6537,7 +7261,9 @@
       "ms": 2141,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "an toan (chuyen le tan) nhung lac de: neu quy dinh villa/doan thay vi hoi ngay & so nguoi con thieu"
+      "judgeNote": "an toan (chuyen le tan) nhung lac de: neu quy dinh villa/doan thay vi hoi ngay & so nguoi con thieu",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-084",
@@ -6555,7 +7281,9 @@
       "ms": 2255,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "SAI: liet ke 'Grand Deluxe 2 Giuong Don' (thuc te la hang PHONG VUON theo KB#9) vao danh sach phong HUONG BIEN — tron lan hai loai phong khac nhau"
+      "judgeNote": "SAI: liet ke 'Grand Deluxe 2 Giuong Don' (thuc te la hang PHONG VUON theo KB#9) vao danh sach phong HUONG BIEN — tron lan hai loai phong khac nhau",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-085",
@@ -6573,7 +7301,9 @@
       "ms": 2215,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "im lang dung huong (thieu du kien de tra loi thang), khong bia gi"
+      "judgeNote": "im lang dung huong (thieu du kien de tra loi thang), khong bia gi",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-086",
@@ -6591,7 +7321,9 @@
       "ms": 1614,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi an toan, chuyen le tan dung huong"
+      "judgeNote": "tu choi an toan, chuyen le tan dung huong",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-087",
@@ -6609,7 +7341,9 @@
       "ms": 2999,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "XAC MINH DUNG: 3.580.000-8.360.000 la gia goi THAT trong room_packages cho Deluxe Queen/Twin — khong phai bia"
+      "judgeNote": "XAC MINH DUNG: 3.580.000-8.360.000 la gia goi THAT trong room_packages cho Deluxe Queen/Twin — khong phai bia",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-088",
@@ -6627,7 +7361,9 @@
       "ms": 2095,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung TREN DU LIEU DANG TRUY XUAT (KB khong co lich gia ngay le) — nhung phat hien kien truc lon hon: co bang restrictions THAT trong DB (Tet 2027 min_los=3) ma local-agent.ts chua bao gio doc"
+      "judgeNote": "tu choi dung TREN DU LIEU DANG TRUY XUAT (KB khong co lich gia ngay le) — nhung phat hien kien truc lon hon: co bang restrictions THAT trong DB (Tet 2027 min_los=3) ma local-agent.ts chua bao gio doc",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-089",
@@ -6645,7 +7381,9 @@
       "ms": 1990,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung tren du lieu dang truy xuat, cung phat hien kien truc nhu 088"
+      "judgeNote": "tu choi dung tren du lieu dang truy xuat, cung phat hien kien truc nhu 088",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-090",
@@ -6663,7 +7401,9 @@
       "ms": 1843,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung, dung phan loai doan (>=5 villa) tu KB#19"
+      "judgeNote": "tu choi dung, dung phan loai doan (>=5 villa) tu KB#19",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-091",
@@ -6681,7 +7421,9 @@
       "ms": 2025,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dung tren du lieu dang truy xuat"
+      "judgeNote": "tu choi dung tren du lieu dang truy xuat",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-DIAG-092",
@@ -6699,7 +7441,9 @@
       "ms": 3127,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "KHONG BAT NGAY QUA KHU (01/01/2026): tra loi nhu binh thuong — cung lop loi da biet tu BM-DIAG-002, xac nhan day la loi he thong chua sua duoc"
+      "judgeNote": "KHONG BAT NGAY QUA KHU (01/01/2026): tra loi nhu binh thuong — cung lop loi da biet tu BM-DIAG-002, xac nhan day la loi he thong chua sua duoc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-093",
@@ -6717,7 +7461,9 @@
       "ms": 2444,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khong bat ngay qua khu (15/06/2026), nhung it nhat hoi lai hang phong thay vi xac nhan sai"
+      "judgeNote": "khong bat ngay qua khu (15/06/2026), nhung it nhat hoi lai hang phong thay vi xac nhan sai",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-094",
@@ -6735,7 +7481,9 @@
       "ms": 2678,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi an toan (ranh gioi ngay gan qua khu, van bat dung)"
+      "judgeNote": "tu choi an toan (ranh gioi ngay gan qua khu, van bat dung)",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-095",
@@ -6753,7 +7501,9 @@
       "ms": 1912,
       "handling": "sai",
       "source": "sai_tl",
-      "judgeNote": "KHONG BAT NGAY KHONG TON TAI (31/02): tra loi lac de ve gio nhan phong tieu chuan, khong nhan ra ngay vo ly"
+      "judgeNote": "KHONG BAT NGAY KHONG TON TAI (31/02): tra loi lac de ve gio nhan phong tieu chuan, khong nhan ra ngay vo ly",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-DIAG-096",
@@ -6771,7 +7521,9 @@
       "ms": 2534,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "khong bat thang 13 khong ton tai, nhung it nhat hoi lai hang phong thay vi xac nhan"
+      "judgeNote": "khong bat thang 13 khong ton tai, nhung it nhat hoi lai hang phong thay vi xac nhan",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S36-T1",
@@ -6789,7 +7541,9 @@
       "ms": 2402,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: 1.050.000 nguoi lon"
+      "judgeNote": "dung & du: 1.050.000 nguoi lon",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S36-T2",
@@ -6807,7 +7561,9 @@
       "ms": 2307,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "SUA LAI CHAM SAI CUA CHINH TOI: doc lai thay cau tra loi KHONG he neu 800.000 (gia ve VinWonders tre 1-1.4m) nhu toi tung ghi nham — no lac hoan toan sang chinh sach PHU THU PHONG (KB#16, vuot so nguoi cho phep) dung tu chieu cao lam cau noi gay nham. Mat ngu canh VinWonders tu luot 1, khong tra loi dung cau hoi that."
+      "judgeNote": "SUA LAI CHAM SAI CUA CHINH TOI: doc lai thay cau tra loi KHONG he neu 800.000 (gia ve VinWonders tre 1-1.4m) nhu toi tung ghi nham — no lac hoan toan sang chinh sach PHU THU PHONG (KB#16, vuot so nguoi cho phep) dung tu chieu cao lam cau noi gay nham. Mat ngu canh VinWonders tu luot 1, khong tra loi dung cau hoi that.",
+      "relevance": "off_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S36-T3",
@@ -6825,7 +7581,9 @@
       "ms": 2349,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "TU MAU THUAN TRONG CUNG HOI THOAI: luot 1 da noi dung 've sau 16h gia 700.000', luot 3 lai noi 'khong co quy dinh cu the ve giam gia sau 16h' — quen chinh thong tin vua dua ra 2 luot truoc"
+      "judgeNote": "TU MAU THUAN TRONG CUNG HOI THOAI: luot 1 da noi dung 've sau 16h gia 700.000', luot 3 lai noi 'khong co quy dinh cu the ve giam gia sau 16h' — quen chinh thong tin vua dua ra 2 luot truoc",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S36-T4",
@@ -6843,7 +7601,9 @@
       "ms": 1936,
       "handling": "hop_ly",
       "source": "khong_co_tl",
-      "judgeNote": "tu choi dat ve dung huong (khong co cong cu dat ve VinWonders), khong bia kha nang"
+      "judgeNote": "tu choi dat ve dung huong (khong co cong cu dat ve VinWonders), khong bia kha nang",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S37-T1",
@@ -6861,7 +7621,9 @@
       "ms": 1646,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "dung & du: Bach Giai 10:30-14:00, 17:00-22:00"
+      "judgeNote": "dung & du: Bach Giai 10:30-14:00, 17:00-22:00",
+      "relevance": "on_topic",
+      "coherence": "coherent"
     },
     {
       "id": "BM-MULTI-S37-T2",
@@ -6879,7 +7641,9 @@
       "ms": 2113,
       "handling": "thieu",
       "source": "dung_tl",
-      "judgeNote": "LAC NGU CANH: cau hoi la 'nha hang DO' (Bach Giai tu luot 1) nhung tra loi liet ke lan sang Jasmine/Ozone/Lotus voi cac so chua xac minh duoc, so 250 cua Bach Giai bi chon vui trong danh sach roi rac"
+      "judgeNote": "LAC NGU CANH: cau hoi la 'nha hang DO' (Bach Giai tu luot 1) nhung tra loi liet ke lan sang Jasmine/Ozone/Lotus voi cac so chua xac minh duoc, so 250 cua Bach Giai bi chon vui trong danh sach roi rac",
+      "relevance": "on_topic",
+      "coherence": "incoherent"
     },
     {
       "id": "BM-MULTI-S37-T3",
@@ -6897,7 +7661,9 @@
       "ms": 2251,
       "handling": "sai",
       "source": "khong_co_tl",
-      "judgeNote": "THAT BAI: cau hoi dat ban trong gio mo cua (19h, Bach Giai mo den 22h) nhung tra loi RONG thay vi xac nhan/chuyen le tan"
+      "judgeNote": "THAT BAI: cau hoi dat ban trong gio mo cua (19h, Bach Giai mo den 22h) nhung tra loi RONG thay vi xac nhan/chuyen le tan",
+      "relevance": null,
+      "coherence": "incoherent"
     },
     {
       "id": "BM-MULTI-S37-T4",
@@ -6915,7 +7681,9 @@
       "ms": 1740,
       "handling": "thieu",
       "source": "khong_co_tl",
-      "judgeNote": "im lang khi le ra phai tu choi VA goi y gio/quan khac (Seaview Lounge, Beach Comber toi 23h) nhu GT mong doi — huong an toan (khong xac nhan sai) nhung mat het thong tin huu ich"
+      "judgeNote": "im lang khi le ra phai tu choi VA goi y gio/quan khac (Seaview Lounge, Beach Comber toi 23h) nhu GT mong doi — huong an toan (khong xac nhan sai) nhung mat het thong tin huu ich",
+      "relevance": null,
+      "coherence": "incoherent"
     }
   ]
 }

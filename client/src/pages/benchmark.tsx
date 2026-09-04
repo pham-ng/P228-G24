@@ -63,6 +63,7 @@ type Bench = {
   latencyP95: number;
   byCategory: Record<string, { cases: number; behaviourOk: number; anchorCases: number; anchorOk: number }>;
   judge: { n: number; correct: number | null; faithful: number | null } | null;
+  quality4: { n: number; correctness: number | null; completeness: number | null; relevance: number | null; coherence: number | null } | null;
 };
 
 const CATEGORY_VI: Record<string, { label: string; blurb: string }> = {
@@ -296,6 +297,34 @@ export default function BenchmarkPage() {
           </p>
         )}
       </section>
+
+      {/**
+        * "4 Chiều Chất Lượng Output" (Correctness/Completeness/Relevance/
+        * Coherence — khung AICB·Evaluation). Correctness/Completeness quy ra
+        * từ đúng-nguồn/đúng-đủ đã chấm ở trên; Relevance/Coherence là 2 trục
+        * MỚI, chấm tay riêng trên toàn bộ 384 ca (xem
+        * bench/data/relevance-coherence-audit.json). Không đặt sau cùng gate
+        * judgeCalibrated (kappa với người chấm tay ĐỘC LẬP THỨ HAI) vì đây là
+        * một lượt đọc trực tiếp của chính chúng tôi, không phải một model
+        * đang được kiểm định — nói rõ điều đó thay vì giấu số.
+        */}
+      {data.quality4 && (
+        <section className="mt-4 rounded-md border border-card-border bg-card p-4">
+          <h2 className="text-sm font-semibold">4 chiều chất lượng output</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Chấm tay trực tiếp trên {data.quality4.n} ca — chưa đối chiếu với người chấm tay độc lập thứ hai (khác gate
+            với "Chấm ngữ nghĩa" ở trên). Coherence tính trên đường local-agent.ts thuần; sản xuất luôn điền lại câu rõ
+            ràng trước khi khách thấy nên số thật ở production cao hơn số này.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-4">
+            <Stat label="Correctness" value={pct(data.quality4.correctness)} sub="đúng sự thật, không hallucinate" />
+            <Stat label="Completeness" value={pct(data.quality4.completeness)} sub="đủ ý, không bỏ sót" />
+            <Stat label="Relevance" value={pct(data.quality4.relevance)} sub="đúng câu hỏi, không lạc đề" />
+            <Stat label="Coherence" value={pct(data.quality4.coherence)} sub="dễ đọc, có cấu trúc" />
+          </div>
+        </section>
+      )}
+
       {/**
         * Điểm khách chấm trong vận hành thật.
         *

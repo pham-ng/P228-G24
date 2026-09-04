@@ -1,0 +1,20 @@
+{
+  "_ghi_chu": "Chấm tay Relevance + Coherence trên 384 ca (2026-09-04), theo khung '4 Chiều Chất Lượng Output' (Correctness/Completeness/Relevance/Coherence). Correctness và Completeness đã có sẵn từ trục source/handling — không chấm lại. Phương pháp cho 2 trục MỚI: mặc định PASS, chỉ liệt kê NGOẠI LỆ đã đọc tay xác nhận thất bại — giống cơ chế GOLDEN_FIX, không phải bỏ sót. Đã dò mẫu 20/217 ca dung_du (đều đúng chủ đề) để xác nhận giả định 'đúng+đủ thì chắc chắn đúng chủ đề' trước khi áp dụng tự động cho toàn bộ dung_du.",
+  "relevance_fail": {
+    "_dinh_nghia": "Lạc đề (trả lời chủ đề khác hẳn) hoặc chung chung (câu mẫu cứng không gắn với câu hỏi cụ thể) — loại trừ 75 ca trả lời rỗng (không áp dụng được, không phải pass/fail).",
+    "BM-REAL-019": "hoi giat thuong/nhanh + gio nhan, dap chi noi cau mau chung chung khong dinh gi den giat la",
+    "BM-REAL-077": "hoi dat BAN nha hang khong den bi tinh gi, dap ve chinh sach dat PHONG khong den — lac loai giao dich",
+    "BM-REAL-088": "hoi bi tinh tien HAI LAN cho bua toi (tranh chap hoa don), dap ve muc boi thuong VAT DUNG hu hong — hoan toan khac chu de",
+    "BM-UNANS-009": "hoi tre 15 tuoi tu lai cano, dap ve dong y xu ly DU LIEU CA NHAN tre duoi 7 tuoi — lac sang chu de rieng tu/data",
+    "BM-UNANS-020": "hoi nhay du TU MAY BAY (skydiving), dap ve du luon keo canio (parasailing) — nham hai dich vu khac nhau",
+    "BM-DIAG-083": "hoi 'toi can mot villa' (thieu ngay/so nguoi), dap ve nguong ca nhan-vs-doan thay vi hoi lai dung thu con thieu",
+    "BM-DIAG-095": "hoi phong+gia cho ngay khong ton tai 31/02, dap chi neu gio nhan phong chung chung, khong dong cham gi den yeu cau that",
+    "BM-MULTI-S36-T2": "luot 1 dung ve gia ve VinWonders, luot 2 lac hoan toan sang chinh sach phu thu phong (KB#16) — mat ngu canh",
+    "BM-UNANS-031": "hoi dich vu giat la nhanh 5 phut, dap dung nguyen cau mau cung 'Ve con so cu the toi can xac nhan lai voi le tan...' khong he nhac giat la"
+  },
+  "coherence_fail": {
+    "_dinh_nghia": "Kho doc / khong co cau truc ro rang / lan sang nhieu chu de trong mot cau roi rac — loai tru 75 ca rong (tinh RIENG la fail tu dong, khong liet ke lai o day vi qua nhieu, xem coherence_empty_auto).",
+    "BM-MULTI-S37-T2": "hoi suc chua NHA HANG DO (Bach Giai), dap don gop 4 nha hang (Jasmine/Bach Giai/Ozone/Lotus) voi 4 so khac nhau trong mot cau roi rac, kho xac dinh dang noi ve nha hang nao"
+  },
+  "coherence_empty_auto": "75 ca actual_answer rong tuyet doi -> tu dong tinh la coherence FAIL (khong co gi de doc). CAVEAT QUAN TRONG: day la do tren local-agent.ts thuan, KHONG qua wrapper agent.ts. Production luon dien lai bang handoffLine() (van ban ro rang, dung dang ky ca 6 ngon ngu) truoc khi khach that nhin thay — xem finding cu ve run461.ts bo qua agent.ts. Con so coherence RAW nay thap hon coherence THAT ma khach gap phai."
+}

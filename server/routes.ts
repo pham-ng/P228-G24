@@ -3596,6 +3596,35 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
             faithful: pct(n((r) => SOURCE_PASS.has(r.source)), judged.length),
           }
         : null,
+      /**
+       * "4 Chiều Chất Lượng Output" (Correctness/Completeness/Relevance/
+       * Coherence — slide AICB·Evaluation) quy ra 4 con số từ CÙNG một lượt
+       * chấm, không phải 4 phép đo độc lập:
+       *
+       *  - correctness = đúng tài liệu (source) — giống judge.faithful, đặt
+       *    tên lại theo khung 4 chiều.
+       *  - completeness = dung_du / (dung_du + thieu), CHỈ trong nhóm ca có
+       *    trả lời nội dung — hop_ly (im lặng đúng lúc) không có "ý" nào để
+       *    mà đủ nên loại khỏi mẫu số, khác judge.correct (coi hop_ly là đạt).
+       *  - relevance = đúng chủ đề / (đúng chủ đề + lạc đề), loại 75 ca trả
+       *    lời rỗng khỏi mẫu số (không có nội dung để xét lạc đề hay không).
+       *  - coherence = dễ đọc / TỔNG toàn bộ ca — rỗng tính là fail (không có
+       *    gì để đọc). Đo trên local-agent.ts thuần, KHÔNG qua wrapper
+       *    agent.ts luôn điền lại câu rõ ràng trước khi khách thật thấy — số
+       *    thật ở production cao hơn số này.
+       */
+      quality4: judged.length
+        ? {
+            n: judged.length,
+            correctness: pct(n((r) => SOURCE_PASS.has(r.source)), judged.length),
+            completeness: pct(
+              n((r) => r.handling === "dung_du"),
+              n((r) => r.handling === "dung_du" || r.handling === "thieu"),
+            ),
+            relevance: pct(n((r) => r.relevance === "on_topic"), n((r) => r.relevance !== null)),
+            coherence: pct(n((r) => r.coherence === "coherent"), rows.length),
+          }
+        : null,
     });
   });
 

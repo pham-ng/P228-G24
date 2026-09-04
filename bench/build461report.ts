@@ -24,6 +24,29 @@ const verdicts: Record<string, { correctness: number; faithfulness: number; note
   existsSync(vpath) ? JSON.parse(readFileSync(vpath, "utf8")) : {};
 
 /**
+ * Khung "4 Chiều Chất Lượng Output" (Correctness/Completeness/Relevance/
+ * Coherence, slide AICB·Evaluation). Correctness = source, Completeness =
+ * handling (dung_du/thieu) — đã có sẵn, không chấm lại. Relevance/Coherence
+ * là 2 trục MỚI, chấm tay trên toàn bộ 384 ca (2026-09-04): mặc định PASS,
+ * chỉ liệt kê ngoại lệ đã đọc tay xác nhận thất bại trong
+ * bench/data/relevance-coherence-audit.json — cùng cơ chế GOLDEN_FIX phía
+ * trên, không phải bỏ sót. Đã dò mẫu 20/217 ca dung_du (đều đúng chủ đề)
+ * trước khi áp dụng auto-pass cho cả nhóm.
+ */
+const rcPath = join(process.cwd(), "bench", "data", "relevance-coherence-audit.json");
+const rcAudit: { relevance_fail: Record<string, string>; coherence_fail: Record<string, string> } =
+  existsSync(rcPath) ? JSON.parse(readFileSync(rcPath, "utf8")) : { relevance_fail: {}, coherence_fail: {} };
+
+function relevanceOf(r: any): "on_topic" | "off_topic" | null {
+  if (!(r.actual_answer || "").trim()) return null; // rỗng: không áp dụng được, không phải pass/fail
+  return rcAudit.relevance_fail[r.test_id] ? "off_topic" : "on_topic";
+}
+function coherenceOf(r: any): "coherent" | "incoherent" {
+  if (!(r.actual_answer || "").trim()) return "incoherent"; // rỗng = không có gì để đọc, luôn fail
+  return rcAudit.coherence_fail[r.test_id] ? "incoherent" : "coherent";
+}
+
+/**
  * Golden đã kiểm chứng sai -> con số đúng.
  *
  * BM-REAL-037: `ground_truth` không phải một con số đáp án mà là CÂU TƯỜNG
@@ -199,6 +222,7 @@ const rows = uniq.map((r) => {
     anchorsExpected, anchorsFound: numeric_ok ? 1 : 0, anchorsOk: numeric_ok,
     contextRecall, contextRank: contextRecall === 1 ? 1 : null,
     ms: r.ms, handling: handlingOf(r, v), source: sourceOf(r, v), judgeNote: v?.note,
+    relevance: relevanceOf(r), coherence: coherenceOf(r),
   };
 });
 
