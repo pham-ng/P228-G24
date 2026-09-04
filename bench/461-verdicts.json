@@ -1700,9 +1700,9 @@
   "note": "dung & du: toi da 1 giuong phu, dung dieu kien villa"
  },
  "BM-DIAG-061": {
-  "correctness": 0,
-  "faithfulness": 0,
-  "note": "SAI SO: KB#9 ghi villa 3PN huong bien toi da 12 khach, model noi 8 — loi that, se keo theo BM-DIAG-077 tu choi nham"
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "SAU MIGRATION 015: model tra loi dung 12 khach, khop xac minh dut diem tren vinpearl.com/vi/moi-nhat-bang-gia-phong-vinpearl-nha-trang (12 khach cho Biet Thu 3 Phong Ngu Huong Bien tai Vinpearl Resort Nha Trang). Du lieu goc (room_types id 8) tung sai 8 — da vá."
  },
  "BM-DIAG-062": {
   "correctness": 3,
@@ -1780,9 +1780,9 @@
   "note": "XAC MINH DUNG: 4.620.000-9.400.000 la gia goi THAT trong bang room_packages cho Grand Deluxe Huong Bien (lop gia thu 3, khac KB narrative) — khong phai bia, he thong dang lay dung nguon gia goi that"
  },
  "BM-DIAG-077": {
-  "correctness": 0,
-  "faithfulness": 0,
-  "note": "KE THUA LOI 061: tu choi nham dat 10 nguoi vi tin sai villa toi da 8 khach (thuc te 12) — mot loi day chuyen tu du lieu sai lay ra truoc do"
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "SAU MIGRATION 015: khong con tu choi nham — nhan dat cho 10 nguoi (villa toi da 12), cho gia goi that 13.850.000 (khop room_packages Gia Cong Bo Tot Nhat). Khong con ke thua loi 061 nua."
  },
  "BM-DIAG-078": {
   "correctness": 3,

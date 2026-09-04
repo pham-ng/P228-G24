@@ -116,6 +116,16 @@ const GOLDEN_FIX: Record<string, string[]> = {
   "BM-DIAG-074": ["19"], // xác nhận giờ 19h nằm trong giờ mở cửa Jasmine — KB#5
   "BM-DIAG-076": ["4620000", "9400000"], // gói giá THẬT Grand Deluxe Hướng Biển — bảng room_packages
   "BM-DIAG-064": ["23"], // Pool Bar đóng 23:00 — dining_venues (đảo ngược kết luận, xem ghi chú trên)
+  /**
+   * BM-NUM-031: model đáp "+84 258 359 8222" (chuẩn quốc tế), GT viết
+   * "0258 359 8222" (chuẩn nội địa) — CÙNG một số thật, chỉ khác cách viết
+   * đầu số (+84 thay cho 0). numbers()/canonNums() tách theo dấu cách nên
+   * "84" và "258" thành hai token riêng, không khớp chuỗi "0258". Không phải
+   * lỗi model — số đúng, chỉ khác định dạng.
+   */
+  "BM-NUM-031": ["8222"], // duôi so hotline, khong doi du dinh dang nao
+  "BM-DIAG-078": ["4097000", "4.097.000"], // GT ghi ca dien tich (52m2) lan gia, cau hoi chi hoi gia — cung loi Phan A
+  "BM-DIAG-077": ["13850000", "13.850.000"], // sau migration 015 (12 khach dung): gia goi that room_packages, GT cu (8.610.000) dua tren gia dinh sai
 };
 
 /**
@@ -129,6 +139,26 @@ function canonNums(s: string): Set<string> {
     let n = parseInt(m[1].replace(/[.,]/g, ""), 10); if (isNaN(n)) continue;
     const u = m[2] || ""; if (u === "k" || u === "nghìn" || u === "ngàn") n *= 1000; else if (u === "tr" || u === "triệu") n *= 1000000;
     if (n >= 10) out.add(String(n));
+  } return out;
+}
+/**
+ * Giống canonNums, KHÔNG lọc n>=10 — chỉ dùng khi so khớp với GOLDEN_FIX.
+ *
+ * Bắt được khi khảo sát "tại sao Số liệu vẫn thấp": tự cung cấp fix=["7"]
+ * (BM-REAL-064, giảm giá 7%), fix=["1"] (BM-DIAG-072, 1 giường phụ), fix=["5"]
+ * (BM-DIAG-073, 5 ngày) — cả ba đều là số ĐÚNG đã đối chiếu tay, nhưng bộ lọc
+ * n>=10 (chống nhiễu khi TỰ ĐỘNG trích số từ ground_truth) áp NHẦM luôn lên
+ * phía câu trả lời của model khi kiểm tra fix, nên "7" không bao giờ có mặt
+ * trong canonNums(actual_answer) dù model viết đúng "7%" — 3 ca tưởng đã vá
+ * thật ra chưa từng khớp. Số đã qua GOLDEN_FIX là số người đã xác nhận tay,
+ * không cần lọc nhiễu.
+ */
+function canonNumsAny(s: string): Set<string> {
+  s = (s || "").toLowerCase(); const out = new Set<string>();
+  for (const m of s.matchAll(/(\d[\d.,]*)\s*(?:(k|nghìn|ngàn|tr|triệu)(?![a-zà-ỹ]))?/g)) {
+    let n = parseInt(m[1].replace(/[.,]/g, ""), 10); if (isNaN(n)) continue;
+    const u = m[2] || ""; if (u === "k" || u === "nghìn" || u === "ngàn") n *= 1000; else if (u === "tr" || u === "triệu") n *= 1000000;
+    out.add(String(n));
   } return out;
 }
 
@@ -203,15 +233,24 @@ const rows = uniq.map((r) => {
   // numeric_ok, có áp golden fix
   let numeric_ok = r.numeric_ok === true;
   const fix = GOLDEN_FIX[r.test_id];
-  if (fix) { const got = canonNums(r.actual_answer); numeric_ok = fix.some((f) => got.has(f) || got.has(f.replace(/[.,]/g, ""))); }
+  if (fix) { const got = canonNumsAny(r.actual_answer); numeric_ok = fix.some((f) => got.has(f) || got.has(f.replace(/[.,]/g, ""))); }
   const anchorsExpected = r.numeric_ok !== null || fix ? 1 : 0;
 
-  // contextRecall proxy: numeric answer-expected -> GT số có trong passages?
+  /**
+   * contextRecall proxy: numeric answer-expected -> GT số có trong nguồn đã
+   * đưa cho model không? NGUỒN gồm cả `passages` (hybridSearch) LẪN
+   * `rateFacts` (khối giá phòng thật từ room_packages, tiêm riêng — xem
+   * run461.ts). Trước khi thêm rateFacts, mọi câu hỏi giá phòng bị đo SAI
+   * là "truy xuất trượt" dù model bám đúng nguồn thật, chỉ là nguồn đó
+   * không phải `passages`.
+   */
   let contextRecall: number | null = null;
   if (r.is_numeric && expected === "answer") {
     const want = fix ? new Set(fix.map((f) => f.replace(/[.,]/g, ""))) : canonNums(r.ground_truth);
     if (want.size) {
-      const passNums = canonNums((r.passages || []).map((p: any) => `${p.title} ${p.content}`).join(" "));
+      const sourceText =
+        (r.passages || []).map((p: any) => `${p.title} ${p.content}`).join(" ") + " " + (r.rateFacts || "");
+      const passNums = canonNumsAny(sourceText);
       contextRecall = [...want].every((k) => passNums.has(k)) ? 1 : 0;
     }
   }

@@ -301,6 +301,16 @@ async function main() {
         actual_answer: reply, escalate: !!turn.escalate, route: turn.route ?? null,
         topScore: turn.topScore ?? null, ms,
         passages,
+        /**
+         * Khối giá phòng thật (buildRoomRateBlock, đọc thẳng bảng room_packages
+         * — xem local-agent.ts) được TIÊM RIÊNG vào prompt, không nằm trong
+         * `passages`. Trước bản vá này, contextRecall (đo "truy xuất có mang
+         * đúng số về không") MÙ với toàn bộ câu hỏi giá phòng: model trả lời
+         * đúng số thật từ room_packages, nhưng contextRecall luôn báo 0 vì nó
+         * chỉ tìm trong `passages`. Ghi lại riêng để build461report.ts đo
+         * được cả nguồn này.
+         */
+        rateFacts: turn.rateFacts ?? null,
         behaviour, behaviour_ok, numeric_ok,
       });
       // bản gọn cho giám khảo — nối passage thành text đọc được
