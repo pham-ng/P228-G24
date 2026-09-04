@@ -1,0 +1,23 @@
+{
+  "ranAt": "2026-09-04T14:04:03.036Z",
+  "model": "qwen3.5:4b",
+  "config": {
+    "cap": "1200",
+    "ctx": "8192",
+    "rerank": "1"
+  },
+  "n": 384,
+  "behaviour_accuracy": "72.9% (280/384)",
+  "behaviour_by_type": {
+    "answer_directly": "0% (0/0)",
+    "ask_clarification": "0% (0/0)",
+    "abstain": "47.1% (49/104)",
+    "transaction": "25% (2/8)"
+  },
+  "numeric_exactness": "54.9% (45/82)",
+  "latency_ms": {
+    "p50": 2093,
+    "p90": 2638,
+    "p95": 2804
+  }
+}

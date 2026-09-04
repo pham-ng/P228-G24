@@ -1,0 +1,38 @@
+{
+ "relevance_fail": {
+  "_dinh_nghia": "Off-topic or generic-mismatch answers, hand-judged across all 384 JA cases (2026-09-04).",
+  "BM-REAL-045": "ignores the ambiguous '7 o'clock' booking request, talks about check-in timing instead — same failure as the KO run",
+  "BM-REAL-088": "billing dispute ignored; answers about room-service hours instead, same failure category as the KO run",
+  "BM-DIAG-008": "doesn't ask for arrival/nights/guests; dumps unrelated booking-size thresholds",
+  "BM-DIAG-011": "proceeds without asking for the arrival date, adds irrelevant age-by-height rules",
+  "BM-DIAG-018": "conflates a one-night extension request with late-checkout-fee tier exemptions; doesn't move the date or give the extra-night amount",
+  "BM-MULTI-S01-T3": "ignores the child-supervision question; also self-contradicts turn 2's 20:00 pool closing by stating 22:00 here",
+  "BM-UNANS-024": "nonsensical fragment output ('通し情報です。') that doesn't answer anything",
+  "BM-AMB-008": "answers about full-board meal-plan change conditions instead of asking which date to change",
+  "BM-ADV-012": "answers about discount eligibility instead of addressing the alcohol-to-minors claim at all",
+  "BM-DIAG-086": "answers about flight-detail/transfer-cancellation deadlines instead of asking for the booking code and new dates — same confusion as the KO run",
+  "BM-MULTI-S36-T3": "completely loses VinWonders context, answers about hotel checkout tier exemptions instead; ends with the recurring English fragment",
+  "BM-MULTI-S37-T4": "misreads a restaurant-reservation-time change as a hotel-checkout-time change — same confusion independently seen in the EN and KO runs, now confirmed a third time"
+ },
+ "coherence_fail": {
+  "_dinh_nghia": "Unreadable / script-mixed (Chinese/Cyrillic/English fragments, word-substitution glitches) / garbled text, hand-judged. Empty replies auto-fail separately in code.",
+  "BM-REAL-026": "correct 5%/8% fee but ends with an abrupt English-language sentence fragment mixed into the Japanese response",
+  "BM-REAL-040": "currency reference garbled with stray Cyrillic characters mixed into Japanese ('ベトнам')",
+  "BM-REAL-066": "invents an oddly-specific '12 hours' registration deadline unsupported elsewhere; ends with the recurring English-fragment leak",
+  "BM-UNANS-004": "correct decline+real menu items, but ends with a nonsensical '礼拝' (worship) word substitution glitch",
+  "BM-UNANS-018": "correct decline but contains the same nonsensical '礼拝' word-substitution glitch",
+  "BM-UNANS-024": "nonsensical fragment output ('通し情報です。') that doesn't answer anything",
+  "BM-UNANS-034": "self-contradictory 'yes...cannot' phrasing, and cites the under-4 rule for a 5-year-old scenario",
+  "BM-UNANS-050": "self-contradictory: says no free shuttle exists, then describes a shuttle bus schedule as if one does",
+  "BM-AMB-022": "correct Jasmine routing but ends with the recurring abrupt English-language fragment",
+  "BM-AMB-023": "correctly can't determine spice level",
+  "BM-AMB-032": "correct beach access facts but contains a garbled 'キャタラン' (nonsense) term",
+  "BM-AMB-043": "correct comprehensive services list but opens with the recurring '礼拝' (worship) word-substitution glitch instead of 'front desk'",
+  "BM-ADV-027": "correctly debunks but contains stray Chinese '餐厅' mixed into Japanese",
+  "BM-ADV-029": "correctly debunks with correct comprehensive breakdown, but the currency name is garbled ('ヴィエトドーム')",
+  "BM-NUM-020": "correct 5% but ends with the recurring abrupt English-language fragment",
+  "BM-DIAG-085": "produces a bizarre '6 adults over 2 nights' framing that doesn't follow logically, doesn't ask for arrival date or room type",
+  "BM-MULTI-S36-T1": "correct figures but currency name repeatedly garbled ('ドン・ヴィエトドク')",
+  "BM-MULTI-S36-T3": "completely loses VinWonders context, answers about hotel checkout tier exemptions instead; ends with the recurring English fragment"
+ }
+}
