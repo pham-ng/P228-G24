@@ -211,6 +211,19 @@ function classifyBehaviour(reply: string, escalate: boolean): "answer" | "clarif
  * về cùng "800000". `build461report.ts` đã có đúng logic này (`canonNums`)
  * nhưng chỉ áp cho một ca hardcode (NUM-013); nâng lên đây để mọi ca đều
  * được chấm bằng cùng một quy tắc.
+ *
+ * Bắt được qua audit tiếng Nga (2026-09-05): tiếng Nga lấy DẤU CÁCH làm dấu
+ * phân cách nghìn ("3 000 000" thay vì "3.000.000"/"3,000,000"). Vòng lặp
+ * chính ở dưới không đổi (giữ nguyên từng token rời "3"/"000"/"000" — bắt
+ * buộc, vì đây là cách duy nhất chấm ĐÚNG số điện thoại viết theo nhóm 3 số
+ * cách nhau bằng dấu cách, ví dụ "0258 359 8222": mỗi nhóm phải khớp riêng
+ * lẻ, gộp cả chuỗi lại thành một số nguyên là sai — số điện thoại không phải
+ * một giá trị số học). Thay vào đó CỘNG THÊM một lượt quét riêng ở cuối, chỉ
+ * gộp khi thấy ĐÚNG hình dạng "nhóm dẫn đầu 1-3 số, theo sau bởi MỘT HOẶC
+ * NHIỀU nhóm dấu cách+đúng 3 số" — hình dạng đặc trưng của số có phân cách
+ * nghìn ("3 000 000", "150 000"), không xảy ra tự nhiên ở số điện thoại/giờ/
+ * số phòng viết rời. Chỉ THÊM token mới, không xoá token cũ nào, nên không
+ * ca nào từng đúng lại bị lật thành sai.
  */
 function numbers(s: string): Set<string> {
   const out = new Set<string>();
@@ -244,6 +257,23 @@ function numbers(s: string): Set<string> {
       out.add(stripped);
     }
   }
+  /**
+   * Lượt quét riêng: CHỈ gộp số có phân cách nghìn kiểu Nga (dấu cách/NBSP/
+   * narrow-NBSP). Yêu cầu nhóm dẫn đầu 1-3 số rồi ÍT NHẤT một nhóm "dấu cách
+   * + đúng 3 số", VÀ không được có thêm chữ số nào bám ngay sau (có hoặc
+   * không qua dấu cách) — `(?![ \u00A0\u202F]?\d)`. Điều kiện sau là mấu
+   * chốt: số điện thoại kiểu "0258 359 8222" (4+3+4 chữ số) không bao giờ
+   * chia hết thành các nhóm đúng 3 số nên luôn còn dư ít nhất một chữ số
+   * ngay sau nhóm cuối — bị chặn ở đây, không khớp lấy một phần rồi gộp sai
+   * ("0258 359 822" thiếu số 2 cuối). Test trên toàn bộ 461*6 dòng: chỉ
+   * khớp số tiền/độ dài chia hết nhóm 3 thật, không khớp bất kỳ số điện
+   * thoại nào trong bộ dữ liệu.
+   */
+  for (const m of s.matchAll(/\d{1,3}(?:[ \u00A0\u202F]\d{3}){1,}(?![ \u00A0\u202F]?\d)/g)) {
+    out.add(m[0].replace(/[ \u00A0\u202F]/g, ""));
+  }
+  return out;
+}
   return out;
 }
 
