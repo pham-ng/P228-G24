@@ -43,7 +43,7 @@ import { issueSession, actorForToken } from "./staff-session";
 import { guestRequests, codeFailures, limited, blockedBy, clientKey } from "./ratelimit";
 import { recordChatMetrics } from "./metrics";
 import { parseCccdQr, maskId } from "./cccd";
-import { synthesise, ttsAvailable, ttsLangs, isTtsLang, TTS_MAX_CHARS } from "./tts";
+import { synthesise, ttsAvailable, ttsLangs, isTtsLang, TTS_MAX_CHARS, TTS_REQUEST_MAX_CHARS } from "./tts";
 import { xepHang, QueueFullError, conChoDuoc, trangThaiHang, tomTatHang } from "./queue";
 import { providerHealth } from "./llm";
 import { synthesiseJa, jaAvailable, warmJaTts } from "./tts-ja";
@@ -3159,7 +3159,10 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
       const b = z
         .object({
-          text: z.string().min(1).max(TTS_MAX_CHARS),
+          /* Rộng hơn TTS_MAX_CHARS có chủ đích — xem TTS_REQUEST_MAX_CHARS.
+             synthesise()/synthesiseJa() tự cắt về 600 ký tự để đọc; ranh giới
+             ở đây chỉ chặn spam, không phải chặn câu trả lời dài thật. */
+          text: z.string().min(1).max(TTS_REQUEST_MAX_CHARS),
           lang: z.string().min(2).max(5),
           code: z.string().min(4),
         })
