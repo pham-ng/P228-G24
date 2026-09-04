@@ -1,0 +1,266 @@
+{
+ "BM-REAL-002": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-021": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-028": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-047": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-052": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-054": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-066": {
+  "relevance": "off_topic"
+ },
+ "BM-REAL-067": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-068": {
+  "relevance": "off_topic"
+ },
+ "BM-REAL-070": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-084": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-086": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-091": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-094": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-095": {
+  "coherence": "incoherent"
+ },
+ "BM-REAL-100": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-001": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-003": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-006": {
+  "relevance": "off_topic"
+ },
+ "BM-DIAG-007": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-011": {
+  "relevance": "off_topic"
+ },
+ "BM-DIAG-013": {
+  "relevance": "off_topic"
+ },
+ "BM-DIAG-014": {
+  "relevance": "off_topic"
+ },
+ "BM-DIAG-020": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-027": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-030": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-036": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-038": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-044": {
+  "coherence": "incoherent"
+ },
+ "BM-MULTI-S01-T3": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-001": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-003": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-005": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-006": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-009": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-011": {
+  "relevance": "off_topic"
+ },
+ "BM-UNANS-013": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-014": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-015": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-016": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-019": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-020": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-021": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-022": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-027": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-028": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-030": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-033": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-035": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-036": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-037": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-038": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-039": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-040": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-042": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-043": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-044": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-048": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-049": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-052": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-053": {
+  "coherence": "incoherent"
+ },
+ "BM-UNANS-054": {
+  "coherence": "incoherent"
+ },
+ "BM-AMB-004": {
+  "coherence": "incoherent"
+ },
+ "BM-AMB-023": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-004": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-008": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-011": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-019": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-024": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-028": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-030": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-032": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-033": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-034": {
+  "coherence": "incoherent"
+ },
+ "BM-ADV-035": {
+  "coherence": "incoherent"
+ },
+ "BM-NUM-028": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-059": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-060": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-063": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-072": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-082": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-085": {
+  "relevance": "off_topic"
+ },
+ "BM-DIAG-086": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-088": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-089": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-090": {
+  "coherence": "incoherent"
+ },
+ "BM-DIAG-096": {
+  "coherence": "incoherent"
+ },
+ "BM-MULTI-S37-T4": {
+  "relevance": "off_topic"
+ }
+}

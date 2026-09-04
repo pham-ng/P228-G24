@@ -18,8 +18,17 @@
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 
-const run = readFileSync(join(process.cwd(), "bench", "461-run.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
-const vpath = join(process.cwd(), "bench", "461-verdicts.json");
+/**
+ * Đa ngôn ngữ (2026-09-04): `--suffix <mã>` đọc/ghi đúng bộ tệp theo ngôn ngữ
+ * (461-run-en.jsonl, 461-verdicts-en.json, rag-eval-report-en.json, ...),
+ * không đổi gì khi không truyền cờ — mặc định y hệt bộ tiếng Việt gốc.
+ */
+const argv = process.argv.slice(2);
+const SUFFIX = argv.includes("--suffix") ? argv[argv.indexOf("--suffix") + 1] : "";
+const sfx = SUFFIX ? `-${SUFFIX}` : "";
+
+const run = readFileSync(join(process.cwd(), "bench", `461-run${sfx}.jsonl`), "utf8").trim().split("\n").map((l) => JSON.parse(l));
+const vpath = join(process.cwd(), "bench", `461-verdicts${sfx}.json`);
 const verdicts: Record<string, { correctness: number; faithfulness: number; note?: string }> =
   existsSync(vpath) ? JSON.parse(readFileSync(vpath, "utf8")) : {};
 
@@ -33,7 +42,7 @@ const verdicts: Record<string, { correctness: number; faithfulness: number; note
  * trên, không phải bỏ sót. Đã dò mẫu 20/217 ca dung_du (đều đúng chủ đề)
  * trước khi áp dụng auto-pass cho cả nhóm.
  */
-const rcPath = join(process.cwd(), "bench", "data", "relevance-coherence-audit.json");
+const rcPath = join(process.cwd(), "bench", "data", `relevance-coherence-audit${sfx}.json`);
 const rcAudit: { relevance_fail: Record<string, string>; coherence_fail: Record<string, string> } =
   existsSync(rcPath) ? JSON.parse(readFileSync(rcPath, "utf8")) : { relevance_fail: {}, coherence_fail: {} };
 
@@ -285,7 +294,7 @@ const report = {
   seed: 42,
   rows,
 };
-writeFileSync(join(process.cwd(), "bench", "rag-eval-report.json"), JSON.stringify(report, null, 2));
+writeFileSync(join(process.cwd(), "bench", `rag-eval-report${sfx}.json`), JSON.stringify(report, null, 2));
 
 // tóm tắt để đối chiếu
 const n = rows.length;
