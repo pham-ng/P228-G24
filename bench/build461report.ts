@@ -60,6 +60,39 @@ const GOLDEN_FIX: Record<string, string[]> = {
   "BM-REAL-064": ["7"], // Platinum giảm giá phòng — KB #13
   "BM-REAL-073": ["1050000", "1.050.000"], // vé VinWonders người lớn — KB #4
   "BM-REAL-095": ["400000", "400.000"], // combo Vinpearl Harbour — KB #3
+  /**
+   * Lô thứ ba (2026-09-04) — LỖI CỦA CHÍNH NGƯỜI VIẾT ĐỀ trên 12 ca mới, bắt
+   * được khi người dùng hỏi "sao số vẫn thấp, nguyên nhân là gì". `numbers()`
+   * đòi MỌI con số ≥2 chữ số trong ground_truth phải có mặt trong câu trả lời
+   * (`key.every(...)`). Viết ground_truth kiểu "phải nói X, không phải Y" để
+   * người đọc dễ hiểu vô tình biến số Y (chỉ để đối chiếu) thành token BẮT
+   * BUỘC — model trả lời ĐÚNG VÀ ĐỦ đúng thứ được hỏi vẫn bị chấm sai vì
+   * thiếu Y. Câu "Per KB #16" / "Per KB #18" (trích dẫn nội bộ cho người
+   * chấm) cũng biến "16"/"18" thành token bắt buộc mà không câu trả lời nào
+   * cho khách từng nhắc tới. Đối chiếu tay từng ca với actual_answer/passage
+   * thật trước khi vá, không đoán.
+   *
+   * BM-DIAG-064 (Pool Bar) đổi HƯỚNG khác hẳn: không phải lỗi đề, mà là ĐẢO
+   * NGƯỢC kết luận sau khi tra nguồn gốc dữ liệu. `dining_venues` (bảng DB,
+   * nguồn riêng — trang Pool Bar trên vinpearl.com) ghi 09:00–23:00; KB#5 ghi
+   * 09:00–18:00 nhưng tự nhận `verified:"unverified"` và `source_url:null`
+   * (không có nguồn nào), lại phá vỡ chính mẫu hình câu nó viết (2 quầy bar
+   * liền kề đều đóng 23:00). Bằng chứng nghiêng về 23:00 đúng — model đã trả
+   * lời đúng, KB#5 mới là bên sai.
+   */
+  "BM-DIAG-046": ["100"], // nhận phòng 5h sáng = 100% phí — KB#1
+  "BM-DIAG-048": ["50"], // trả phòng 15h = 50% phí — KB#1
+  "BM-DIAG-049": ["1000000", "1.000.000"], // cọc phòng thường — KB#17
+  "BM-DIAG-050": ["3000000", "3.000.000"], // cọc villa — KB#17
+  "BM-DIAG-054": ["32"], // Deluxe Queen 32m² — KB#9
+  "BM-DIAG-055": ["42"], // Grand Deluxe Hướng Biển 42m² — KB#9
+  "BM-DIAG-062": ["30"], // Lotus buffet sáng đến 10:30 — KB#6
+  "BM-DIAG-065": ["22"], // Ozone hải sản tối đến 22:00 — KB#5
+  "BM-DIAG-072": ["1"], // tối đa 1 giường phụ — KB#16
+  "BM-DIAG-073": ["5"], // đổi full board cần báo trước 5 ngày — KB#18
+  "BM-DIAG-074": ["19"], // xác nhận giờ 19h nằm trong giờ mở cửa Jasmine — KB#5
+  "BM-DIAG-076": ["4620000", "9400000"], // gói giá THẬT Grand Deluxe Hướng Biển — bảng room_packages
+  "BM-DIAG-064": ["23"], // Pool Bar đóng 23:00 — dining_venues (đảo ngược kết luận, xem ghi chú trên)
 };
 
 /**

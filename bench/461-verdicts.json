@@ -1715,9 +1715,9 @@
   "note": "dung & du: Jasmine den 22:00"
  },
  "BM-DIAG-064": {
-  "correctness": 0,
-  "faithfulness": 0,
-  "note": "SAI GIO: KB#5 ghi Pool Bar 09:00-18:00, model noi 09:00-23:00 (trung gio Beach Comber/Seaview) — co the huong dan khach den luc quay da dong"
+  "correctness": 3,
+  "faithfulness": 1,
+  "note": "DAO NGUOC KET LUAN sau khi tra nguon: dining_venues (DB, nguon rieng trang Pool Bar tren vinpearl.com) ghi 09:00-23:00; KB#5 ghi 18:00 nhung verified=unverified, source_url=null (khong nguon), lai pha vo chinh mau hinh cau no viet (2 quay bar canh deu dong 23:00). Bang chung nghieng ve 23:00 dung — model tra loi dung, KB#5 moi la ben sai."
  },
  "BM-DIAG-065": {
   "correctness": 3,
@@ -1885,9 +1885,9 @@
   "note": "dung & du: 1.050.000 nguoi lon"
  },
  "BM-MULTI-S36-T2": {
-  "correctness": 3,
-  "faithfulness": 1,
-  "note": "giu dung ngu canh VinWonders tu luot 1, dung 800.000 cho tre 1-1.4m"
+  "correctness": 0,
+  "faithfulness": 0,
+  "note": "SUA LAI CHAM SAI CUA CHINH TOI: doc lai thay cau tra loi KHONG he neu 800.000 (gia ve VinWonders tre 1-1.4m) nhu toi tung ghi nham — no lac hoan toan sang chinh sach PHU THU PHONG (KB#16, vuot so nguoi cho phep) dung tu chieu cao lam cau noi gay nham. Mat ngu canh VinWonders tu luot 1, khong tra loi dung cau hoi that."
  },
  "BM-MULTI-S36-T3": {
   "correctness": 0,
