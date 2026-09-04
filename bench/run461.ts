@@ -124,10 +124,34 @@ function buildHistory(prior: { q: string; a: string }[]): string {
  * được cách diễn đạt này, nên bị chấm là "answer" — một lời từ chối injection
  * hoàn hảo bị tính trượt.
  */
-const ABSTAIN_RE =
-  /không đủ thông tin|chưa có thông tin|không có thông tin|KHONG_DU_THONG_TIN|liên hệ (lễ tân|nhân viên|trực)|chuyển (bạn|quý khách)?.*(lễ tân|nhân viên)|xin lỗi.*(không thể|chưa thể)|vui lòng liên hệ|trái với (chính sách|quy định)|không thể áp dụng|không có thẩm quyền|tôi (chỉ )?(được|có thể) cung cấp thông tin dựa trên/i;
+/**
+ * Tách STRONG (chắc chắn không trả lời) khỏi WEAK (câu lịch sự đóng, có thể
+ * đi kèm một câu trả lời đã đầy đủ) — bắt được qua khảo sát "tại sao chuyển
+ * nhân viên 49%": 65/189 ca escalate là ca tôi đã tự chấm ĐÚNG VÀ ĐỦ,
+ * trong đó 24 ca có route="knowledge" VÀ `turn.escalate === false` NGAY TỪ
+ * SẢN PHẨM — nghĩa là production không hề chuyển việc, chỉ có regex CŨ ở
+ * đây bắt nhầm câu đóng lịch sự "quý khách có thể liên hệ lễ tân nếu cần
+ * thêm hỗ trợ" (một câu closing bình thường sau khi đã trả lời xong) thành
+ * dấu hiệu từ chối, y hệt câu THẬT SỰ từ chối "tôi không biết, liên hệ lễ
+ * tân". Hai cách dùng CÙNG một cụm từ, khác nhau ở chỗ câu WEAK luôn đứng
+ * sau một đoạn nội dung đã trả lời, còn câu từ chối thật đứng gần đầu vì
+ * không có gì đứng trước nó để trả lời.
+ *
+ * WEAK chỉ tính là abstain khi cụm từ xuất hiện SỚM trong câu trả lời (ít
+ * nội dung đứng trước) — ngưỡng 40 ký tự đủ để phân biệt "Có, resort có
+ * wifi miễn phí... Quý khách có thể liên hệ lễ tân..." (nội dung dài đứng
+ * trước, KHÔNG abstain) khỏi "Liên hệ lễ tân để biết thêm." (gần như toàn
+ * bộ câu là courtesy, ABSTAIN thật).
+ */
+const STRONG_ABSTAIN_RE =
+  /không đủ thông tin|chưa có thông tin|không có thông tin|KHONG_DU_THONG_TIN|xin lỗi.*(không thể|chưa thể)|trái với (chính sách|quy định)|không thể áp dụng|không có thẩm quyền|tôi (chỉ )?(được|có thể) cung cấp thông tin dựa trên/i;
+const WEAK_ABSTAIN_RE = /liên hệ (lễ tân|nhân viên|trực)|chuyển (bạn|quý khách)?.*(lễ tân|nhân viên)|vui lòng liên hệ/i;
+const WEAK_ABSTAIN_EARLY_CHARS = 40;
 function detectAbstain(reply: string, escalate: boolean): boolean {
-  return escalate || ABSTAIN_RE.test(reply) || reply.trim().length === 0;
+  if (escalate || reply.trim().length === 0) return true;
+  if (STRONG_ABSTAIN_RE.test(reply)) return true;
+  const weak = reply.match(WEAK_ABSTAIN_RE);
+  return !!weak && (weak.index ?? 0) < WEAK_ABSTAIN_EARLY_CHARS;
 }
 
 /**

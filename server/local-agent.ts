@@ -168,6 +168,37 @@ const RECOMMENDATION_CUES = [
 const TRANSACTION_FAMILIES: FamilyName[] = ["stay_changes", "housekeeping", "transport_tours"];
 
 /**
+ * Route "transaction" gộp chung hai việc rất khác nhau dưới cùng một xử lý:
+ * "làm giúp tôi việc X" (cần người thật thao tác) và "cho tôi biết X là bao
+ * nhiêu" (câu hỏi tri thức thuần tuý về một chủ đề NGHE giống giao dịch —
+ * "đổi tên khách mất phí bao nhiêu", "đặt xe giá bao nhiêu"). Trước bản vá
+ * này, CẢ HAI đều bị gán `escalate: true` + một câu "đã chuyển thông tin
+ * cho nhân viên" tự động — kể cả khi câu trả lời đã đầy đủ, đúng, và không
+ * còn gì cần lễ tân làm thêm. Đo được qua khảo sát "chuyển nhân viên 49%":
+ * 40+ ca route=transaction mà giám khảo (tôi) đã chấm "đúng và đủ" chỉ vì
+ * câu hỏi tình cờ chạm gói từ khoá vận chuyển/đổi phòng, không phải vì
+ * khách thật sự cần ai đó xử lý gì thêm — một tin nhắn "đã chuyển việc"
+ * KHÔNG CÓ VIỆC GÌ để chuyển vừa gây hiểu lầm cho khách, vừa tạo việc thừa
+ * cho lễ tân.
+ *
+ * Hàm này CỐ Ý bảo thủ theo hướng AN TOÀN: chỉ trả `true` (bỏ qua escalate)
+ * khi câu hỏi rõ ràng ở dạng hỏi thông tin (kết thúc bằng cụm hỏi) VÀ không
+ * mang bất kỳ dấu hiệu nào của yêu cầu hành động thật (nhờ vả trực tiếp, mã
+ * đặt phòng cụ thể, hoặc mở đầu bằng động từ mệnh lệnh). Nghi ngờ ở đâu thì
+ * giữ nguyên hành vi cũ (escalate) — thà chuyển việc thừa một lần còn hơn bỏ
+ * sót một yêu cầu thật.
+ */
+const ACTION_REQUEST_MARKERS =
+  /giúp (tôi|mình|em|anh|chị)|gi[uù]m (tôi|mình)|hộ (tôi|mình)|làm ơn|please\b|for me\b|VPNT-[A-Z0-9]{4,}|mã đặt phòng|reservation (code|number)/i;
+const IMPERATIVE_VERB_START = /^\s*(đặt|huỷ|hủy|đổi|xoá|xóa|thêm|gửi|xác nhận|đăng ký|confirm|cancel|book|change)\b/i;
+const PURE_INFO_QUESTION_TAIL = /(bao nhiêu|là gì|thế nào|ở đâu|mấy giờ|có .*không|đúng không)\s*[?.!]?\s*$/i;
+function looksLikePureInfoQuestion(question: string): boolean {
+  const q = question.trim();
+  if (ACTION_REQUEST_MARKERS.test(q) || IMPERATIVE_VERB_START.test(q)) return false;
+  return PURE_INFO_QUESTION_TAIL.test(q);
+}
+
+/**
  * The `housekeeping` family's lexicon (toolrouter.ts) mixes bare amenity nouns
  * ("wifi", "điều hoà", "khăn"...) with real fault/request words ("hỏng",
  * "không hoạt động"...) so the family scorer can catch "wifi không hoạt động"
@@ -1883,11 +1914,20 @@ export async function runLocalTurn(input: {
           found.note,
         );
         if (answer.reply) {
+          /* Câu hỏi tri thức thuần tuý ("đổi tên mất phí bao nhiêu") không cần
+             chuyển lễ tân — không còn việc gì để họ làm sau một câu trả lời
+             đầy đủ. Chỉ giữ escalate cho yêu cầu hành động thật (xem
+             looksLikePureInfoQuestion ở trên). */
+          const pureQuestion = looksLikePureInfoQuestion(input.question);
           return {
             route,
-            reply: cleanSpuriousCjk(answer.reply + handoffNote(scoreFamilies(input.question)[0]?.family, input.lang), input.lang),
-            escalate: true,
-            escalateReason: "Yêu cầu đặt phòng/dịch vụ — đã trả lời thông tin & chuyển lễ tân xác nhận.",
+            reply: pureQuestion
+              ? cleanSpuriousCjk(answer.reply, input.lang)
+              : cleanSpuriousCjk(answer.reply + handoffNote(scoreFamilies(input.question)[0]?.family, input.lang), input.lang),
+            escalate: !pureQuestion,
+            escalateReason: pureQuestion
+              ? undefined
+              : "Yêu cầu đặt phòng/dịch vụ — đã trả lời thông tin & chuyển lễ tân xác nhận.",
             /* The enriched list, like every other post-enrichment return: this
                branch also drafts an answer, so the trace and the caller's
                numeric guard must see the rows the model actually read. */
