@@ -372,6 +372,24 @@ export async function reindex(): Promise<{
       r.maxGuests != null
         ? `Tối đa ${r.maxGuests} khách (${combos.map((c) => `${c.adults} người lớn + ${c.children} trẻ em`).join(" hoặc ")}).`
         : null,
+      /**
+       * ĐÃ THỬ bỏ `r.description` khỏi đây (2026-09-04) để giảm dilution cho
+       * câu hỏi tổng hợp về phòng (BM-DIAG-056/059) — chẩn đoán ĐÚNG (mọi
+       * room_type có chung một đoạn văn quảng cáo gần giống hệt nhau, cùng
+       * lớp lỗi "search-alias dilution" báo cáo Phase 6.5 mô tả cho
+       * rate_package), nhưng đo hồi quy đầy đủ (520 ca, so passages + outcome
+       * trước/sau, tách khỏi nhiễu sinh ngẫu nhiên của model — 121/520 câu
+       * trả lời đổi lời giữa hai lượt chạy dù không đổi gì, đã lọc riêng 18
+       * ca có CẢ passages đổi LẪN kết quả đổi) cho kết quả 9 ca cải thiện / 9
+       * ca hồi quy (BM-DIAG-078/081 đã đúng từ trước, quay về trả lời RỖNG) —
+       * và chính BM-DIAG-056 vẫn KHÔNG được sửa. Đúng hiện tượng "sửa một ca
+       * thì hỏng một ca khác" mà 06-RRF-REMEDIATION.md đã cảnh báo cho
+       * category cap — xác nhận lần hai, qua một đòn bẩy khác (rút gọn nội
+       * dung thay vì giới hạn category). ĐÃ LÙI LẠI, giữ nguyên description.
+       * Hướng thử sau nên tinh vi hơn: chỉ rút câu mẫu lặp × chữ, không rút
+       * cả field — hoặc tăng LOCAL_PASSAGES riêng cho câu hỏi dạng tổng hợp,
+       * không đụng nội dung từng phòng.
+       */
       r.description,
       `Tiện ích công bố: ${amenities.join(", ")}.`,
     ]
