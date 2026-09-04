@@ -3657,6 +3657,25 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
   });
 
   /**
+   * Đo STT/TTS theo ngôn ngữ — vòng khép kín, bằng đúng code sản xuất.
+   *
+   * Không có kho ghi âm khách thật, và MOS (người nghe chấm 1-5) không script
+   * nào làm thay được, nên đây là chuẩn khách quan duy nhất chạy tự động được:
+   * tổng hợp câu tham chiếu bằng chính `synthesise()`/`synthesiseJa()`, đọc lại
+   * bằng chính `transcribe()`, chấm bằng cùng bộ WER/CER đã dùng cho tiếng Việt/
+   * Anh trước đây (xem bench/voice-eval.ts). Đây là SÀN để so hai nửa pipeline
+   * với nhau, không phải số để đưa khách hàng xem thay cho ghi âm thật.
+   */
+  app.get("/api/bench/voice", (req, res) => {
+    if (denied(req, res, "insights")) return;
+    const file = join(process.cwd(), "bench", "voice-eval-report.json");
+    if (!existsSync(file))
+      return res.status(404).json({ message: "Chưa chạy bộ đo giọng nói — npx tsx bench/voice-eval.ts" });
+    const raw = JSON.parse(readFileSync(file, "utf8"));
+    res.json(raw);
+  });
+
+  /**
    * Khách chấm gì trong vận hành thật — bổ sung cho bộ golden.
    *
    * Bảng `feedback` trước nay CHỈ GHI: `createFeedback` có người gọi,
