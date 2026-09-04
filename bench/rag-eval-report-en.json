@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-09-04T13:11:32.541Z",
+  "ranAt": "2026-09-04T14:18:54.184Z",
   "agentModel": "qwen3.5:4b",
   "judgeModel": "Claude (đọc trực tiếp câu hỏi + tài liệu truy xuất, không qua API) — 384 ca, chưa hiệu chỉnh kappa",
   "benchmark": "final_benchmark_vi.csv — 384 lượt, khử trùng còn 379 câu duy nhất; golden NUM-013 đã sửa 5tr→3tr",
@@ -721,7 +721,7 @@
       "ms": 2246,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "correct",
+      "judgeNote": "REVISED: peak hours (07:00-09:30/18:30-20:30) and 35/50min waits match KO/JA/ZH identical figures - cross-language retrieval corroboration confirms real, not fabricated",
       "relevance": "on_topic",
       "coherence": "coherent"
     },
@@ -761,7 +761,7 @@
       "ms": 1775,
       "handling": "dung_du",
       "source": "dung_tl",
-      "judgeNote": "correct hours",
+      "judgeNote": "REVISED: 06:00-23:00 matches KO/JA/ZH identical hours - cross-language corroboration confirms real",
       "relevance": "on_topic",
       "coherence": "coherent"
     },

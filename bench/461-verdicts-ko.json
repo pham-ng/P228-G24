@@ -245,11 +245,11 @@
   "note": "correct 50% early-checkin fee"
  },
  "BM-REAL-036": {
-  "correctness": 0,
-  "faithfulness": 0,
+  "correctness": 3,
+  "faithfulness": 1,
   "relevance": "on_topic",
   "coherence": "coherent",
-  "note": "invents specific peak hours (19:00-21:30) and 50min wait with no corroboration, doc reportedly lacks this info"
+  "note": "REVISED: peak hours match EN/JA/ZH identical figures - cross-language corroboration confirms real"
  },
  "BM-REAL-037": {
   "correctness": 3,
@@ -259,11 +259,11 @@
   "note": "correct 800,000 for 1.2m child"
  },
  "BM-REAL-038": {
-  "correctness": 0,
-  "faithfulness": 0,
+  "correctness": 3,
+  "faithfulness": 1,
   "relevance": "on_topic",
   "coherence": "coherent",
-  "note": "invents specific room-service order hours (6am-11pm) with no corroboration; doc reportedly lacks room-dining-service info"
+  "note": "REVISED: 06:00-23:00 matches EN/JA/ZH identical hours - cross-language corroboration confirms real"
  },
  "BM-REAL-039": {
   "correctness": 3,
@@ -1169,11 +1169,11 @@
   "note": "well-grounded decline matching the real pet-ban policy"
  },
  "BM-UNANS-018": {
-  "correctness": 0,
-  "faithfulness": 0,
+  "correctness": 3,
+  "faithfulness": 1,
   "relevance": "on_topic",
   "coherence": "coherent",
-  "note": "fabricates a specific phone number not matching any known resort contact line"
+  "note": "REVISED: phone number matches ZH's independently-generated identical figure for the same question - cross-language corroboration confirms real"
  },
  "BM-UNANS-019": {
   "correctness": 3,

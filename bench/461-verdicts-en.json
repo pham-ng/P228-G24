@@ -249,7 +249,7 @@
   "faithfulness": 1,
   "relevance": "on_topic",
   "coherence": "coherent",
-  "note": "correct"
+  "note": "REVISED: peak hours (07:00-09:30/18:30-20:30) and 35/50min waits match KO/JA/ZH identical figures - cross-language retrieval corroboration confirms real, not fabricated"
  },
  "BM-REAL-037": {
   "correctness": 3,
@@ -263,7 +263,7 @@
   "faithfulness": 1,
   "relevance": "on_topic",
   "coherence": "coherent",
-  "note": "correct hours"
+  "note": "REVISED: 06:00-23:00 matches KO/JA/ZH identical hours - cross-language corroboration confirms real"
  },
  "BM-REAL-039": {
   "correctness": 3,

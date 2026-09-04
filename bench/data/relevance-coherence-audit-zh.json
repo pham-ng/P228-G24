@@ -1,0 +1,23 @@
+{
+ "relevance_fail": {
+  "_dinh_nghia": "Off-topic or generic-mismatch answers, hand-judged across all 384 ZH cases (2026-09-04).",
+  "BM-REAL-045": "misreads the ambiguous '7 o'clock' booking request as a check-in-time question, same failure as EN/KO/JA",
+  "BM-REAL-088": "billing dispute ignored, answers about cooking/outside-food rules instead",
+  "BM-DIAG-018": "conflates a one-night extension with late-checkout tier exemptions, doesn't move the date or give the extra-night amount",
+  "BM-AMB-008": "answers about full-board meal-plan change conditions instead of asking which date to change",
+  "BM-MULTI-S37-T4": "misreads a restaurant-reservation-time change as a hotel-checkout-time change — same confusion confirmed across all 4 languages now"
+ },
+ "coherence_fail": {
+  "_dinh_nghia": "Unreadable / full language-switch to Vietnamese / script-mixed / garbled text, hand-judged. Empty replies auto-fail separately in code.",
+  "BM-REAL-047": "doesn't give the real Bach Giai hours at all, gives an unverified phone number instead, ends with the recurring English fragment",
+  "BM-REAL-079": "correctly confirms discount exists, but ends with the recurring English-language fragment",
+  "BM-REAL-092": "entirely the recurring English filler fragment with zero substantive content about the real 10:30-14:30/17:30-22:00 hours",
+  "BM-DIAG-035": "correct 750,000+tax note, ends with the recurring English fragment",
+  "BM-DIAG-039": "correct hours and price-decline, but invents an unverified phone number; ends with the recurring English fragment",
+  "BM-AMB-007": "confirms discount exists, ends with the recurring English fragment",
+  "BM-AMB-015": "correct cable car facts but the entire response reverts to Vietnamese instead of Chinese",
+  "BM-AMB-021": "correct sizes but the entire response reverts to Vietnamese instead of Chinese",
+  "BM-DIAG-074": "doesn't confirm the within-hours table, ends with the recurring English fragment",
+  "BM-DIAG-087": "correctly asks for room type/dates preference before quoting, ends with the recurring English fragment"
+ }
+}
