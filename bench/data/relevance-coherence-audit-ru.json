@@ -1,0 +1,32 @@
+{
+ "relevance_fail": {
+  "_dinh_nghia": "Off-topic or generic-mismatch answers, hand-judged across all 384 RU cases (2026-09-04).",
+  "BM-REAL-025": "ignores the stranger-at-the-door safety concern entirely, discusses TV-volume/noise rules instead",
+  "BM-DIAG-005": "doesn't flag the 60-night long-stay issue at all, discusses voucher requirements instead",
+  "BM-DIAG-006": "doesn't flag 2028 as too far ahead, discusses document requirements instead",
+  "BM-DIAG-008": "doesn't ask for arrival/nights/guests, gives package-code info instead",
+  "BM-DIAG-013": "doesn't explain the Tet minimum stay at all, substitutes unrelated content; Chinese characters '免除' leak mid-Russian",
+  "BM-DIAG-014": "doesn't flag the closed arrival date, discusses document requirements instead",
+  "BM-DIAG-019": "discusses flight-details/transfer-cancellation timing instead of the departure-before-arrival logic — same confusion as KO/JA",
+  "BM-UNANS-040": "answers with laundry prices instead of addressing evening-wear rental, a category confusion",
+  "BM-MULTI-S37-T3": "confirms the table at Jasmine instead of Bach Giai, losing the established context entirely"
+ },
+ "coherence_fail": {
+  "_dinh_nghia": "Unreadable / script-mixed (Chinese/Vietnamese leaking into Russian) / nonsensical word substitutions / garbled text, hand-judged. Empty replies auto-fail separately in code.",
+  "BM-REAL-008": "correct 100%+tier exception but Chinese characters '免除' leak mid-Russian-sentence",
+  "BM-REAL-035": "doesn't give the 50% figure at all, ends with the recurring English fragment",
+  "BM-REAL-042": "doesn't give the fee percentage, ends with the recurring English fragment",
+  "BM-REAL-043": "correct parking facts but uses a garbled term for 'cable car', inconsistent with the correct term used elsewhere in this same run",
+  "BM-REAL-068": "160,000 matches ZH's independently-generated identical figure (2-language agreement vs JA's differing 320,000) — cross-language corroboration now favors this as real; ends with the recurring English fragment",
+  "BM-DIAG-013": "doesn't explain the Tet minimum stay at all, substitutes unrelated content; Chinese characters '免除' leak mid-Russian",
+  "BM-DIAG-030": "correctly declines iron/kitchenette but a Vietnamese word 'tiện ích' leaks mid-Russian-sentence",
+  "BM-MULTI-S01-T4": "reasonable hours/safety explanation but contains a nonsensical word substitution ('Платье'/dress instead of swimming)",
+  "BM-UNANS-053": "loosely conflates an air-meditation-room question with the real over-water Akoya Spa; contains an odd 'леди-рецепционисту' phrase",
+  "BM-AMB-033": "correct children fee facts but contains a nonsensical word ('сборка')",
+  "BM-AMB-042": "correct wifi guidance but with a recurring misspelling of 'reception'",
+  "BM-DIAG-046": "doesn't give the 100% figure, ends with the recurring English fragment",
+  "BM-DIAG-047": "doesn't give the 50% figure, ends with the recurring English fragment",
+  "BM-DIAG-064": "gives 18:00 (stale GT) not the GOLDEN_FIX-verified 23:00; a stray Vietnamese word 'lễ tân' leaks mid-Russian",
+  "BM-DIAG-081": "doesn't give the actual price gap, ends with the recurring English fragment"
+ }
+}
