@@ -3516,11 +3516,34 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
    * Manager only, the same bar as `/api/insights`: how well the product works
    * is a commercial fact about the property, not a tool for working a shift.
    */
+  /**
+   * Bộ 384 ca hiện có ở 6 ngôn ngữ — cùng một bộ câu hỏi gốc, dịch tay,
+   * chạy qua đúng stack prod, chấm tay độc lập cho từng ngôn ngữ (xem
+   * [[aurea-rag-eval]]). `vi` giữ tên file cũ không hậu tố vì đó là bộ đầu
+   * tiên; các ngôn ngữ sau dùng hậu tố theo quy ước của
+   * `bench/build461report.ts --suffix`.
+   */
+  const BENCH_LANG_FILES: Record<string, string> = {
+    vi: "rag-eval-report.json",
+    en: "rag-eval-report-en.json",
+    ko: "rag-eval-report-ko.json",
+    ja: "rag-eval-report-ja.json",
+    zh: "rag-eval-report-zh.json",
+    ru: "rag-eval-report-ru.json",
+  };
+
   app.get("/api/bench/rag", (req, res) => {
     if (denied(req, res, "insights")) return;
-    const file = join(process.cwd(), "bench", "rag-eval-report.json");
+    const requested = typeof req.query.lang === "string" ? req.query.lang : "vi";
+    const lang = BENCH_LANG_FILES[requested] ? requested : "vi";
+    const available = Object.keys(BENCH_LANG_FILES).filter((code) =>
+      existsSync(join(process.cwd(), "bench", BENCH_LANG_FILES[code])),
+    );
+    const file = join(process.cwd(), "bench", BENCH_LANG_FILES[lang]);
     if (!existsSync(file))
-      return res.status(404).json({ message: "Chưa chạy bộ eval — npx tsx bench/rag-eval.ts" });
+      return res
+        .status(404)
+        .json({ message: "Chưa chạy bộ eval cho ngôn ngữ này — npx tsx bench/run461.ts", lang, available });
     const raw = JSON.parse(readFileSync(file, "utf8")) as {
       ranAt: string;
       agentModel: string;
@@ -3548,6 +3571,8 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
     const lat = rows.map((r) => r.ms as number).sort((a, b) => a - b);
 
     res.json({
+      lang,
+      available,
       ranAt: raw.ranAt,
       agentModel: raw.agentModel,
       judgeModel: raw.judgeModel,

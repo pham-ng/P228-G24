@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FlaskConical, AlertTriangle } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { stamp } from "@/lib/format";
 
 /**
@@ -29,6 +31,16 @@ import { stamp } from "@/lib/format";
  * questions the system must refuse, and it currently answers two of them
  * anyway" learns that hallucination is measured here. A buyer who sees 100%
  * learns nothing and assumes the worst.
+ *
+ * 2026-09-04: the same 384-case set now exists in 6 languages (VI/EN/KO/JA/
+ * ZH/RU) — hand-translated from one source, run through the same stack, and
+ * hand-judged independently per language (see [[aurea-rag-eval]] in memory).
+ * The switcher in the header re-points this exact page at
+ * `bench/rag-eval-report-{lang}.json` via `?lang=`; nothing below needed to
+ * change except reading that one extra field, because the shape of a
+ * language's report is identical to Vietnamese's. A tab the server has no
+ * file for renders disabled rather than a 404 — the point of showing this to
+ * a buyer is "here is what we measured", not "here is a broken button".
  */
 
 type Feedback = {
@@ -51,6 +63,9 @@ type Feedback = {
 };
 
 type Bench = {
+  lang: string;
+  /** Các mã ngôn ngữ mà server thực sự có file báo cáo — dùng để khoá tab chưa có dữ liệu. */
+  available: string[];
   ranAt: string;
   agentModel: string;
   judgeModel: string | null;
@@ -76,7 +91,74 @@ const CATEGORY_VI: Record<string, { label: string; blurb: string }> = {
   TRAP_NO_INVENT: { label: "Bẫy bịa số", blurb: "Tài liệu tự nói là thiếu số — không được tự suy" },
   TRAP_INTERNAL: { label: "Bẫy lộ nội bộ", blurb: "Quy tắc nội bộ, không được hứa với khách" },
   SAFETY: { label: "An toàn", blurb: "Cấp cứu, an ninh, tranh chấp hoá đơn" },
+  /* Thêm khi bộ đề mở rộng 101 → 384 ca (xem [[aurea-rag-eval]]) — 12 hạng
+     mục mới từ các ID DIAG/MULTI/ADV/NUM, giống hệt nhau ở mọi ngôn ngữ vì
+     category không dịch, chỉ câu hỏi mới dịch. */
+  "Dates & temporal logic": { label: "Ngày giờ", blurb: "Ngày đã qua, tháng không tồn tại, 0 đêm" },
+  "Incomplete requests": { label: "Thiếu thông tin", blurb: "Phải hỏi lại trước khi báo giá hay tên phòng" },
+  "Rate-calendar restrictions": { label: "Ngoài lịch giá", blurb: "Không có giá lễ/cuối tuần — không được bịa" },
+  "Booking execution": { label: "Thực thi đặt phòng", blurb: "Ngày giờ hợp lệ — phải chốt đúng giá, đúng hạng phòng" },
+  "Safety & escalation": { label: "An toàn & chuyển cấp", blurb: "Cấp cứu, đột nhập, giả danh — phải chuyển người ngay" },
+  "Money & grounding": { label: "Tiền & căn cứ", blurb: "Số tiền đúng tài liệu, không lẫn hạng phòng/villa" },
+  "Room facts & amenities": { label: "Thông tin phòng", blurb: "Diện tích, tiện nghi đúng đúng loại phòng được hỏi" },
+  "Dining venues": { label: "Nhà hàng & quầy bar", blurb: "Giờ mở cửa, món ăn, giá đúng từng nơi" },
+  "New Critical Tools": { label: "Thao tác nghiệp vụ", blurb: "Huỷ, đổi phòng, ghi chú — qua đúng công cụ" },
+  MULTI_TURN: { label: "Nhiều lượt hội thoại", blurb: "Phải giữ đúng ngữ cảnh qua các lượt hỏi tiếp" },
+  ADVERSARIAL: { label: "Câu gài bẫy", blurb: "Khách khẳng định sai — phải cải chính, không xác nhận theo" },
+  NUMERIC_FACT: { label: "Số liệu thuần", blurb: "Diện tích, sức chứa, mốc giờ, phần trăm" },
 };
+
+/** Tên hiển thị của từng ngôn ngữ đã có benchmark — cờ để nhận diện nhanh khi trình bày, mã 2 chữ để gọn trong header. */
+const LANGS: { code: string; flag: string; short: string; label: string }[] = [
+  { code: "vi", flag: "🇻🇳", short: "VI", label: "Tiếng Việt" },
+  { code: "en", flag: "🇬🇧", short: "EN", label: "Tiếng Anh" },
+  { code: "ko", flag: "🇰🇷", short: "KO", label: "Tiếng Hàn" },
+  { code: "ja", flag: "🇯🇵", short: "JA", label: "Tiếng Nhật" },
+  { code: "zh", flag: "🇨🇳", short: "ZH", label: "Tiếng Trung" },
+  { code: "ru", flag: "🇷🇺", short: "RU", label: "Tiếng Nga" },
+];
+/** "Tiếng Việt" → "tiếng Việt", để chèn giữa câu ("384 câu hỏi tiếng Việt"). */
+const lc = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
+function LangSwitcher({
+  lang,
+  onChange,
+  available,
+}: {
+  lang: string;
+  onChange: (lang: string) => void;
+  available?: string[];
+}) {
+  return (
+    <ToggleGroup
+      type="single"
+      value={lang}
+      onValueChange={(v) => v && onChange(v)}
+      className="shrink-0"
+      data-testid="bench-lang-switcher"
+    >
+      {LANGS.map((l) => {
+        /* available === undefined nghĩa là chưa tải lượt đầu — cho bấm hết,
+           kết quả tự lộ ra 404 nếu thật sự chưa có thay vì khoá nhầm một
+           ngôn ngữ đang có sẵn. */
+        const known = available === undefined || available.includes(l.code);
+        return (
+          <ToggleGroupItem
+            key={l.code}
+            value={l.code}
+            disabled={!known}
+            title={known ? l.label : `${l.label} — chưa có báo cáo`}
+            data-testid={`bench-lang-${l.code}`}
+            className="gap-1 px-2 text-xs"
+          >
+            <span aria-hidden="true">{l.flag}</span>
+            <span className="font-mono font-semibold">{l.short}</span>
+          </ToggleGroupItem>
+        );
+      })}
+    </ToggleGroup>
+  );
+}
 
 const pct = (n: number | null) => (n === null ? "—" : `${Math.round(n * 100)}%`);
 
@@ -112,14 +194,23 @@ function Bar({ value }: { value: number | null }) {
 }
 
 export default function BenchmarkPage() {
-  const { data, isLoading, error } = useQuery<Bench>({ queryKey: ["/api/bench/rag"] });
+  /* Mặc định tiếng Việt — bộ đầu tiên, và là ngôn ngữ chủ của đội quản lý
+     đang xem trang này. Đổi tab chỉ đổi khoá query; react-query giữ cache
+     riêng cho từng ngôn ngữ (staleTime: Infinity ở queryClient.ts) nên bấm
+     qua lại giữa các ngôn ngữ đã tải không phải chờ lại. */
+  const [lang, setLang] = useState("vi");
+  const { data, isLoading, error } = useQuery<Bench>({ queryKey: [`/api/bench/rag?lang=${lang}`] });
   /* Bộ golden nói hệ thống ĐÃ ĐƯỢC KIỂM thế nào. Cái này nói khách thật nghĩ
-     gì. Hai con số đó lệch nhau là tin hữu ích nhất trên trang. */
+     gì. Hai con số đó lệch nhau là tin hữu ích nhất trên trang. Phản hồi
+     khách chỉ có ở đường sản xuất tiếng Việt nên KHÔNG đổi theo tab ngôn ngữ. */
   const { data: fb } = useQuery<Feedback>({ queryKey: ["/api/feedback"] });
+
+  const langMeta = LANGS.find((l) => l.code === lang) ?? LANGS[0];
+  const switcher = <LangSwitcher lang={lang} onChange={setLang} available={data?.available} />;
 
   if (isLoading) {
     return (
-      <StaffShell title="Benchmark" description="Bộ câu hỏi vàng tiếng Việt">
+      <StaffShell title="Benchmark" description={`Bộ câu hỏi vàng ${lc(langMeta.label)}`} actions={switcher}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="h-20 w-full" />
@@ -131,10 +222,11 @@ export default function BenchmarkPage() {
 
   if (error || !data) {
     return (
-      <StaffShell title="Benchmark" description="Bộ câu hỏi vàng tiếng Việt">
+      <StaffShell title="Benchmark" description={`Bộ câu hỏi vàng ${lc(langMeta.label)}`} actions={switcher}>
         <div className="rounded-md border border-card-border bg-card p-6 text-sm text-muted-foreground">
           <FlaskConical className="mb-2 h-5 w-5" />
-          Chưa có kết quả. Chạy <code className="font-mono text-xs">npx tsx bench/rag-eval.ts</code> rồi tải lại trang.
+          Chưa chạy bộ eval cho {lc(langMeta.label)}. Chạy{" "}
+          <code className="font-mono text-xs">npx tsx bench/run461.ts --lang {lang}</code> rồi tải lại trang.
         </div>
       </StaffShell>
     );
@@ -148,17 +240,22 @@ export default function BenchmarkPage() {
   return (
     <StaffShell
       title="Benchmark"
-      description={`${data.cases} câu hỏi tiếng Việt · ${data.agentModel} · chạy ${stamp(data.ranAt)}`}
+      description={`${data.cases} câu hỏi ${lc(langMeta.label)} · ${data.agentModel} · chạy ${stamp(data.ranAt)}`}
+      actions={switcher}
     >
       {/* Scope before numbers. Every figure below is about one property's own
           documents, in one language, on one model — and a reader who takes it
           for a general claim will be disappointed by their own pilot. */}
       <div className="mb-4 rounded-md border border-card-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">Phạm vi:</span> {data.cases} câu tiếng Việt, viết dựa trên
-        chính tài liệu của resort này. Mỗi đáp án chuẩn đều được kiểm tra là <b>có thật trong tài liệu</b> trước khi
-        bộ này được dùng để chấm — thứ mà bộ eval cũ không làm, nên nó từng hỏi những dữ kiện hệ thống chưa bao giờ
-        được cấp. <b>25 trong 101 ca là câu hệ thống KHÔNG được trả lời</b> (phải hỏi lại, hoặc phải nói là không có thông
-        tin). Đây là số của một khách sạn, một ngôn ngữ, một model.
+        <span className="font-medium text-foreground">Phạm vi:</span> {data.cases} câu {lc(langMeta.label)}, dịch tay
+        từ cùng một bộ câu hỏi gốc dựa trên chính tài liệu của resort này — nên {data.available.length} ngôn ngữ đang
+        có ở đây so sánh được với nhau. Mỗi đáp án chuẩn đều được kiểm tra là <b>có thật trong tài liệu</b> trước khi
+        bộ này được dùng để chấm.{" "}
+        <b>
+          {i.mustRefuse} trong {data.cases} ca là câu hệ thống KHÔNG được trả lời
+        </b>{" "}
+        (phải hỏi lại, hoặc phải nói là không có thông tin). Đây là số của một khách sạn, một model — đổi theo tab là
+        ngôn ngữ khách dùng để hỏi, không phải đổi tài liệu hay đổi hệ thống.
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -335,6 +432,12 @@ export default function BenchmarkPage() {
         */}
       <section className="mt-4 rounded-md border border-card-border bg-card p-4">
         <h2 className="text-sm font-semibold">Khách chấm gì trong thực tế</h2>
+        {lang !== "vi" && (
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Phần này luôn là dữ liệu sản xuất tiếng Việt — resort đang vận hành ở một ngôn ngữ, nên nó không đổi theo
+            tab benchmark bên trên.
+          </p>
+        )}
         {!fb ? (
           <p className="mt-2 text-xs text-muted-foreground">Đang tải…</p>
         ) : fb.total === 0 ? (
