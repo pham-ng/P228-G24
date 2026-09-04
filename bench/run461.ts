@@ -61,6 +61,15 @@ const SUA_NHAN: Record<string, string> = (() => {
 
 const argv = process.argv.slice(2);
 const LIMIT = argv.includes("--limit") ? Number(argv[argv.indexOf("--limit") + 1]) : Infinity;
+/**
+ * Đa ngôn ngữ (2026-09-04): `--csv <path>` + `--lang <code>` cho phép chạy
+ * đúng cùng một đường live (runLocalTurn) trên bộ đề ngôn ngữ khác, output
+ * ghi vào tệp riêng theo hậu tố `--out-suffix` để không đè bộ tiếng Việt gốc.
+ * Không đổi gì khi không truyền cờ — mặc định y hệt hành vi cũ.
+ */
+const CSV_PATH = argv.includes("--csv") ? argv[argv.indexOf("--csv") + 1] : "final_benchmark_vi.csv";
+const RUN_LANG = argv.includes("--lang") ? argv[argv.indexOf("--lang") + 1] : "vi";
+const OUT_SUFFIX = argv.includes("--out-suffix") ? argv[argv.indexOf("--out-suffix") + 1] : "";
 
 /* CSV parser nhận biết dấu ngoặc kép (ô chứa dấu phẩy/xuống dòng). */
 function parseCSV(t: string): string[][] {
@@ -81,7 +90,7 @@ function parseCSV(t: string): string[][] {
   return rows;
 }
 
-const raw = readFileSync(join(process.cwd(), "final_benchmark_vi.csv"), "utf8");
+const raw = readFileSync(join(process.cwd(), CSV_PATH), "utf8");
 const rows = parseCSV(raw);
 const H = rows[0].map((h) => h.trim());
 const col = (n: string) => H.indexOf(n);
@@ -267,7 +276,7 @@ async function main() {
       const ts = Date.now();
       let turn: any;
       try {
-        turn = await runLocalTurn({ question, isEmergency, lang: "vi", basics, history });
+        turn = await runLocalTurn({ question, isEmergency, lang: RUN_LANG as any, basics, history });
         if (guard.forceEscalation) turn = { ...turn, escalate: true };
       } catch (e) {
         turn = { reply: null, escalate: true, passages: [], error: String(e) };
@@ -389,12 +398,13 @@ async function main() {
     latency_ms: { p50: q(0.5), p90: q(0.9), p95: q(0.95) },
   };
 
-  writeFileSync(join(process.cwd(), "bench", "461-run.jsonl"), outRows.map((r) => JSON.stringify(r)).join("\n"));
-  writeFileSync(join(process.cwd(), "bench", "461-judge-input.jsonl"), judgeRows.map((r) => JSON.stringify(r)).join("\n"));
-  writeFileSync(join(process.cwd(), "bench", "461-deterministic.json"), JSON.stringify(det, null, 2));
+  const sfx = OUT_SUFFIX ? `-${OUT_SUFFIX}` : "";
+  writeFileSync(join(process.cwd(), "bench", `461-run${sfx}.jsonl`), outRows.map((r) => JSON.stringify(r)).join("\n"));
+  writeFileSync(join(process.cwd(), "bench", `461-judge-input${sfx}.jsonl`), judgeRows.map((r) => JSON.stringify(r)).join("\n"));
+  writeFileSync(join(process.cwd(), "bench", `461-deterministic${sfx}.json`), JSON.stringify(det, null, 2));
   console.log("\n=== DETERMINISTIC (không cần giám khảo) ===");
   console.log(JSON.stringify(det, null, 2));
-  console.log(`\nĐã ghi bench/461-run.jsonl (${outRows.length}), bench/461-judge-input.jsonl, bench/461-deterministic.json`);
+  console.log(`\nĐã ghi bench/461-run${sfx}.jsonl (${outRows.length}), bench/461-judge-input${sfx}.jsonl, bench/461-deterministic${sfx}.json`);
 }
 
 main();
