@@ -78,6 +78,23 @@ const VIETNAMESE = process.env.STT_MODEL_VI ?? "huuquyet/PhoWhisper-small";
  * tốt hơn — không có lý do chọn bản lớn hơn).
  */
 const KOREAN = process.env.STT_MODEL_KO ?? "onnx-community/moonshine-tiny-ko-ONNX";
+/**
+ * Cùng cách đo, cùng 10 câu tiếng Trung thật, so với whisper-small +
+ * chuẩn hoá OpenCC (đã sửa riêng — xem `zhConverter` dưới):
+ *
+ *   whisper-small + OpenCC        CER 19,7%  số liệu 80-90%
+ *   moonshine-base-zh + OpenCC    CER 11,0%  số liệu 100%   RTF ~4 lần nhanh hơn
+ *
+ * Chọn BASE (61M) chứ không phải tiny cho tiếng Trung — ngược với tiếng Hàn.
+ * `moonshine-tiny-zh-ONNX` không dùng được: kho ONNX của chính nó thiếu hẳn
+ * `decoder_model_merged*.onnx` (chỉ có bản decoder rời), nên
+ * `AutoModelForSpeechSeq2Seq` không nạp nổi — lỗi nằm ở bản chuyển đổi ONNX
+ * của kho đó, không phải giới hạn của code này. Số CER công bố sẵn trên
+ * FLEURS/Common Voice (29-36%) còn tệ hơn cả whisper-small — nếu tin số đó mà
+ * không tự đo thì đã bỏ lỡ một cải tiến thật, và số đo THẬT trên câu hỏi
+ * khách sạn của resort này mới là số đáng tin, không phải benchmark chung.
+ */
+const CHINESE = process.env.STT_MODEL_ZH ?? "onnx-community/moonshine-base-zh-ONNX";
 
 /** Whisper's own language names, which are not the ISO codes used elsewhere. */
 const WHISPER_LANG: Record<SttLang, string> = {
@@ -96,7 +113,7 @@ export function isSttLang(v: unknown): v is SttLang {
 }
 
 export function modelFor(lang: SttLang): string {
-  return lang === "vi" ? VIETNAMESE : lang === "ko" ? KOREAN : MULTILINGUAL;
+  return lang === "vi" ? VIETNAMESE : lang === "ko" ? KOREAN : lang === "zh" ? CHINESE : MULTILINGUAL;
 }
 
 /** Moonshine models need their own loading path — see `pipelineFor`. */

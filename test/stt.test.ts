@@ -130,7 +130,13 @@ ok(modelFor("vi").includes("PhoWhisper"), "Vietnamese gets the Vietnamese specia
    17.6%->11.3%, number accuracy 50%->70%, ~4-5x faster — same reason
    Vietnamese gets its own specialist instead of the shared model. */
 ok(modelFor("ko").includes("moonshine"), "Korean gets the Korean specialist");
-for (const l of ["en", "ja", "zh", "ru"] as const)
+/* moonshine-base-zh + zhConverter measured (bench/voice-eval.ts, 10 real
+   Chinese cases) beating whisper-small + zhConverter: CER 19.7%->11.0%,
+   number accuracy 80-90%->100%, ~4x faster. moonshine-tiny-zh was tried
+   first and rejected — its own ONNX export on the Hub is missing
+   decoder_model_merged*.onnx entirely, so it cannot load at all. */
+ok(modelFor("zh").includes("moonshine"), "Chinese gets the Chinese specialist");
+for (const l of ["en", "ja", "ru"] as const)
   ok(modelFor(l).includes("whisper-small") && !modelFor(l).includes("Pho"), `${l} gets the multilingual model`);
 
 ok(isSttLang("vi") && isSttLang("ru"), "supported languages are accepted");
