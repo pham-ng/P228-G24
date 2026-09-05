@@ -112,7 +112,12 @@ console.log("=== MODEL ROUTING ===");
    into it returns Vietnamese-shaped nonsense rather than an error, so only
    Vietnamese may reach it. */
 ok(modelFor("vi").includes("PhoWhisper"), "Vietnamese gets the Vietnamese specialist");
-for (const l of ["en", "ko", "ja", "zh", "ru"] as const)
+/* moonshine-tiny-ko measured (bench/voice-eval.ts, 10 real Korean cases)
+   beating the multilingual model on every axis — WER 45.2%->32.1%, CER
+   17.6%->11.3%, number accuracy 50%->70%, ~4-5x faster — same reason
+   Vietnamese gets its own specialist instead of the shared model. */
+ok(modelFor("ko").includes("moonshine"), "Korean gets the Korean specialist");
+for (const l of ["en", "ja", "zh", "ru"] as const)
   ok(modelFor(l).includes("whisper-small") && !modelFor(l).includes("Pho"), `${l} gets the multilingual model`);
 
 ok(isSttLang("vi") && isSttLang("ru"), "supported languages are accepted");

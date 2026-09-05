@@ -64,6 +64,20 @@ export type SttLang = "vi" | "en" | "ko" | "ja" | "zh" | "ru";
 
 const MULTILINGUAL = process.env.STT_MODEL ?? "onnx-community/whisper-small";
 const VIETNAMESE = process.env.STT_MODEL_VI ?? "huuquyet/PhoWhisper-small";
+/**
+ * Đo trực tiếp trên máy này, 10 câu tiếng Hàn thật (bench/voice-eval.ts),
+ * so với whisper-small đa ngôn ngữ đang dùng cho mọi ngôn ngữ khác:
+ *
+ *   whisper-small (đa ngôn ngữ)   WER 45,2%  CER 17,6%  số liệu 50%
+ *   moonshine-tiny-ko (chuyên)    WER 32,1%  CER 11,3%  số liệu 70%   RTF ~4-5 lần nhanh hơn
+ *
+ * Thắng ở MỌI chỉ số, đúng lý do PhoWhisper tồn tại cho tiếng Việt — model
+ * chuyên biệt cho một ngôn ngữ luôn thắng model đa ngôn ngữ dùng chung khi có
+ * sẵn. Đã thử cả `moonshine-base-ko` (61M, gấp đôi tham số): WER 38,1% — THUA
+ * bản tiny (27M) trên cùng bộ 10 câu, nên chọn tiny (nhỏ hơn, nhanh hơn, đo
+ * tốt hơn — không có lý do chọn bản lớn hơn).
+ */
+const KOREAN = process.env.STT_MODEL_KO ?? "onnx-community/moonshine-tiny-ko-ONNX";
 
 /** Whisper's own language names, which are not the ISO codes used elsewhere. */
 const WHISPER_LANG: Record<SttLang, string> = {
@@ -82,7 +96,12 @@ export function isSttLang(v: unknown): v is SttLang {
 }
 
 export function modelFor(lang: SttLang): string {
-  return lang === "vi" ? VIETNAMESE : MULTILINGUAL;
+  return lang === "vi" ? VIETNAMESE : lang === "ko" ? KOREAN : MULTILINGUAL;
+}
+
+/** Moonshine models need their own loading path — see `pipelineFor`. */
+function isMoonshine(modelId: string): boolean {
+  return modelId.includes("moonshine");
 }
 
 /* ------------------------------------------------------------------ audio */
@@ -167,6 +186,49 @@ const loaded = new Map<string, Asr>();
 /* Concurrent requests for the same cold model must not each start a download. */
 const loading = new Map<string, Promise<Asr>>();
 
+async function loadPipeline(modelId: string): Promise<Asr> {
+  const { pipeline, env } = await import("@huggingface/transformers");
+  env.cacheDir = modelDir();
+  return (await pipeline("automatic-speech-recognition", modelId, {
+    dtype: (process.env.STT_DTYPE ?? "q8") as never,
+    device: (process.env.STT_DEVICE ?? "cpu") as never,
+  })) as unknown as Asr;
+}
+
+/**
+ * Moonshine không đi qua `pipeline()` được — bắt được qua đo thật, không phải
+ * suy luận: `AutoProcessor.from_pretrained()` của Moonshine trong
+ * `@huggingface/transformers@3.8.1` không gắn tokenizer con vào processor
+ * (`processor.tokenizer` là `undefined` dù `tokenizer.json` có sẵn trên đĩa và
+ * tự nạp riêng vẫn chạy tốt), nên bước giải mã nội bộ của pipeline luôn ném
+ * `Unable to decode without a tokenizer`. Nạp ba phần riêng rồi tự giải mã.
+ */
+async function loadMoonshine(modelId: string): Promise<Asr> {
+  const { AutoTokenizer, AutoProcessor, AutoModelForSpeechSeq2Seq, env } = await import("@huggingface/transformers");
+  env.cacheDir = modelDir();
+  const dtype = (process.env.STT_DTYPE ?? "q8") as never;
+  const device = (process.env.STT_DEVICE ?? "cpu") as never;
+  const [tokenizer, processor, model] = await Promise.all([
+    AutoTokenizer.from_pretrained(modelId),
+    AutoProcessor.from_pretrained(modelId),
+    AutoModelForSpeechSeq2Seq.from_pretrained(modelId, { dtype, device }),
+  ]);
+  return async (audio: Float32Array) => {
+    const inputs = await processor(audio);
+    /**
+     * Công thức của chính paper Moonshine ("6 token/giây âm thanh") cắt cụt
+     * giữa câu trên câu hỏi khách sạn thật — đo được: "...왜 청구서에 포함되어
+     * 있�" (mất chữ cuối). Model tự dừng ở token kết thúc câu nên nới rộng
+     * ngân sách không tốn thêm gì khi câu ngắn; chỉ có hại khi ngân sách CHẶT.
+     */
+    const seconds = audio.length / STT_SAMPLE_RATE;
+    const max_new_tokens = Math.max(32, Math.floor(seconds * 20) + 20);
+    const outputs = await model.generate({ max_new_tokens, ...inputs });
+    const text = tokenizer.batch_decode(outputs as any, { skip_special_tokens: true })[0] ?? "";
+    return { text };
+  };
+}
+
 async function pipelineFor(modelId: string): Promise<Asr> {
   const hit = loaded.get(modelId);
   if (hit) {
@@ -179,15 +241,10 @@ async function pipelineFor(modelId: string): Promise<Asr> {
   if (inflight) return inflight;
 
   const p = (async () => {
-    const { pipeline, env } = await import("@huggingface/transformers");
     /* Weights live with the repo, not in a user-profile cache, so a deployment
        is one directory and an air-gapped box can be seeded by copying it. */
-    env.cacheDir = modelDir();
     const t0 = Date.now();
-    const asr = (await pipeline("automatic-speech-recognition", modelId, {
-      dtype: (process.env.STT_DTYPE ?? "q8") as never,
-      device: (process.env.STT_DEVICE ?? "cpu") as never,
-    })) as unknown as Asr;
+    const asr = isMoonshine(modelId) ? await loadMoonshine(modelId) : await loadPipeline(modelId);
     log(`stt: loaded ${modelId} in ${Date.now() - t0}ms`);
     loaded.set(modelId, asr);
     while (loaded.size > CACHE_SIZE) {
