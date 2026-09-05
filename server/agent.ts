@@ -773,6 +773,16 @@ function replyLang(conv: Conversation, profileLang: string): "vi" | "en" {
 const STRONG_LANGS = ["vi", "ko", "ja", "zh", "ru"] as const;
 const isStrong = (d: string | null): d is ReplyLang => !!d && (STRONG_LANGS as readonly string[]).includes(d);
 
+/**
+ * English function words with no accentless-Vietnamese homograph — see the long
+ * note at the call site in `offlineReplyLang` for which candidates were left out
+ * and why. One hit is enough: these words do not occur in Vietnamese typed
+ * without diacritics, so a single occurrence is as definitive as a Hangul
+ * character is for Korean.
+ */
+const EN_FUNCTION_WORDS =
+  /\b(?:what|when|where|which|who|whose|why|how|please|you|your|yours|is|are|was|were|have|has|had|does|did|would|could|should|will|shall|with|from|about|there|here|thanks|thank|hello)\b/i;
+
 export function offlineReplyLang(conv: Conversation, profileLang: string): ReplyLang {
   const guestMsgs = storage.listMessages(conv.id).filter((m) => m.role === "guest");
   const last = guestMsgs[guestMsgs.length - 1];
@@ -781,6 +791,37 @@ export function offlineReplyLang(conv: Conversation, profileLang: string): Reply
   /* A non-Latin script or a Vietnamese diacritic in THIS message is a definitive
      signal — the guest is unambiguously writing that language, so switch to it. */
   if (isStrong(detected)) return detected;
+
+  /* English is definitive too when the message carries English FUNCTION WORDS,
+     and this line is why it needs saying separately.
+
+     English is the only supported language with neither a script nor a
+     diacritic of its own, so `isStrong` cannot see it and every English turn
+     used to fall through to the inheritance rule below — landing on the
+     guest's stored profile, which at a Vietnamese resort is "vi". Result:
+     "What time is checkout?" answered in Vietnamese. Reported from a live demo
+     2026-09-05, and `test/language-routing.test.ts` had been failing on
+     exactly this assertion the whole time.
+
+     Plain ASCII on its own is NOT the fix — that is the trap the comment below
+     describes: accentless Vietnamese ("gia phong bao nhieu"), "ok", "helo" and
+     a keyboard mash are all ASCII, and flipping the thread to English on a
+     single "ok" is a worse bug than the one being fixed.
+
+     Function words separate them cleanly. The list below deliberately OMITS
+     the obvious candidates that collide with accent-stripped Vietnamese:
+       "the" ⇄ thế/thẻ      "can" ⇄ căn      "do"  ⇄ đo/độ
+       "to"  ⇄ tô/tổ        "it"  ⇄ ít       "in"  ⇄ in
+       "a"   ⇄ à/ạ          "be"  ⇄ bé/bể (bể bơi)   "am" ⇄ ăm/âm
+       "may" ⇄ mấy/máy      "hi"  ⇄ hi
+     Also omitted, for a different reason: the English hotel vocabulary
+     Vietnamese guests borrow wholesale — "booking", "check out", "room",
+     "voucher". "Booking cua toi bi huy chua?" is a Vietnamese sentence, and
+     matching on those words would flip it to English, which is the very
+     failure this guards against in the other direction.
+     Every word kept has no accentless-Vietnamese homograph, so a Vietnamese
+     guest typing without diacritics cannot trip it. */
+  if (detected === "en" && EN_FUNCTION_WORDS.test(last?.body ?? "")) return "en";
 
   /* Otherwise the message is plain ASCII (detected "en") or empty. That is NOT
      evidence of English: accentless Vietnamese ("gia phong bao nhieu"), a bare
