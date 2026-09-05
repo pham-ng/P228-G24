@@ -16,7 +16,7 @@ import { embed, MODEL_EMBED } from "./openai";
 import { EMBED_PROVIDER } from "./llm";
 import { EMBEDDING_VERSION } from "./index-health";
 import { hydeEnabled, shouldUseHyde, hypotheticalDocument, fuseVectors } from "./hyde";
-import { rerankEnabled, rerankDepth, rerankScores, applyRerank } from "./rerank";
+import { rerankEnabled, rerankDepth, getRerankScores, applyRerank } from "./rerank";
 import type { DocChunk } from "@shared/schema";
 
 const CHUNK_CHARS = 900;
@@ -337,7 +337,8 @@ export async function reindex(): Promise<{
        exist in the document. Injected per-chunk instead, same as kbAliasesFor
        already does for KB articles below, so every chunk of a split policy
        carries its own alias line. */
-    const vi = VI_ALIASES[p.topic] ? `\nAlso asked as: ${VI_ALIASES[p.topic]}` : "";
+    const aliasStr = VI_ALIASES_BY_CODE[p.code] ?? VI_ALIASES[p.topic];
+    const vi = aliasStr ? `\nAlso asked as: ${aliasStr}` : "";
     chunkText(`${p.summary}\n${flat}`).forEach((body, ordinal) => {
       add({
         kind: "policy",
@@ -371,6 +372,24 @@ export async function reindex(): Promise<{
       r.maxGuests != null
         ? `Tối đa ${r.maxGuests} khách (${combos.map((c) => `${c.adults} người lớn + ${c.children} trẻ em`).join(" hoặc ")}).`
         : null,
+      /**
+       * ĐÃ THỬ bỏ `r.description` khỏi đây (2026-09-04) để giảm dilution cho
+       * câu hỏi tổng hợp về phòng (BM-DIAG-056/059) — chẩn đoán ĐÚNG (mọi
+       * room_type có chung một đoạn văn quảng cáo gần giống hệt nhau, cùng
+       * lớp lỗi "search-alias dilution" báo cáo Phase 6.5 mô tả cho
+       * rate_package), nhưng đo hồi quy đầy đủ (520 ca, so passages + outcome
+       * trước/sau, tách khỏi nhiễu sinh ngẫu nhiên của model — 121/520 câu
+       * trả lời đổi lời giữa hai lượt chạy dù không đổi gì, đã lọc riêng 18
+       * ca có CẢ passages đổi LẪN kết quả đổi) cho kết quả 9 ca cải thiện / 9
+       * ca hồi quy (BM-DIAG-078/081 đã đúng từ trước, quay về trả lời RỖNG) —
+       * và chính BM-DIAG-056 vẫn KHÔNG được sửa. Đúng hiện tượng "sửa một ca
+       * thì hỏng một ca khác" mà 06-RRF-REMEDIATION.md đã cảnh báo cho
+       * category cap — xác nhận lần hai, qua một đòn bẩy khác (rút gọn nội
+       * dung thay vì giới hạn category). ĐÃ LÙI LẠI, giữ nguyên description.
+       * Hướng thử sau nên tinh vi hơn: chỉ rút câu mẫu lặp × chữ, không rút
+       * cả field — hoặc tăng LOCAL_PASSAGES riêng cho câu hỏi dạng tổng hợp,
+       * không đụng nội dung từng phòng.
+       */
       r.description,
       `Tiện ích công bố: ${amenities.join(", ")}.`,
     ]
@@ -590,11 +609,29 @@ const VI_ALIASES: Record<string, string> = {
      adding: the fact ("pets: not allowed anywhere on the property") exists,
      only the guest's actual word for it was missing from the index. */
   conduct:
-    "nội quy, quy định trong phòng, hút thuốc bị phạt, mang thú nuôi, mang chó, mang mèo, chó mèo, đồ ăn bên ngoài, sầu riêng, khách đến thăm, giờ đóng cửa hồ bơi, tắm biển, tiếng ồn ban đêm",
+    "nội quy, quy định trong phòng, hút thuốc bị phạt, mang thú nuôi, mang chó, mang mèo, chó mèo, đồ ăn bên ngoài, sầu riêng, khách đến thăm, giờ đóng cửa hồ bơi, tắm biển, tiếng ồn ban đêm, về khuya, về muộn, ra vào ban đêm, khách lưu trú ra vào, mang bếp, nấu ăn trong phòng, đun nấu",
   booking:
     "loại gói, mã gói phòng, khách lẻ, khách đoàn, rời sớm, voucher, chuyển phòng, hoàn tiền, danh sách khách, đổi tên khách",
   dispute: "khiếu nại, phản hồi, tranh chấp, hotline, thời gian trả lời khiếu nại",
   privacy: "dữ liệu cá nhân, quyền riêng tư, thông tin khách, bảo mật thẻ, dữ liệu trẻ em",
+};
+
+/* Three service policies (room service, laundry, transport) share topic
+   "booking" with the package/booking-code policies, so the topic-keyed aliases
+   above tagged them with "mã gói phòng, đổi tên khách…" — words a guest asking
+   "đặt đồ ăn lên phòng" never uses, while the words they DO use were absent.
+   Measured effect: "gọi đồ ăn lên phòng" happened to match and retrieved
+   ROOM_SERVICE, but "đặt đồ ăn lên phòng món gì" surfaced LAUNDRY instead.
+   Keyed by CODE so the fix rides only these three and does not touch the topic
+   field, which drives routing elsewhere. Preferred over the topic aliases when
+   present. */
+const VI_ALIASES_BY_CODE: Record<string, string> = {
+  ROOM_SERVICE:
+    "đặt đồ ăn lên phòng, gọi đồ ăn lên phòng, gọi món lên phòng, ăn tại phòng, phục vụ tại phòng, room service, thực đơn phòng, đồ ăn tận phòng, gọi đồ ăn, đặt món ăn, giờ phục vụ đồ ăn, ship đồ ăn lên phòng, order đồ ăn",
+  LAUNDRY:
+    "giặt là, giặt ủi, giặt đồ, giặt quần áo, giặt khô, là ủi, bảng giá giặt, giặt nhanh, giặt hoả tốc, giặt lấy trong ngày, giá giặt một bộ, giặt bao nhiêu tiền",
+  TRANSPORT:
+    "đưa đón, xe đưa đón, đón sân bay, taxi, thuê xe, di chuyển, đi lại, xe điện, cáp treo, tàu ra đảo, đón từ sân bay Cam Ranh, ra đảo bằng gì",
 };
 
 /**
@@ -927,7 +964,7 @@ export type RetrievalResult = {
  */
 export async function hybridSearch(
   query: string,
-  opts: { k?: number; kind?: "kb" | "policy" | "all" } = {},
+  opts: { k?: number; kind?: "kb" | "policy" | "all"; useRerank?: boolean } = {},
 ): Promise<RetrievalResult> {
   const k = opts.k ?? 4;
   const kind = opts.kind ?? "all";
@@ -998,7 +1035,13 @@ export async function hybridSearch(
    * bench/baselines/kiosk-validation/06-RRF-REMEDIATION.md for why this
    * exists: with it off, ten near-duplicate rate_package chunks can occupy
    * most of a 5-slot pick even when none of them answer the question. */
-  const categoryCap = Number(process.env.RRF_CATEGORY_CAP ?? Infinity);
+  /* `Number(process.env.X ?? Infinity)` không đủ an toàn: một biến đặt RỖNG
+     (`RRF_CATEGORY_CAP=` trong .env) không phải nullish nên `??` bỏ qua, và
+     `Number("")` = 0 — khiến `if (catN >= 0) continue` chặn MỌI đoạn, retrieval
+     trả về rỗng, mọi câu bị đẩy cho nhân viên. Đã mắc lỗi này khi đo. Chỉ nhận
+     một số hữu hạn dương; còn lại rơi về Infinity (không giới hạn). */
+  const capRaw = Number(process.env.RRF_CATEGORY_CAP);
+  const categoryCap = Number.isFinite(capRaw) && capRaw >= 1 ? capRaw : Infinity;
 
   // Deduplicate: at most two chunks per source document.
   const perDoc = new Map<string, number>();
@@ -1034,6 +1077,21 @@ export async function hybridSearch(
     return inter / (a.size + b.size - inter);
   };
 
+  /**
+   * Gom một nhóm SÂU HƠN k để reranker có cái xếp lại.
+   *
+   * Đo trên bộ golden: tài liệu đúng nằm trong top-10 tới 90% số ca, nhưng chỉ
+   * đứng #1 ở 56% — tức 1/3 số câu, đáp án CÓ trong nhóm ứng viên mà bị đội
+   * phòng đẩy xuống hạng 2-10. Cắt ngay còn k=5 rồi mới nghĩ tới rerank thì
+   * reranker không bao giờ thấy hạng 6-10. Nên gom `rerankDepth` (mặc định
+   * ~12) ứng viên đã lọc trùng, xếp lại bằng cross-encoder LLM, rồi mới lấy k.
+   *
+   * Khi rerank tắt, `poolSize === k` và vòng này hành xử y như cũ — thay đổi
+   * này không đụng gì tới đường không-rerank.
+   */
+  const wantRerank = opts.useRerank ?? rerankEnabled();
+  const poolSize = wantRerank ? Math.max(k, rerankDepth()) : k;
+
   for (const r of ranked) {
     const key = `${r.chunk.kind}:${r.chunk.refId}`;
     const n = perDoc.get(key) ?? 0;
@@ -1046,8 +1104,36 @@ export async function hybridSearch(
     perCategory.set(r.chunk.category, catN + 1);
     pickedTokens.push(toks);
     picked.push(r);
-    if (picked.length >= k) break;
+    if (picked.length >= poolSize) break;
   }
+
+  /**
+   * Xếp lại bằng reranker, rồi cắt còn k.
+   *
+   * Cross-encoder đọc câu hỏi VÀ từng đoạn CÙNG LÚC, nên nó thấy được điều mà
+   * chấm điểm độc lập từng đoạn không thấy: một trang "Gói giá phòng" liệt kê
+   * "cáp treo" như một tiện ích kèm theo KHÔNG phải câu trả lời cho câu hỏi về
+   * cáp treo. An toàn theo thiết kế: nó chỉ SẮP XẾP LẠI các đoạn retrieval đã
+   * tìm — không thêm, không sửa, không bịa. Model lỗi thì giữ nguyên thứ tự cũ.
+   */
+  if (wantRerank && picked.length > 1) {
+    const candidates = picked.map((r, i) => ({ id: i, title: r.chunk.title, text: r.chunk.body }));
+    try {
+      const scores = await getRerankScores(query, candidates);
+      if (scores) {
+        const reordered = applyRerank(
+          picked.map((_, i) => ({ id: i })),
+          scores,
+        ).map((x) => picked[x.id]);
+        picked.length = 0;
+        picked.push(...reordered);
+      }
+    } catch {
+      /* Giữ thứ tự first-stage — reranker chỉ là lớp cải thiện, không phải
+         điểm hỏng chí mạng. */
+    }
+  }
+  picked.length = Math.min(picked.length, k);
 
   if (!picked.length)
     return {
@@ -1211,7 +1297,7 @@ export async function retrievalRanking(
       const c = chunkFor(d.docKey);
       return { id: i, title: c?.title ?? d.docKey, text: c?.body ?? "" };
     });
-    const scores = await rerankScores(query, candidates);
+    const scores = await getRerankScores(query, candidates);
     if (scores) {
       const reordered = applyRerank(
         head.map((_, i) => ({ id: i })),

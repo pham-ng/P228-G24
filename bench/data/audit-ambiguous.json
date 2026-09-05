@@ -1,0 +1,387 @@
+[
+ {
+  "id": "BM-REAL-001",
+  "q": "Giá bao nhiêu ạ?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Giá bao nhiêu» trống chủ thể — đoán là báo sai giá"
+ },
+ {
+  "id": "BM-REAL-004",
+  "q": "Quầy bar mở cửa mấy giờ vậy?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-REAL-030",
+  "q": "Đặt bàn ăn tối cho tôi nhé",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu đặt bàn"
+ },
+ {
+  "id": "BM-REAL-033",
+  "q": "Tôi muốn hỏi về gói phòng",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«hỏi về gói phòng» — quá rộng, cần biết muốn biết gì"
+ },
+ {
+  "id": "BM-REAL-045",
+  "q": "Cho tôi đặt lúc 7 giờ nhé.",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«đặt lúc 7 giờ» — thiếu dịch vụ, và 7h sáng hay tối"
+ },
+ {
+  "id": "BM-REAL-046",
+  "q": "Mấy giờ mở cửa vậy?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Mấy giờ mở cửa» — mỗi tiện ích một khung giờ"
+ },
+ {
+  "id": "BM-REAL-053",
+  "q": "Cho tôi hỏi giá vé bao nhiêu?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-REAL-079",
+  "q": "Tôi có được giảm giá không?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "ưu đãi phụ thuộc hạng thẻ — đoán là cam kết sai"
+ },
+ {
+  "id": "BM-REAL-089",
+  "q": "Bao lâu thì tới ạ?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Bao lâu thì tới» — thiếu chủ thể"
+ },
+ {
+  "id": "BM-REAL-098",
+  "q": "Huỷ được không anh?",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "hỏi về khả năng huỷ — vẫn cần làm rõ huỷ gì, nhưng là nhánh giao dịch"
+ },
+ {
+  "id": "BM-AMB-001",
+  "q": "Cái đó giá bao nhiêu?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Cái đó» — đại từ không có tiền ngữ"
+ },
+ {
+  "id": "BM-AMB-002",
+  "q": "Đặt cho tôi một phòng nhé.",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu đặt phòng"
+ },
+ {
+  "id": "BM-AMB-003",
+  "q": "Có phòng không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-004",
+  "q": "Ngày mai thì sao?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Ngày mai thì sao» — thiếu chủ thể"
+ },
+ {
+  "id": "BM-AMB-005",
+  "q": "Ăn sáng bao nhiêu?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-006",
+  "q": "Gói đó gồm những gì?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Gói đó» — đại từ không có tiền ngữ"
+ },
+ {
+  "id": "BM-AMB-007",
+  "q": "Có giảm giá không?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "như trên"
+ },
+ {
+  "id": "BM-AMB-008",
+  "q": "Đổi ngày giúp tôi.",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu đổi ngày"
+ },
+ {
+  "id": "BM-AMB-009",
+  "q": "Mở cửa mấy giờ?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "như trên"
+ },
+ {
+  "id": "BM-AMB-010",
+  "q": "Sức chứa thế nào?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Sức chứa» của phòng, nhà hàng hay hội trường"
+ },
+ {
+  "id": "BM-AMB-011",
+  "q": "Có miễn phí không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-012",
+  "q": "Cho tôi xin số điện thoại.",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-013",
+  "q": "Hủy giúp tôi.",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu huỷ"
+ },
+ {
+  "id": "BM-AMB-014",
+  "q": "Tôi muốn gặp quản lý.",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu gặp quản lý — chuyển người là đúng vai"
+ },
+ {
+  "id": "BM-AMB-015",
+  "q": "Xe chạy lúc mấy giờ?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-016",
+  "q": "Cho tôi xem thực đơn.",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-017",
+  "q": "Có chỗ đỗ xe không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-018",
+  "q": "Ở được mấy người?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-019",
+  "q": "Cho tôi biết giờ check-in.",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-020",
+  "q": "Gửi thông tin phòng cho tôi.",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-021",
+  "q": "Phòng đó rộng bao nhiêu?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Phòng đó» — đại từ không có tiền ngữ"
+ },
+ {
+  "id": "BM-AMB-022",
+  "q": "Cho tôi đặt bàn tối nay.",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu đặt bàn"
+ },
+ {
+  "id": "BM-AMB-023",
+  "q": "Món đó có cay không?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Món đó» — đại từ không có tiền ngữ"
+ },
+ {
+  "id": "BM-AMB-024",
+  "q": "Có bơi được không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-025",
+  "q": "Mấy giờ đóng cửa?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Mấy giờ đóng cửa» — thiếu địa điểm"
+ },
+ {
+  "id": "BM-AMB-026",
+  "q": "Phụ thu bao nhiêu?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Phụ thu» của trẻ em, thêm người hay trả phòng muộn"
+ },
+ {
+  "id": "BM-AMB-027",
+  "q": "Có cho mang đồ ăn vào không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-028",
+  "q": "Tính phí thế nào?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Tính phí thế nào» — trống chủ thể"
+ },
+ {
+  "id": "BM-AMB-029",
+  "q": "Có tập gym được không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-030",
+  "q": "Vé bao nhiêu tiền?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Vé bao nhiêu» — resort có nhiều loại vé giá khác nhau"
+ },
+ {
+  "id": "BM-AMB-031",
+  "q": "Có spa không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-032",
+  "q": "Đi ra biển thế nào?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-033",
+  "q": "Trẻ em tính sao?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-034",
+  "q": "Thêm người phụ thu thế nào?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Thêm người phụ thu» — thiếu hạng phòng"
+ },
+ {
+  "id": "BM-AMB-035",
+  "q": "Cho tôi gặp lễ tân.",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-036",
+  "q": "Dịch vụ đó ở đâu?",
+  "cu": "clarify",
+  "moi": "clarify",
+  "ghi_chu": "«Dịch vụ đó» — đại từ không có tiền ngữ"
+ },
+ {
+  "id": "BM-AMB-037",
+  "q": "Có thanh toán thẻ được không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-038",
+  "q": "Cho tôi đổi phòng khác.",
+  "cu": "clarify",
+  "moi": "transaction",
+  "ghi_chu": "yêu cầu đổi phòng"
+ },
+ {
+  "id": "BM-AMB-039",
+  "q": "Phòng này ở được mấy người lớn?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-040",
+  "q": "Có xe đưa đón không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-041",
+  "q": "Có internet không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-042",
+  "q": "Cho xin mật khẩu wifi.",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-043",
+  "q": "Ở đây có dịch vụ gì?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-044",
+  "q": "Quầy bar mở chưa?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ },
+ {
+  "id": "BM-AMB-045",
+  "q": "Có phục vụ tại phòng không?",
+  "cu": "clarify",
+  "moi": "answer",
+  "ghi_chu": "câu có một câu trả lời xác định trong corpus — liệt kê đủ là phục vụ tốt hơn hỏi ngược"
+ }
+]

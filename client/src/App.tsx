@@ -22,6 +22,7 @@ import PoliciesPage from "@/pages/policies";
 import CampaignsPage from "@/pages/campaigns";
 import AuditPage from "@/pages/audit";
 import BenchmarkPage from "@/pages/benchmark";
+import VoiceBenchmarkPage from "@/pages/voice-benchmark";
 import TracesPage from "@/pages/traces";
 import GuardrailsPage from "@/pages/guardrails";
 import SettingsPage from "@/pages/settings";
@@ -117,6 +118,7 @@ function AppRouter() {
       <Route path="/staff/policies" component={() => <Protected component={PoliciesPage} needs="edit_content" />} />
       <Route path="/staff/campaigns" component={() => <Protected component={CampaignsPage} needs="configure" />} />
       <Route path="/staff/benchmark" component={() => <Protected component={BenchmarkPage} needs="configure" />} />
+      <Route path="/staff/voice" component={() => <Protected component={VoiceBenchmarkPage} needs="configure" />} />
       <Route path="/staff/traces" component={() => <Protected component={TracesPage} needs="configure" />} />
       <Route path="/staff/audit" component={() => <Protected component={AuditPage} needs="configure" />} />
       <Route path="/staff/guardrails" component={() => <Protected component={GuardrailsPage} needs="configure" />} />

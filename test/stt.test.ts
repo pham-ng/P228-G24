@@ -104,6 +104,19 @@ ok(
   cleanTranscript("dạ vâng dạ vâng ạ em nghe rồi") === "dạ vâng dạ vâng ạ em nghe rồi",
   "a partial repeat inside a longer sentence is kept",
 );
+/* Caught live from moonshine-tiny-ko once its token budget was widened past
+   the paper's own "6 tokens/sec" cap to stop truncating real sentences — the
+   whole utterance said exactly twice, a different shape from the padding
+   loop above (that one needs 3+ repeats of a ≤6-word unit). */
+ok(
+  cleanTranscript("저희 방은 성인 두 명과 다섯 살 어린이 한 명입니다 저희 방은 성인 두 명과 다섯 살 어린이 한 명입니다") ===
+    "저희 방은 성인 두 명과 다섯 살 어린이 한 명입니다",
+  "a whole sentence said exactly twice collapses to one",
+);
+/* The 4-word-per-half floor must not eat a guest genuinely saying a short
+   phrase twice for emphasis. */
+ok(cleanTranscript("please please help me now") === "please please help me now", "a short doubled phrase is kept");
+ok(cleanTranscript("no no no no") === "no no no no", "a very short repeat stays under the 4-word floor");
 ok(cleanTranscript("   ") === "", "whitespace is empty");
 ok(cleanTranscript("ok") === "ok", "a two-letter answer survives");
 
@@ -112,7 +125,18 @@ console.log("=== MODEL ROUTING ===");
    into it returns Vietnamese-shaped nonsense rather than an error, so only
    Vietnamese may reach it. */
 ok(modelFor("vi").includes("PhoWhisper"), "Vietnamese gets the Vietnamese specialist");
-for (const l of ["en", "ko", "ja", "zh", "ru"] as const)
+/* moonshine-tiny-ko measured (bench/voice-eval.ts, 10 real Korean cases)
+   beating the multilingual model on every axis — WER 45.2%->32.1%, CER
+   17.6%->11.3%, number accuracy 50%->70%, ~4-5x faster — same reason
+   Vietnamese gets its own specialist instead of the shared model. */
+ok(modelFor("ko").includes("moonshine"), "Korean gets the Korean specialist");
+/* moonshine-base-zh + zhConverter measured (bench/voice-eval.ts, 10 real
+   Chinese cases) beating whisper-small + zhConverter: CER 19.7%->11.0%,
+   number accuracy 80-90%->100%, ~4x faster. moonshine-tiny-zh was tried
+   first and rejected — its own ONNX export on the Hub is missing
+   decoder_model_merged*.onnx entirely, so it cannot load at all. */
+ok(modelFor("zh").includes("moonshine"), "Chinese gets the Chinese specialist");
+for (const l of ["en", "ja", "ru"] as const)
   ok(modelFor(l).includes("whisper-small") && !modelFor(l).includes("Pho"), `${l} gets the multilingual model`);
 
 ok(isSttLang("vi") && isSttLang("ru"), "supported languages are accepted");

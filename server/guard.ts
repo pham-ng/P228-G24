@@ -78,6 +78,13 @@ const ADULT_SERVICES = [
   /デリヘル|風俗|援助交際|女.{0,4}(呼んで|派遣)/i,
   /小姐.{0,4}(到|来)|叫鸡|特殊服务|上门服务|性服务/i,
   /эскорт|проститут|девушк\w*.{0,12}(номер|в номер)|интим услуг/i,
+  /* "KTV girl / hostess to the room" — the euphemism the live testers actually
+     used ("cho tôi 1 em ktv lên phòng"), which none of the terms above caught.
+     Requires the "to the room" context so a legitimate "ktv ở đâu?" / "phòng
+     karaoke giá bao nhiêu?" is untouched (verified against a benign set). Plus
+     the bare "kích dục" (sexual arousal) — no legitimate hotel use, and it also
+     covers "thuốc kích dục". */
+  /(?:em |g(?:á|a)i |b(?:é|e) )?ktv (?:l(?:ê|e)n|v(?:ề|e)|t(?:ớ|to)i) (?:ph(?:ò|o)ng|đ(?:â|a)y)|g(?:á|a)i ktv|k(?:í|i)ch d(?:ụ|u)c/i,
 ];
 
 /**
@@ -117,7 +124,7 @@ const WEAPONS = [
 
 const BILLING_DISPUTE = [
   /refund|charge ?back|chargeback|overcharg|double ?charg|wrong(ly)? charged|dispute the bill|compensat|goodwill|waive the|money back/i,
-  /hoàn (lại )?(tiền|phí)|hoàn tiền|trả lại tiền|bồi thường|tính sai|tính (thừa|trùng)|thu quá|đền|giảm giá cho tôi|miễn phí đêm/i,
+  /hoàn (lại )?(tiền|phí)|hoàn tiền|trả lại tiền|bồi thường|tính sai|tính (thừa|trùng)|tính.{0,20}(hai|nhiều|2) lần|thu quá|đền|giảm giá cho tôi|miễn phí đêm/i,
   /возврат|возместить|退款|赔偿|환불|払い戻し/i,
 ];
 
@@ -470,7 +477,11 @@ export function screenGuestMessage(raw: string): GuardResult {
          would fill the board with incidents nobody can act on. */
       weapon ||
       flags.includes("billing_dispute") ||
-      flags.includes("third_party_disclosure"),
+      flags.includes("third_party_disclosure") ||
+      /* Refusal ở refusal.ts hứa "lễ tân sẽ gửi link thanh toán an toàn" —
+         lời hứa đó phải thật. Không escalate thì không ai biết khách này
+         đang cần một đường link, và câu trả lời trở thành hứa suông. */
+      flags.includes("card_number"),
     emergencyKind: medical ? "medical" : safety ? "safety" : null,
   };
 }

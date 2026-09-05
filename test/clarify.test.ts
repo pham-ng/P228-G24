@@ -7,7 +7,7 @@
  *
  *   npx tsx test/clarify.test.ts
  */
-import { needsClarification } from "../server/clarify";
+import { needsClarification, mentionsKnownSubject } from "../server/clarify";
 
 let failures = 0;
 function ok(cond: boolean, msg: string) {
@@ -32,6 +32,44 @@ for (const [q, want] of asks) {
   ok(r?.attribute === want, `"${q}" → hỏi lại (${want})`);
   ok(!!r?.reply && r.reply.length > 20, `  …và câu hỏi lại có nội dung`);
 }
+
+console.log("=== ẢNH: ca thật từ hội thoại 2026-09-01 ===");
+/* Bản gốc có DẤU CÁCH KÉP giữa "hình" và "ảnh" — đúng như khách gõ. Nếu
+   regex dùng dấu cách đơn thay vì \s+ thì ca này im lặng trượt qua. */
+ok(needsClarification("cho tôi xem hình  ảnh được không")?.attribute === "photos", "dấu cách kép vẫn nhận ra");
+ok(needsClarification("Can I see some photos?")?.attribute === "photos", "tiếng Anh cũng nhận ra");
+ok(needsClarification("chụp ảnh giúp tôi được không")?.attribute === "photos", "chụp ảnh cũng khớp");
+/* "ảnh" gập dấu thành "anh" — TRÙNG với đại từ "anh/chị". Đây là bài test
+   quan trọng nhất trong cả khối: nếu quy tắc lỏng tay khớp "anh" đứng một
+   mình, gần như MỌI câu tiếng Việt trong hội thoại khách sạn sẽ bị hiểu
+   nhầm thành yêu cầu xem ảnh. */
+ok(needsClarification("anh ơi cho em hỏi chút")?.attribute !== "photos", "'anh' một mình KHÔNG bị hiểu thành ảnh");
+ok(needsClarification("dạ anh chờ em chút ạ")?.attribute !== "photos", "…kể cả khi đứng giữa câu");
+ok(needsClarification("anh có thể giúp tôi đặt phòng không")?.attribute !== "photos", "…hay đầu câu");
+/* Có nêu chủ thể (phòng) thì không hỏi lại — cùng luật với 6 thuộc tính kia. */
+ok(needsClarification("cho tôi xem ảnh phòng Deluxe") === null, "có nêu phòng thì trả lời bình thường");
+
+console.log("=== RANH GIỚI TỪ: chuỗi con ngắn không được ăn theo từ dài hơn ===");
+/* Bắt được khi viết test cho "photos": SUBJECTS.some(s => f.includes(s)) so
+   chuỗi con thô, không có \b — nên "xe" (xe cộ) khớp bên trong "xem", và
+   "ui" (bàn ủi) khớp bên trong "vui". Cả hai khiến một câu hỏi giá/thông tin
+   KHÔNG nêu dịch vụ nào bị hiểu nhầm là đã nêu chủ thể, nên không được hỏi
+   lại dù đáng lẽ phải hỏi. */
+ok(
+  needsClarification("vui lòng cho tôi biết giá bao nhiêu")?.attribute === "price",
+  "'vui lòng' không bị hiểu nhầm thành 'ủi' (bàn ủi)",
+);
+ok(needsClarification("xem thử giá thế nào")?.attribute === "price", "'xem' không bị hiểu nhầm thành 'xe'");
+/* Đối chứng: các mục SUBJECTS thật vẫn phải khớp bình thường sau khi đổi
+   sang \b — không phải chỉ thêm ranh giới rồi vô tình không khớp gì nữa. */
+ok(needsClarification("giá phòng bao nhiêu") === null, "'phòng' (chủ thể thật) vẫn được nhận ra");
+ok(needsClarification("xe đưa đón sân bay giá bao nhiêu") === null, "'sân bay' (chủ thể thật) vẫn được nhận ra");
+
+console.log("=== mentionsKnownSubject: soi LỊCH SỬ, không phải câu hiện tại ===");
+ok(mentionsKnownSubject("") === false, "lịch sử rỗng → không có chủ thể");
+ok(mentionsKnownSubject("giá phòng Deluxe Giường Đôi bao nhiêu") === true, "lịch sử vừa nhắc 'phòng' → có chủ thể");
+ok(mentionsKnownSubject("nhà hàng Lotus mở cửa mấy giờ") === true, "lịch sử vừa nhắc 'nhà hàng' → có chủ thể");
+ok(mentionsKnownSubject("vị trí check-in của khách sạn ở đâu") === false, "hỏi vị trí check-in KHÔNG tính là đã nêu chủ thể ảnh");
 
 console.log("\n=== KHÔNG ĐƯỢC HỎI LẠI: khách đã nói rõ chủ thể ===");
 /* Every one of these names what it is about. Firing here would ask a guest to

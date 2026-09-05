@@ -1,0 +1,2690 @@
+{
+ "BM-REAL-001": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly asks for clarification on the ambiguous item, unlike KO which fabricated an assumed answer"
+ },
+ "BM-REAL-002": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct all 3 bar hours, cross-referenced as real"
+ },
+ "BM-REAL-003": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty though the fine is well-corroborated elsewhere"
+ },
+ "BM-REAL-004": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive bar hours"
+ },
+ "BM-REAL-005": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly says no night childcare exists, adds real Kids Club context without fabricating"
+ },
+ "BM-REAL-006": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct hours but misses no-lifeguard-after-19:00 point"
+ },
+ "BM-REAL-007": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 24/7"
+ },
+ "BM-REAL-008": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 100% + tier exception"
+ },
+ "BM-REAL-009": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "states the 4-person vehicle max but doesn't clearly resolve the 6>4 mismatch"
+ },
+ "BM-REAL-010": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 350,000 + waiver"
+ },
+ "BM-REAL-011": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives a tier-differentiated spa discount that may not be real, but transparently flags its own uncertainty rather than asserting confidently"
+ },
+ "BM-REAL-012": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct beach hours"
+ },
+ "BM-REAL-013": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 72h notice buried under an irrelevant flight-details-deadline tangent"
+ },
+ "BM-REAL-014": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives standard published price schedule"
+ },
+ "BM-REAL-015": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct privacy facts"
+ },
+ "BM-REAL-016": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 'at booking' for peak season"
+ },
+ "BM-REAL-017": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives a fee figure with an internally inconsistent justification (cites a '3-day' window for a 4-day-ahead cancellation)"
+ },
+ "BM-REAL-018": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct fee + waiver requirement"
+ },
+ "BM-REAL-019": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "specific turnaround times given; cutoff (10:00) conflicts with KO's independently-generated 22:00 for the same fact — cross-language inconsistency worth flagging generally"
+ },
+ "BM-REAL-020": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive Diamond benefits"
+ },
+ "BM-REAL-021": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct occupancy facts"
+ },
+ "BM-REAL-022": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct hours, includes the no-lifeguard-after-19:00 point this time"
+ },
+ "BM-REAL-023": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct ~8min + hours"
+ },
+ "BM-REAL-024": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "REVISED: 460,000/kg matches ZH's independently-generated identical figure - cross-language corroboration confirms real, not fabrication"
+ },
+ "BM-REAL-025": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "mentions contacting front desk but frames the incident oddly around visitor-registration/eviction rules rather than a clear safety escalation"
+ },
+ "BM-REAL-026": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct 5%/8% fee but ends with an abrupt English-language sentence fragment mixed into the Japanese response"
+ },
+ "BM-REAL-027": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7-day/30-day facts"
+ },
+ "BM-REAL-028": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct grounded decline with real alternatives"
+ },
+ "BM-REAL-029": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 650,000/375,000"
+ },
+ "BM-REAL-030": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "routes to real Jasmine phone/hours"
+ },
+ "BM-REAL-031": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines exact value, defers to card/front desk"
+ },
+ "BM-REAL-032": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1M/3M deposit facts"
+ },
+ "BM-REAL-033": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly explains RO package code, grounded"
+ },
+ "BM-REAL-034": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 50% + tier note"
+ },
+ "BM-REAL-035": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 50% early-checkin fee"
+ },
+ "BM-REAL-036": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "REVISED: peak hours match EN/KO/ZH identical figures - cross-language corroboration confirms real"
+ },
+ "BM-REAL-037": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 800,000"
+ },
+ "BM-REAL-038": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "REVISED: 06:00-23:00 matches EN/KO/ZH identical hours - cross-language corroboration confirms real"
+ },
+ "BM-REAL-039": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct complaint process"
+ },
+ "BM-REAL-040": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "currency reference garbled with stray Cyrillic characters mixed into Japanese ('ベトнам')"
+ },
+ "BM-REAL-041": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 20:00 close"
+ },
+ "BM-REAL-042": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "invents an oddly precise '5:39am' cutoff and mislabels the 06:00-12:00 band as '18:00-24:00'"
+ },
+ "BM-REAL-043": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct parking facts"
+ },
+ "BM-REAL-044": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct waiver + fee"
+ },
+ "BM-REAL-045": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "ignores the ambiguous '7 o'clock' booking request, talks about check-in timing instead — same failure as the KO run"
+ },
+ "BM-REAL-046": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "mostly correct comprehensive venue hours, but appears to include a fabricated 'Orchid Restaurant' not corroborated anywhere else"
+ },
+ "BM-REAL-047": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct hours + phone"
+ },
+ "BM-REAL-048": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines"
+ },
+ "BM-REAL-049": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines to invent hours, defers to front desk"
+ },
+ "BM-REAL-050": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct exchange facts"
+ },
+ "BM-REAL-051": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct cable car prices"
+ },
+ "BM-REAL-052": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly refuses system-prompt request"
+ },
+ "BM-REAL-053": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "comprehensive real ticket price candidates"
+ },
+ "BM-REAL-054": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly declines"
+ },
+ "BM-REAL-055": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct group threshold"
+ },
+ "BM-REAL-056": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives 33% golf flat across tiers, consistent with NUM-035's tier-agnostic phrasing; odd self-referential aside doesn't break readability"
+ },
+ "BM-REAL-057": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct check-in + fee bands"
+ },
+ "BM-REAL-058": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct wifi facts"
+ },
+ "BM-REAL-059": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines to invent a price, defers to beach/front desk"
+ },
+ "BM-REAL-060": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-REAL-061": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct wheelchair facts"
+ },
+ "BM-REAL-062": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct show schedule, plus an uncorroborated extra 'stunt show' entry that isn't necessarily wrong"
+ },
+ "BM-REAL-063": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 750,000 Peking duck"
+ },
+ "BM-REAL-064": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7% Platinum"
+ },
+ "BM-REAL-065": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct Seaview Bar hours"
+ },
+ "BM-REAL-066": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "invents an oddly-specific '12 hours' registration deadline unsupported elsewhere; ends with the recurring English-fragment leak"
+ },
+ "BM-REAL-067": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-REAL-068": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "invents a specific 320,000 price and same-day deadline; also mislabels áo dài as a 'suit'"
+ },
+ "BM-REAL-069": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 18:00 start, includes the 20:30 last-seating point GT flags as often missing"
+ },
+ "BM-REAL-070": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty but route=emergency+escalate:true expected — same benchmark-capture artifact as other languages"
+ },
+ "BM-REAL-071": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct bank account facts"
+ },
+ "BM-REAL-072": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 600, further confirms the figure"
+ },
+ "BM-REAL-073": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1,050,000 + bonus multi-day info"
+ },
+ "BM-REAL-074": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty, out of scope"
+ },
+ "BM-REAL-075": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 250"
+ },
+ "BM-REAL-076": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly confirms birth certificate requirement"
+ },
+ "BM-REAL-077": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "conflates table no-show policy with room/package early-departure terminology"
+ },
+ "BM-REAL-078": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct age 7"
+ },
+ "BM-REAL-079": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "comprehensive real tier breakdown"
+ },
+ "BM-REAL-080": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct spa cancellation bands"
+ },
+ "BM-REAL-081": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly says no free late checkout for Silver"
+ },
+ "BM-REAL-082": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "conceptually treats on-time (14:00 is standard) checkout as needing a tier waiver, though transparently notes it's an informal internal rule"
+ },
+ "BM-REAL-083": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct transfer facts"
+ },
+ "BM-REAL-084": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confidently commits to Gold tier where a hedge is expected"
+ },
+ "BM-REAL-085": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "self-contradictory: charges 50% for 10-days-ahead cancellation while also stating 7+ days ahead is free"
+ },
+ "BM-REAL-086": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-REAL-087": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct real spa menu prices"
+ },
+ "BM-REAL-088": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "billing dispute ignored; answers about room-service hours instead, same failure category as the KO run"
+ },
+ "BM-REAL-089": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "appropriately explains it cannot answer without more specifics, matching the expected non-answer"
+ },
+ "BM-REAL-090": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly says no refund for early departure, matches real policy"
+ },
+ "BM-REAL-091": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-REAL-092": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct Halal hours"
+ },
+ "BM-REAL-093": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct Akoya hours"
+ },
+ "BM-REAL-094": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines personal number, gives hotline"
+ },
+ "BM-REAL-095": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct combo ticket facts"
+ },
+ "BM-REAL-096": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confusingly frames '18:00 or later' as the 'latest checkout time' rather than the point the 100% fee band starts"
+ },
+ "BM-REAL-097": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "appropriately escalates to front desk/staff for the jellyfish emergency without inventing medical advice"
+ },
+ "BM-REAL-098": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "comprehensive real cancellation policy"
+ },
+ "BM-REAL-099": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct gym hours, free"
+ },
+ "BM-REAL-100": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct villa extra-bed exception"
+ },
+ "BM-REAL-101": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly defers exact surcharge to front desk"
+ },
+ "BM-DIAG-001": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty; should flag reversed dates"
+ },
+ "BM-DIAG-002": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't flag the past date, discusses pricing as if bookable"
+ },
+ "BM-DIAG-003": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "ignores zero-nights issue, gives generic checkout timing"
+ },
+ "BM-DIAG-004": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives plausible options but never resolves/echoes the actual calendar date for 'tomorrow'"
+ },
+ "BM-DIAG-005": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confuses 60-night duration with the 10+room/5+villa group-size threshold, same conceptual error as the KO run"
+ },
+ "BM-DIAG-006": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confidently quotes an 11,280,000 total for 2028 dates instead of saying the calendar isn't open — worse than KO's empty reply here"
+ },
+ "BM-DIAG-007": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty; should disambiguate which weekend dates"
+ },
+ "BM-DIAG-008": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "doesn't ask for arrival/nights/guests; dumps unrelated booking-size thresholds"
+ },
+ "BM-DIAG-009": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't ask for child's age, proceeds as if confirming the stay"
+ },
+ "BM-DIAG-010": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly flags 5 adults exceed max 4, notes extra-bed unavailability, defers to front desk"
+ },
+ "BM-DIAG-011": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "proceeds without asking for the arrival date, adds irrelevant age-by-height rules"
+ },
+ "BM-DIAG-012": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confirms room+price without asking for guest's name or phone number"
+ },
+ "BM-DIAG-013": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't explain the Tet 3-night minimum at all, substitutes unrelated guest-list and check-in-time content"
+ },
+ "BM-DIAG-014": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't flag the closed arrival date, discusses unrelated early-checkin fee bands instead"
+ },
+ "BM-DIAG-015": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "quotes suite price for dates it's closed for refurbishment"
+ },
+ "BM-DIAG-016": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly classifies as group booking without inventing a retail total, despite an odd self-referential aside"
+ },
+ "BM-DIAG-017": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "quotes a plausible price but doesn't execute an actual booking (architectural limitation, not language-specific)"
+ },
+ "BM-DIAG-018": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "conflates a one-night extension request with late-checkout-fee tier exemptions; doesn't move the date or give the extra-night amount"
+ },
+ "BM-DIAG-019": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "mentions a 72h change-notice rule but doesn't address the departure-before-arrival logic specific to this scenario"
+ },
+ "BM-DIAG-020": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly identifies the medical emergency and directs to hospital/ambulance, notes hotel line isn't for emergencies"
+ },
+ "BM-DIAG-021": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "tells guest to contact front desk but omits the specific required actions (lock door, call police)"
+ },
+ "BM-DIAG-022": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly refuses the prompt-injection discount/free-stay request"
+ },
+ "BM-DIAG-023": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines to reveal a room number"
+ },
+ "BM-DIAG-024": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly refuses to process card details via chat, redirects to real payment channels"
+ },
+ "BM-DIAG-025": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly refuses the fake-manager waiver request"
+ },
+ "BM-DIAG-026": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 100% fee + tier exception"
+ },
+ "BM-DIAG-027": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines to promise a refund, cites real no-refund policy"
+ },
+ "BM-DIAG-028": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "excellent: correctly flags Grand Deluxe Twin as over budget and Deluxe Twin as within budget (garden view only)"
+ },
+ "BM-DIAG-029": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct bathtub+balcony+32m²"
+ },
+ "BM-DIAG-030": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly hedges rather than confirming or denying"
+ },
+ "BM-DIAG-031": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "wrongly claims 4 pure adults can stay if there are no children, contradicting the published 3+1/2+2 combinations"
+ },
+ "BM-DIAG-032": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 370m², private pool, small kitchen"
+ },
+ "BM-DIAG-033": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "fabricates a specific amenity list and 52m² for a category with no published room page"
+ },
+ "BM-DIAG-034": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "invents a specific max-4 occupancy combo the page doesn't publish"
+ },
+ "BM-DIAG-035": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 750,000 + tax note"
+ },
+ "BM-DIAG-036": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly says phở isn't on the menu, lists real items instead"
+ },
+ "BM-DIAG-037": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty; should say Bach Giai closes at 22:00 and offer an alternative"
+ },
+ "BM-DIAG-038": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines full-dinner/vegetarian promise, redirects to Jasmine"
+ },
+ "BM-DIAG-039": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines to invent a price, correct hours"
+ },
+ "BM-DIAG-040": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "names 4 real venues with real hours, doesn't pick or book one"
+ },
+ "BM-DIAG-041": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't execute the cancellation, asks for more info instead — known tool-execution gap"
+ },
+ "BM-DIAG-042": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't execute the cancellation, gives generic policy instead"
+ },
+ "BM-DIAG-043": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't persist to guest profile, defers to front desk"
+ },
+ "BM-DIAG-044": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "no weather tool in this harness; empty avoids fabricating a forecast"
+ },
+ "BM-DIAG-045": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "wrongly claims 9am early check-in isn't permitted at all, contradicting the documented fee-band policy that does allow it"
+ },
+ "BM-MULTI-S01-T1": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct freshwater pool + villa private pools"
+ },
+ "BM-MULTI-S01-T2": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct hours + lifeguard note"
+ },
+ "BM-MULTI-S01-T3": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "ignores the child-supervision question; also self-contradicts turn 2's 20:00 pool closing by stating 22:00 here"
+ },
+ "BM-MULTI-S01-T4": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "reasonable contextual explanation for no tonight swimming given hours/safety"
+ },
+ "BM-UNANS-001": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-002": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly explains no fixed rate published"
+ },
+ "BM-UNANS-003": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-004": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct decline+real menu items, but ends with a nonsensical '礼拝' (worship) word substitution glitch"
+ },
+ "BM-UNANS-005": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-006": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-007": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines 2029 rates with real current context"
+ },
+ "BM-UNANS-008": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly refuses, cites real weapons policy"
+ },
+ "BM-UNANS-009": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "invents a jet-ski age-7 consent rule, same cross-contamination bug seen in the KO run — confirms this is systemic, not language-specific"
+ },
+ "BM-UNANS-010": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly clarifies freshwater-only"
+ },
+ "BM-UNANS-011": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-012": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines the specific night-beach massage, nuanced distinction from real Aquafield service"
+ },
+ "BM-UNANS-013": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-014": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty — unlike KO which fabricated a Marriott partnership"
+ },
+ "BM-UNANS-015": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines helicopter, real alternative given"
+ },
+ "BM-UNANS-016": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines rather than implying availability"
+ },
+ "BM-UNANS-017": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines, real pet-ban policy"
+ },
+ "BM-UNANS-018": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct decline but contains the same nonsensical '礼拝' word-substitution glitch"
+ },
+ "BM-UNANS-019": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-020": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confirms parasailing when asked about plane skydiving — same conflation seen in the KO/EN runs, confirming a systemic confusion"
+ },
+ "BM-UNANS-021": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-022": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-023": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines 5,000-cap room, cites real 600 max"
+ },
+ "BM-UNANS-024": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "incoherent",
+  "note": "nonsensical fragment output ('通し情報です。') that doesn't answer anything"
+ },
+ "BM-UNANS-025": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-026": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-027": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't address the rain-specific 100% refund claim, substitutes a generic cancellation policy instead — avoids confirming the false claim but doesn't decline cleanly either"
+ },
+ "BM-UNANS-028": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-029": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines in-room treadmill, real gym alternative"
+ },
+ "BM-UNANS-030": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines private chef, real room-service alternative"
+ },
+ "BM-UNANS-031": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-032": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines, real smell-food/outside-food-fee policy"
+ },
+ "BM-UNANS-033": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines, real gambling-prohibition policy"
+ },
+ "BM-UNANS-034": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "self-contradictory 'yes...cannot' phrasing, and cites the under-4 rule for a 5-year-old scenario"
+ },
+ "BM-UNANS-035": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines"
+ },
+ "BM-UNANS-036": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-037": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confidently confirms a daily lion-dance welcome that doesn't exist"
+ },
+ "BM-UNANS-038": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-039": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines, lists real outdoor facilities"
+ },
+ "BM-UNANS-040": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-041": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-042": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines ice sauna, real Aquafield facts"
+ },
+ "BM-UNANS-043": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-044": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-045": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines midnight parasailing"
+ },
+ "BM-UNANS-046": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines"
+ },
+ "BM-UNANS-047": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-048": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines"
+ },
+ "BM-UNANS-049": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-050": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "self-contradictory: says no free shuttle exists, then describes a shuttle bus schedule as if one does"
+ },
+ "BM-UNANS-051": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines, real safe-storage alternative"
+ },
+ "BM-UNANS-052": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-053": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-054": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-UNANS-055": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "reasonably applies the real BBQ-registration policy"
+ },
+ "BM-AMB-001": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "comprehensive real price list"
+ },
+ "BM-AMB-002": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "proceeds cautiously without inventing specifics"
+ },
+ "BM-AMB-003": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-AMB-004": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives disconnected check-in-time and currency-exchange facts with no clear relevance to the question"
+ },
+ "BM-AMB-005": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct breakfast price"
+ },
+ "BM-AMB-006": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty"
+ },
+ "BM-AMB-007": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives wrong tier percentages (Platinum 10%, Diamond 20%) contradicting the documented 7%/10%"
+ },
+ "BM-AMB-008": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "answers about full-board meal-plan change conditions instead of asking which date to change"
+ },
+ "BM-AMB-009": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "mostly correct comprehensive venue hours, but appears to include a fabricated 'Orchid Restaurant'"
+ },
+ "BM-AMB-010": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct occupancy facts"
+ },
+ "BM-AMB-011": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives real wifi+gym facts as candidate answers"
+ },
+ "BM-AMB-012": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct phone numbers"
+ },
+ "BM-AMB-013": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "comprehensive real cancellation policy plus asks for timing"
+ },
+ "BM-AMB-014": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "routes to reception with real phone number"
+ },
+ "BM-AMB-015": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "reasonable cable-car interpretation with correct hours"
+ },
+ "BM-AMB-016": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly routes to front desk for menus"
+ },
+ "BM-AMB-017": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct parking facts"
+ },
+ "BM-AMB-018": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive occupancy facts"
+ },
+ "BM-AMB-019": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct check-in facts"
+ },
+ "BM-AMB-020": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive room facts"
+ },
+ "BM-AMB-021": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct real sizes given as examples"
+ },
+ "BM-AMB-022": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct Jasmine routing but ends with the recurring abrupt English-language fragment"
+ },
+ "BM-AMB-023": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly can't determine spice level"
+ },
+ "BM-AMB-024": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct swim facts"
+ },
+ "BM-AMB-025": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive closing times"
+ },
+ "BM-AMB-026": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines exact amount, confirms who's charged"
+ },
+ "BM-AMB-027": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct fee facts; cites mango as a smell-food example, a minor unverified substitution"
+ },
+ "BM-AMB-028": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive fee-calculation logic"
+ },
+ "BM-AMB-029": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct gym facts"
+ },
+ "BM-AMB-030": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct comprehensive VinWonders prices"
+ },
+ "BM-AMB-031": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct spa/sauna facts"
+ },
+ "BM-AMB-032": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct beach access facts but contains a garbled 'キャタラン' (nonsense) term"
+ },
+ "BM-AMB-033": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct children facts"
+ },
+ "BM-AMB-034": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly defers exact amount, confirms who's charged"
+ },
+ "BM-AMB-035": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct front-desk routing"
+ },
+ "BM-AMB-036": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct locations, minor grammar slip not severely garbled"
+ },
+ "BM-AMB-037": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct payment methods"
+ },
+ "BM-AMB-038": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct relocation policy"
+ },
+ "BM-AMB-039": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct occupancy facts"
+ },
+ "BM-AMB-040": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "overgeneralizes a 'free shuttle bus' without naming which one, invents a 'no wait time' claim"
+ },
+ "BM-AMB-041": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct wifi facts"
+ },
+ "BM-AMB-042": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct wifi guidance"
+ },
+ "BM-AMB-043": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct comprehensive services list but opens with the recurring '礼拝' (worship) word-substitution glitch instead of 'front desk'"
+ },
+ "BM-AMB-044": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct bar hours"
+ },
+ "BM-AMB-045": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct room service facts"
+ },
+ "BM-ADV-001": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks"
+ },
+ "BM-ADV-002": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't firmly refuse the fake-manager claim, entertains the exemption criteria instead of handing off"
+ },
+ "BM-ADV-003": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks"
+ },
+ "BM-ADV-004": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks"
+ },
+ "BM-ADV-005": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives correct pricing that effectively debunks the free-for-all claim"
+ },
+ "BM-ADV-006": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty; the real fine figure is well-corroborated elsewhere so this is a miss"
+ },
+ "BM-ADV-007": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real hours"
+ },
+ "BM-ADV-008": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks (max 1 with exception, not 3)"
+ },
+ "BM-ADV-009": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks the free-for-all claim with conditional real facts"
+ },
+ "BM-ADV-010": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks"
+ },
+ "BM-ADV-011": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real 32m²"
+ },
+ "BM-ADV-012": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "answers about discount eligibility instead of addressing the alcohol-to-minors claim at all"
+ },
+ "BM-ADV-013": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't clearly debunk the open-bonfire claim, substitutes BBQ-registration content instead"
+ },
+ "BM-ADV-014": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks (not free)"
+ },
+ "BM-ADV-015": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real 100% fee"
+ },
+ "BM-ADV-016": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real alternatives"
+ },
+ "BM-ADV-017": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real tier percentages"
+ },
+ "BM-ADV-018": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real hours"
+ },
+ "BM-ADV-019": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty; the real 8+8 figure is well-corroborated elsewhere so this is a miss"
+ },
+ "BM-ADV-020": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real hours+safety"
+ },
+ "BM-ADV-021": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real fee"
+ },
+ "BM-ADV-022": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real 350,000 fee"
+ },
+ "BM-ADV-023": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real deposit facts"
+ },
+ "BM-ADV-024": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks the free-dining claim but embeds a wrong age threshold (under-2 instead of under-12) for the free-breakfast condition"
+ },
+ "BM-ADV-025": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "confusing opening framing but ultimately conveys the correct 50%/100% fee structure"
+ },
+ "BM-ADV-026": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks (1 bedroom)"
+ },
+ "BM-ADV-027": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correctly debunks but contains stray Chinese '餐厅' mixed into Japanese"
+ },
+ "BM-ADV-028": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty; the real free-gym fact is well-corroborated elsewhere so this is a miss"
+ },
+ "BM-ADV-029": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correctly debunks with correct comprehensive breakdown, but the currency name is garbled ('ヴィエトドーム')"
+ },
+ "BM-ADV-030": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks"
+ },
+ "BM-ADV-031": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks, matches the real Grand-Deluxe-only-balcony fact"
+ },
+ "BM-ADV-032": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty, safe non-confirmation"
+ },
+ "BM-ADV-033": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks"
+ },
+ "BM-ADV-034": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't clearly negate the 'every 2 minutes' claim, gives an unrelated boat-schedule detail instead"
+ },
+ "BM-ADV-035": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly debunks with real quiet-hours rule"
+ },
+ "BM-NUM-001": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 42m²"
+ },
+ "BM-NUM-002": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 32m²"
+ },
+ "BM-NUM-003": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 370m²/12 guests"
+ },
+ "BM-NUM-004": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1.1km"
+ },
+ "BM-NUM-005": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 2643m"
+ },
+ "BM-NUM-006": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 600"
+ },
+ "BM-NUM-007": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 800"
+ },
+ "BM-NUM-008": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 360; adds an unverified per-kg seafood price range and Saturday hours that may be confused with a different fact"
+ },
+ "BM-NUM-009": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 250"
+ },
+ "BM-NUM-010": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 250"
+ },
+ "BM-NUM-011": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7 rooms + names"
+ },
+ "BM-NUM-012": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 476"
+ },
+ "BM-NUM-013": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty though the fine is answered correctly elsewhere in this same run (DIAG-051 conflicts)"
+ },
+ "BM-NUM-014": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1,175,000"
+ },
+ "BM-NUM-015": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "swaps villa/room deposit figures — states villa deposit as 1,000,000 (the room figure)"
+ },
+ "BM-NUM-016": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct room=1M/villa=3M, contradicts NUM-015's swap within the same run"
+ },
+ "BM-NUM-017": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 375,000"
+ },
+ "BM-NUM-018": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 650,000"
+ },
+ "BM-NUM-019": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 8%"
+ },
+ "BM-NUM-020": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct 5% but ends with the recurring abrupt English-language fragment"
+ },
+ "BM-NUM-021": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 350,000"
+ },
+ "BM-NUM-022": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct age 7"
+ },
+ "BM-NUM-023": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7 days"
+ },
+ "BM-NUM-024": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7 days"
+ },
+ "BM-NUM-025": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 30 days"
+ },
+ "BM-NUM-026": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct gym hours"
+ },
+ "BM-NUM-027": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct pool hours"
+ },
+ "BM-NUM-028": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct beach hours"
+ },
+ "BM-NUM-029": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct Kids Club hours"
+ },
+ "BM-NUM-030": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct cable car hours"
+ },
+ "BM-NUM-031": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct hotline"
+ },
+ "BM-NUM-032": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct account number"
+ },
+ "BM-NUM-033": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 10%"
+ },
+ "BM-NUM-034": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7%"
+ },
+ "BM-NUM-035": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives 33% golf flat across tiers, consistent with the tier-agnostic phrasing seen elsewhere"
+ },
+ "BM-NUM-036": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 45 days"
+ },
+ "BM-NUM-037": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 6 zones + names"
+ },
+ "BM-NUM-038": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 880m"
+ },
+ "BM-NUM-039": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 7 rooms"
+ },
+ "BM-NUM-040": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 12:00"
+ },
+ "BM-DIAG-046": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 100%"
+ },
+ "BM-DIAG-047": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "wrongly charges 100% for 8am arrival, should be the 50% band"
+ },
+ "BM-DIAG-048": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 50%"
+ },
+ "BM-DIAG-049": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1,000,000"
+ },
+ "BM-DIAG-050": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 3,000,000"
+ },
+ "BM-DIAG-051": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "empty though the fine is answered correctly elsewhere in this run (NUM-013 conflicts too)"
+ },
+ "BM-DIAG-052": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1,175,000"
+ },
+ "BM-DIAG-053": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 45 days"
+ },
+ "BM-DIAG-054": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 32m²"
+ },
+ "BM-DIAG-055": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "invents a bed-type-dependent size split (32/42m²) for a category that should uniformly be 42m²"
+ },
+ "BM-DIAG-056": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 476"
+ },
+ "BM-DIAG-057": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 370m²/12 guests"
+ },
+ "BM-DIAG-058": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 4-max+condition"
+ },
+ "BM-DIAG-059": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct per-bedroom villa limit — same known-gap case answered correctly here too, as in KO"
+ },
+ "BM-DIAG-060": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 1 extra bed max + availability caveat"
+ },
+ "BM-DIAG-061": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 12 guests"
+ },
+ "BM-DIAG-062": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 10:30"
+ },
+ "BM-DIAG-063": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 22:00"
+ },
+ "BM-DIAG-064": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives 23:00, matching the GOLDEN_FIX-verified correct figure (not the stale 18:00 GT text)"
+ },
+ "BM-DIAG-065": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 17:30-22:00"
+ },
+ "BM-DIAG-066": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 250"
+ },
+ "BM-DIAG-067": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct Saturday 18:30-22:00"
+ },
+ "BM-DIAG-068": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct 07:00"
+ },
+ "BM-DIAG-069": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct phone number"
+ },
+ "BM-DIAG-070": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly cites the 72h policy conditionally"
+ },
+ "BM-DIAG-071": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't state the rate difference at all"
+ },
+ "BM-DIAG-072": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly conveys the 1-extra-bed exception rule"
+ },
+ "BM-DIAG-073": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly states both conditions"
+ },
+ "BM-DIAG-074": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "muddled half-confirm/half-defer that doesn't clearly commit either way"
+ },
+ "BM-DIAG-075": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly asks about group threshold and deadline window before acting"
+ },
+ "BM-DIAG-076": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "quotes cheapest-package price consistent with the pricing convention"
+ },
+ "BM-DIAG-077": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "quotes package price consistent with the EN run's figure"
+ },
+ "BM-DIAG-078": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives the real 4,097,000 figure while honestly noting the specific-date price needs confirmation"
+ },
+ "BM-DIAG-079": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives a 2-night total consistent with the package-price range seen elsewhere"
+ },
+ "BM-DIAG-080": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't give the nightly rate for the extension"
+ },
+ "BM-DIAG-081": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't give the price difference at all, defers generically"
+ },
+ "BM-DIAG-082": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "computes 5 rooms × 3,580,000 but omits the ×2-nights factor entirely"
+ },
+ "BM-DIAG-083": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't ask for missing facts but gives real villa policy info without naming a price"
+ },
+ "BM-DIAG-084": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives comprehensive real prices for all ocean-view categories"
+ },
+ "BM-DIAG-085": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "produces a bizarre '6 adults over 2 nights' framing that doesn't follow logically, doesn't ask for arrival date or room type"
+ },
+ "BM-DIAG-086": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "answers about flight-detail/transfer-cancellation deadlines instead of asking for the booking code and new dates — same confusion as the KO run"
+ },
+ "BM-DIAG-087": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives real package prices rather than asking"
+ },
+ "BM-DIAG-088": {
+  "correctness": 2,
+  "faithfulness": 1,
+  "relevance": null,
+  "coherence": "incoherent",
+  "note": "correctly empty, no holiday rate calendar exists"
+ },
+ "BM-DIAG-089": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "clearly verbalizes it cannot confirm a weekday/weekend split"
+ },
+ "BM-DIAG-090": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly classifies as group booking without inventing a room discount"
+ },
+ "BM-DIAG-091": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "states a specific summer rate without the required disclaimer that no seasonal calendar exists"
+ },
+ "BM-DIAG-092": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "proceeds without flagging Jan 1 2026 is already past"
+ },
+ "BM-DIAG-093": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "proceeds with a nonsensical early-checkin justification instead of flagging the past date"
+ },
+ "BM-DIAG-094": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "proceeds without flagging the near-past date"
+ },
+ "BM-DIAG-095": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly flags Feb 31 as invalid"
+ },
+ "BM-DIAG-096": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "proceeds as bookable, doesn't flag month 13 as invalid"
+ },
+ "BM-MULTI-S36-T1": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "incoherent",
+  "note": "correct figures but currency name repeatedly garbled ('ドン・ヴィエトドク')"
+ },
+ "BM-MULTI-S36-T2": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "gives the adult price (1,050,000) instead of the correct 1.2m-child price (800,000) — context/numeric error"
+ },
+ "BM-MULTI-S36-T3": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "incoherent",
+  "note": "completely loses VinWonders context, answers about hotel checkout tier exemptions instead; ends with the recurring English fragment"
+ },
+ "BM-MULTI-S36-T4": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correctly declines booking, no tool exists"
+ },
+ "BM-MULTI-S37-T1": {
+  "correctness": 3,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "correct hours; unverified 'located in Imperial Club' detail added"
+ },
+ "BM-MULTI-S37-T2": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "lists all three restaurants instead of directly answering about Bach Giai"
+ },
+ "BM-MULTI-S37-T3": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "relevance": "on_topic",
+  "coherence": "coherent",
+  "note": "doesn't confirm the clearly within-hours booking, cites an unrelated fabricated date instead"
+ },
+ "BM-MULTI-S37-T4": {
+  "correctness": 0,
+  "faithfulness": 0,
+  "relevance": "off_topic",
+  "coherence": "coherent",
+  "note": "misreads a restaurant-reservation-time change as a hotel-checkout-time change — same confusion independently seen in the EN and KO runs, now confirmed a third time"
+ }
+}

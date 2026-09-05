@@ -736,12 +736,15 @@ type Ctx = {
  * profile is only the fallback when the message gives no signal.
  */
 function replyLang(conv: Conversation, profileLang: string): "vi" | "en" {
-  const lastGuest = [...storage.listMessages(conv.id)].reverse().find((m) => m.role === "guest");
-  const detected = detectMessageLang(lastGuest?.body ?? "");
+  const guestMsgs = storage.listMessages(conv.id).filter((m) => m.role === "guest");
+  const detected = detectMessageLang(guestMsgs[guestMsgs.length - 1]?.body ?? "");
   if (detected === "vi") return "vi";
-  /* Any other identified script means the guest is not writing Vietnamese, so
-     fall to English labels rather than guessing wrong. */
-  if (detected) return "en";
+  /* A non-Latin script (ko/ja/zh/ru) collapses to English labels — only vi/en
+     tool labels exist. But plain ASCII ("en") is NOT a script signal: it is just
+     as likely accentless Vietnamese, so it must not flip the labels to English.
+     Inherit a Vietnamese signal from earlier in the thread, else the profile. */
+  if (detected && detected !== "en") return "en";
+  if (guestMsgs.some((m) => detectMessageLang(m.body) === "vi")) return "vi";
   return profileLang === "vi" ? "vi" : "en";
 }
 
@@ -767,16 +770,72 @@ function replyLang(conv: Conversation, profileLang: string): "vi" | "en" {
  * `runLocalTurn` directly and never exercises this function at all, which is
  * exactly why the bug went unnoticed while CJK retrieval numbers looked fine.
  */
+const STRONG_LANGS = ["vi", "ko", "ja", "zh", "ru"] as const;
+const isStrong = (d: string | null): d is ReplyLang => !!d && (STRONG_LANGS as readonly string[]).includes(d);
+
+/**
+ * English function words with no accentless-Vietnamese homograph — see the long
+ * note at the call site in `offlineReplyLang` for which candidates were left out
+ * and why. One hit is enough: these words do not occur in Vietnamese typed
+ * without diacritics, so a single occurrence is as definitive as a Hangul
+ * character is for Korean.
+ */
+const EN_FUNCTION_WORDS =
+  /\b(?:what|when|where|which|who|whose|why|how|please|you|your|yours|is|are|was|were|have|has|had|does|did|would|could|should|will|shall|with|from|about|there|here|thanks|thank|hello)\b/i;
+
 export function offlineReplyLang(conv: Conversation, profileLang: string): ReplyLang {
-  const lastGuest = [...storage.listMessages(conv.id)].reverse().find((m) => m.role === "guest");
-  const detected = detectMessageLang(lastGuest?.body ?? "");
-  if (detected === "vi" || detected === "ko" || detected === "ja" || detected === "zh" || detected === "ru") {
-    return detected;
+  const guestMsgs = storage.listMessages(conv.id).filter((m) => m.role === "guest");
+  const last = guestMsgs[guestMsgs.length - 1];
+  const detected = detectMessageLang(last?.body ?? "");
+
+  /* A non-Latin script or a Vietnamese diacritic in THIS message is a definitive
+     signal — the guest is unambiguously writing that language, so switch to it. */
+  if (isStrong(detected)) return detected;
+
+  /* English is definitive too when the message carries English FUNCTION WORDS,
+     and this line is why it needs saying separately.
+
+     English is the only supported language with neither a script nor a
+     diacritic of its own, so `isStrong` cannot see it and every English turn
+     used to fall through to the inheritance rule below — landing on the
+     guest's stored profile, which at a Vietnamese resort is "vi". Result:
+     "What time is checkout?" answered in Vietnamese. Reported from a live demo
+     2026-09-05, and `test/language-routing.test.ts` had been failing on
+     exactly this assertion the whole time.
+
+     Plain ASCII on its own is NOT the fix — that is the trap the comment below
+     describes: accentless Vietnamese ("gia phong bao nhieu"), "ok", "helo" and
+     a keyboard mash are all ASCII, and flipping the thread to English on a
+     single "ok" is a worse bug than the one being fixed.
+
+     Function words separate them cleanly. The list below deliberately OMITS
+     the obvious candidates that collide with accent-stripped Vietnamese:
+       "the" ⇄ thế/thẻ      "can" ⇄ căn      "do"  ⇄ đo/độ
+       "to"  ⇄ tô/tổ        "it"  ⇄ ít       "in"  ⇄ in
+       "a"   ⇄ à/ạ          "be"  ⇄ bé/bể (bể bơi)   "am" ⇄ ăm/âm
+       "may" ⇄ mấy/máy      "hi"  ⇄ hi
+     Also omitted, for a different reason: the English hotel vocabulary
+     Vietnamese guests borrow wholesale — "booking", "check out", "room",
+     "voucher". "Booking cua toi bi huy chua?" is a Vietnamese sentence, and
+     matching on those words would flip it to English, which is the very
+     failure this guards against in the other direction.
+     Every word kept has no accentless-Vietnamese homograph, so a Vietnamese
+     guest typing without diacritics cannot trip it. */
+  if (detected === "en" && EN_FUNCTION_WORDS.test(last?.body ?? "")) return "en";
+
+  /* Otherwise the message is plain ASCII (detected "en") or empty. That is NOT
+     evidence of English: accentless Vietnamese ("gia phong bao nhieu"), a bare
+     "ok"/"helo", or a keyboard mash are all ASCII too, and a Vietnamese resort's
+     guests type without diacritics constantly. Treating ASCII as English flipped
+     the whole conversation to English on a single "ok" — the real bug this fixes.
+     So an ambiguous turn NEVER switches language; it inherits the conversation's
+     established language: the most recent STRONG signal anywhere in this thread,
+     then the guest's stored profile, then a safe default. */
+  for (let i = guestMsgs.length - 2; i >= 0; i--) {
+    const d = detectMessageLang(guestMsgs[i].body);
+    if (isStrong(d)) return d;
   }
-  if (detected === "en") return "en";
-  /* detectMessageLang found nothing (plain ASCII with no script signal, or an
-     empty message) — same fallback order replyLang uses. */
-  return profileLang === "vi" ? "vi" : profileLang === "en" ? "en" : "en";
+  return isStrong(profileLang) || profileLang === "en" ? (profileLang as ReplyLang) : "vi";
 }
 
 /**
@@ -848,38 +907,69 @@ export function detectMessageLang(text: string): string | null {
  * Cố ý KHÔNG đổi câu `confirm` cũ: nó vẫn đúng cho mọi câu hỏi khác, và sửa
  * một câu đang dùng tốt để thêm một trường hợp là cách làm hỏng cả hai.
  */
-export function handoffLine(lang: string | null | undefined, kind: "confirm" | "failed" | "price"): string {
+export function handoffLine(
+  lang: string | null | undefined,
+  kind: "confirm" | "failed" | "price" | "emergency" | "dispute" | "privacy",
+): string {
   const L = (lang ?? "vi").slice(0, 2).toLowerCase();
-  const lines: Record<string, { confirm: string; failed: string; price: string }> = {
+  const lines: Record<
+    string,
+    { confirm: string; failed: string; price: string; emergency: string; dispute: string; privacy: string }
+  > = {
     vi: {
       confirm: "Dạ, câu này em cần lễ tân xác nhận để trả lời chính xác. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
       failed: "Dạ, em xin lỗi — em chưa lấy được thông tin chính xác cho câu hỏi này. Em đã chuyển cho lễ tân để hỗ trợ anh/chị ngay ạ.",
       price: "Dạ, mức giá của mục này em cần lễ tân xác nhận lại để báo đúng con số, em không muốn nói một con số chưa chắc chắn. Em đã chuyển cho đồng nghiệp hỗ trợ anh/chị ngay ạ.",
+      /* Y tế/an ninh nguy cấp: nói việc cần làm NGAY trước, xưng hô sau. Không
+         phải câu "đang xử lý" — khách đau ngực không cần biết quy trình nội
+         bộ, họ cần một hành động cụ thể trong ba giây đọc đầu tiên. */
+      emergency: "Gọi ngay 115 (cấp cứu) hoặc 113 (công an) nếu tình huống nguy hiểm. Em đã báo an ninh/lễ tân khẩn cấp, họ đang tới ngay.",
+      /* Tranh chấp tiền: xác nhận đã NGHE đúng vấn đề (không lảng sang chủ đề
+         khác), không hứa số tiền, không đoán nguyên nhân — quản lý ca sẽ xem
+         lại. Đây là câu thay cho một trả lời lạc đề mà retrieval trót sinh ra
+         trước khi guard kịp chặn. */
+      dispute: "Dạ, em ghi nhận vấn đề về khoản phí này và không tự ý kết luận giúp anh/chị được. Quản lý ca sẽ xem lại và phản hồi sớm nhất ạ.",
+      privacy: "Dạ, vì lý do bảo mật em không thể xác nhận hay tiết lộ thông tin của khách khác. Em đã chuyển yêu cầu này cho lễ tân ạ.",
     },
     ko: {
       confirm: "정확한 답변을 위해 프런트 데스크의 확인이 필요합니다. 담당 직원에게 전달해 드렸습니다.",
       failed: "죄송합니다 — 정확한 정보를 확인하지 못했습니다. 프런트 데스크로 전달해 드렸으니 곧 도와드리겠습니다.",
       price: "정확한 금액은 프런트 데스크의 확인이 필요합니다. 확실하지 않은 금액을 말씀드릴 수는 없어 담당 직원에게 전달해 드렸습니다.",
+      emergency: "위험한 상황이면 즉시 115(응급) 또는 113(경찰)에 신고하세요. 보안팀과 프런트에 긴급 연락했으며 곧 도착합니다.",
+      dispute: "해당 요금 문제를 확인했으며 제가 임의로 결론 내릴 수 없습니다. 담당 매니저가 확인 후 빠르게 답변드리겠습니다.",
+      privacy: "보안을 위해 다른 투숙객의 정보는 확인해 드릴 수 없습니다. 프런트 데스크로 요청을 전달했습니다.",
     },
     ja: {
       confirm: "正確にお答えするため、フロントに確認いたします。担当者にお繋ぎいたしました。",
       failed: "申し訳ございません — 正確な情報を確認できませんでした。フロントにお繋ぎいたしましたので、すぐに対応いたします。",
       price: "正確な料金はフロントでの確認が必要です。不確かな金額をお伝えするわけにはまいりませんので、担当者にお繋ぎいたしました。",
+      emergency: "危険な状況であれば直ちに115（救急）または113（警察）へ通報してください。警備とフロントに緊急連絡済みで、すぐに向かいます。",
+      dispute: "この料金の件は承知いたしました。私の判断でお答えすることはできません。担当マネージャーが確認の上、早急にご連絡いたします。",
+      privacy: "セキュリティ上の理由により、他のお客様の情報はお答えできません。フロントに転送いたしました。",
     },
     zh: {
       confirm: "为了给您准确的答复，需要前台确认。我已经转交同事为您处理了。",
       failed: "很抱歉 — 我未能查到准确的信息。已经转交前台，同事会马上为您处理。",
       price: "这一项的价格需要前台确认后才能准确告知，我不想告诉您不确定的数字。已经转交同事为您处理了。",
+      emergency: "情况危急请立即拨打115（急救）或113（报警）。已紧急通知安保和前台，他们马上赶到。",
+      dispute: "已记录这笔费用的问题，我不能擅自下结论。值班经理会核实后尽快回复您。",
+      privacy: "出于安全考虑，我无法确认或透露其他客人的信息。已将此请求转交前台处理。",
     },
     ru: {
       confirm: "Чтобы ответить точно, нужно подтверждение стойки регистрации. Я передал(а) ваш вопрос коллеге.",
       failed: "Извините — мне не удалось получить точную информацию. Я передал(а) вопрос на стойку регистрации, коллега поможет вам сейчас же.",
       price: "Точную стоимость нужно уточнить на стойке регистрации — я не стану называть непроверенную сумму. Я передал(а) ваш вопрос коллеге.",
+      emergency: "Если ситуация опасна, немедленно звоните 115 (скорая) или 113 (полиция). Служба безопасности и стойка регистрации срочно уведомлены и уже идут.",
+      dispute: "Я зафиксировал(а) вопрос по этому платежу и не могу сделать вывод самостоятельно. Дежурный менеджер проверит и ответит вам как можно скорее.",
+      privacy: "По соображениям безопасности я не могу подтвердить или раскрыть информацию о другом госте. Я передал(а) этот запрос на стойку регистрации.",
     },
     en: {
       confirm: "I'd like a colleague to confirm this so the answer is exact. I've passed it to the front desk for you.",
       failed: "I'm sorry — I couldn't retrieve a reliable answer for that. I've passed it to the front desk so a colleague can help you right away.",
       price: "I'd rather have the front desk confirm the exact figure than quote you one I'm not certain of. I've passed it to a colleague for you.",
+      emergency: "Call 115 (ambulance) or 113 (police) right away if this is dangerous. Security and the front desk have been alerted urgently and are on their way.",
+      dispute: "I've logged this charge issue and can't draw a conclusion myself. The duty manager will review it and get back to you shortly.",
+      privacy: "For privacy reasons I can't confirm or share another guest's information. I've passed this request to the front desk.",
     },
   };
   return (lines[L] ?? lines.en)[kind];
@@ -2212,6 +2302,56 @@ function toolBudgetForRoute(): number {
  * Returns "" for a conversation's first turn, which is what makes every
  * already-measured single-turn benchmark case unaffected by this function.
  */
+/**
+ * A running summary of the turns OLDER than the recent-history window, so a long
+ * conversation keeps the entities it established after they scroll out of the
+ * last few messages. Generated by the local model — cheap on this GPU and only
+ * for a thread long enough to have dropped context, so short conversations make
+ * no extra call.
+ *
+ * Asked for ENTITIES and INTENT, never figures: "the guest is looking at the
+ * 3-bedroom villa, has asked about gym and spa hours." That is what resolves a
+ * later "giá phòng lúc nãy?" to the right room for retrieval, while carrying no
+ * number the answer layer could misattribute — the reason it is safe to feed
+ * even a money-shaped follow-up, which the verbatim history is deliberately not.
+ */
+async function buildRunningSummary(conv: Conversation, _lang: ReplyLang): Promise<string> {
+  /* Condense the older turns to the ONE entity the guest is pursuing, so a later
+     back-reference ("giá phòng lúc nãy?") resolves to it. The zero-shot version
+     was unreliable on the 4B model — it conflated the room the guest was
+     interested in with a facility they merely asked hours for ("gym"). A
+     ONE-SHOT prompt that shows the interested-in / just-asked distinction fixed
+     it: 3/3 correct on the exact case that failed, no bigger model needed (8B
+     summarised correctly too but does not fit in VRAM beside the 4B answerer).
+     Names an entity, never a figure — safe to feed a money-shaped follow-up. */
+  const msgs = storage.listMessages(conv.id).filter((m) => m.role === "guest" || m.role === "ai");
+  const older = msgs.slice(0, -4); // everything before the recent verbatim window
+  if (older.length < 2) return "";
+  const transcript = older
+    .map((m) => `${m.role === "guest" ? "Khách" : "Trợ lý"}: ${m.body.replace(/\s+/g, " ").slice(0, 200)}`)
+    .join(" / ");
+  try {
+    const r = await chat({
+      messages: [
+        {
+          role: "system",
+          content:
+            'Trích THỰC THỂ khách QUAN TÂM (muốn đặt/xem), phân biệt với thứ khách chỉ hỏi thông tin qua. ' +
+            'Trả đúng 1 câu: "Khách quan tâm <tên phòng/nhà hàng/dịch vụ>". TUYỆT ĐỐI không nêu số/giá/giờ. Không rõ thì trả trống.\n' +
+            "Ví dụ:\nHội thoại: Khách: Tôi muốn xem phòng Deluxe Giường Đôi / Trợ lý: ... / Khách: Hồ bơi mở mấy giờ? / Trợ lý: ...\n" +
+            "=> Khách quan tâm phòng Deluxe Giường Đôi (có hỏi thêm giờ hồ bơi).",
+        },
+        { role: "user", content: `Hội thoại: ${transcript}\n=>` },
+      ],
+      temperature: 0,
+      maxTokens: 60,
+    });
+    return (r.choices[0]?.message?.content ?? "").replace(/\s+/g, " ").trim().slice(0, 200);
+  } catch {
+    return "";
+  }
+}
+
 function recentOfflineHistory(history: Message[], excludingLast: boolean): string {
   const prior = excludingLast ? history.slice(0, -1) : history;
   const lines = prior
@@ -2319,6 +2459,13 @@ async function runOfflineTurn(ctx: {
     lang,
     basics: { checkIn: hotel.checkInTime, checkOut: hotel.checkOutTime, currency: hotel.currency },
     history,
+    /* The summary only helps a back-reference, and it costs a model call, so it
+       is built ONLY when the current message actually refers back — every other
+       turn (the large majority) pays nothing. Same cue set runLocalTurn keys the
+       summary's retrieval use on. */
+    summary: /\bnó\b|\bđó\b|\bấy\b|lúc nãy|ban nãy|vừa (?:nãy|rồi)|hồi nãy|còn .* thì sao|cái (?:kia|đó)/i.test(question)
+      ? await buildRunningSummary(conv, lang)
+      : "",
   });
   span.setAttributes({
     route: turn.route,
@@ -2370,9 +2517,26 @@ async function runOfflineTurn(ctx: {
   /* A billing dispute must never be answered from the model's own reading,
      even when routing let it through — that is what `forceEscalation` is for,
      and it is applied here rather than as a fake emergency upstream. */
-  if (guard.forceEscalation && !turn.escalate) {
-    turn.escalate = true;
-    turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
+  if (guard.forceEscalation) {
+    if (!turn.escalate) {
+      turn.escalate = true;
+      turn.escalateReason ??= "Tranh chấp hoá đơn — chuyển nhân viên xác nhận.";
+    }
+    /**
+     * XOÁ reply — KHÔNG điều kiện theo `!turn.escalate`. Bug thật bắt được
+     * qua kiểm chứng trực tiếp trên prod (không chỉ dry-run): "Tôi bị tính
+     * tiền hai lần cho cùng một bữa tối" vẫn nhận câu trả lời về MỨC BỒI
+     * THƯỜNG HƯ HỎNG VẬT DỤNG dù bản vá đầu tiên đã thêm dòng này — vì
+     * `numericGuard` phía trên (dòng ~2472) đã đặt `turn.escalate = true`
+     * TRƯỚC khi tới đây (nó bắt được một con số vô căn cứ trong chính câu trả
+     * lời lạc đề đó), nên điều kiện `guard.forceEscalation && !turn.escalate`
+     * bản đầu luôn sai và khối xoá reply không bao giờ chạy.
+     *
+     * Việc XOÁ reply và việc ĐẶT escalate là hai quyết định độc lập — con nào
+     * cũng có thể đã xảy ra trước bởi lý do khác, không được cho phép cái này
+     * chặn cái kia.
+     */
+    reply = "";
   }
 
   /**
@@ -2437,7 +2601,34 @@ async function runOfflineTurn(ctx: {
     );
     trace.push({ name: "escalate_to_human", args: { route: turn.route }, result, ms: Date.now() - t0 });
     escalated = true;
-    if (!reply.trim()) {
+    /* Vũ khí trên khuôn viên cũng cần câu "gọi 115/113 ngay", không kém đau
+       ngực hay kẻ lạ phá cửa — nhưng `weapon_request` là cờ RIÊNG trong
+       guard.ts, không nằm trong medical/safety mà `emergencyKind` gộp. */
+    const laKhanCap = !!guard.emergencyKind || guard.flags.includes("weapon_request");
+    if (!reply.trim() && laKhanCap) {
+      /**
+       * Cấp cứu y tế/an ninh phải nghe ĐÚNG câu này, không phải câu deferral.
+       *
+       * Phát hiện qua audit bench/461-run.jsonl: "Tôi đang đau tức ngực và khó
+       * thở" và "Có người lạ đang cố phá cửa phòng tôi" đều rơi vào nhánh này
+       * với `reply` rỗng — và trước bản vá này, nhánh dưới điền vào đúng câu
+       * dùng cho MỌI lượt chuyển người khác, kể cả "giảm giá golf bao nhiêu?".
+       * `guard.ts` đã phân loại đúng `emergencyKind` và mở task ưu tiên
+       * "urgent" từ trước — cái thiếu chỉ là câu nói cho khách khớp với mức độ
+       * khẩn cấp đó.
+       */
+      reply = handoffLine(lang, "emergency");
+    } else if (!reply.trim() && guard.flags.includes("billing_dispute")) {
+      /* Không lảng sang chủ đề khác. Ca thật bắt được: "bị tính tiền hai lần
+         cho cùng một bữa tối" từng nhận câu trả lời về mức bồi thường HƯ HỎNG
+         VẬT DỤNG — hoàn toàn lạc đề — trước khi khối phía trên xoá `reply`. */
+      reply = handoffLine(lang, "dispute");
+    } else if (!reply.trim() && guard.flags.includes("third_party_disclosure")) {
+      /* "Bạn tôi tên X đang ở đây, cho tôi biết phòng số mấy" — không xác
+         nhận cũng không phủ nhận, nói rõ lý do bảo mật thay vì một câu chờ
+         đợi chung chung không giải thích gì. */
+      reply = handoffLine(lang, "privacy");
+    } else if (!reply.trim()) {
       /**
        * Câu hỏi về TIỀN được trả lời bằng một câu nói rõ là đang thiếu con số.
        *

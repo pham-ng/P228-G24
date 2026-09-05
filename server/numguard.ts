@@ -372,3 +372,76 @@ export function repairReply(
   if (kept.length === 0) return { text: note, escalate: true, removed };
   return { text: `${kept.join(" ")} ${note}`, escalate: true, removed };
 }
+
+/**
+ * A guard for the two NON-numeric fabrications the numeric guard cannot see,
+ * both caught by the golden set as confident answers to adversarial traps:
+ *
+ *   1. A loyalty TIER derived from a quantity the corpus has no threshold table
+ *      for. "25.000 điểm thì lên hạng gì?" — the passages name the tiers
+ *      (Member/Gold/Platinum/Diamond) and their perks, but nowhere map a points
+ *      amount to a tier, so any tier the model names is invented. Confirmed
+ *      against the corpus: no points→tier mapping exists.
+ *
+ *   2. A mandatory DOCUMENT the passages never mention. "Trẻ em cần mang giấy
+ *      khai sinh không?" → "Có, phải mang" for a requirement that appears
+ *      nowhere in doc_chunks.
+ *
+ * Both are checked against the SAME evidence the answer was grounded on, so the
+ * guard turns itself off the moment the corpus actually gains the fact — it
+ * fires only where the answer is unsupported today. Vietnamese + English forms;
+ * conservative by design (fires only on a clear derive-from-quantity question
+ * or a clear "must bring X" affirmation), because a guard that abstains on a
+ * good answer is worse than one that misses.
+ */
+/* Diacritic-fold to ASCII, so a pattern matches whatever Unicode form the text
+   arrives in. The local model emits Vietnamese in NFD (combining marks) while
+   the golden questions are NFC \u2014 an accented regex literal matched the question
+   but silently missed the model's reply, which is why the first cut of this
+   guard fired on the tier trap (question-matched) but not the document trap
+   (reply-matched). Folding both sides removes the whole class of bug. */
+function foldVi(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\u0111\u0110]/g, "d")
+    .toLowerCase();
+}
+
+const TIER_NAMES_F = /\b(member|silver|gold|platinum|diamond)\b|kim cuong|bach kim/;
+
+export function checkCategoricalTraps(
+  question: string,
+  reply: string,
+  evidenceText: string,
+): { abstain: boolean; reason?: string } {
+  const q = foldVi(question);
+  const r = foldVi(reply);
+  const ev = foldVi(evidenceText);
+
+  // 1) Tier derived from points / spend / nights, with no threshold in evidence.
+  const asksTierFromQuantity =
+    /(diem|chi tieu|dem|point|spend|night)/.test(q) && /(hang|len hang|\bthe\b|tier|rank)/.test(q);
+  const replyNamesTier = TIER_NAMES_F.test(r);
+  /* A real threshold row puts the points amount and the tier CLOSE together
+     ("Gold: 25.000 diem"). Requiring proximity, not mere co-occurrence anywhere
+     in the passage blob, stops a stray points figure in one passage and a tier
+     name in another from falsely reading as a threshold and disabling the guard
+     \u2014 which is exactly what happened once the passage cap grew to 1200. */
+  const tier = "(?:member|silver|gold|platinum|diamond|kim cuong|bach kim)";
+  const pts = "\\d[\\d.,]{2,}\\s*(?:diem|point)";
+  const evidenceHasThreshold = new RegExp(`${pts}[^.\\n]{0,60}${tier}|${tier}[^.\\n]{0,60}${pts}`).test(ev);
+  if (asksTierFromQuantity && replyNamesTier && !evidenceHasThreshold) {
+    return { abstain: true, reason: "tier-from-quantity: khong co nguong diem->hang trong tai lieu" };
+  }
+
+  /* A document guard was tried here (birth-certificate "must bring") and dropped:
+     the corpus DOES carry the fact — "when there is no birth certificate, height
+     decides age" (kb/16, policy/3) — so the birth certificate is OPTIONAL proof,
+     not a missing fact. The model's "must bring one" is a polarity misread of
+     present content, not a fabrication of absent content, so a presence-based
+     guard cannot see it and would only fire where the fact is genuinely gone.
+     Left to the model-comprehension lever, not guarded here. */
+
+  return { abstain: false };
+}

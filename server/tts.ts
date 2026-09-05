@@ -54,8 +54,22 @@ const ROOT = process.env.PIPER_DIR ?? join(process.cwd(), "models", "piper");
 const BIN = join(ROOT, "piper", process.platform === "win32" ? "piper.exe" : "piper");
 const VOICE_DIR = join(ROOT, "voices");
 
-/** Câu dài nhất chấp nhận. Một câu trả lời của concierge không tới mức này. */
+/** Câu dài nhất ĐỌC. `synthesise()`/`synthesiseJa()` tự cắt về đúng độ dài này. */
 export const TTS_MAX_CHARS = 600;
+
+/**
+ * Câu dài nhất CHẤP NHẬN ở tầng request, rộng hơn hẳn `TTS_MAX_CHARS`.
+ *
+ * Audit 2026-08-31 bắt được: route dùng `z.string().max(TTS_MAX_CHARS)` để xác
+ * thực THÂN request, nên một câu trả lời dài hơn 600 ký tự (đo được ~1% câu trả
+ * lời thật) bị từ chối thẳng bằng 400 kèm thông điệp Zod tiếng Anh — thay vì
+ * được ĐỌC 600 ký tự đầu, đúng như `synthesise()` đã tự làm nếu request lọt
+ * qua được. Trên máy đo, ko/zh/ru/ja không có giọng thiết bị nên nút rơi về
+ * hoàn toàn im lặng. Ranh giới xác thực và ranh giới đọc là hai việc khác nhau:
+ * cái sau đã đúng, chỉ cái trước sai. 4000 chỉ để chặn spam (một cuốn tiểu
+ * thuyết dán vào ô chat), không phải để đọc hết 4000 ký tự.
+ */
+export const TTS_REQUEST_MAX_CHARS = 4000;
 
 export function ttsAvailable(): boolean {
   return existsSync(BIN);

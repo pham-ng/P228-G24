@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Volume2, Square, Loader2 } from "lucide-react";
-import { pickVoice, speak, speechSupported, stopSpeaking, voicesReady } from "@/lib/speech";
+import { forSpeech, pickVoice, speak, speechSupported, stopSpeaking, voicesReady } from "@/lib/speech";
 
 const LABEL: Record<string, { play: string; stop: string }> = {
   vi: { play: "Nghe câu trả lời", stop: "Dừng đọc" },
@@ -128,8 +128,12 @@ export function SpeakButton({ text, lang, code }: { text: string; lang: string; 
         headers: { "Content-Type": "application/json" },
         /* Mã đặt phòng đi kèm: từ khi tuyến này ra Internet, nó kiểm mã như
            `/api/guest/transcribe` — mỗi lần gọi là một tiến trình Piper ăn CPU
-           mà model trả lời đang cần. */
-        body: JSON.stringify({ text, lang, code }),
+           mà model trả lời đang cần.
+           `forSpeech(text)`, không phải `text` thô — nhánh giọng thiết bị ở
+           dưới đã lọc markdown từ trước; nhánh máy chủ trước đây gửi nguyên
+           văn, nên một câu trả lời có "**giá**" hay bảng markdown sẽ bị Piper
+           đọc thành "sao sao giá sao sao" thay vì được lọc như bên kia. */
+        body: JSON.stringify({ text: forSpeech(text), lang, code }),
       });
       if (!r.ok) throw new Error(String(r.status));
       const blob = await r.blob();

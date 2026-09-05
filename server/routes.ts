@@ -43,7 +43,7 @@ import { issueSession, actorForToken } from "./staff-session";
 import { guestRequests, codeFailures, limited, blockedBy, clientKey } from "./ratelimit";
 import { recordChatMetrics } from "./metrics";
 import { parseCccdQr, maskId } from "./cccd";
-import { synthesise, ttsAvailable, ttsLangs, isTtsLang, TTS_MAX_CHARS } from "./tts";
+import { synthesise, ttsAvailable, ttsLangs, isTtsLang, TTS_MAX_CHARS, TTS_REQUEST_MAX_CHARS } from "./tts";
 import { xepHang, QueueFullError, conChoDuoc, trangThaiHang, tomTatHang } from "./queue";
 import { providerHealth } from "./llm";
 import { synthesiseJa, jaAvailable, warmJaTts } from "./tts-ja";
@@ -3159,7 +3159,10 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       if (limited(guestRequests, req, res, "Quá nhiều yêu cầu, vui lòng thử lại sau.")) return;
       const b = z
         .object({
-          text: z.string().min(1).max(TTS_MAX_CHARS),
+          /* Rộng hơn TTS_MAX_CHARS có chủ đích — xem TTS_REQUEST_MAX_CHARS.
+             synthesise()/synthesiseJa() tự cắt về 600 ký tự để đọc; ranh giới
+             ở đây chỉ chặn spam, không phải chặn câu trả lời dài thật. */
+          text: z.string().min(1).max(TTS_REQUEST_MAX_CHARS),
           lang: z.string().min(2).max(5),
           code: z.string().min(4),
         })
@@ -3516,11 +3519,34 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
    * Manager only, the same bar as `/api/insights`: how well the product works
    * is a commercial fact about the property, not a tool for working a shift.
    */
+  /**
+   * Bộ 384 ca hiện có ở 6 ngôn ngữ — cùng một bộ câu hỏi gốc, dịch tay,
+   * chạy qua đúng stack prod, chấm tay độc lập cho từng ngôn ngữ (xem
+   * [[aurea-rag-eval]]). `vi` giữ tên file cũ không hậu tố vì đó là bộ đầu
+   * tiên; các ngôn ngữ sau dùng hậu tố theo quy ước của
+   * `bench/build461report.ts --suffix`.
+   */
+  const BENCH_LANG_FILES: Record<string, string> = {
+    vi: "rag-eval-report.json",
+    en: "rag-eval-report-en.json",
+    ko: "rag-eval-report-ko.json",
+    ja: "rag-eval-report-ja.json",
+    zh: "rag-eval-report-zh.json",
+    ru: "rag-eval-report-ru.json",
+  };
+
   app.get("/api/bench/rag", (req, res) => {
     if (denied(req, res, "insights")) return;
-    const file = join(process.cwd(), "bench", "rag-eval-report.json");
+    const requested = typeof req.query.lang === "string" ? req.query.lang : "vi";
+    const lang = BENCH_LANG_FILES[requested] ? requested : "vi";
+    const available = Object.keys(BENCH_LANG_FILES).filter((code) =>
+      existsSync(join(process.cwd(), "bench", BENCH_LANG_FILES[code])),
+    );
+    const file = join(process.cwd(), "bench", BENCH_LANG_FILES[lang]);
     if (!existsSync(file))
-      return res.status(404).json({ message: "Chưa chạy bộ eval — npx tsx bench/rag-eval.ts" });
+      return res
+        .status(404)
+        .json({ message: "Chưa chạy bộ eval cho ngôn ngữ này — npx tsx bench/run461.ts", lang, available });
     const raw = JSON.parse(readFileSync(file, "utf8")) as {
       ranAt: string;
       agentModel: string;
@@ -3548,6 +3574,8 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
     const lat = rows.map((r) => r.ms as number).sort((a, b) => a - b);
 
     res.json({
+      lang,
+      available,
       ranAt: raw.ranAt,
       agentModel: raw.agentModel,
       judgeModel: raw.judgeModel,
@@ -3596,7 +3624,55 @@ verdict is "pass" only when correct_handling and grounded are both 2 and nothing
             faithful: pct(n((r) => SOURCE_PASS.has(r.source)), judged.length),
           }
         : null,
+      /**
+       * "4 Chiều Chất Lượng Output" (Correctness/Completeness/Relevance/
+       * Coherence — slide AICB·Evaluation) quy ra 4 con số từ CÙNG một lượt
+       * chấm, không phải 4 phép đo độc lập:
+       *
+       *  - correctness = đúng tài liệu (source) — giống judge.faithful, đặt
+       *    tên lại theo khung 4 chiều.
+       *  - completeness = dung_du / (dung_du + thieu), CHỈ trong nhóm ca có
+       *    trả lời nội dung — hop_ly (im lặng đúng lúc) không có "ý" nào để
+       *    mà đủ nên loại khỏi mẫu số, khác judge.correct (coi hop_ly là đạt).
+       *  - relevance = đúng chủ đề / (đúng chủ đề + lạc đề), loại 75 ca trả
+       *    lời rỗng khỏi mẫu số (không có nội dung để xét lạc đề hay không).
+       *  - coherence = dễ đọc / TỔNG toàn bộ ca — rỗng tính là fail (không có
+       *    gì để đọc). Đo trên local-agent.ts thuần, KHÔNG qua wrapper
+       *    agent.ts luôn điền lại câu rõ ràng trước khi khách thật thấy — số
+       *    thật ở production cao hơn số này.
+       */
+      quality4: judged.length
+        ? {
+            n: judged.length,
+            correctness: pct(n((r) => SOURCE_PASS.has(r.source)), judged.length),
+            completeness: pct(
+              n((r) => r.handling === "dung_du"),
+              n((r) => r.handling === "dung_du" || r.handling === "thieu"),
+            ),
+            relevance: pct(n((r) => r.relevance === "on_topic"), n((r) => r.relevance !== null)),
+            coherence: pct(n((r) => r.coherence === "coherent"), rows.length),
+          }
+        : null,
     });
+  });
+
+  /**
+   * Đo STT/TTS theo ngôn ngữ — vòng khép kín, bằng đúng code sản xuất.
+   *
+   * Không có kho ghi âm khách thật, và MOS (người nghe chấm 1-5) không script
+   * nào làm thay được, nên đây là chuẩn khách quan duy nhất chạy tự động được:
+   * tổng hợp câu tham chiếu bằng chính `synthesise()`/`synthesiseJa()`, đọc lại
+   * bằng chính `transcribe()`, chấm bằng cùng bộ WER/CER đã dùng cho tiếng Việt/
+   * Anh trước đây (xem bench/voice-eval.ts). Đây là SÀN để so hai nửa pipeline
+   * với nhau, không phải số để đưa khách hàng xem thay cho ghi âm thật.
+   */
+  app.get("/api/bench/voice", (req, res) => {
+    if (denied(req, res, "insights")) return;
+    const file = join(process.cwd(), "bench", "voice-eval-report.json");
+    if (!existsSync(file))
+      return res.status(404).json({ message: "Chưa chạy bộ đo giọng nói — npx tsx bench/voice-eval.ts" });
+    const raw = JSON.parse(readFileSync(file, "utf8"));
+    res.json(raw);
   });
 
   /**

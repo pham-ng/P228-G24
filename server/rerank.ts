@@ -23,10 +23,52 @@ export function rerankEnabled(): boolean {
   return process.env.RERANK_ENABLED === "1" || process.env.RERANK_ENABLED === "true";
 }
 
-/** How many first-stage candidates to rerank. Beyond ~10 the cost stops paying. */
+/** How many first-stage candidates to rerank.
+ *
+ *  For the LLM backend, beyond ~10 the cost stops paying and the default stays
+ *  8. The cross-encoder backends are cheap per candidate (one batched GPU pass),
+ *  and the depth MATTERS: measurement showed correct documents that BM25 buries
+ *  sit as deep as rank #17-21 in the fused list, so a depth-8 pool never sees
+ *  them. Set RERANK_DEPTH=30 for the cross-encoder. Cap raised to 60 so that is
+ *  expressible; the LLM path should not be pushed that deep. */
 export function rerankDepth(): number {
   const n = Number(process.env.RERANK_DEPTH ?? 8);
-  return Number.isFinite(n) && n > 1 ? Math.min(20, n) : 8;
+  return Number.isFinite(n) && n > 1 ? Math.min(60, n) : 8;
+}
+
+/** Which reranker scores candidates: the local GPU cross-encoder, the hosted HF
+ *  cross-encoder, or the LLM. Defaults to the LLM for backward compatibility —
+ *  the offline kiosk sets RERANK_BACKEND=local. */
+export function rerankBackend(): "local" | "hf" | "llm" {
+  const b = (process.env.RERANK_BACKEND ?? "llm").toLowerCase();
+  return b === "local" || b === "hf" ? b : "llm";
+}
+
+/**
+ * Score candidates with whichever backend is configured. Each backend has the
+ * same contract — id → score, or null to keep the first-stage order — so the
+ * caller does not care which one ran. A cross-encoder backend that returns null
+ * (service down) falls back to the LLM reranker rather than to no reranking,
+ * unless RERANK_STRICT=1 pins it to the chosen backend for clean measurement.
+ */
+export async function getRerankScores(
+  query: string,
+  candidates: RerankCandidate[],
+): Promise<Map<number, number> | null> {
+  const backend = rerankBackend();
+  if (backend === "local") {
+    const { localCrossEncoderScores } = await import("./rerank-local");
+    const s = await localCrossEncoderScores(query, candidates);
+    if (s || process.env.RERANK_STRICT === "1") return s;
+    return rerankScores(query, candidates);
+  }
+  if (backend === "hf") {
+    const { hfCrossEncoderScores } = await import("./rerank-hf");
+    const s = await hfCrossEncoderScores(query, candidates);
+    if (s || process.env.RERANK_STRICT === "1") return s;
+    return rerankScores(query, candidates);
+  }
+  return rerankScores(query, candidates);
 }
 
 export type RerankCandidate = { id: number; title: string; text: string };

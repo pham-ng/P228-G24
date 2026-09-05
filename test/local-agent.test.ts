@@ -479,6 +479,69 @@ const outage = await runLocalTurn({
 ok(outage.escalate && outage.reply === null, "a model outage escalates rather than failing the turn");
 ok(/không phản hồi/i.test(outage.escalateReason ?? ""), "and the outage is named in the reason");
 
+console.log("=== PHOTO REQUESTS: ask which room/venue instead of escalating ===");
+/**
+ * Real conversation, 2026-09-01 (conversation_id=118): a guest asked the
+ * check-in location (answered, off-topic but that is a separate bug — see
+ * [[aurea-card-relevance-rule]]/retrieval), then asked to see photos with no
+ * room or venue in view. The old behaviour escalated to a human for a request
+ * the system could resolve itself by asking one question. `search`/`callChat`
+ * are deliberately NOT passed — if this regresses to falling through to the
+ * normal pipeline, the missing mocks make that failure loud instead of a
+ * silent wrong answer.
+ */
+const noSubjectHistory =
+  "Khách: cho tôi biết thực đơn trong ngày của khách sạn\nTrợ lý: ...\n" +
+  "Khách: chỉ cho tôi vị trí chekin của khách sạn\nTrợ lý: Vị trí của khách sạn nằm ngay cạnh bãi biển.";
+const photoNoSubject = await runLocalTurn({
+  question: "cho tôi xem hình  ảnh được không", // double space — exactly as the guest typed it
+  isEmergency: false,
+  lang: "vi",
+  history: noSubjectHistory,
+});
+ok(!photoNoSubject.escalate, "no longer escalates to a human");
+ok(photoNoSubject.llmCalls === 0, "…and never calls the model to get there");
+ok(/phòng.*nhà hàng|room.*restaurant/i.test(photoNoSubject.reply ?? ""), "…asks which room/venue instead");
+
+/* The most recent GUEST line is the signal, not the assistant's reply and not
+   the whole history window — both traps hit while building this fix. */
+const staleTopicHistory =
+  "Khách: cho tôi biết thực đơn trong ngày của khách sạn\nTrợ lý: ...\n" + // "thực đơn" is a real SUBJECT, but two turns stale
+  "Khách: chỉ cho tôi vị trí chekin của khách sạn\nTrợ lý: Vị trí của khách sạn nằm ngay cạnh bãi biển."; // "bãi biển" in the ASSISTANT's line only
+ok(
+  (await runLocalTurn({ question: "cho tôi xem hình ảnh", isEmergency: false, lang: "vi", history: staleTopicHistory }))
+    .escalate === false,
+  "a stale guest topic or an incidental word in the assistant's own reply does not count as context",
+);
+
+/**
+ * A room named in the guest's immediately preceding message is trusted, not
+ * re-asked — `goodSearch`/`answeringChat` (defined above) let the turn reach
+ * the normal pipeline instead of the clarification carve-out, so this fails
+ * loudly (wrong reply, or `photoWithSubject.llmCalls === 0`) if the carve-out
+ * over-fires on a case it should skip.
+ *
+ * What this does NOT prove: that the pipeline then correctly shows the
+ * Deluxe room's photo card for a bare "cho tôi xem ảnh". It still does not —
+ * a separate, larger gap where nothing downstream re-surfaces a room card for
+ * a photo request the way one appears when a reply names a room in prose.
+ * `answeringChat`'s canned reply here does not name any room, on purpose, so
+ * this test cannot accidentally look like that gap is closed.
+ */
+const roomHistory = "Khách: cho tôi biết giá phòng Deluxe Giường Đôi\nTrợ lý: Giá phòng rẻ nhất là 3.580.000đ/đêm.";
+const photoWithSubject = await runLocalTurn({
+  question: "cho tôi xem ảnh được không",
+  isEmergency: false,
+  lang: "vi",
+  search: goodSearch,
+  callChat: answeringChat,
+});
+ok(photoWithSubject.llmCalls > 0, "a room named just before is trusted — the model runs instead of an auto-clarify");
+ok(
+  photoWithSubject.reply !== "Dạ anh/chị muốn xem ảnh của phòng, nhà hàng hay khu vực nào của khách sạn ạ?",
+  "…so the canned 'which room?' question is not what comes back",
+);
+
 console.log("=== ANSWER HELPER ===");
 const empty = await answerFromPassages("q", [passage({ title: "T", relevance: 1 })], "vi", (async () => ({
   choices: [{ message: { content: "   " }, finish_reason: "stop" }],

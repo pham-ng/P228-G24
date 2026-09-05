@@ -29,7 +29,7 @@
 import { fold } from "./retrieval";
 
 export type ClarifyLang = "vi" | "en" | "ko" | "ja" | "zh" | "ru";
-export type Attribute = "hours" | "price" | "duration" | "cancel" | "discount" | "book";
+export type Attribute = "hours" | "price" | "duration" | "cancel" | "discount" | "book" | "capacity" | "photos";
 
 /**
  * What is being asked ABOUT. Folded, so an unaccented "may gio mo cua" matches
@@ -37,12 +37,47 @@ export type Attribute = "hours" | "price" | "duration" | "cancel" | "discount" |
  */
 const ATTRIBUTES: Array<{ key: Attribute; re: RegExp }> = [
   { key: "hours", re: /\b(?:may gio|gio mo cua|mo cua luc nao|mo den may gio|dong cua luc nao|what time.*open|opening hours|when.*open)\b/i },
-  { key: "price", re: /\b(?:gia bao nhieu|bao nhieu tien|gia the nao|het bao nhieu|how much (?:is|does)?|what.*price|price\?)\b/i },
+  /* "phu thu.{0,20}bao nhieu|the nao" và "tinh phi/tien.{0,20}the nao" thêm sau
+     audit tay 461-case (2026-09-03): "Phụ thu bao nhiêu?", "Tính phí thế
+     nào?", "Thêm người phụ thu thế nào?" đều hỏi giá mà không nêu chủ thể
+     (phòng, dịch vụ, giường phụ...), nhưng cụm "phụ thu"/"tính phí" không
+     khớp bốn mẫu giá cũ (chỉ có "giá/tiền/hết bao nhiêu"). */
+  { key: "price", re: /\b(?:gia bao nhieu|bao nhieu tien|gia the nao|het bao nhieu|how much (?:is|does)?|what.*price|price\?|phu thu.{0,20}(?:bao nhieu|the nao)|tinh (?:phi|tien).{0,20}the nao)\b/i },
   { key: "duration", re: /\b(?:bao lau|mat bao lau|khi nao (?:thi )?(?:toi|den)|how long|when will it (?:arrive|come))\b/i },
   { key: "cancel", re: /\b(?:huy duoc khong|co huy duoc|toi muon huy|can i cancel|cancel it)\b/i },
   { key: "discount", re: /\b(?:duoc giam gia|co giam gia|giam gia khong|any discount|is there a discount)\b/i },
   { key: "book", re: /\b(?:cho (?:toi|em) dat|toi muon dat|dat luc|book (?:me|it)|i.d like to book)\b/i },
+  /* Thêm cùng đợt: "Sức chứa thế nào?" không nêu phòng/nhà hàng/hội trường nào
+     — sức chứa của mỗi nơi một khác (phòng 4 người, nhà hàng vài trăm). */
+  { key: "capacity", re: /\b(?:suc chua the nao|suc chua bao nhieu|chua (?:duoc )?bao nhieu nguoi|toi da bao nhieu nguoi)\b/i },
+  /**
+   * Thêm 2026-09-01 sau hội thoại thật: khách vừa hỏi vị trí check-in (không
+   * nêu phòng/nhà hàng nào), rồi hỏi "cho tôi xem hình  ảnh được không" (dấu
+   * cách kép trong bản gốc — \s+ để chịu được, không phải \s đơn) — không
+   * thuộc tính nào trong 7 cái trên khớp, nên rơi qua truy xuất và cuối cùng
+   * chuyển thẳng cho nhân viên thay vì hỏi lại muốn xem ảnh gì.
+   *
+   * CHỈ khớp cụm ghép ("hinh anh", "xem hinh", "chup anh"/"anh chup"), TUYỆT
+   * ĐỐI không khớp "anh" trần trụi: "ảnh" gập dấu thành "anh" — TRÙNG HỆT đại
+   * từ "anh" (anh/chị, cách xưng hô phổ biến bậc nhất tiếng Việt). Khớp "anh"
+   * một mình sẽ biến gần như MỌI câu tiếng Việt trong hội thoại khách sạn
+   * thành một yêu cầu xem ảnh giả — tệ hơn hẳn lỗi đang sửa.
+   */
+  { key: "photos", re: /\b(?:hinh\s+anh|xem\s+hinh|chup\s+anh|anh\s+chup|photos?|pictures?|images?)\b/i },
 ];
+
+/**
+ * Dùng lại ĐÚNG danh sách SUBJECTS đã được kiểm chứng cho `needsClarification`,
+ * nhưng áp lên LỊCH SỬ hội thoại thay vì câu hỏi hiện tại — xem vì sao ở
+ * `local-agent.ts`, nơi duy nhất gọi hàm này: yêu cầu xem ảnh không có "chủ
+ * thể gần nhất" mặc định để rơi về (khác giá/giờ, vốn tự giải quyết được nhờ
+ * đang bàn về phòng nào), nên cần biết RIÊNG liệu lịch sử có nhắc phòng/nhà
+ * hàng/dịch vụ nào không trước khi quyết định có hỏi lại hay không.
+ */
+export function mentionsKnownSubject(text: string): boolean {
+  if (!text.trim()) return false;
+  return mentionsAnySubject(fold(text));
+}
 
 /**
  * Anything a question could be ABOUT.
@@ -71,7 +106,8 @@ const SUBJECTS = [
   "cap treo", "cable car", "vinwonders", "tour", "taxi", "room service", "phuc vu tai phong",
   "khan", "towel", "goi", "pillow", "don phong", "housekeeping",
   /* membership */
-  "pearl club", "hoi vien", "member", "the", "diamond", "platinum", "gold", "silver",
+  /* KHÔNG có "the" trần trụi ở đây — xem lý do ngay dưới. */
+  "pearl club", "hoi vien", "member", "the thanh vien", "diamond", "platinum", "gold", "silver",
   /* Added after the golden set caught two false positives — both cases where a
      subject WAS named and the lexicon simply did not know the word:
        "Nếu tôi muốn khiếu nại thì bao lâu có trả lời?"  -> asked back at a guest
@@ -85,7 +121,66 @@ const SUBJECTS = [
   "ve may bay", "may bay", "flight", "chuyen bay", "ve tau", "ve xe",
   "hop dong", "hoa don do", "bao hiem", "insurance", "visa", "ho chieu", "passport",
   "khai bao", "luu tru", "thu cung", "pet", "hut thuoc", "smoking",
+  /* Caught by the 461-case eval (2026-09-03): "Đổi tên khách sau hạn chót bị
+     phạt bao nhiêu tiền?" named a clear subject (guest name change) whose fee is
+     in the GUEST_LIST doc, but the lexicon did not know "đổi tên", so the price
+     attribute fired and the guest was asked "which service?" instead of being
+     told 350.000đ. A whole class of "phí <specific thing> bao nhiêu" was blocked
+     before retrieval even ran. */
+  "doi ten", "name change", "danh sach khach", "guest list", "chuyen phong", "transfer khach",
+  /* Same class, same eval run: named subjects the lexicon missed, so a clear
+     question got "which service?" instead of an answer (or a correct "not
+     published, ask reception"): water sports, the Harbour shows. */
+  "mo to nuoc", "jet ski", "the thao duoi nuoc", "water sport", "lan bien", "kayak", "du luon",
+  "show", "harbour", "vinpearl harbour", "nhac nuoc", "tata",
 ];
+
+/**
+ * Bắt được 2026-09-05, khi thêm thuộc tính "photos": `SUBJECTS.some(s =>
+ * f.includes(s))` là so KHỚP CHUỖI CON thô, không có ranh giới từ — và một
+ * vài mục trong SUBJECTS ngắn tới mức trở thành chuỗi con của những từ cực kỳ
+ * thường gặp, hoàn toàn không liên quan:
+ *
+ *   "xe" (xe cộ)  ⊂  "xem" (động từ "xem/xem ảnh") — MỌI câu chứa "xem" bị
+ *     hiểu nhầm là đã nêu chủ thể "xe".
+ *   "ui" (bàn ủi) ⊂  "vui" — "vui lòng cho tôi biết giá..." (một trong những
+ *     cách mở đầu lịch sự phổ biến nhất) bị hiểu nhầm y hệt, nên một câu hỏi
+ *     giá KHÔNG nêu dịch vụ nào lại không được hỏi lại.
+ *   "coc" (tiền cọc) ⊂ "cốc cốc"/láy âm bất kỳ chứa "coc coc".
+ *
+ * Cùng một lớp lỗi với vụ "the"/"thế" đã ghi ở dưới, nhưng nguyên nhân khác:
+ * đó là fold() làm mất phân biệt hai từ, đây là thiếu ranh giới từ trong phép
+ * so khớp. Sửa bằng \b ở cả hai đầu — hoạt động đúng cho cả mục nhiều từ
+ * ("front desk", "an sang") vì \b chỉ neo vào đầu/cuối toàn bộ cụm, không phải
+ * từng từ con bên trong.
+ */
+const SUBJECT_PATTERNS = SUBJECTS.map((s) => new RegExp(`\\b${s}\\b`));
+function mentionsAnySubject(folded: string): boolean {
+  return SUBJECT_PATTERNS.some((re) => re.test(folded));
+}
+
+/**
+ * VÌ SAO KHÔNG CÒN "the" (thẻ hội viên) TRẦN TRỤI TRONG DANH SÁCH TRÊN.
+ *
+ * `fold()` xoá dấu bằng cách chuẩn hoá NFD rồi bỏ mọi dấu thanh — và phép đó
+ * làm mất phân biệt: "thẻ" (card) VÀ "thế" (từ để hỏi trong "thế nào" — cực kỳ
+ * phổ biến) đều gập về đúng một chuỗi "the". `SUBJECTS.some(s => f.includes(s))`
+ * so bằng substring, nên MỌI câu chứa "thế nào" — dù không hề nhắc tới thẻ hội
+ * viên — bị hiểu nhầm là "đã nêu chủ thể" và không bao giờ được hỏi lại.
+ *
+ * Bắt được qua audit 461 ca (2026-09-03): "Sức chứa thế nào?", "Tính phí thế
+ * nào?", "Thêm người phụ thu thế nào?" đều im lặng đoán bừa vì lý do này —
+ * không phải vì thiếu regex thuộc tính (dù thiếu regex ĐÓ cũng là một phần).
+ *
+ * Đây không phải lỗi có thể sửa bằng ranh giới từ (word-boundary): "thẻ" và
+ * "thế" gập về CÙNG một chuỗi, nên không có cách nào phân biệt chúng sau khi
+ * đã fold. Bỏ hẳn "the" trần trụi; "the thanh vien" (cả cụm) và bốn hạng thẻ
+ * (diamond/platinum/gold/silver) đủ để nhận ra câu hỏi thật về thẻ hội viên,
+ * không đụng tới bất kỳ câu "thế nào" nào khác.
+ *
+ * Đo bằng dry-run trên toàn bộ 461 câu trước khi áp dụng: 3/4 ca mục tiêu
+ * được kích hoạt đúng, KHÔNG câu nào khác trong 461 câu bị kích hoạt sai.
+ */
 
 const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
   vi: {
@@ -95,6 +190,8 @@ const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
     cancel: "Dạ anh/chị muốn huỷ đặt phòng hay huỷ một dịch vụ đã đặt ạ? Hai trường hợp này chính sách phí khác nhau ạ.",
     discount: "Dạ anh/chị đang là hội viên hạng nào của Pearl Club, và muốn hỏi ưu đãi cho hạng mục nào ạ — phòng, spa, golf hay ăn uống?",
     book: "Dạ anh/chị muốn đặt dịch vụ nào ạ, và là 7 giờ sáng hay 7 giờ tối, cho mấy người ạ?",
+    capacity: "Dạ anh/chị đang hỏi sức chứa của đâu ạ — phòng, nhà hàng hay phòng hội nghị? Mỗi nơi một con số khác nhau ạ.",
+    photos: "Dạ anh/chị muốn xem ảnh của phòng, nhà hàng hay khu vực nào của khách sạn ạ?",
   },
   en: {
     hours: "Which one did you mean — the pool, the gym, the spa or a restaurant? Each has its own opening hours.",
@@ -103,6 +200,8 @@ const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
     cancel: "Would you like to cancel a room booking or a service booking? The two carry different fees.",
     discount: "Which Pearl Club tier are you on, and which would you like the discount for — the room, the spa, golf or dining?",
     book: "What would you like to book, at 7 in the morning or 7 in the evening, and for how many people?",
+    capacity: "Which one's capacity did you mean — a room, a restaurant, or a meeting room? Each holds a different number.",
+    photos: "Which would you like to see photos of — a room, a restaurant, or an area of the resort?",
   },
   ko: {
     hours: "어느 곳의 운영 시간을 말씀하시는 걸까요 — 수영장, 피트니스, 스파, 레스토랑 중에서요? 각각 시간이 다릅니다.",
@@ -111,6 +210,8 @@ const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
     cancel: "객실 예약을 취소하시겠습니까, 아니면 예약하신 서비스를 취소하시겠습니까? 수수료 규정이 다릅니다.",
     discount: "펄클럽 등급이 어떻게 되시고, 어떤 항목의 할인을 원하시나요 — 객실, 스파, 골프, 식음료 중에서요?",
     book: "어떤 서비스를 예약해 드릴까요? 오전 7시인가요 오후 7시인가요, 그리고 몇 분이신가요?",
+    capacity: "어디의 수용 인원을 말씀하시는 걸까요 — 객실, 레스토랑, 회의실 중에서요? 장소마다 다릅니다.",
+    photos: "어떤 것의 사진을 보고 싶으신가요 — 객실, 레스토랑, 아니면 리조트의 다른 구역인가요?",
   },
   ja: {
     hours: "どちらの営業時間でしょうか — プール、ジム、スパ、レストランのいずれでしょうか。それぞれ時間が異なります。",
@@ -119,6 +220,8 @@ const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
     cancel: "ご予約のお部屋のキャンセルでしょうか、それともご予約サービスのキャンセルでしょうか。規定が異なります。",
     discount: "パールクラブの会員ランクと、どちらの割引をご希望かお教えいただけますか — 客室、スパ、ゴルフ、レストランのいずれでしょうか。",
     book: "どのサービスをご予約いたしましょうか。朝の7時と夜の7時のどちらで、何名様でしょうか。",
+    capacity: "どちらの収容人数でしょうか — 客室、レストラン、会議室のいずれでしょうか。場所により異なります。",
+    photos: "どちらの写真をご覧になりたいですか — 客室、レストラン、それともリゾート内の他のエリアでしょうか。",
   },
   zh: {
     hours: "请问您指的是哪一处的开放时间 — 泳池、健身房、水疗还是餐厅？每处时间不同。",
@@ -127,6 +230,8 @@ const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
     cancel: "请问您是要取消客房预订，还是取消已预订的服务？两者的费用规定不同。",
     discount: "请问您的 Pearl Club 会员等级是？想了解哪一项的优惠 — 客房、水疗、高尔夫还是餐饮？",
     book: "请问您想预订哪项服务？是早上7点还是晚上7点，几位用？",
+    capacity: "请问您想了解哪里的容纳人数 — 客房、餐厅还是会议室？每处不同。",
+    photos: "请问您想看哪里的照片 — 客房、餐厅，还是度假村的其他区域？",
   },
   ru: {
     hours: "Что именно вас интересует — бассейн, спортзал, спа или ресторан? У каждого свой график.",
@@ -135,6 +240,8 @@ const PHRASES: Record<ClarifyLang, Record<Attribute, string>> = {
     cancel: "Вы хотите отменить бронирование номера или заказанную услугу? Условия отмены разные.",
     discount: "Какой у вас уровень Pearl Club и на что нужна скидка — номер, спа, гольф или рестораны?",
     book: "Что именно забронировать, на 7 утра или на 7 вечера, и на сколько человек?",
+    capacity: "Вместимость чего вас интересует — номера, ресторана или конференц-зала? У каждого своя.",
+    photos: "Фото чего вы хотели бы увидеть — номера, ресторана или другой части курорта?",
   },
 };
 
@@ -155,7 +262,7 @@ export function needsClarification(text: string, lang: ClarifyLang = "vi"): { at
 
   const f = fold(raw);
   /* A subject anywhere means the guest told us what they are asking about. */
-  if (SUBJECTS.some((s) => f.includes(s))) return null;
+  if (mentionsAnySubject(f)) return null;
 
   const hit = ATTRIBUTES.find((a) => a.re.test(f));
   if (!hit) return null;

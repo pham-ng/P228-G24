@@ -34,7 +34,25 @@
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import * as OpenCC from "opencc-js";
 import { log } from "./log";
+
+/**
+ * Whisper's Chinese output defaults toward Traditional characters regardless
+ * of what script the audio's SPEAKER actually uses — Mandarin pronunciation is
+ * identical either way, so this is purely a training-data-mix artefact, not a
+ * recognition error. Bắt được qua audit 2026-09-05: vòng khép kín tiếng Trung
+ * đo CER 21%, nhưng phần lớn "sai" hoá ra chỉ là biến thể chữ viết —
+ * "供应"→"供應", "点"→"點", "两"→"兩", "厅"→"廳" — nghĩa giống hệt, chỉ khác
+ * phồn thể/giản thể. Tài liệu và nội dung của resort này viết bằng giản thể
+ * (xem final_benchmark_zh.csv, kb tiếng Trung), nên đưa STT về cùng quy ước
+ * TRƯỚC khi văn bản tới LLM — nếu không, một câu khách dictate đúng 100% vẫn
+ * có thể làm lệch truy xuất chỉ vì khác bộ chữ với tài liệu.
+ *
+ * Chỉ chuyển ĐÚNG MỘT CHIỀU (phồn → giản). Không đoán ngược lại vì Chuẩn hoá
+ * hai chiều dễ phá hỏng những câu đã đúng giản thể từ đầu.
+ */
+const zhConverter = OpenCC.Converter({ from: "tw", to: "cn" });
 
 /** Sample rate every Whisper variant expects. Audio arrives already resampled. */
 export const STT_SAMPLE_RATE = 16000;
@@ -46,6 +64,37 @@ export type SttLang = "vi" | "en" | "ko" | "ja" | "zh" | "ru";
 
 const MULTILINGUAL = process.env.STT_MODEL ?? "onnx-community/whisper-small";
 const VIETNAMESE = process.env.STT_MODEL_VI ?? "huuquyet/PhoWhisper-small";
+/**
+ * Đo trực tiếp trên máy này, 10 câu tiếng Hàn thật (bench/voice-eval.ts),
+ * so với whisper-small đa ngôn ngữ đang dùng cho mọi ngôn ngữ khác:
+ *
+ *   whisper-small (đa ngôn ngữ)   WER 45,2%  CER 17,6%  số liệu 50%
+ *   moonshine-tiny-ko (chuyên)    WER 32,1%  CER 11,3%  số liệu 70%   RTF ~4-5 lần nhanh hơn
+ *
+ * Thắng ở MỌI chỉ số, đúng lý do PhoWhisper tồn tại cho tiếng Việt — model
+ * chuyên biệt cho một ngôn ngữ luôn thắng model đa ngôn ngữ dùng chung khi có
+ * sẵn. Đã thử cả `moonshine-base-ko` (61M, gấp đôi tham số): WER 38,1% — THUA
+ * bản tiny (27M) trên cùng bộ 10 câu, nên chọn tiny (nhỏ hơn, nhanh hơn, đo
+ * tốt hơn — không có lý do chọn bản lớn hơn).
+ */
+const KOREAN = process.env.STT_MODEL_KO ?? "onnx-community/moonshine-tiny-ko-ONNX";
+/**
+ * Cùng cách đo, cùng 10 câu tiếng Trung thật, so với whisper-small +
+ * chuẩn hoá OpenCC (đã sửa riêng — xem `zhConverter` dưới):
+ *
+ *   whisper-small + OpenCC        CER 19,7%  số liệu 80-90%
+ *   moonshine-base-zh + OpenCC    CER 11,0%  số liệu 100%   RTF ~4 lần nhanh hơn
+ *
+ * Chọn BASE (61M) chứ không phải tiny cho tiếng Trung — ngược với tiếng Hàn.
+ * `moonshine-tiny-zh-ONNX` không dùng được: kho ONNX của chính nó thiếu hẳn
+ * `decoder_model_merged*.onnx` (chỉ có bản decoder rời), nên
+ * `AutoModelForSpeechSeq2Seq` không nạp nổi — lỗi nằm ở bản chuyển đổi ONNX
+ * của kho đó, không phải giới hạn của code này. Số CER công bố sẵn trên
+ * FLEURS/Common Voice (29-36%) còn tệ hơn cả whisper-small — nếu tin số đó mà
+ * không tự đo thì đã bỏ lỡ một cải tiến thật, và số đo THẬT trên câu hỏi
+ * khách sạn của resort này mới là số đáng tin, không phải benchmark chung.
+ */
+const CHINESE = process.env.STT_MODEL_ZH ?? "onnx-community/moonshine-base-zh-ONNX";
 
 /** Whisper's own language names, which are not the ISO codes used elsewhere. */
 const WHISPER_LANG: Record<SttLang, string> = {
@@ -64,7 +113,12 @@ export function isSttLang(v: unknown): v is SttLang {
 }
 
 export function modelFor(lang: SttLang): string {
-  return lang === "vi" ? VIETNAMESE : MULTILINGUAL;
+  return lang === "vi" ? VIETNAMESE : lang === "ko" ? KOREAN : lang === "zh" ? CHINESE : MULTILINGUAL;
+}
+
+/** Moonshine models need their own loading path — see `pipelineFor`. */
+function isMoonshine(modelId: string): boolean {
+  return modelId.includes("moonshine");
 }
 
 /* ------------------------------------------------------------------ audio */
@@ -149,6 +203,49 @@ const loaded = new Map<string, Asr>();
 /* Concurrent requests for the same cold model must not each start a download. */
 const loading = new Map<string, Promise<Asr>>();
 
+async function loadPipeline(modelId: string): Promise<Asr> {
+  const { pipeline, env } = await import("@huggingface/transformers");
+  env.cacheDir = modelDir();
+  return (await pipeline("automatic-speech-recognition", modelId, {
+    dtype: (process.env.STT_DTYPE ?? "q8") as never,
+    device: (process.env.STT_DEVICE ?? "cpu") as never,
+  })) as unknown as Asr;
+}
+
+/**
+ * Moonshine không đi qua `pipeline()` được — bắt được qua đo thật, không phải
+ * suy luận: `AutoProcessor.from_pretrained()` của Moonshine trong
+ * `@huggingface/transformers@3.8.1` không gắn tokenizer con vào processor
+ * (`processor.tokenizer` là `undefined` dù `tokenizer.json` có sẵn trên đĩa và
+ * tự nạp riêng vẫn chạy tốt), nên bước giải mã nội bộ của pipeline luôn ném
+ * `Unable to decode without a tokenizer`. Nạp ba phần riêng rồi tự giải mã.
+ */
+async function loadMoonshine(modelId: string): Promise<Asr> {
+  const { AutoTokenizer, AutoProcessor, AutoModelForSpeechSeq2Seq, env } = await import("@huggingface/transformers");
+  env.cacheDir = modelDir();
+  const dtype = (process.env.STT_DTYPE ?? "q8") as never;
+  const device = (process.env.STT_DEVICE ?? "cpu") as never;
+  const [tokenizer, processor, model] = await Promise.all([
+    AutoTokenizer.from_pretrained(modelId),
+    AutoProcessor.from_pretrained(modelId),
+    AutoModelForSpeechSeq2Seq.from_pretrained(modelId, { dtype, device }),
+  ]);
+  return async (audio: Float32Array) => {
+    const inputs = await processor(audio);
+    /**
+     * Công thức của chính paper Moonshine ("6 token/giây âm thanh") cắt cụt
+     * giữa câu trên câu hỏi khách sạn thật — đo được: "...왜 청구서에 포함되어
+     * 있�" (mất chữ cuối). Model tự dừng ở token kết thúc câu nên nới rộng
+     * ngân sách không tốn thêm gì khi câu ngắn; chỉ có hại khi ngân sách CHẶT.
+     */
+    const seconds = audio.length / STT_SAMPLE_RATE;
+    const max_new_tokens = Math.max(32, Math.floor(seconds * 20) + 20);
+    const outputs = await model.generate({ max_new_tokens, ...inputs });
+    const text = tokenizer.batch_decode(outputs as any, { skip_special_tokens: true })[0] ?? "";
+    return { text };
+  };
+}
+
 async function pipelineFor(modelId: string): Promise<Asr> {
   const hit = loaded.get(modelId);
   if (hit) {
@@ -161,15 +258,10 @@ async function pipelineFor(modelId: string): Promise<Asr> {
   if (inflight) return inflight;
 
   const p = (async () => {
-    const { pipeline, env } = await import("@huggingface/transformers");
     /* Weights live with the repo, not in a user-profile cache, so a deployment
        is one directory and an air-gapped box can be seeded by copying it. */
-    env.cacheDir = modelDir();
     const t0 = Date.now();
-    const asr = (await pipeline("automatic-speech-recognition", modelId, {
-      dtype: (process.env.STT_DTYPE ?? "q8") as never,
-      device: (process.env.STT_DEVICE ?? "cpu") as never,
-    })) as unknown as Asr;
+    const asr = isMoonshine(modelId) ? await loadMoonshine(modelId) : await loadPipeline(modelId);
     log(`stt: loaded ${modelId} in ${Date.now() - t0}ms`);
     loaded.set(modelId, asr);
     while (loaded.size > CACHE_SIZE) {
@@ -232,9 +324,12 @@ export async function transcribe(pcm: Pcm, lang: SttLang): Promise<Transcript> {
   });
   const ms = Date.now() - t0;
 
+  let text = String(out.text ?? "");
+  if (lang === "zh") text = zhConverter(text);
+
   return {
     ...base,
-    text: cleanTranscript(String(out.text ?? "")),
+    text: cleanTranscript(text),
     ms,
     rtf: pcm.seconds > 0 ? ms / 1000 / pcm.seconds : 0,
   };
@@ -243,10 +338,14 @@ export async function transcribe(pcm: Pcm, lang: SttLang): Promise<Transcript> {
 /**
  * Strip the artefacts Whisper produces on near-silence.
  *
- * Two are common enough to be worth handling: bracketed non-speech tags such as
- * `[Music]` or `(tiếng nhạc)`, which are the model describing the audio rather
- * than transcribing it; and an immediately repeated phrase, which is the decoder
- * looping on padding. Neither is something a guest said.
+ * Three are common enough to be worth handling: bracketed non-speech tags such
+ * as `[Music]` or `(tiếng nhạc)`, which are the model describing the audio
+ * rather than transcribing it; a short phrase looped three or more times back
+ * to back, which is the decoder repeating itself on padding; and the whole
+ * utterance said exactly twice, which is a distinct failure mode caught in
+ * moonshine-tiny-ko once its token budget was widened past the paper's own
+ * "6 tokens/sec" cap to stop truncating real Korean sentences — bên dưới.
+ * Neither is something a guest said.
  */
 export function cleanTranscript(raw: string): string {
   let t = raw.replace(/[[(（【][^\])）】]{0,40}[\])）】]/g, " ");
@@ -255,7 +354,7 @@ export function cleanTranscript(raw: string): string {
 
   const words = t.split(" ");
   if (words.length >= 6) {
-    /* Collapse a phrase repeated back to back three or more times. */
+    /* Collapse a short phrase repeated back to back three or more times. */
     for (let n = 1; n <= Math.min(6, Math.floor(words.length / 3)); n++) {
       const unit = words.slice(0, n).join(" ").toLowerCase();
       let reps = 1;
@@ -270,6 +369,25 @@ export function cleanTranscript(raw: string): string {
       if (reps >= 3 && reps * n === words.length) return words.slice(0, n).join(" ");
     }
   }
+
+  /**
+   * Collapse a whole sentence said exactly twice.
+   *
+   * A different shape from the loop above on purpose: that one needs three-plus
+   * repeats of a SHORT unit (≤6 words) — real silence-padding loops repeat a
+   * lot, so `reps>=3` filters out a guest genuinely saying "thank you thank
+   * you". A hallucinated full-sentence echo repeats only ONCE more, so it needs
+   * its own rule; and requiring at least 4 words per half is what keeps a real
+   * short doubled phrase ("no no", "please please") from being swallowed here.
+   * Caught live: moonshine-tiny-ko on "저희 방은 성인 두 명과 다섯 살
+   * 어린이 한 명입니다." → the same 9-word sentence twice, back to back.
+   */
+  if (words.length >= 8 && words.length % 2 === 0) {
+    const half = words.length / 2;
+    if (half >= 4 && words.slice(0, half).join(" ").toLowerCase() === words.slice(half).join(" ").toLowerCase())
+      return words.slice(0, half).join(" ");
+  }
+
   return t;
 }
 

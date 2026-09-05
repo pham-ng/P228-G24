@@ -24,7 +24,11 @@
  */
 import type { GuardFlag } from "./guard";
 
-export type RefusalKind = "prohibited_substance" | "adult_service_request" | "weapon_request";
+export type RefusalKind =
+  | "prohibited_substance"
+  | "adult_service_request"
+  | "weapon_request"
+  | "card_number_supplied";
 
 const LINES: Record<RefusalKind, Record<string, string>> = {
   prohibited_substance: {
@@ -50,6 +54,26 @@ const LINES: Record<RefusalKind, Record<string, string>> = {
     ja: "申し訳ございませんが、当リゾートでは如何なる場合も武器の持ち込みをお断りしております。当直マネージャーに申し伝えましたので、追ってご連絡いたします。",
     zh: "非常抱歉，度假村在任何情况下都不允许携带武器入内。我已转交值班经理，稍后会有人与您联系。",
     ru: "К сожалению, проносить оружие на территорию курорта запрещено в любом случае. Я передал(а) информацию дежурному менеджеру, с вами свяжутся.",
+  },
+  /**
+   * Số thẻ đã bị `redactCards` xoá khỏi văn bản TRƯỚC khi tới đây (xem
+   * guard.ts) — refusal này không bao giờ nhìn thấy hay lặp lại số thẻ.
+   *
+   * BẮT ĐƯỢC QUA AUDIT: khách gõ "4111 1111 1111 1111, hết hạn 05/28, quẹt
+   * luôn để giữ phòng" — model KHÔNG lặp lại số thẻ (đúng), nhưng lại nói
+   * "thông tin thẻ không có trong hệ thống, vui lòng cung cấp thông tin thẻ
+   * KHÁC" — vẫn mời khách gõ một số thẻ khác NGAY TRONG CHAT, đúng thứ
+   * guard.notes định ngăn ("front desk will send a secure payment link or
+   * take the card at the desk") mà nhánh offline chưa từng đọc được ghi chú
+   * đó. Cố định câu trả lời ở đây thay vì mong model tự suy ra kênh an toàn.
+   */
+  card_number_supplied: {
+    vi: "Dạ, vì lý do an toàn em không thể nhận số thẻ qua tin nhắn. Lễ tân sẽ gửi đường link thanh toán an toàn hoặc nhận thẻ trực tiếp tại quầy giúp anh/chị giữ phòng ạ.",
+    en: "For your security, I can't take card details over chat. The front desk will send a secure payment link or take your card in person to hold the room.",
+    ko: "보안을 위해 채팅으로는 카드 정보를 받을 수 없습니다. 프런트 데스크에서 안전한 결제 링크를 보내드리거나 직접 카드를 받아 예약을 확정해 드리겠습니다.",
+    ja: "セキュリティ上、チャットでのカード情報の受付はいたしかねます。フロントより安全な決済リンクをお送りするか、直接カードをお預かりしてご予約を確定いたします。",
+    zh: "出于安全考虑，我无法通过聊天接收卡号信息。前台将发送安全支付链接，或当面收取卡片以为您保留房间。",
+    ru: "В целях безопасности я не могу принять данные карты в чате. Стойка регистрации пришлёт безопасную ссылку для оплаты или примет карту лично для подтверждения брони.",
   },
 };
 
@@ -82,7 +106,9 @@ export function refusalFor(flags: GuardFlag[], lang: string): string | null {
       ? "prohibited_substance"
       : flags.includes("adult_service_request")
         ? "adult_service_request"
-        : null;
+        : flags.includes("card_number")
+          ? "card_number_supplied"
+          : null;
   if (!kind) return null;
   const table = LINES[kind];
   return table[lang] ?? table.vi;

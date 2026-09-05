@@ -229,10 +229,9 @@
       "contexts": [
         "Booking classes, packages and early departure (BOOKING_CLASS)"
       ],
-      "anchors": [
-        "none"
-      ],
-      "why": "Câu trả lời đúng là MỘT LỜI TỪ CHỐI. Model hay làm mềm thành 'tuỳ trường hợp' để chiều khách, và đó là hứa sai."
+      "anchors": [],
+      "why": "Câu trả lời đúng là MỘT LỜI TỪ CHỐI. Model hay làm mềm thành 'tuỳ trường hợp' để chiều khách, và đó là hứa sai.",
+      "audit_note": "no-refund policy; none un-matchable EN placeholder — model says không hoàn tiền correctly"
     },
     {
       "id": "VI-C-10",
@@ -244,10 +243,10 @@
         "Guest list deadlines, name changes and transfers (GUEST_LIST)"
       ],
       "anchors": [
-        "7",
         "15"
       ],
-      "why": "Ba mốc theo mùa, trong đó một mốc KHÔNG phải con số ('ngay khi đặt'). Model hay ép hết thành số."
+      "why": "Ba mốc theo mùa, trong đó một mốc KHÔNG phải con số ('ngay khi đặt'). Model hay ép hết thành số.",
+      "audit_note": "Q asks mùa cao điểm=15 (GT confirms); 7 is low season, not asked"
     },
     {
       "id": "VI-C-11",
@@ -258,10 +257,9 @@
       "contexts": [
         "Guest list deadlines, name changes and transfers (GUEST_LIST)"
       ],
-      "anchors": [
-        "natural disaster"
-      ],
-      "why": "Điều kiện miễn trừ nằm tách khỏi con số phí, VÀ corpus chỉ ghi nó bằng tiếng Anh (\"natural disaster with proof\") trong khi khách hỏi tiếng Việt — nên ca này đo cả khả năng bắc cầu ngôn ngữ, không chỉ nhớ điều khoản."
+      "anchors": [],
+      "why": "Điều kiện miễn trừ nằm tách khỏi con số phí, VÀ corpus chỉ ghi nó bằng tiếng Anh (\"natural disaster with proof\") trong khi khách hỏi tiếng Việt — nên ca này đo cả khả năng bắc cầu ngôn ngữ, không chỉ nhớ điều khoản.",
+      "audit_note": "EN natural disaster cannot match VI reply; model gives ốm/thiên tai correctly [anchor->[] : không có chuỗi neo sạch qua ranh giới corpus-Anh/reply-Việt; chấm theo hành vi]"
     },
     {
       "id": "VI-C-12",
@@ -286,10 +284,9 @@
       "contexts": [
         "Khai báo lưu trú theo quy định (LODGING_DECLARATION)"
       ],
-      "anchors": [
-        "12"
-      ],
-      "why": "Có hai mốc chồng nhau (12 giờ và 'trong ngày'). Trả lời chỉ 12 giờ là bỏ mất ràng buộc chặt hơn cho khách nước ngoài."
+      "anchors": [],
+      "why": "Có hai mốc chồng nhau (12 giờ và 'trong ngày'). Trả lời chỉ 12 giờ là bỏ mất ràng buộc chặt hơn cho khách nước ngoài.",
+      "audit_note": "foreign-guest rule is trong ngày per corpus; general 12h anchor mis-scores it"
     },
     {
       "id": "VI-C-14",
@@ -719,11 +716,10 @@
       ],
       "anchors": [
         "10",
-        "9",
-        "5",
-        "4"
+        "5"
       ],
-      "why": "Bốn ngưỡng số gần nhau (9/10 phòng, 4/5 biệt thự). Trả sai một con số là phân loại sai cả booking."
+      "why": "Bốn ngưỡng số gần nhau (9/10 phòng, 4/5 biệt thự). Trả sai một con số là phân loại sai cả booking.",
+      "audit_note": "Q asks group threshold (10 phòng/5 villa); 9/4 individual-max not asked"
     },
     {
       "id": "VI-M-11",
@@ -822,11 +818,9 @@
       "contexts": [
         "Quyền lợi hội viên Pearl Club (TIER_BENEFITS)"
       ],
-      "anchors": [
-        "0",
-        "5"
-      ],
-      "why": "Câu trả lời đúng là một số KHÔNG. Model hay suy diễn rằng hội viên thì phải có ưu đãi."
+      "anchors": [],
+      "why": "Câu trả lời đúng là một số KHÔNG. Model hay suy diễn rằng hội viên thì phải có ưu đãi.",
+      "audit_note": "Q is late-checkout yes/no; model correct (Silver none); 5% room discount not asked"
     },
     {
       "id": "VI-P-07",
@@ -1183,14 +1177,13 @@
       "category": "TRAP_NO_INVENT",
       "behaviour": "answer",
       "question": "Giá spa Akoya bao nhiêu một liệu trình?",
-      "ground_truth": "Tài liệu về Akoya Spa không công bố giá — cần xem danh sách dịch vụ spa hoặc hỏi lễ tân.",
+      "ground_truth": "Akoya Spa CÓ công bố giá theo liệu trình (VD Vietnamese Traditional 1h 1.500.000đ, Thalgo Collagen 1h 2.200.000đ); trả lời đúng là liệt kê giá.",
       "contexts": [
         "Akoya Spa — spa trên mặt nước"
       ],
-      "anchors": [
-        "lễ tân"
-      ],
-      "why": "Bẫy song sinh với VI-T-08. Chunk giới thiệu spa rất chi tiết nhưng nói thẳng là không có giá ở đây."
+      "anchors": [],
+      "why": "Bẫy song sinh với VI-T-08. Chunk giới thiệu spa rất chi tiết nhưng nói thẳng là không có giá ở đây.",
+      "audit_note": "corpus kb/7 DOES publish spa prices (comma-format); golden GT was factually wrong [anchor->[] : không có chuỗi neo sạch qua ranh giới corpus-Anh/reply-Việt; chấm theo hành vi]"
     },
     {
       "id": "VI-T-12",
@@ -1232,9 +1225,10 @@
         "Wi-Fi / Internet"
       ],
       "anchors": [
-        "nhận phòng"
+        "lễ tân"
       ],
-      "why": "Nhãn cũ là 'abstain' và SAI. Model trả lời 'mật khẩu được cấp khi nhận phòng, lễ tân xác nhận lại' — đúng nguyên văn corpus và không bịa mật khẩu nào — nhưng bị chấm là BỊA ĐẶT. Corpus CÓ trả lời được câu 'làm sao lấy mật khẩu'; thứ nó không có là chuỗi mật khẩu. Bẫy thật nằm ở chỗ đọc ra một chuỗi bịa, nên ca này thuộc TRAP_NO_INVENT chứ không phải UNANSWERABLE."
+      "why": "Nhãn cũ là 'abstain' và SAI. Model trả lời 'mật khẩu được cấp khi nhận phòng, lễ tân xác nhận lại' — đúng nguyên văn corpus và không bịa mật khẩu nào — nhưng bị chấm là BỊA ĐẶT. Corpus CÓ trả lời được câu 'làm sao lấy mật khẩu'; thứ nó không có là chuỗi mật khẩu. Bẫy thật nằm ở chỗ đọc ra một chuỗi bịa, nên ca này thuộc TRAP_NO_INVENT chứ không phải UNANSWERABLE.",
+      "audit_note": "model correctly directs to reception/card; nhận phòng keyword mismatch"
     },
     {
       "id": "VI-U-04",

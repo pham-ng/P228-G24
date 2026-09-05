@@ -46,10 +46,10 @@ import { storage } from "./storage";
 import type { DocChunk } from "@shared/schema";
 import { chat } from "./llm";
 import { scoreFamilies, type FamilyName } from "./toolrouter";
-import { checkReply, repairReply } from "./numguard";
+import { checkReply, repairReply, checkCategoricalTraps } from "./numguard";
 import { namedEntities } from "./name-alias";
 import { shouldEscalateByIntent } from "./intent-net";
-import { needsClarification, type ClarifyLang } from "./clarify";
+import { needsClarification, mentionsKnownSubject, type ClarifyLang } from "./clarify";
 import { greetingReply, type GreetLang } from "./greeting";
 
 /* ------------------------------------------------------------------ config */
@@ -166,6 +166,37 @@ const RECOMMENDATION_CUES = [
 
 /** Families whose flows are driven by deterministic code plus a confirmation. */
 const TRANSACTION_FAMILIES: FamilyName[] = ["stay_changes", "housekeeping", "transport_tours"];
+
+/**
+ * Route "transaction" gộp chung hai việc rất khác nhau dưới cùng một xử lý:
+ * "làm giúp tôi việc X" (cần người thật thao tác) và "cho tôi biết X là bao
+ * nhiêu" (câu hỏi tri thức thuần tuý về một chủ đề NGHE giống giao dịch —
+ * "đổi tên khách mất phí bao nhiêu", "đặt xe giá bao nhiêu"). Trước bản vá
+ * này, CẢ HAI đều bị gán `escalate: true` + một câu "đã chuyển thông tin
+ * cho nhân viên" tự động — kể cả khi câu trả lời đã đầy đủ, đúng, và không
+ * còn gì cần lễ tân làm thêm. Đo được qua khảo sát "chuyển nhân viên 49%":
+ * 40+ ca route=transaction mà giám khảo (tôi) đã chấm "đúng và đủ" chỉ vì
+ * câu hỏi tình cờ chạm gói từ khoá vận chuyển/đổi phòng, không phải vì
+ * khách thật sự cần ai đó xử lý gì thêm — một tin nhắn "đã chuyển việc"
+ * KHÔNG CÓ VIỆC GÌ để chuyển vừa gây hiểu lầm cho khách, vừa tạo việc thừa
+ * cho lễ tân.
+ *
+ * Hàm này CỐ Ý bảo thủ theo hướng AN TOÀN: chỉ trả `true` (bỏ qua escalate)
+ * khi câu hỏi rõ ràng ở dạng hỏi thông tin (kết thúc bằng cụm hỏi) VÀ không
+ * mang bất kỳ dấu hiệu nào của yêu cầu hành động thật (nhờ vả trực tiếp, mã
+ * đặt phòng cụ thể, hoặc mở đầu bằng động từ mệnh lệnh). Nghi ngờ ở đâu thì
+ * giữ nguyên hành vi cũ (escalate) — thà chuyển việc thừa một lần còn hơn bỏ
+ * sót một yêu cầu thật.
+ */
+const ACTION_REQUEST_MARKERS =
+  /giúp (tôi|mình|em|anh|chị)|gi[uù]m (tôi|mình)|hộ (tôi|mình)|làm ơn|please\b|for me\b|VPNT-[A-Z0-9]{4,}|mã đặt phòng|reservation (code|number)/i;
+const IMPERATIVE_VERB_START = /^\s*(đặt|huỷ|hủy|đổi|xoá|xóa|thêm|gửi|xác nhận|đăng ký|confirm|cancel|book|change)\b/i;
+const PURE_INFO_QUESTION_TAIL = /(bao nhiêu|là gì|thế nào|ở đâu|mấy giờ|có .*không|đúng không)\s*[?.!]?\s*$/i;
+function looksLikePureInfoQuestion(question: string): boolean {
+  const q = question.trim();
+  if (ACTION_REQUEST_MARKERS.test(q) || IMPERATIVE_VERB_START.test(q)) return false;
+  return PURE_INFO_QUESTION_TAIL.test(q);
+}
 
 /**
  * The `housekeeping` family's lexicon (toolrouter.ts) mixes bare amenity nouns
@@ -745,6 +776,44 @@ export function needsConversationContext(question: string): boolean {
 const EXTRA_NIGHTS_SUPPLIED =
   /(?:them|gia han|extra|another|additional|more)\s*\d*\s*(?:ngay|dem|night|nights|day|days)|(?<!\bcon\s)\d+\s*(?:ngay|dem|night|nights|day|days)\s*(?:nua|them|more|extra)|\d+\s*(?:박|泊|晚)\s*(?:더|多|更)|(?:더|もう|再)\s*\d+\s*(?:박|泊|晚)/iu;
 
+/**
+ * Ngày trả phòng đứng TRƯỚC hoặc TRÙNG ngày nhận phòng — lỗi logic thuần
+ * tuý, đúng bất kể lịch giá/PMS nào. "Nhận phòng 10/09 và trả phòng 08/09"
+ * là bất khả thi theo bất kỳ nghĩa nào; retrieval vẫn trả về đoạn phòng bình
+ * thường và model tự tin trả lời — không đoạn văn nào có thể sửa việc đó vì
+ * đây không phải câu hỏi thiếu tài liệu, mà là câu hỏi TỰ MÂU THUẪN.
+ *
+ * KHÔNG bắt "quá khứ" hay "quá xa tương lai" — hai điều đó cần biết "hôm nay"
+ * của khách sạn và một lịch đặt phòng thật, ngoài tầm regex. Đây chỉ bắt thứ
+ * suy được từ chính hai con số trong câu, không cần biết gì thêm.
+ */
+function ngayTraPhongDaoNguoc(text: string): boolean {
+  const f = fold(text);
+  const ds = [...f.matchAll(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/g)];
+  if (ds.length < 2) return false;
+  const soHoa = (m: RegExpMatchArray) => {
+    const nam = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : 2100;
+    return nam * 10000 + Number(m[2]) * 100 + Number(m[1]);
+  };
+  return soHoa(ds[1]) <= soHoa(ds[0]);
+}
+
+/**
+ * Số đêm phi lý (>30) — vượt quá mức một hệ thống đặt phòng online thường xử
+ * lý, cần bộ phận lưu trú dài hạn xem riêng.
+ *
+ * CHỈ bắt "đêm", KHÔNG bắt "ngày". Sau khi bỏ dấu, "ngày" (đơn vị thời gian)
+ * và "ngay" (phó từ "ngay lập tức", vốn đã không dấu) gập về CÙNG một chuỗi
+ * — y hệt lỗi "thẻ"≡"thế" đã sửa ở clarify.ts. Bắt "ngày" ở đây từng biến
+ * "phòng 202 ngay" ("làm ngay") thành dương tính giả "202 ngày ở". "đêm"
+ * không có va chạm này nên an toàn để bắt một mình. Đo trên 461 câu: 0
+ * dương tính giả.
+ */
+function soDemPhiLy(text: string): boolean {
+  const m = fold(text).match(/\b(\d{1,3})\s*dem\b/);
+  return !!m && Number(m[1]) > 30;
+}
+
 export function isPriceInfoOnly(text: string): boolean {
   const t = fold(text);
   if (EXTRA_NIGHTS_SUPPLIED.test(t)) return false;
@@ -768,6 +837,13 @@ export function isPolicyInfoOnly(text: string): boolean {
 
 export function classifyLocal(text: string, isEmergency: boolean): LocalRoute {
   if (isEmergency) return "emergency";
+  /* Tự mâu thuẫn hoặc phi lý theo chính con số khách gõ — không cần tra tài
+     liệu để biết sai, nên đặt TRƯỚC family scoring. Ca thật bắt được: "Tôi
+     muốn Deluxe Suite King Ocean View từ 20/09 đến 22/09" (ngày hợp lệ,
+     KHÔNG rơi vào đây) trả lời được bình thường, còn "nhận phòng 10/09 và
+     trả phòng 08/09" thì không — phân biệt đúng hai loại mà một luật chặn
+     rộng "có ngày + có ý định đặt phòng" sẽ gộp nhầm làm một. */
+  if (ngayTraPhongDaoNguoc(text) || soDemPhiLy(text)) return "complex";
   const scored = scoreFamilies(text);
   const top = scored[0]?.family;
 
@@ -1343,8 +1419,8 @@ export function buildAnswerPrompt(
 
   const directnessInstruction =
     (lang === "vi"
-      ? " Trả lời thẳng vào trọng tâm ngay câu đầu tiên — đừng lặp lại câu hỏi thay cho câu trả lời. Nếu câu hỏi có nhiều vế hoặc hỏi nhiều thông tin cùng lúc, hãy trả lời đầy đủ từng vế một, không bỏ sót vế nào. Nếu tài liệu nêu một quy định chung áp dụng đúng cho trường hợp khách hỏi, hãy dùng quy định đó để trả lời dù từ ngữ trong câu hỏi khác với tài liệu — chỉ từ chối khi tài liệu thực sự không nói gì liên quan. Nếu tài liệu liệt kê nhiều mốc giờ, hãy liệt kê đúng và đủ các mốc giờ đó, không gộp hay tự suy ra một mốc giờ khác. Nếu tài liệu cho mức giá niêm yết phòng (VD: số tiền VNĐ/đêm) hoặc phần trăm phí dịch vụ, hãy ghi chính xác số tiền VNĐ hoặc loại giá được nêu, không viết chung chung như 'giá 100%'."
-      : " Answer the actual question directly in your first sentence — never restate the question in place of an answer. If the question contains multiple parts or requests several details, answer every part completely without omitting any detail. If a passage states a general rule that plainly covers the guest's specific case, use it even if the guest's wording differs from the passage's — only decline when the passages truly say nothing relevant. If a passage lists several distinct times, report them exactly as listed — never merge them into a different single time. If passages mention room rates or fees, state the exact amount or fee conditions clearly without vague phrases.") +
+      ? " Trả lời thẳng vào trọng tâm ngay câu đầu tiên — đừng lặp lại câu hỏi thay cho câu trả lời. Nếu câu hỏi có nhiều vế hoặc hỏi nhiều thông tin cùng lúc, hãy trả lời đầy đủ từng vế một, không bỏ sót vế nào. Nếu tài liệu nêu một quy định chung áp dụng đúng cho trường hợp khách hỏi, hãy dùng quy định đó để trả lời dù từ ngữ trong câu hỏi khác với tài liệu — chỉ từ chối khi tài liệu thực sự không nói gì liên quan. Nếu tài liệu liệt kê nhiều mốc giờ, hãy liệt kê đúng và đủ các mốc giờ đó, không gộp hay tự suy ra một mốc giờ khác. Khi tài liệu là BẢNG nhiều dòng theo hạng thẻ, mùa, bậc giờ hay điều kiện, hãy lấy con số ở dòng KHỚP CHÍNH XÁC điều kiện khách hỏi — khách hỏi hạng nào thì lấy số của hạng đó, hỏi mùa nào thì lấy số mùa đó, tuyệt đối không lấy số của dòng lân cận (VD hỏi Platinum thì không lấy số của Diamond). Nếu cho mức giá niêm yết phòng (VD: số tiền VNĐ/đêm) hoặc phần trăm phí dịch vụ, hãy ghi chính xác số tiền VNĐ hoặc loại giá được nêu, không viết chung chung như 'giá 100%'."
+      : " Answer the actual question directly in your first sentence — never restate the question in place of an answer. If the question contains multiple parts or requests several details, answer every part completely without omitting any detail. If a passage states a general rule that plainly covers the guest's specific case, use it even if the guest's wording differs from the passage's — only decline when the passages truly say nothing relevant. If a passage lists several distinct times, report them exactly as listed — never merge them into a different single time. When a passage is a TABLE with several rows by tier, season, time-band or condition, take the figure from the row that EXACTLY matches what the guest asked — the tier they named, the season they named — never a neighbouring row (asked about Platinum, do not quote Diamond's figure). If passages mention room rates or fees, state the exact amount or fee conditions clearly without vague phrases.") +
     rateRules;
 
   const system =
@@ -1746,6 +1822,14 @@ export async function runLocalTurn(input: {
    *  still sees only the raw current message: routing safety is decided on
    *  what the guest is asking right now, not on what was asked before. */
   history?: string;
+  /** A running summary of turns OLDER than the recent-history window, condensing
+   *  which entities the guest is interested in (a specific room, venue, service)
+   *  and what has been discussed. Names entities, never figures — so a follow-up
+   *  like "giá phòng lúc nãy?" can be pointed at the right room for retrieval to
+   *  price freshly, without reintroducing the cross-topic NUMBER attribution the
+   *  money-signal history gate exists to prevent. Empty for short conversations,
+   *  so single-turn behaviour is unchanged. */
+  summary?: string;
 }): Promise<LocalTurn> {
   const search = input.search ?? hybridSearch;
   const route = classifyLocal(input.question, input.isEmergency);
@@ -1775,11 +1859,49 @@ export async function runLocalTurn(input: {
     };
   }
 
-  if (isBareAmbiguousQuery(input.question) && !input.history) {
-    /* Naming what is missing beats a generic "please be more specific": the
-       guest asked about opening hours, so the reply lists the places that HAVE
-       opening hours instead of asking them to start over. */
-    const specific = needsClarification(input.question, input.lang as ClarifyLang);
+  /* Naming what is missing beats a generic "please be more specific": the
+     guest asked about opening hours, so the reply lists the places that HAVE
+     opening hours instead of asking them to start over. */
+  const specific = needsClarification(input.question, input.lang as ClarifyLang);
+  /**
+   * "Photos" bypasses the `!input.history` gate every other attribute
+   * respects — see the "photos" case in clarify.ts's ATTRIBUTES for why.
+   * Short version: "giá thế nào" after the guest just asked about a room
+   * resolves fine from context (retrieval + the reply naming that room), so
+   * re-asking on turn 2 would just be annoying — that is what `!input.history`
+   * protects. A photo request has no such natural fallback subject unless a
+   * room/venue/service was actually named recently.
+   *
+   * Bắt được qua hội thoại thật 2026-09-01: khách hỏi vị trí check-in (không
+   * nêu phòng/nhà hàng/dịch vụ nào), rồi "cho tôi xem hình ảnh được không" —
+   * lịch sử tồn tại nên gate cũ bỏ qua bước hỏi lại, câu hỏi rơi qua truy xuất
+   * mơ hồ rồi bị chuyển thẳng cho nhân viên.
+   *
+   * CHỈ soi lời KHÁCH nói, VÀ CHỈ LƯỢT GẦN NHẤT — hai điều kiện, hai lỗi khác
+   * nhau bắt được bằng chính hội thoại thật này:
+   *
+   *  1. Không soi lời TRỢ LÝ — cùng nguyên tắc đã áp cho thẻ phòng/dịch vụ
+   *     ([[aurea-card-relevance-rule]]). Câu trả lời ngay trước đó là "Vị trí
+   *     của khách sạn nằm ngay cạnh BÃI BIỂN" — "bãi biển" nằm trong SUBJECTS
+   *     (cho câu hỏi giờ mở khu bãi biển). Soi cả lượt trợ lý khiến "cho tôi
+   *     xem ảnh" bị hiểu nhầm là đã có chủ thể "bãi biển", dù khách chưa từng
+   *     nhắc gì tới nó.
+   *  2. CHỈ lượt khách GẦN NHẤT, không phải toàn bộ cửa sổ lịch sử — cửa sổ 4
+   *     lượt của `recentOfflineHistory()` (server/agent.ts) đủ dài để chứa
+   *     một chủ đề đã CŨ: hội thoại thật này có "thực đơn" (menu — một SUBJECT
+   *     hợp lệ) hai lượt khách trước đó, không liên quan gì tới ảnh. Soi toàn
+   *     bộ cửa sổ sẽ bám vào chủ đề cũ đã qua thay vì hỏi lại đúng lúc.
+   *
+   * Lượt khách gần nhất là tín hiệu mạnh nhất cho "khách vẫn đang nói về gì":
+   * "Tôi muốn xem phòng Deluxe" ngay trước "cho tôi xem ảnh" nên tin cậy được;
+   * một chủ đề từ hai lượt trước thì không.
+   */
+  const lastGuestLine = (input.history ?? "")
+    .split("\n")
+    .reverse()
+    .find((line) => /^kh[aá]ch\s*:/i.test(line.trim())) ?? "";
+  const photoWithoutContext = specific?.attribute === "photos" && !mentionsKnownSubject(lastGuestLine);
+  if ((isBareAmbiguousQuery(input.question) && !input.history) || photoWithoutContext) {
     return {
       route: "knowledge",
       reply: specific?.reply ?? generateClarificationReply(input.lang),
@@ -1830,11 +1952,20 @@ export async function runLocalTurn(input: {
           found.note,
         );
         if (answer.reply) {
+          /* Câu hỏi tri thức thuần tuý ("đổi tên mất phí bao nhiêu") không cần
+             chuyển lễ tân — không còn việc gì để họ làm sau một câu trả lời
+             đầy đủ. Chỉ giữ escalate cho yêu cầu hành động thật (xem
+             looksLikePureInfoQuestion ở trên). */
+          const pureQuestion = looksLikePureInfoQuestion(input.question);
           return {
             route,
-            reply: cleanSpuriousCjk(answer.reply + handoffNote(scoreFamilies(input.question)[0]?.family, input.lang), input.lang),
-            escalate: true,
-            escalateReason: "Yêu cầu đặt phòng/dịch vụ — đã trả lời thông tin & chuyển lễ tân xác nhận.",
+            reply: pureQuestion
+              ? cleanSpuriousCjk(answer.reply, input.lang)
+              : cleanSpuriousCjk(answer.reply + handoffNote(scoreFamilies(input.question)[0]?.family, input.lang), input.lang),
+            escalate: !pureQuestion,
+            escalateReason: pureQuestion
+              ? undefined
+              : "Yêu cầu đặt phòng/dịch vụ — đã trả lời thông tin & chuyển lễ tân xác nhận.",
             /* The enriched list, like every other post-enrichment return: this
                branch also drafts an answer, so the trace and the caller's
                numeric guard must see the rows the model actually read. */
@@ -1881,7 +2012,34 @@ export async function runLocalTurn(input: {
      BM25 cannot, so it only gets the exchange most likely to be the right
      one — the last one. */
   const lastExchangeOnly = input.history?.split("\n").slice(-2).join("\n") ?? "";
-  const retrievalQuery = useHistory && lastExchangeOnly ? `${lastExchangeOnly}\n${input.question}` : input.question;
+  /* A BARE attribute follow-up — "phạt bao nhiêu?", "giá bao nhiêu?", "bao lâu?"
+     — names an attribute but no subject, so it only makes sense against the
+     previous turn. needsConversationContext misses it (no pronoun / "còn"), and
+     the money word in "phạt/giá" would anyway blank the history, so the live turn
+     "làm hỏng ga giường?" → "phạt bao nhiêu?" retrieved smoking and lodging fines
+     instead of the damage rule. Steer RETRIEVAL with the last exchange for these,
+     independent of the money gate: retrieval only targets the right topic and
+     cannot misattribute a number — the answer prompt below still keeps the money
+     gate, and numguard still guards every figure. */
+  const ATTR_CUE = /\b(bao nhiêu|bao lâu|phạt|giá|phí|mấy giờ|thế nào|ra sao)\b/i;
+  const isBareFollowup =
+    !!input.history && input.question.trim().split(/\s+/).length <= 6 && ATTR_CUE.test(input.question);
+  let retrievalQuery =
+    (useHistory || isBareFollowup) && lastExchangeOnly ? `${lastExchangeOnly}\n${input.question}` : input.question;
+  /* When the current message REFERS BACK to something ("phòng lúc nãy", "nó",
+     "cái đó", "còn … thì sao") but the referent has fallen out of the recent
+     window, the running summary names the entity the guest means. Prepending it
+     to the retrieval query points BM25/vectors at the right room/venue so the
+     answer is priced/described from the correct document. It is added to the
+     retrieval query ONLY (never asserted as fact) and only for a back-reference,
+     so it cannot pull an unrelated topic into an ordinary question. Unlike the
+     recent-history path, this is NOT gated on the money signal: the summary
+     carries entities, not figures, so it disambiguates WHICH room without ever
+     handing the model a number to misattribute. */
+  const BACK_REFERENCE = /\bnó\b|\bđó\b|\bấy\b|\bnày\b|lúc nãy|ban nãy|vừa (?:nãy|rồi)|hồi nãy|còn .* thì sao|cái (?:kia|đó)/i;
+  if (input.summary && BACK_REFERENCE.test(input.question)) {
+    retrievalQuery = `${input.summary}\n${retrievalQuery}`;
+  }
   const retrievalStart = Date.now();
   const found = await search(retrievalQuery, { k: LOCAL_PASSAGES });
   const retrievalMs = Date.now() - retrievalStart;
@@ -1979,6 +2137,30 @@ export async function runLocalTurn(input: {
      the front desk to confirm" notice, for a figure read straight out of
      `room_packages`. */
   const rateFacts = buildRoomRateBlock(input.question, input.lang, enrichedPassages);
+
+  /* Non-numeric fabrication guard: a confident tier or required-document answer
+     the passages do not actually support. Grounds against the same evidence the
+     numeric guard uses, so it self-disables the moment the corpus gains the
+     fact. Placed before the numeric guard so a trap short-circuits to a handoff
+     rather than shipping an invented category. */
+  if (answer.reply) {
+    const evidenceText =
+      enrichedPassages.map((p) => p.content).join("\n") + (rateFacts ? "\n" + rateFacts : "");
+    const trap = checkCategoricalTraps(input.question, answer.reply, evidenceText);
+    if (trap.abstain) {
+      return {
+        route,
+        reply: null,
+        escalate: true,
+        escalateReason: `Câu trả lời khẳng định điều tài liệu không có (${trap.reason}) — chuyển nhân viên.`,
+        passages: enrichedPassages,
+        topScore: gate.topScore,
+        llmCalls: 1,
+        retrievalMs,
+        timing: answer.timing,
+      };
+    }
+  }
 
   if (answer.reply) {
     const numCheck = checkReply(answer.reply, {

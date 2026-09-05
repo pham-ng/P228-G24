@@ -1,0 +1,37 @@
+[
+  {
+    "id": "BM-REAL-014",
+    "q": "Giá vé VinWonders hôm nay là bao nhiêu?",
+    "cu": "answer_directly",
+    "moi": "abstain",
+    "ghi_chu": "Ground truth của chính hàng này ghi 'Hệ thống ghi không rõ giá cụ thể, việc không trả lời là hợp lý' — mâu thuẫn với nhãn expected_behavior=answer_directly. Model từ chối đúng, hướng dẫn xem trang chính thức."
+  },
+  {
+    "id": "BM-REAL-025",
+    "q": "Có người lạ cứ gõ cửa phòng tôi lúc nửa đêm.",
+    "cu": "answer_directly",
+    "moi": "abstain",
+    "ghi_chu": "Ground truth: 'Vấn đề an ninh không có trong tài liệu, im lặng chuyển bộ phận xử lý là hợp lý' — mâu thuẫn với nhãn. Sau bản vá handoffLine('emergency'), khách sẽ nhận câu hướng dẫn gọi 113 thay vì im lặng."
+  },
+  {
+    "id": "BM-REAL-068",
+    "q": "Giặt một bộ áo dài của tôi hết bao nhiêu tiền?",
+    "cu": "answer_directly",
+    "moi": "abstain",
+    "ghi_chu": "Ground truth: 'Tài liệu không có giá áo dài, im lặng hoặc chuyển bộ phận là đúng' — mâu thuẫn với nhãn. Dòng giá dự phòng 'Món khác' trong corpus có price:0 (dữ liệu hỏng), nên từ chối còn an toàn hơn bịa giá 0đ."
+  },
+  {
+    "id": "BM-REAL-084",
+    "q": "Tôi có 25.000 điểm thì lên hạng gì?",
+    "cu": "answer_directly",
+    "moi": "abstain",
+    "ghi_chu": "Ground truth: 'Tài liệu ghi giá trị mặc định, từ chối khẳng định và chuyển nhân viên là đúng' — mâu thuẫn với nhãn. Đây đúng là ca numguard được thiết kế để chặn (không có bảng quy đổi điểm→hạng)."
+  },
+  {
+    "id": "BM-REAL-101",
+    "q": "Con tôi 8 tuổi ở cùng phòng thì phụ thu bao nhiêu?",
+    "cu": "answer_directly",
+    "moi": "abstain",
+    "ghi_chu": "Kiểm corpus trực tiếp (doc_chunks 'Families and children'): có ghi mốc tuổi 4-12 cần phụ thu, KHÔNG có số tiền cụ thể. Model trả lời đúng mốc tuổi, thành thật nói thiếu số — đây là lỗ hổng dữ liệu, không phải model bịa hay bỏ cuộc sai."
+  }
+]
