@@ -49,7 +49,7 @@ import { scoreFamilies, type FamilyName } from "./toolrouter";
 import { checkReply, repairReply, checkCategoricalTraps } from "./numguard";
 import { namedEntities } from "./name-alias";
 import { shouldEscalateByIntent } from "./intent-net";
-import { needsClarification, type ClarifyLang } from "./clarify";
+import { needsClarification, mentionsKnownSubject, type ClarifyLang } from "./clarify";
 import { greetingReply, type GreetLang } from "./greeting";
 
 /* ------------------------------------------------------------------ config */
@@ -1859,11 +1859,49 @@ export async function runLocalTurn(input: {
     };
   }
 
-  if (isBareAmbiguousQuery(input.question) && !input.history) {
-    /* Naming what is missing beats a generic "please be more specific": the
-       guest asked about opening hours, so the reply lists the places that HAVE
-       opening hours instead of asking them to start over. */
-    const specific = needsClarification(input.question, input.lang as ClarifyLang);
+  /* Naming what is missing beats a generic "please be more specific": the
+     guest asked about opening hours, so the reply lists the places that HAVE
+     opening hours instead of asking them to start over. */
+  const specific = needsClarification(input.question, input.lang as ClarifyLang);
+  /**
+   * "Photos" bypasses the `!input.history` gate every other attribute
+   * respects — see the "photos" case in clarify.ts's ATTRIBUTES for why.
+   * Short version: "giá thế nào" after the guest just asked about a room
+   * resolves fine from context (retrieval + the reply naming that room), so
+   * re-asking on turn 2 would just be annoying — that is what `!input.history`
+   * protects. A photo request has no such natural fallback subject unless a
+   * room/venue/service was actually named recently.
+   *
+   * Bắt được qua hội thoại thật 2026-09-01: khách hỏi vị trí check-in (không
+   * nêu phòng/nhà hàng/dịch vụ nào), rồi "cho tôi xem hình ảnh được không" —
+   * lịch sử tồn tại nên gate cũ bỏ qua bước hỏi lại, câu hỏi rơi qua truy xuất
+   * mơ hồ rồi bị chuyển thẳng cho nhân viên.
+   *
+   * CHỈ soi lời KHÁCH nói, VÀ CHỈ LƯỢT GẦN NHẤT — hai điều kiện, hai lỗi khác
+   * nhau bắt được bằng chính hội thoại thật này:
+   *
+   *  1. Không soi lời TRỢ LÝ — cùng nguyên tắc đã áp cho thẻ phòng/dịch vụ
+   *     ([[aurea-card-relevance-rule]]). Câu trả lời ngay trước đó là "Vị trí
+   *     của khách sạn nằm ngay cạnh BÃI BIỂN" — "bãi biển" nằm trong SUBJECTS
+   *     (cho câu hỏi giờ mở khu bãi biển). Soi cả lượt trợ lý khiến "cho tôi
+   *     xem ảnh" bị hiểu nhầm là đã có chủ thể "bãi biển", dù khách chưa từng
+   *     nhắc gì tới nó.
+   *  2. CHỈ lượt khách GẦN NHẤT, không phải toàn bộ cửa sổ lịch sử — cửa sổ 4
+   *     lượt của `recentOfflineHistory()` (server/agent.ts) đủ dài để chứa
+   *     một chủ đề đã CŨ: hội thoại thật này có "thực đơn" (menu — một SUBJECT
+   *     hợp lệ) hai lượt khách trước đó, không liên quan gì tới ảnh. Soi toàn
+   *     bộ cửa sổ sẽ bám vào chủ đề cũ đã qua thay vì hỏi lại đúng lúc.
+   *
+   * Lượt khách gần nhất là tín hiệu mạnh nhất cho "khách vẫn đang nói về gì":
+   * "Tôi muốn xem phòng Deluxe" ngay trước "cho tôi xem ảnh" nên tin cậy được;
+   * một chủ đề từ hai lượt trước thì không.
+   */
+  const lastGuestLine = (input.history ?? "")
+    .split("\n")
+    .reverse()
+    .find((line) => /^kh[aá]ch\s*:/i.test(line.trim())) ?? "";
+  const photoWithoutContext = specific?.attribute === "photos" && !mentionsKnownSubject(lastGuestLine);
+  if ((isBareAmbiguousQuery(input.question) && !input.history) || photoWithoutContext) {
     return {
       route: "knowledge",
       reply: specific?.reply ?? generateClarificationReply(input.lang),
