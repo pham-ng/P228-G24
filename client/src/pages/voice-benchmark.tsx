@@ -131,7 +131,7 @@ export default function VoiceBenchmarkPage() {
         <Stat
           label="WER trung bình"
           value={pct(avgWerActive)}
-          sub="chỉ trên các ngôn ngữ đo được — xem ghi chú về tiếng Trung"
+          sub="chỉ trên các ngôn ngữ đo được — xem ghi chú về tiếng Trung/Nhật"
         />
         <Stat
           label="TTS RTF (điển hình)"
