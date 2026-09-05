@@ -219,9 +219,9 @@ export default function VoiceBenchmarkPage() {
           </table>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          * Tiếng Trung không có khoảng trắng giữa các từ, nên WER (đo theo &ldquo;từ&rdquo;) không có ý nghĩa — một
-          câu sai một chữ bị tính hỏng nguyên câu. CER (đo theo ký tự) là con số đáng tin cho tiếng Trung, giống hệt lý
-          do CER quan trọng hơn WER với dấu thanh tiếng Việt.
+          * Tiếng Trung và tiếng Nhật không có khoảng trắng giữa các từ, nên WER (đo theo &ldquo;từ&rdquo;) không có ý
+          nghĩa — một câu sai một chữ bị tính hỏng nguyên câu. CER (đo theo ký tự) là con số đáng tin cho hai ngôn ngữ
+          này, giống hệt lý do CER quan trọng hơn WER với dấu thanh tiếng Việt.
         </p>
       </section>
 
@@ -233,12 +233,11 @@ export default function VoiceBenchmarkPage() {
           </p>
           <ul className="mt-3 space-y-2 text-xs">
             <li className="flex gap-2">
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-chart-4" />
               <span>
-                <b>Tiếng Nhật không có giọng máy chủ trên máy đo này</b> — thiếu môi trường Python
-                (<code className="font-mono">.venv-tts-ja</code>) cần cho việc phiên âm trước khi đưa vào Kokoro. Khách
-                Nhật hiện nghe qua giọng của chính điện thoại họ (điện thoại Nhật luôn có giọng Nhật, nên nút đọc vẫn
-                hiện — chỉ không đồng nhất giữa các máy như 5 ngôn ngữ kia).
+                <b>Giọng đọc tiếng Nhật chậm hơn hẳn 5 ngôn ngữ kia</b> — RTF ~1,0 (bằng đúng độ dài câu nói) so với
+                ~0,1-0,17 của Piper, vì phải qua một bước phiên âm Python riêng trước khi đưa vào Kokoro. Một câu dài
+                6 giây thì khách đợi 6 giây mới nghe tiếng đầu tiên.
               </span>
             </li>
             <li className="flex gap-2">
@@ -262,9 +261,18 @@ export default function VoiceBenchmarkPage() {
         </section>
 
         <section className="rounded-md border border-card-border bg-card p-4">
-          <h2 className="text-sm font-semibold">Đã sửa khi rà lại code cho lượt đo này</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">Hai lỗi im lặng, phát hiện khi đọc lại đường đi thật của một câu đọc.</p>
+          <h2 className="text-sm font-semibold">Đã sửa / đã đo và quyết định</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">Phát hiện khi đọc lại đường đi thật của một câu đọc, và khi thử tìm model chuyên biệt cho từng ngôn ngữ.</p>
           <ul className="mt-3 space-y-2 text-xs">
+            <li className="flex gap-2">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-chart-2" />
+              <span>
+                <b>Tiếng Nhật giờ có giọng máy chủ</b> — trước đây thiếu môi trường Python trên đúng máy phục vụ khách
+                (<code className="font-mono">.venv-tts-ja</code> + trọng số Kokoro), đã dựng lại. Nhưng STT tiếng Nhật
+                VẪN dùng model đa ngôn ngữ chung — đã thử model chuyên biệt (moonshine-base-ja) và nó THUA (CER 28%
+                so với 19,5% hiện tại), nên không đổi. Không phải ngôn ngữ nào cũng có model chuyên biệt tốt hơn.
+              </span>
+            </li>
             <li className="flex gap-2">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-chart-2" />
               <span>
@@ -279,6 +287,15 @@ export default function VoiceBenchmarkPage() {
                 Câu trả lời dài hơn 600 ký tự (~1% câu trả lời thật) từng bị từ chối thẳng 400 thay vì được đọc 600 ký
                 tự đầu — dù hàm tổng hợp đã tự cắt đúng độ dài đó nếu request lọt qua được. Trên ngôn ngữ không có
                 giọng thiết bị dự phòng, nút đọc bị câm hoàn toàn. Đã tách ranh giới xác thực khỏi ranh giới đọc.
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-chart-2" />
+              <span>
+                Tiếng Hàn/Trung đổi sang model STT chuyên biệt (đo trực tiếp, chỉ đổi vì tốt hơn thật): CER tiếng Hàn
+                17,6%→14,5%, tiếng Trung 21,4%→13,9% (kèm chuẩn hoá phồn thể/giản thể). Việc nới ngân sách token để
+                hết cắt cụt câu tiếng Hàn từng gây lặp nguyên câu ở một ca — đã vá thêm một luật chung trong bộ lọc
+                transcript, áp dụng cho mọi ngôn ngữ.
               </span>
             </li>
           </ul>
