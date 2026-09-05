@@ -321,10 +321,14 @@ export async function transcribe(pcm: Pcm, lang: SttLang): Promise<Transcript> {
 /**
  * Strip the artefacts Whisper produces on near-silence.
  *
- * Two are common enough to be worth handling: bracketed non-speech tags such as
- * `[Music]` or `(tiếng nhạc)`, which are the model describing the audio rather
- * than transcribing it; and an immediately repeated phrase, which is the decoder
- * looping on padding. Neither is something a guest said.
+ * Three are common enough to be worth handling: bracketed non-speech tags such
+ * as `[Music]` or `(tiếng nhạc)`, which are the model describing the audio
+ * rather than transcribing it; a short phrase looped three or more times back
+ * to back, which is the decoder repeating itself on padding; and the whole
+ * utterance said exactly twice, which is a distinct failure mode caught in
+ * moonshine-tiny-ko once its token budget was widened past the paper's own
+ * "6 tokens/sec" cap to stop truncating real Korean sentences — bên dưới.
+ * Neither is something a guest said.
  */
 export function cleanTranscript(raw: string): string {
   let t = raw.replace(/[[(（【][^\])）】]{0,40}[\])）】]/g, " ");
@@ -333,7 +337,7 @@ export function cleanTranscript(raw: string): string {
 
   const words = t.split(" ");
   if (words.length >= 6) {
-    /* Collapse a phrase repeated back to back three or more times. */
+    /* Collapse a short phrase repeated back to back three or more times. */
     for (let n = 1; n <= Math.min(6, Math.floor(words.length / 3)); n++) {
       const unit = words.slice(0, n).join(" ").toLowerCase();
       let reps = 1;
@@ -348,6 +352,25 @@ export function cleanTranscript(raw: string): string {
       if (reps >= 3 && reps * n === words.length) return words.slice(0, n).join(" ");
     }
   }
+
+  /**
+   * Collapse a whole sentence said exactly twice.
+   *
+   * A different shape from the loop above on purpose: that one needs three-plus
+   * repeats of a SHORT unit (≤6 words) — real silence-padding loops repeat a
+   * lot, so `reps>=3` filters out a guest genuinely saying "thank you thank
+   * you". A hallucinated full-sentence echo repeats only ONCE more, so it needs
+   * its own rule; and requiring at least 4 words per half is what keeps a real
+   * short doubled phrase ("no no", "please please") from being swallowed here.
+   * Caught live: moonshine-tiny-ko on "저희 방은 성인 두 명과 다섯 살
+   * 어린이 한 명입니다." → the same 9-word sentence twice, back to back.
+   */
+  if (words.length >= 8 && words.length % 2 === 0) {
+    const half = words.length / 2;
+    if (half >= 4 && words.slice(0, half).join(" ").toLowerCase() === words.slice(half).join(" ").toLowerCase())
+      return words.slice(0, half).join(" ");
+  }
+
   return t;
 }
 
