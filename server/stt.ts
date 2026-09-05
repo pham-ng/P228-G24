@@ -34,7 +34,25 @@
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import * as OpenCC from "opencc-js";
 import { log } from "./log";
+
+/**
+ * Whisper's Chinese output defaults toward Traditional characters regardless
+ * of what script the audio's SPEAKER actually uses — Mandarin pronunciation is
+ * identical either way, so this is purely a training-data-mix artefact, not a
+ * recognition error. Bắt được qua audit 2026-09-05: vòng khép kín tiếng Trung
+ * đo CER 21%, nhưng phần lớn "sai" hoá ra chỉ là biến thể chữ viết —
+ * "供应"→"供應", "点"→"點", "两"→"兩", "厅"→"廳" — nghĩa giống hệt, chỉ khác
+ * phồn thể/giản thể. Tài liệu và nội dung của resort này viết bằng giản thể
+ * (xem final_benchmark_zh.csv, kb tiếng Trung), nên đưa STT về cùng quy ước
+ * TRƯỚC khi văn bản tới LLM — nếu không, một câu khách dictate đúng 100% vẫn
+ * có thể làm lệch truy xuất chỉ vì khác bộ chữ với tài liệu.
+ *
+ * Chỉ chuyển ĐÚNG MỘT CHIỀU (phồn → giản). Không đoán ngược lại vì Chuẩn hoá
+ * hai chiều dễ phá hỏng những câu đã đúng giản thể từ đầu.
+ */
+const zhConverter = OpenCC.Converter({ from: "tw", to: "cn" });
 
 /** Sample rate every Whisper variant expects. Audio arrives already resampled. */
 export const STT_SAMPLE_RATE = 16000;
@@ -232,9 +250,12 @@ export async function transcribe(pcm: Pcm, lang: SttLang): Promise<Transcript> {
   });
   const ms = Date.now() - t0;
 
+  let text = String(out.text ?? "");
+  if (lang === "zh") text = zhConverter(text);
+
   return {
     ...base,
-    text: cleanTranscript(String(out.text ?? "")),
+    text: cleanTranscript(text),
     ms,
     rtf: pcm.seconds > 0 ? ms / 1000 / pcm.seconds : 0,
   };
