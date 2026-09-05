@@ -78,6 +78,8 @@ ok(foldSpokenDigits(["không", "mát"]).join(" ") === "không mát", "a lone 'kh
 ok(foldSpokenDigits(["ba", "không", "năm"]).join(" ") === "305", "…but folds to 0 inside a dictated run");
 ok(foldSpokenDigits(["một", "hai", "ba", "bốn"]).join(" ") === "1234", "a long run folds whole");
 ok(foldSpokenDigits(["room", "three", "zero", "five"]).join(" ") === "room 305", "English digits fold too");
+ok(foldSpokenDigits(["три", "ноль", "пять"]).join(" ") === "305", "Russian digits fold too");
+ok(foldSpokenDigits(["пять", "человек"]).join(" ") === "5 человек", "…a lone Russian digit word folds too");
 /* Room number IMMEDIATELY followed by the negation — the shape of the one test
    case written to catch an inverted complaint, and the shape that broke this
    function: "ba không năm không" folded to 3050 and ate the negator, so the
@@ -91,6 +93,23 @@ ok(
   "…but a leading zero-word is still a digit, as in a phone number",
 );
 ok(foldSpokenDigits(["không"]).join(" ") === "không", "a bare zero-word is the negator");
+
+console.log("=== CHINESE DIGIT RUNS (no spaces, so a different mechanism) ===");
+/* Chinese has no spaces between "words", so text.split(" ") returns the whole
+   sentence as one token — foldSpokenDigits() above never sees individual
+   digit characters. normalise() folds a RUN of 2+ Han digit characters
+   directly on the string instead, before any space-splitting happens. */
+ok(normalise("三零五房间的空调不制冷") === normalise("305房间的空调不制冷"), "a dictated room number folds to match the digit form");
+/* The reason a single character is never folded, proven rather than asserted:
+   "一" is one of the most common characters in Chinese and sits inside dozens
+   of ordinary words. Folding it unconditionally would rewrite fluent prose
+   into garbled Arabic numerals. */
+ok(normalise("我们一起去") === "我们一起去", "一 inside an ordinary word (一起, together) is untouched");
+ok(normalise("一定要去") === "一定要去", "一 inside another ordinary word (一定, certainly) is untouched");
+/* Same reasoning excludes 两/二 (a variant of "two") when it stands alone — a
+   real case from the test set ("两位", two people) that is left unfixed on
+   purpose rather than risk the 一 failure mode for a narrower win. */
+ok(normalise("两位") === "两位", "a lone 两 (two, before a measure word) is left alone, not folded");
 
 console.log("=== ENTITIES: WHAT ACTUALLY COSTS MONEY ===");
 ok(entitiesOf("điều hòa phòng 305 không mát").numbers.join() === "305", "the room number is extracted");

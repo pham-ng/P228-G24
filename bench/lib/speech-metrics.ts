@@ -60,6 +60,18 @@ const EN_DIGITS: Record<string, string> = {
 };
 
 /**
+ * Nga — thêm 2026-09-05, cùng lý do VI_DIGITS/EN_DIGITS tồn tại: "пять" và
+ * "5" là cùng một con số, khác cách viết, không phải hai câu trả lời khác
+ * nhau. Không cần RUN_ONLY_DIGITS kiểu tiếng Việt — không có từ số Nga nào
+ * trùng với một từ phủ định/thường dùng khác trong bộ 10 câu test (khác hẳn
+ * "không" tiếng Việt vừa là số 0 vừa là phủ định).
+ */
+const RU_DIGITS: Record<string, string> = {
+  ноль: "0", один: "1", одна: "1", одно: "1", два: "2", две: "2",
+  три: "3", четыре: "4", пять: "5", шесть: "6", семь: "7", восемь: "8", девять: "9",
+};
+
+/**
  * Spoken numbers collapse to figures.
  *
  * A room number is dictated digit by digit — "ba không năm" — and written 305;
@@ -96,7 +108,7 @@ export function foldSpokenDigits(tokens: string[]): string[] {
   };
   for (const tk of tokens) {
     const runOnly = RUN_ONLY_DIGITS[tk] !== undefined;
-    const d = runOnly ? RUN_ONLY_DIGITS[tk] : (VI_DIGITS[tk] ?? EN_DIGITS[tk]);
+    const d = runOnly ? RUN_ONLY_DIGITS[tk] : (VI_DIGITS[tk] ?? EN_DIGITS[tk] ?? RU_DIGITS[tk]);
     if (d !== undefined && d.length === 1) run.push({ word: tk, digit: d, runOnly });
     else {
       flush();
@@ -137,6 +149,37 @@ function canonicalUnits(s: string): string {
 }
 
 /**
+ * Trung — chữ số Hán tự trong một CHUỖI ≥2 KÝ TỰ LIÊN TIẾP thành số Ả Rập.
+ *
+ * `foldSpokenDigits()` ở trên dựa trên tách theo dấu cách — vô dụng với tiếng
+ * Trung, vì không có dấu cách giữa các "từ" nên `text.split(" ")` trả về
+ * NGUYÊN CÂU làm một token duy nhất. Sửa bằng thay thế trực tiếp trên chuỗi,
+ * TRƯỚC bước tách theo dấu cách.
+ *
+ * CHỈ gộp khi có ÍT NHẤT 2 ký tự số liên tiếp ("三零五" = 305), không đụng
+ * một ký tự đơn lẻ — lý do bắt buộc, không phải thận trọng thừa: "一" (một)
+ * là một trong những chữ Hán thường gặp nhất, nằm trong vô số từ ghép thường
+ * ("一起", "一定", "一下"...). Thay toàn bộ "一" thành "1" bất kể ngữ cảnh sẽ
+ * phá nát hầu hết câu tiếng Trung dài — tệ hơn nhiều so với lỗi đang muốn sửa.
+ * Yêu cầu chuỗi ≥2 ký tự vừa đủ AN TOÀN (từ ghép tiếng Trung hầu như không
+ * bao giờ xếp liền hai ký tự số) vừa đủ BẮT ĐƯỢC đúng ca cần bắt: số phòng/
+ * giờ đọc rời từng chữ số như khách thật hay làm.
+ *
+ * Cố ý KHÔNG gồm "两" (biến thể của "hai" dùng trước lượng từ, "两位" = hai
+ * người) — nó thường đứng MỘT MÌNH nên không lọt qua điều kiện ≥2, và gộp nó
+ * riêng lẻ sẽ mở lại đúng rủi ro của "一" ở trên.
+ */
+const ZH_DIGIT_CHARS: Record<string, string> = {
+  零: "0", 〇: "0", 一: "1", 二: "2", 三: "3", 四: "4",
+  五: "5", 六: "6", 七: "7", 八: "8", 九: "9",
+};
+function foldChineseDigitRuns(text: string): string {
+  return text.replace(/[零〇一二三四五六七八九]{2,}/gu, (run) =>
+    [...run].map((ch) => ZH_DIGIT_CHARS[ch]).join(""),
+  );
+}
+
+/**
  * Reduce a transcript to what was actually said.
  *
  * Removes exactly: case, punctuation, repeated whitespace, and the difference
@@ -145,6 +188,7 @@ function canonicalUnits(s: string): string {
  */
 export function normalise(text: string): string {
   let t = text.toLowerCase().normalize("NFC");
+  t = foldChineseDigitRuns(t);
   /* Units FIRST. Stripping punctuation before this destroyed the very
      characters the unit rules match on: "16:00" had already become "16 00" and
      "2.640.000" had become three separate numbers, so neither rule ever fired

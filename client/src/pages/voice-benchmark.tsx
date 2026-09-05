@@ -58,7 +58,10 @@ const LANG_LABEL: Record<string, { flag: string; label: string; hasSpaces: boole
   zh: { flag: "🇨🇳", label: "Tiếng Trung", hasSpaces: false },
   ru: { flag: "🇷🇺", label: "Tiếng Nga", hasSpaces: true },
 };
-const LANG_ORDER = ["vi", "en", "ko", "ja", "zh", "ru"];
+/* Ngôn ngữ có WER đo được xếp trước; hai ngôn ngữ WER không có ý nghĩa
+   (không khoảng trắng — xem `hasSpaces` ở LANG_LABEL) xếp cuối cùng, để cách
+   trình bày khớp với ghi chú * bên dưới bảng thay vì xen kẽ khó theo dõi. */
+const LANG_ORDER = ["vi", "en", "ko", "ru", "zh", "ja"];
 
 const pct = (n: number | null | undefined) => (n === null || n === undefined ? "—" : `${Math.round(n * 100)}%`);
 
