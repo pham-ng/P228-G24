@@ -1,30 +1,30 @@
 {
-  "ranAt": "2026-09-04T19:13:07.074Z",
+  "ranAt": "2026-09-05T01:45:11.762Z",
   "source": "ROUND-TRIP SYNTHETIC — sentences synthesised by the product's own server TTS (Piper vi/en/ko/zh/ru, Kokoro+misaki ja), transcribed by the product's own server STT (PhoWhisper-small vi, whisper-small others), scored against the reference text they were synthesised from. This is a FLOOR for comparing the two halves of the pipeline against each other, not a measurement of how a real guest's voice performs — see bench/asr-eval.ts and bench/README-speech-eval.md for what a human-recorded set would take.",
   "perLanguage": {
     "en": {
       "cases": 10,
       "voice": "en_US-lessac-medium",
-      "wer": 0.025210084033613446,
-      "cer": 0.013363028953229399,
+      "wer": 0.06722689075630252,
+      "cer": 0.017817371937639197,
       "numberAccuracy": 1,
       "polarityAccuracy": 1,
-      "ttsRtfP50": 0.12307628734901463,
-      "ttsRtfP95": 0.16644332301429116,
-      "ttsMsP50": 435,
-      "sttRtfP50": 0.4808046117993377,
-      "sttRtfP95": 0.6868096546081468,
+      "ttsRtfP50": 0.12734467263876487,
+      "ttsRtfP95": 0.18604415823367065,
+      "ttsMsP50": 444,
+      "sttRtfP50": 0.47981021434418697,
+      "sttRtfP95": 0.7002537151141719,
       "cases_detail": [
         {
           "id": "en-01",
           "ref": "Table for two at seven tonight at the Lotus restaurant, please.",
-          "hyp": "Table for two at seven tonight at the Lotus restaurant, please.",
+          "hyp": "Table for two at 7 tonight at the Lotus Restaurant, please.",
           "wer": 0,
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1715,
-          "audioSeconds": 3.5669375
+          "ms": 1750,
+          "audioSeconds": 3.3463125
         },
         {
           "id": "en-02",
@@ -34,19 +34,19 @@
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1564,
-          "audioSeconds": 3.299875
+          "ms": 1647,
+          "audioSeconds": 3.45075
         },
         {
           "id": "en-03",
           "ref": "Can I have a late checkout at four in the afternoon, and how much is it?",
-          "hyp": "Can I have a late checkout at 4 in the afternoon, and how much is it?",
-          "wer": 0,
-          "cer": 0,
+          "hyp": "Can I have a lay check out at four in the afternoon and how much is it?",
+          "wer": 0.1875,
+          "cer": 0.038461538461538464,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1860,
-          "audioSeconds": 3.7875
+          "ms": 1795,
+          "audioSeconds": 3.7410625
         },
         {
           "id": "en-04",
@@ -56,41 +56,41 @@
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1469,
-          "audioSeconds": 2.138875
+          "ms": 1449,
+          "audioSeconds": 2.06925
         },
         {
           "id": "en-05",
           "ref": "I didn't order this item, why is it on my bill?",
-          "hyp": "I didn't order this item, why is it on my bill?",
-          "wer": 0,
-          "cer": 0,
+          "hyp": "I didn't order this item, why is this on my bill?",
+          "wer": 0.08333333333333333,
+          "cer": 0.08823529411764706,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1738,
-          "audioSeconds": 2.9748125
+          "ms": 1713,
+          "audioSeconds": 2.9631875
         },
         {
           "id": "en-06",
           "ref": "Could I get two more towels and an extra pillow, please?",
-          "hyp": "Can I get two more towels and an extra pillow, please?",
-          "wer": 0.09090909090909091,
-          "cer": 0.09523809523809523,
-          "numbersRight": true,
-          "polarityRight": true,
-          "ms": 1719,
-          "audioSeconds": 3.2650625
-        },
-        {
-          "id": "en-07",
-          "ref": "It's two adults and one five-year-old child in my room.",
-          "hyp": "It's two adults and one five-year-old child in my room.",
+          "hyp": "Could I get two more towels and an extra pillow, please?",
           "wer": 0,
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
+          "ms": 1728,
+          "audioSeconds": 3.1489375
+        },
+        {
+          "id": "en-07",
+          "ref": "It's two adults and one five-year-old child in my room.",
+          "hyp": "is two adults and one five-year-old child in my room.",
+          "wer": 0.18181818181818182,
+          "cer": 0.025,
+          "numbersRight": true,
+          "polarityRight": true,
           "ms": 1748,
-          "audioSeconds": 3.1721875
+          "audioSeconds": 3.1605
         },
         {
           "id": "en-08",
@@ -100,19 +100,19 @@
           "cer": 0.015873015873015872,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1880,
-          "audioSeconds": 4.7046875
+          "ms": 1865,
+          "audioSeconds": 4.9253125
         },
         {
           "id": "en-09",
           "ref": "Please cancel my spa appointment this afternoon, I'm feeling tired.",
-          "hyp": "Please cancel my spa appointment this afternoon. I'm feeling tired.",
+          "hyp": "Please cancel my spa appointment this afternoon, I'm feeling tired.",
           "wer": 0,
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1682,
-          "audioSeconds": 4.2519375
+          "ms": 1732,
+          "audioSeconds": 3.9384375
         },
         {
           "id": "en-10",
@@ -122,8 +122,8 @@
           "cer": 0.019230769230769232,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1931,
-          "audioSeconds": 4.356375
+          "ms": 1875,
+          "audioSeconds": 4.170625
         }
       ]
     },
@@ -135,48 +135,48 @@
     "ko": {
       "cases": 10,
       "voice": "ko_KR-kss-medium",
-      "wer": 0.5119047619047619,
+      "wer": 0.5,
       "cer": 0.17194570135746606,
-      "numberAccuracy": 0.6,
+      "numberAccuracy": 0.5,
       "polarityAccuracy": 1,
-      "ttsRtfP50": 0.17486829479388136,
-      "ttsRtfP95": 0.32283279742765275,
-      "ttsMsP50": 799,
-      "sttRtfP50": 0.43063153946636656,
-      "sttRtfP95": 0.7501107795929219,
+      "ttsRtfP50": 0.1715510445407962,
+      "ttsRtfP95": 0.32353589754463336,
+      "ttsMsP50": 793,
+      "sttRtfP50": 0.4137110526524515,
+      "sttRtfP95": 0.7181345333411255,
       "cases_detail": [
         {
           "id": "ko-01",
           "ref": "로터스 레스토랑에 오늘 저녁 일곱 시, 두 명 자리로 예약하고 싶습니다.",
-          "hyp": "뮤턴스를 스토라미에 오늘 저녁 7시 2명자리로 예약하고 싶습니다.",
+          "hyp": "노터스 레스토라니에 오늘 저녁 7시 2명자리로 예약하고 싶습니다.",
           "wer": 0.6363636363636364,
-          "cer": 0.2857142857142857,
+          "cer": 0.21428571428571427,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 2239,
-          "audioSeconds": 5.575375
+          "ms": 2149,
+          "audioSeconds": 5.4941875
         },
         {
           "id": "ko-02",
           "ref": "삼백오호 에어컨이 시원하지 않습니다.",
-          "hyp": "3 대 9 에어컨이 시원하지 않습니다.",
-          "wer": 0.75,
+          "hyp": "309 에어컨이 시원하지 않습니다.",
+          "wer": 0.25,
           "cer": 0.25,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 1754,
-          "audioSeconds": 2.8935625
+          "ms": 1720,
+          "audioSeconds": 3.032875
         },
         {
           "id": "ko-03",
           "ref": "오후 네 시에 레이트 체크아웃 하고 싶은데 추가 요금이 얼마인가요?",
-          "hyp": "오늘시에 네이트 체크하우트 하고 싶은데 추가요금이 얼마인가요?",
-          "wer": 0.7,
-          "cer": 0.2222222222222222,
+          "hyp": "오은의 시에 레이트 체크하고 싶은데 추가요금이 얼마인가요?",
+          "wer": 0.6,
+          "cer": 0.14814814814814814,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1942,
-          "audioSeconds": 5.517375
+          "ms": 1919,
+          "audioSeconds": 5.0181875
         },
         {
           "id": "ko-04",
@@ -186,73 +186,73 @@
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1587,
-          "audioSeconds": 2.1156875
+          "ms": 1536,
+          "audioSeconds": 2.138875
         },
         {
           "id": "ko-05",
           "ref": "저는 이 항목을 주문하지 않았는데 왜 청구서에 포함되어 있나요?",
-          "hyp": "저는 이 항목을 주문하지 않았는데 왜 청구소에 포함되어 있나요?",
-          "wer": 0.1111111111111111,
-          "cer": 0.038461538461538464,
+          "hyp": "저는 이 항목을 주문하지 않았는데 매천 구설 포함되어 있나요?",
+          "wer": 0.2222222222222222,
+          "cer": 0.15384615384615385,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2083,
-          "audioSeconds": 4.8208125
+          "ms": 1956,
+          "audioSeconds": 4.7279375
         },
         {
           "id": "ko-06",
           "ref": "수건 두 장이랑 베개 하나 더 가져다주시겠어요?",
-          "hyp": "수근 두 장이랑 대게 하나 더 가져다 주시겠어요?",
-          "wer": 0.5714285714285714,
-          "cer": 0.15789473684210525,
-          "numbersRight": true,
+          "hyp": "조건 2장이랑 100개 하나 더 가져다 주시겠어요?",
+          "wer": 0.8571428571428571,
+          "cer": 0.2631578947368421,
+          "numbersRight": false,
           "polarityRight": true,
-          "ms": 1731,
-          "audioSeconds": 3.508875
+          "ms": 1778,
+          "audioSeconds": 3.39275
         },
         {
           "id": "ko-07",
           "ref": "저희 방은 성인 두 명과 다섯 살 어린이 한 명입니다.",
-          "hyp": "저희 반은 천인 2명과 5살 어린이 1명입니다.",
-          "wer": 0.8,
-          "cer": 0.3,
+          "hyp": "저희 반은 성인 2명과 5살 어린이 1명입니다.",
+          "wer": 0.7,
+          "cer": 0.25,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 1823,
-          "audioSeconds": 4.4260625
+          "ms": 1822,
+          "audioSeconds": 4.008125
         },
         {
           "id": "ko-08",
           "ref": "깜란 공항까지 셔틀 요금이 얼마이고, 아침 아홉 시에 출발할 수 있나요?",
-          "hyp": "깜빵구만까지 셔트 요금이 얼마이고 아침 9시에 출발할 수 있나요?",
-          "wer": 0.45454545454545453,
-          "cer": 0.21428571428571427,
+          "hyp": "깜빵 공항까지 셔트 요금이 얼마이고 아침 9시에 출발할 수 있나요?",
+          "wer": 0.36363636363636365,
+          "cer": 0.14285714285714285,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 2132,
-          "audioSeconds": 5.55225
+          "ms": 2104,
+          "audioSeconds": 5.459375
         },
         {
           "id": "ko-09",
           "ref": "오늘 오후 스파 예약을 취소해 주세요, 몸이 좀 피곤해서요.",
-          "hyp": "\"오늘은 스파이 예약을 취소해 주세요.\" 몸이 좀 피곤해서요.",
-          "wer": 0.3333333333333333,
-          "cer": 0.13043478260869565,
+          "hyp": "\"오늘은 스파이 예약을 취소해주세요.\" 몸이 좀 피곤했어요.",
+          "wer": 0.6666666666666666,
+          "cer": 0.21739130434782608,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2131,
-          "audioSeconds": 4.565375
+          "ms": 2480,
+          "audioSeconds": 4.484125
         },
         {
           "id": "ko-10",
           "ref": "제 방 와이파이가 너무 약해서 저녁 내내 인터넷이 안 됐어요.",
-          "hyp": "제방 와이파이거 너무 약해서 저녁 내내 인터넷이 안됐어요.",
-          "wer": 0.5,
+          "hyp": "제방 와이파이가 너무 약해서 저녁 내내 인터넷이 안 됐어.",
+          "wer": 0.3,
           "cer": 0.041666666666666664,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2081,
+          "ms": 1957,
           "audioSeconds": 4.8324375
         }
       ]
@@ -260,26 +260,26 @@
     "ru": {
       "cases": 10,
       "voice": "ru_RU-irina-medium",
-      "wer": 0.15,
+      "wer": 0.17,
       "cer": 0.10144927536231885,
-      "numberAccuracy": 0.6,
+      "numberAccuracy": 0.5,
       "polarityAccuracy": 1,
-      "ttsRtfP50": 0.1007703464506595,
-      "ttsRtfP95": 0.16242243709315163,
-      "ttsMsP50": 501,
-      "sttRtfP50": 0.39080806557047315,
-      "sttRtfP95": 0.6744484956587887,
+      "ttsRtfP50": 0.10034857502859891,
+      "ttsRtfP95": 0.168003106853571,
+      "ttsMsP50": 491,
+      "sttRtfP50": 0.41291327847299997,
+      "sttRtfP95": 0.6711860951118813,
       "cases_detail": [
         {
           "id": "ru-01",
           "ref": "Забронируйте, пожалуйста, столик на двоих в ресторане Lotus сегодня на семь вечера.",
-          "hyp": "забронивайте, пожалуйста, столик на двоих ресторанах Латес сегодня на 7 вечера.",
-          "wer": 0.4166666666666667,
-          "cer": 0.2028985507246377,
+          "hyp": "забронируйте, пожалуйста, столик над двоих в ресторане, на тос сегодня на 7 вечера.",
+          "wer": 0.3333333333333333,
+          "cer": 0.14492753623188406,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 2196,
-          "audioSeconds": 6.388125
+          "ms": 2191,
+          "audioSeconds": 6.1443125
         },
         {
           "id": "ru-02",
@@ -289,19 +289,19 @@
           "cer": 0.2631578947368421,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 2069,
-          "audioSeconds": 3.1721875
+          "ms": 1626,
+          "audioSeconds": 3.0909375
         },
         {
           "id": "ru-03",
           "ref": "Я хотел бы поздний выезд в четыре часа дня, сколько это будет стоить?",
-          "hyp": "Я хотел бы поздний выезд в 4 часа дня, сколько это будет стоить.",
+          "hyp": "Я хотел бы поздний выезд в 4 часа дня. Сколько это будет стоить?",
           "wer": 0.07692307692307693,
           "cer": 0.10909090909090909,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 1904,
-          "audioSeconds": 4.460875
+          "ms": 1947,
+          "audioSeconds": 4.6234375
         },
         {
           "id": "ru-04",
@@ -311,19 +311,19 @@
           "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1607,
-          "audioSeconds": 2.3826875
+          "ms": 1646,
+          "audioSeconds": 2.452375
         },
         {
           "id": "ru-05",
           "ref": "Я не заказывал это, почему это включено в мой счёт?",
-          "hyp": "Я не заказывал это, почему это включено в мой счёт.",
-          "wer": 0,
-          "cer": 0,
+          "hyp": "Я не заказывал это, почему это включено в мой счет.",
+          "wer": 0.1,
+          "cer": 0.025,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1788,
-          "audioSeconds": 3.485625
+          "ms": 1774,
+          "audioSeconds": 3.45075
         },
         {
           "id": "ru-06",
@@ -333,89 +333,89 @@
           "cer": 0.043478260869565216,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1831,
+          "ms": 1830,
           "audioSeconds": 5.064625
         },
         {
           "id": "ru-07",
           "ref": "В моём номере двое взрослых и один ребёнок пяти лет.",
-          "hyp": "в моём номере двое взрослых и один ребёнок пяти лет.",
-          "wer": 0,
-          "cer": 0,
-          "numbersRight": true,
+          "hyp": "в моём номере двое взрослых и один ребёнок 5 лет.",
+          "wer": 0.1,
+          "cer": 0.09523809523809523,
+          "numbersRight": false,
           "polarityRight": true,
-          "ms": 1888,
-          "audioSeconds": 4.751125
+          "ms": 2227,
+          "audioSeconds": 4.6118125
         },
         {
           "id": "ru-08",
           "ref": "Сколько стоит трансфер в аэропорт Камрань, и можно ли выехать в девять утра?",
-          "hyp": "Сколько стоит трансфер в аэропорт Каман и можно ли выехать в 9 утра?",
+          "hyp": "Сколько стоит трансфер в аэропорт Камван и можно ли выехать в 9 утра?",
           "wer": 0.15384615384615385,
           "cer": 0.12903225806451613,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 2094,
-          "audioSeconds": 5.3780625
+          "ms": 2120,
+          "audioSeconds": 5.13425
         },
         {
           "id": "ru-09",
           "ref": "Пожалуйста, отмените мою запись в спа сегодня днём, я устал.",
-          "hyp": "Пожалуйста, отмените мою запись. Спас сегодня днём я устал.",
-          "wer": 0.2,
-          "cer": 0.041666666666666664,
+          "hyp": "Пожалуйста, отмените мою запись. Спасибо, днём. Я устал.",
+          "wer": 0.3,
+          "cer": 0.125,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1943,
-          "audioSeconds": 4.97175
+          "ms": 1997,
+          "audioSeconds": 5.1110625
         },
         {
           "id": "ru-10",
           "ref": "Wifi в моём номере очень слабый, весь вечер не мог выйти в интернет.",
-          "hyp": "Вайфай в моем номере очень слабый, весь вечер не мог выйти в интернет.",
+          "hyp": "Wi-Fi в моем номере очень слабый. Весь вечер не мог выйти в интернет.",
           "wer": 0.15384615384615385,
-          "cer": 0.12962962962962962,
+          "cer": 0.037037037037037035,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2076,
-          "audioSeconds": 5.436125
+          "ms": 2060,
+          "audioSeconds": 5.4709375
         }
       ]
     },
     "vi": {
       "cases": 10,
       "voice": "vi_VN-vais1000-medium",
-      "wer": 0.11538461538461539,
-      "cer": 0.08353808353808354,
-      "numberAccuracy": 0.9,
+      "wer": 0.14615384615384616,
+      "cer": 0.11302211302211303,
+      "numberAccuracy": 0.7,
       "polarityAccuracy": 1,
-      "ttsRtfP50": 0.13881403834076023,
-      "ttsRtfP95": 0.18776223776223774,
-      "ttsMsP50": 398,
-      "sttRtfP50": 0.7117878801292549,
-      "sttRtfP95": 0.9618776018618678,
+      "ttsRtfP50": 0.13522998296422487,
+      "ttsRtfP95": 0.2039362641676071,
+      "ttsMsP50": 409,
+      "sttRtfP50": 0.7202906492926587,
+      "sttRtfP95": 0.9861383460680235,
       "cases_detail": [
         {
           "id": "vi-01",
           "ref": "Cho tôi đặt bàn ăn tối lúc bảy giờ cho hai người ở nhà hàng Lotus.",
-          "hyp": "cho tôi đặt bàn ăn tối lúc bảy giờ cho hai người ở nhà hàng lâu.",
-          "wer": 0.0625,
-          "cer": 0.06521739130434782,
+          "hyp": "cha cho tôi đặt bàn ăn tối lúc bảy giờ cho hai người ở nhà hàng lớp.",
+          "wer": 0.125,
+          "cer": 0.15217391304347827,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2157,
-          "audioSeconds": 3.5669375
+          "ms": 2237,
+          "audioSeconds": 3.485625
         },
         {
           "id": "vi-02",
           "ref": "Điều hòa phòng ba không năm không mát, nhờ anh chị cho người lên kiểm tra giúp tôi.",
-          "hyp": "điêu hoà phòng ba không năm không mát nhờ anh chị cho người lê kiểm tra giúp tôi.",
+          "hyp": "điều hòa phòng bạc không năm không mát nhờ anh chị cho người lê kiểm tra giúp tôi.",
           "wer": 0.1875,
           "cer": 0.07017543859649122,
-          "numbersRight": true,
+          "numbersRight": false,
           "polarityRight": true,
-          "ms": 2410,
-          "audioSeconds": 3.9500625
+          "ms": 2505,
+          "audioSeconds": 3.9384375
         },
         {
           "id": "vi-03",
@@ -425,111 +425,111 @@
           "cer": 0.08888888888888889,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 2192,
+          "ms": 2218,
           "audioSeconds": 3.0793125
         },
         {
           "id": "vi-04",
           "ref": "Bữa sáng phục vụ đến mấy giờ ạ?",
-          "hyp": "bữa sáng phục vụ đến mấy giờ ạ.",
-          "wer": 0,
-          "cer": 0,
+          "hyp": "bữa sáng phục vụ đến mấy giờ ạt.",
+          "wer": 0.125,
+          "cer": 0.043478260869565216,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1834,
-          "audioSeconds": 1.9066875
+          "ms": 1823,
+          "audioSeconds": 1.848625
         },
         {
           "id": "vi-05",
           "ref": "Tôi không đặt món này, sao lại tính vào hóa đơn của tôi?",
-          "hyp": "tôi không đặt món này sao lại tính vào hoá đơn của tôi.",
-          "wer": 0.07692307692307693,
-          "cer": 0.047619047619047616,
+          "hyp": "tôi không đặt món này sau lại tính vào hoá đơn của tôi.",
+          "wer": 0.15384615384615385,
+          "cer": 0.07142857142857142,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1954,
-          "audioSeconds": 3.032875
+          "ms": 2003,
+          "audioSeconds": 2.928375
         },
         {
           "id": "vi-06",
           "ref": "Cho tôi thêm hai cái khăn tắm và một cái gối nữa nhé.",
-          "hyp": "cho tôi then hai cái khăn tắm và một cái gối nữa nhé.",
-          "wer": 0.07692307692307693,
-          "cer": 0.05555555555555555,
-          "numbersRight": true,
+          "hyp": "cho tôi then hài cái khăn tắm vào một cái gối nữa nhé.",
+          "wer": 0.23076923076923078,
+          "cer": 0.16666666666666666,
+          "numbersRight": false,
           "polarityRight": true,
-          "ms": 2010,
-          "audioSeconds": 2.823875
+          "ms": 2001,
+          "audioSeconds": 2.7658125
         },
         {
           "id": "vi-07",
           "ref": "Phòng tôi hai người lớn và một trẻ em năm tuổi.",
-          "hyp": "phong tôi hai người lớn và một trẻ em năm tuổi.",
-          "wer": 0.09090909090909091,
-          "cer": 0.03333333333333333,
+          "hyp": "phòng tôi hai người lớn và một trẻ em năm tuổi.",
+          "wer": 0,
+          "cer": 0,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1940,
-          "audioSeconds": 2.33625
+          "ms": 1962,
+          "audioSeconds": 2.3595
         },
         {
           "id": "vi-08",
           "ref": "Xe đưa đón ra sân bay Cam Ranh giá bao nhiêu, đi lúc chín giờ sáng được không?",
-          "hyp": "xe đưa đón ra sân bay càng giánh giá bao nhiêu đến lúc chín giờ sáng được không.",
+          "hyp": "xe đưa đón ra sân bay càng giảm giá bao nhiêu đi đến lúc chín giờ sáng được không.",
           "wer": 0.16666666666666666,
-          "cer": 0.14285714285714285,
+          "cer": 0.17857142857142858,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2257,
+          "ms": 2215,
           "audioSeconds": 3.984875
         },
         {
           "id": "vi-09",
           "ref": "Hủy giúp tôi lịch spa chiều nay, tôi bị mệt.",
-          "hyp": "quy giúp tôi lịch xa chiều nay tôi bị mệt.",
+          "hyp": "quỳ giúp tôi lịch vào chiều nay tôi bị mệt.",
           "wer": 0.2,
-          "cer": 0.12121212121212122,
+          "cer": 0.18181818181818182,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1973,
-          "audioSeconds": 2.138875
+          "ms": 1988,
+          "audioSeconds": 2.2085625
         },
         {
           "id": "vi-10",
           "ref": "Wifi phòng tôi yếu lắm, cả tối không vào được mạng.",
-          "hyp": "hoài hay phòng tôi yếu lắm cả tối không vào được mạng.",
+          "hyp": "và hãy phòng tôi yếu lắm cả tối không vào được mạng.",
           "wer": 0.18181818181818182,
-          "cer": 0.15384615384615385,
+          "cer": 0.1282051282051282,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 2004,
-          "audioSeconds": 2.6845625
+          "ms": 2058,
+          "audioSeconds": 2.6961875
         }
       ]
     },
     "zh": {
       "cases": 10,
       "voice": "zh_CN-huayan-medium",
-      "wer": 1.2,
-      "cer": 0.2138728323699422,
-      "numberAccuracy": 0.9,
+      "wer": 1.3,
+      "cer": 0.18497109826589594,
+      "numberAccuracy": 0.7,
       "polarityAccuracy": 1,
-      "ttsRtfP50": 0.12279008040802519,
-      "ttsRtfP95": 0.17750980922743878,
-      "ttsMsP50": 432,
-      "sttRtfP50": 0.5249254367277375,
-      "sttRtfP95": 0.813946984057926,
+      "ttsRtfP50": 0.1261927367671493,
+      "ttsRtfP95": 0.17502367744554187,
+      "ttsMsP50": 448,
+      "sttRtfP50": 0.508995048270457,
+      "sttRtfP95": 0.7875943938593493,
       "cases_detail": [
         {
           "id": "zh-01",
           "ref": "今晚七点两位，想订洛特斯餐厅。",
-          "hyp": "今晚七点两位想订落特斯餐厅。",
+          "hyp": "今晚7点两位想订落特色餐厅。",
           "wer": 1,
-          "cer": 0.13333333333333333,
-          "numbersRight": true,
+          "cer": 0.26666666666666666,
+          "numbersRight": false,
           "polarityRight": true,
-          "ms": 1883,
-          "audioSeconds": 3.5785625
+          "ms": 1878,
+          "audioSeconds": 3.4391875
         },
         {
           "id": "zh-02",
@@ -539,74 +539,74 @@
           "cer": 0.3333333333333333,
           "numbersRight": false,
           "polarityRight": true,
-          "ms": 1696,
-          "audioSeconds": 2.4871875
+          "ms": 1666,
+          "audioSeconds": 2.522
         },
         {
           "id": "zh-03",
           "ref": "我想下午四点延迟退房，需要加收多少费用？",
-          "hyp": "我想下午四点,延迟推房需要加手多少费用。",
+          "hyp": "我想下午四点,延迟推房需要加收多少费用。",
           "wer": 2,
-          "cer": 0.2,
+          "cer": 0.15,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1957,
-          "audioSeconds": 3.9268125
+          "ms": 1875,
+          "audioSeconds": 4.275125
         },
         {
           "id": "zh-04",
           "ref": "早餐供应到几点？",
-          "hyp": "早餐供應到機點。",
+          "hyp": "早餐供应到机点。",
           "wer": 1,
-          "cer": 0.5,
+          "cer": 0.25,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1637,
+          "ms": 1584,
           "audioSeconds": 2.0111875
         },
         {
           "id": "zh-05",
           "ref": "我没有点这个东西，为什么算在我的账单里？",
-          "hyp": "我没有点这个东西为什么算在我的帐带里。",
+          "hyp": "我没有点这个东西为什么算在我的装单里。",
           "wer": 1,
-          "cer": 0.2,
+          "cer": 0.15,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1844,
-          "audioSeconds": 3.2534375
+          "ms": 1729,
+          "audioSeconds": 3.299875
         },
         {
           "id": "zh-06",
           "ref": "请再给我两条毛巾和一个枕头，谢谢。",
-          "hyp": "请再给,我两条毛巾和一个枕头谢谢。",
-          "wer": 2,
+          "hyp": "请再给我两条毛巾和一个枕头谢谢。",
+          "wer": 1,
           "cer": 0.058823529411764705,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1848,
-          "audioSeconds": 3.5205
+          "ms": 1780,
+          "audioSeconds": 3.5785625
         },
         {
           "id": "zh-07",
           "ref": "我们房间是两位大人和一位五岁的小孩。",
-          "hyp": "我们房间是两位大人和一位五岁的小孩。",
-          "wer": 0,
-          "cer": 0,
+          "hyp": "我们房间是两位大人和一位五岁的小孩",
+          "wer": 1,
+          "cer": 0.05555555555555555,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1944,
-          "audioSeconds": 3.485625
+          "ms": 1786,
+          "audioSeconds": 3.508875
         },
         {
           "id": "zh-08",
           "ref": "去金兰机场的接送车多少钱，早上九点能出发吗？",
-          "hyp": "去晋兰机场的街送车多少前早上就点能出发吗?",
+          "hyp": "去金兰机场的借送车多少钱早上9点能出发吗?",
           "wer": 1,
-          "cer": 0.2727272727272727,
-          "numbersRight": true,
+          "cer": 0.18181818181818182,
+          "numbersRight": false,
           "polarityRight": true,
-          "ms": 2005,
-          "audioSeconds": 4.3215625
+          "ms": 2099,
+          "audioSeconds": 4.39125
         },
         {
           "id": "zh-09",
@@ -616,19 +616,19 @@
           "cer": 0.15,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1977,
-          "audioSeconds": 4.2055
+          "ms": 1859,
+          "audioSeconds": 4.18225
         },
         {
           "id": "zh-10",
           "ref": "我房间的wifi很弱，整个晚上都上不了网。",
-          "hyp": "我房間的外分很弱整個晚上都上不了網",
-          "wer": 1,
-          "cer": 0.42857142857142855,
+          "hyp": "我房间的外货很弱整,隔晚上都上不了网",
+          "wer": 2,
+          "cer": 0.3333333333333333,
           "numbersRight": true,
           "polarityRight": true,
-          "ms": 1799,
-          "audioSeconds": 3.5436875
+          "ms": 1847,
+          "audioSeconds": 3.508875
         }
       ]
     }
