@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-09-02T06:35:25.566Z",
+  "system": "Aurea AI Concierge Production Baseline",
+  "model_name": "qwen3.5:4b",
+  "embedding_model": "BAAI/bge-m3 (1024 dim)",
+  "retrieval_configuration": {
+    "hybrid_search": "BM25 + BGE-M3 (RRF K=60)",
+    "top_k": 5,
+    "min_score": 0.005,
+    "passage_char_cap": 700,
+    "context_window": 4096
+  },
+  "kb_version": "Canonical Facts Commit 2026-08-30 (136 SQLite Chunks)",
+  "benchmark_file": "final_benchmark_vi.csv",
+  "benchmark_hash": "2a2f71f412b554afb917fef061e4933647d0d142f8ee4238f55c2ce8058460cb",
+  "immutability_status": "STRICT_BASELINE_LOCKED"
+}

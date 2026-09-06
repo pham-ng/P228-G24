@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-09-02T06:36:11.959Z",
+  "manifest_summary": {
+    "system": "Aurea AI Concierge Production Baseline",
+    "model": "qwen3.5:4b",
+    "embedding": "BAAI/bge-m3 (1024 dim)",
+    "benchmark_hash": "2a2f71f412b554afb917fef061e4933647d0d142f8ee4238f55c2ce8058460cb"
+  },
+  "execution_summary": {
+    "planned_cases": 461,
+    "executed_cases": 461,
+    "successful_executions": 461,
+    "execution_errors": 0,
+    "skipped_cases": 0,
+    "reconciliation_valid": true
+  },
+  "overall_performance": {
+    "total_cases": 461,
+    "pass_count": 393,
+    "fail_count": 68,
+    "answer_accuracy": "85.25%"
+  },
+  "core_ragas_metrics": {
+    "context_recall": {
+      "mean": 84.26,
+      "N": 72,
+      "min": 0,
+      "max": 100
+    },
+    "context_precision": {
+      "mean": 78.5,
+      "N": 72,
+      "min": 0,
+      "max": 100
+    },
+    "faithfulness": {
+      "mean": 92.08,
+      "N": 461,
+      "min": 0,
+      "max": 100
+    },
+    "answer_correctness": {
+      "mean": 85.25,
+      "N": 461
+    }
+  },
+  "diagnostic_metrics": {
+    "answerable_accuracy": "76.63%",
+    "unanswerable_abstention_accuracy": "100.00%",
+    "ambiguity_handling_accuracy": "100.00%",
+    "adversarial_accuracy": "66.67%",
+    "numeric_exactness": "72.11%",
+    "multi_turn_success_rate": "79.02%",
+    "real_user_accuracy": "93.07%",
+    "synthetic_accuracy": "83.06%"
+  },
+  "evidence_to_answer_conversion": {
+    "denominator_sufficient_evidence": 291,
+    "numerator_correct_answers": 223,
+    "conversion_rate": "76.63%"
+  },
+  "matrix": {
+    "A": 268,
+    "B": 68,
+    "C": 125,
+    "D": 0
+  }
+}
